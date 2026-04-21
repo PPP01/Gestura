@@ -1,5 +1,59 @@
 ## FlowMouse Changelog
 
+### v2.0 (2026-04-21)
+
+**New Features:**
+- **Area Select: Quickly select links on the page for batch operations**
+- **Expert Mode: Custom CSS**
+- Expert Mode: Customize HUD display names for gesture and drag actions
+- **Redesigned the action settings window, simplify adding command chains**
+- New gestures:
+  - **Popup Menu**
+    - Switch Tab
+    - Show Recently Closed Tabs
+    - Show Bookmarks
+    - **Custom Menu**
+  - **Zoom In / Zoom Out / Reset Zoom**
+  - Copy Page Title and URL (Markdown optional)
+  - Pause Gestures Until Refresh
+  - Move Tab to New Window
+  - Paste Clipboard
+  - Search Clipboard
+  - View Page Source
+  - Save as MHTML
+- New drag-and-drop actions:
+  - Expert Mode: Send Custom Events
+  - Link Dragging: Copy text and link (Markdown optional)
+- **New mouse wheel gestures: Hold right-click and click the scroll wheel**
+- Include gesture start points and additional data when sending custom events
+
+**Gesture Improvements:**
+- Left-click to cancel a gesture while drawing
+- Custom URL supports placeholders (insert current page title and URL optionally)
+- Improved scroll action logic to prioritize scrolling the element under the mouse
+
+**Drag & Drop Improvements:**
+- Improved HUD visuals when image dragging prioritizes opening links
+- More features displayed by default outside of Expert Mode
+- Fixed missing text when dragging from a Shadow DOM
+- Expert Mode: Option to disable drag-and-drop inside input fields
+- Fixed link dragging failing to trigger actions on certain pages
+- Disable drag-and-drop on some pages that rely on drag-and-drop functionality to avoid interference
+
+**Wheel Gesture Improvements:**
+- Prevented the right-click menu from occasionally appearing after a wheel gesture
+
+**Interface & General Improvements:**
+- Optimized event binding for broader webpage compatibility
+- Fixed gestures failing to work inside certain iframes
+- Fixed operation hints not visible when drawing gestures in fullscreen mode on some pages
+- Added explanatory notes for various features in settings
+- Remove injected UI after gesture execution to improve compatibility
+- Refined the design details of UI controls in the settings interface
+- Support using gestures immediately after install/update without page refresh
+- Other minor improvements
+
+
 ### v1.4.2 (2026-03-31)
 
 - Relaxed the minimum version requirement for Firefox
