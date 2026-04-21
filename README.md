@@ -23,9 +23,9 @@ Supports gesture navigation, super drag, wheel and rocker gestures, and the abil
 
 ## Install
 
-| Chrome / Microsoft Edge | Firefox |
-|:---:|:---:|
-| <a href="https://chrome.google.com/webstore/detail/fnldhkfidchnjiokpoemdhoejmaojkgp"><img src="https://developer.chrome.com/static/docs/webstore/branding/image/mPGKYBIR2uCP0ApchDXE.png" alt="Available on Chrome Web Store" width="206" height="58"></a> | <a href="https://addons.mozilla.org/firefox/addon/flowmouse/"><img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on for Firefox" width="166" height="58"></a> |
+| Chrome | Microsoft Edge | Firefox |
+|:---:|:---:|:---:|
+| <a href="https://chrome.google.com/webstore/detail/fnldhkfidchnjiokpoemdhoejmaojkgp"><img src="https://developer.chrome.com/static/docs/webstore/branding/image/mPGKYBIR2uCP0ApchDXE.png" alt="Available on Chrome Web Store" width="206" height="58"></a> | <a href="https://microsoftedge.microsoft.com/addons/detail/obaiedbdkdciaknhnmpcpodkndadhncc"><img src="./assets/edge-badge.png" alt="Get it from Microsoft Edge" width="219" height="58"></a> | <a href="https://addons.mozilla.org/firefox/addon/flowmouse/"><img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on for Firefox" width="166" height="58"></a> |
 
 > You can also download from [GitHub Releases](https://github.com/Hmily-LCG/FlowMouse/releases) for manual installation.
 
@@ -37,6 +37,7 @@ FlowMouse is a mouse gesture extension designed for ultimate smoothness. Seamles
 - <img src="./assets/icons/mouse-left.svg" width="16" height="16"> **Super drag:** Drag text to search (custom engines supported), drag images to open/save/reverse-search, drag links to open/copy.
 - <img src="./assets/icons/mouse.svg" width="16" height="16"> **Wheel gestures:** Hold the right mouse button and scroll to quickly switch tabs.
 - <img src="./assets/icons/mouse-pointer-click.svg" width="16" height="16"> **Rocker gestures:** Hold one mouse button and click the other to navigate back/forward.
+- <img src="./assets/icons/square-dashed-mouse-pointer.svg" width="16" height="16"> **Area select:** Shift + Drag to select links on the page and open or copy them in batch.
 - <img src="./assets/icons/workflow.svg" width="16" height="16"> **Command chains:** Run multiple actions from a single gesture.
 - <img src="./assets/icons/sliders-horizontal.svg" width="16" height="16"> **Visual settings:** Configure gesture trail color, width, action hints, and more from a clean settings UI.
 - <img src="./assets/icons/book-open.svg" width="16" height="16"> **Tutorial:** Interactive guide on first install.
