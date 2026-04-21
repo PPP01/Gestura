@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         **感谢你花时间反馈 Bug！**
-        为方便我们定位问题，请填写以下所有必填项，未完整填写的 Issue 可能会被关闭。
+        为帮助我们定位并修复问题，请填写以下所有必填项，未完整填写的 Issue 可能会被关闭。
 
   - type: input
     id: extension-version
