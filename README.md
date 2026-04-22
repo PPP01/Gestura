@@ -13,7 +13,7 @@
 
 An open-source mouse gesture extension designed for ultimate smoothness. Swipe your fingertips, enter the *Flow*.
 
-Supports gesture navigation, super drag, wheel and rocker gestures, and the ability to customize all gestures.
+Supports gesture navigation, super drag, area selection, wheel and rocker gestures, and the ability to customize all gestures.
 </div>
 
 <div align="center">
