@@ -317,6 +317,8 @@
 		}
 
 		if (isMacOrLinux) {
+			if (e.ctrlKey || e.button !== 2) return;
+
 			const now = Date.now();
 
 			if (TutorialState.preventContextMenu) {
