@@ -1,5 +1,14 @@
 ## FlowMouse Changelog
 
+### v2.0.1 (2026-04-22)
+
+- Add Bookmark supports specifying a bookmark folder
+- Avoid adding duplicate bookmarks for the same page
+- Fixed an issue where the "Delay" command would disappear in command chain settings
+- Fixed an issue that might affect using combinations like Control + Left Click to open the context menu on systems like macOS
+- Improved area selection details and optimized compatibility within iframes
+
+
 ### v2.0 (2026-04-21)
 
 **New Features:**
