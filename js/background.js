@@ -1173,7 +1173,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 			}
 		}
 
-		if (details.reason === 'install' || (details.reason === 'update' && compareVersions(details.previousVersion, '1.5') > 0)) {
+		if (details.reason === 'install' || (details.reason === 'update' && compareVersions(details.previousVersion, '1.50') > 0)) {
 			reinjectContentScripts(details.reason === 'update');
 		}
 	}
