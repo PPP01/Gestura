@@ -53,7 +53,7 @@ All gestures can be customized in the options page.
 | `↑←` | Switch to Left Tab | `↑→` | Switch to Right Tab |
 | `→↑` | New Tab | `→↓` | Reload Current Page |
 | `↓←` | Stop Loading | `↓→` | Close Current Tab |
-| `←↑` | Recently Closed Tabs | `←↓` | Close All Tabs |
+| `←↑` | Reopen Closed Tab | `←↓` | Close All Tabs |
 | `↑↓` | Scroll to Bottom | `↓↑` | Scroll to Top |
 | `←→` | Close Current Tab | `→←` | Reopen Closed Tab |
 
