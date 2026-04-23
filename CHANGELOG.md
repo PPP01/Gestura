@@ -1,5 +1,12 @@
 ## FlowMouse Changelog
 
+### v2.0.2 (2026-04-23)
+
+- Fixed incorrect time display in the recently closed tabs popup menu on Firefox
+- Fixed compatibility with Firefox 151+ beta versions
+- Other minor improvements
+
+
 ### v2.0.1 (2026-04-22)
 
 - Add Bookmark supports specifying a bookmark folder
