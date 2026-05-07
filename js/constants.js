@@ -301,6 +301,7 @@
 		enableGesture: true, 
 		gestureTriggerButtons: { right: true, middle: false, side1: false, side2: false, penRight: false }, 
 		enableHUD: true,
+		enableSuggestedGestures: true, 
 		enableTrail: true,
 		showTrailOrigin: true, 
 		enableTrailSmooth: true, 
@@ -325,7 +326,7 @@
 		hudBgColor: '#000000b3',
 		hudTextColor: '#ffffff',
 		hudBlurRadius: 5,
-		enableHudShadow: true,
+		enableHudShadow: false,
 		trailColor: '#4285f4',
 		trailWidth: 5,
 		customCss: '', 
@@ -338,7 +339,7 @@
 		wheelGestures: {
 			scrollUpHoldingRight: { action: 'switchLeftTab' },
 			scrollDownHoldingRight: { action: 'switchRightTab' },
-			wheelClickHoldingRight: { action: 'none' },
+			wheelClickHoldingRight: { action: 'toggleFullscreen' },
 		},
 		enableSpecialGestures: false, 
 		specialGestures: {

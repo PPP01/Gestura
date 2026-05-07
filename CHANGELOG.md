@@ -1,5 +1,15 @@
 ## FlowMouse Changelog
 
+### v2.0.3 (2026-05-07)
+
+**New Features:**
+- Gesture Prompts
+
+**Interface & General Improvements:**
+- Renamed advanced settings for clarity
+- Other minor improvements
+
+
 ### v2.0.2 (2026-04-23)
 
 - Fixed incorrect time display in the recently closed tabs popup menu on Firefox
