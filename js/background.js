@@ -43,7 +43,7 @@ function asyncMessageHandler(asyncHandler) {
 		asyncHandler(message, sender)
 			.then(sendResponse)
 			.catch((error) => sendResponse({ success: false, error: error.message }));
-		return true; 
+		return true;
 	};
 }
 
@@ -171,7 +171,7 @@ async function handleAction(request, sender) {
 			if (sender.tab && request.incognito && !sender.tab.incognito) {
 				const granted = await requestPermission(['incognito'], sender.tab.windowId);
 				if (granted) {
-					await chrome.windows.create({ incognito: true, url: request.url }); 
+					await chrome.windows.create({ incognito: true, url: request.url });
 				}
 				return { success: true };
 			}
@@ -224,7 +224,7 @@ async function handleAction(request, sender) {
 				if (request.incognito && !sender.tab.incognito) {
 					const granted = await requestPermission(['incognito'], sender.tab.windowId);
 					if (granted) {
-						const newWin = await chrome.windows.create({ incognito: true }); 
+						const newWin = await chrome.windows.create({ incognito: true });
 						if (newWin && newWin.tabs && newWin.tabs.length > 0) {
 							await chrome.search.query({ text: request.query, tabId: newWin.tabs[0].id });
 						}
@@ -239,7 +239,7 @@ async function handleAction(request, sender) {
 					await chrome.search.query({ text: request.query, tabId: sender.tab.id });
 				} else {
 					const newTab = await createTabAtPosition(sender, position, {
-						url: undefined, 
+						url: undefined,
 						active,
 						openerTabId: sender.tab.id,
 					});
@@ -275,8 +275,8 @@ async function handleAction(request, sender) {
 							return;
 						}
 
-						const MHTML_MAX_RETRIES = 2;   
-						const MHTML_RETRY_DELAY = 500;  
+						const MHTML_MAX_RETRIES = 2;
+						const MHTML_RETRY_DELAY = 500;
 						try {
 							let mhtmlBlob;
 							for (let i = 0; i <= MHTML_MAX_RETRIES; i++) {
@@ -284,7 +284,7 @@ async function handleAction(request, sender) {
 									mhtmlBlob = await chrome.pageCapture.saveAsMHTML({ tabId: sourceTabId });
 									if (mhtmlBlob) break;
 								} catch (e) {
-									if (i >= MHTML_MAX_RETRIES) throw e; 
+									if (i >= MHTML_MAX_RETRIES) throw e;
 									await new Promise(r => setTimeout(r, MHTML_RETRY_DELAY));
 								}
 							}
@@ -1048,7 +1048,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 			const mouseGestures = {};
 			for (const [pattern, action] of Object.entries(merged)) {
-				if (action === null) continue; 
+				if (action === null) continue;
 				const entry = { action };
 				if (customGestureUrls[pattern]) entry.customUrl = customGestureUrls[pattern];
 				mouseGestures[pattern] = entry;
@@ -1067,14 +1067,14 @@ chrome.runtime.onInstalled.addListener((details) => {
 			}
 
 			if (items.enableAdvancedSettings === true) {
-				chrome.storage.sync.set({ 
-					sectionAdvanced: { basic: true, drag: true } 
+				chrome.storage.sync.set({
+					sectionAdvanced: { basic: true, drag: true }
 				}, () => {
 					chrome.storage.sync.remove(['enableAdvancedSettings']);
 				});
 			} else {
-				chrome.storage.sync.set({ 
-					sectionAdvanced: {} 
+				chrome.storage.sync.set({
+					sectionAdvanced: {}
 				}, () => {
 					chrome.storage.sync.remove(['enableAdvancedSettings']);
 				});
@@ -1286,10 +1286,10 @@ function updateBadge(tabId, status) {
 		chrome.action.setBadgeText({ tabId: tabId, text: '' });
 	} else if (status === 'restricted') {
 		chrome.action.setBadgeText({ tabId: tabId, text: '!' });
-		chrome.action.setBadgeBackgroundColor({ tabId: tabId, color: '#FFA500' }); 
+		chrome.action.setBadgeBackgroundColor({ tabId: tabId, color: '#FFA500' });
 	} else if (status === 'needRefresh') {
 		chrome.action.setBadgeText({ tabId: tabId, text: '!' });
-		chrome.action.setBadgeBackgroundColor({ tabId: tabId, color: '#4285f4' }); 
+		chrome.action.setBadgeBackgroundColor({ tabId: tabId, color: '#4285f4' });
 	}
 }
 
