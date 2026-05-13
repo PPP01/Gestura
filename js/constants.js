@@ -312,8 +312,10 @@
 		sectionAdvanced: {},
 		enableTextDrag: true,
 		textDragIgnoreInput: false,
+		textDropIgnoreInput: false,
 		enableImageDrag: true,
 		enableLinkDrag: true,
+		linkDropIgnoreInput: false,
 		textDragGestures: [
 			{ direction: '→', action: 'search' }
 		],
