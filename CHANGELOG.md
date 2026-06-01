@@ -1,5 +1,21 @@
 ## FlowMouse Changelog
 
+### v2.1 (2026-06-01)
+
+**New Features:**
+- Advanced Settings: Suppress drag gesture over input fields (Thanks to @xymoryn)
+- New gesture action: Stop loading all tabs
+- Support preserve tabs when closing other tabs (unload page content)
+- Support opening pages in a new window
+
+**Interface & General Improvements:**
+- Auto theme mode now supports real-time switching with system theme (Thanks to @xymoryn)
+- Fixed an issue in Zen browser where tab position might be incorrect when switching tabs
+- Fixed an issue where the right-click menu might fail when gesture drawing is interrupted inside an iframe
+- Fixed an issue where gesture trails might disappear when drawing gestures after refreshing certain pages
+- Other minor improvements
+
+
 ### v2.0.3 (2026-05-07)
 
 **New Features:**
