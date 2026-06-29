@@ -1,5 +1,20 @@
 ## FlowMouse Changelog
 
+### v2.2 (2026-06-29)
+**New Features:**
+- New gestures:
+  - **Switch to Last Active Tab**
+  - **Paste Custom Text**
+  - URL Level Up
+  - URL to Root
+  - Invoke Another Extension
+- Support opening in an Incognito/Private window for some gesture actions
+
+**Interface & General Improvements:**
+- Optimize performance when drawing gestures using custom CSS
+- Other minor improvements
+
+
 ### v2.1 (2026-06-01)
 
 **New Features:**
@@ -11,7 +26,7 @@
 **Interface & General Improvements:**
 - Auto theme mode now supports real-time switching with system theme (Thanks to @xymoryn)
 - Fixed an issue in Zen browser where tab position might be incorrect when switching tabs
-- Fixed an issue where the right-click menu might fail when gesture drawing is interrupted inside an iframe
+- Fixed an issue where the context menu might fail when gesture drawing is interrupted inside an iframe
 - Fixed an issue where gesture trails might disappear when drawing gestures after refreshing certain pages
 - Other minor improvements
 
