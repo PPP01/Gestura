@@ -1,5 +1,10 @@
-importScripts('menu-patterns.js');
-importScripts('favicon-util.js');
+// Chrome loads the service worker as a single file and pulls these in via
+// importScripts. Firefox has no importScripts in a background script — there
+// menu-patterns.js and favicon-util.js are listed in manifest background.scripts.
+if (typeof importScripts === 'function') {
+	importScripts('menu-patterns.js');
+	importScripts('favicon-util.js');
+}
 
 const isEdge = navigator.userAgent.includes('Edg/') || navigator.userAgent.includes('EdgA/');
 
