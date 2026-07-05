@@ -6,6 +6,15 @@
     "description": "__MSG_extDescription__",
     "default_locale": "en",
     "minimum_chrome_version": "109",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "flowmouse-fork@local",
+            "strict_min_version": "140.0",
+            "data_collection_permissions": {
+                "required": ["none"]
+            }
+        }
+    },
     "permissions": [
         "tabs",
         "sessions",
@@ -30,7 +39,7 @@
         "<all_urls>"
     ],
     "background": {
-        "service_worker": "js/background.js"
+        "scripts": ["js/background.js"]
     },
     "content_scripts": [
         {
