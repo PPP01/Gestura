@@ -1,101 +1,107 @@
-# FlowMouse fork — Firefox build & release guide
+# FlowMouse-Fork — Firefox-Build- & Release-Anleitung
 
-How to build, sign, install, and auto-update the Firefox variant of this fork.
-Everything here runs on the **`firefox-build`** branch.
+Wie du die Firefox-Variante dieses Forks baust, signierst, installierst und
+automatisch aktualisierst. Alles hier läuft auf dem Branch **`firefox-build`**.
 
-- `firefox-build` = `feature/search-engine-suite` (the feature work) + a few
-  Firefox-only commits (Firefox manifest, `menu-patterns.js` loaded via
-  `background.scripts`, Chrome-only manifest entries dropped).
-- `web-ext lint` → 0 errors, loads warning-free.
-- **Works in Firefox:** search-engine manager, contextual menus, drag search,
-  clipboard mode — the core gesture/menu features.
-- **Does not work in Firefox** (APIs absent, by design): the JS-transform
-  sandbox (`offscreen`), engine favicons (`favicon`), save-as-MHTML
-  (`pageCapture`). These degrade gracefully; the rest is unaffected.
+- `firefox-build` = `feature/search-engine-suite` (die Feature-Arbeit) + einige
+  Firefox-spezifische Commits (Firefox-Manifest, `menu-patterns.js` per
+  `background.scripts` geladen, Chrome-only-Manifest-Einträge entfernt).
+- `web-ext lint` → 0 Fehler, lädt warnungsfrei.
+- **Funktioniert in Firefox:** Suchmaschinen-Verwaltung, kontextabhängige Menüs,
+  Drag-Suche, Clipboard-Modus — die Kern-Gesten/Menü-Funktionen.
+- **Funktioniert in Firefox NICHT** (APIs fehlen, systembedingt): der
+  JS-Transform-Sandbox (`offscreen`), Engine-Favicons (`favicon`),
+  Als-MHTML-speichern (`pageCapture`). Diese degradieren sauber; der Rest
+  bleibt unberührt.
 
-## One-time setup
+## Einmaliges Setup
 
 ```bash
 git checkout firefox-build
 npm install
 ```
 
-Signing needs a free Mozilla add-on account. On
-`addons.mozilla.org` → **Developer Hub → Manage API Keys**, generate an API
-key + secret. Never commit them — pass them per command or via the
-`WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` environment variables.
+Zum Signieren brauchst du einen kostenlosen Mozilla-Add-on-Account. Auf
+`addons.mozilla.org` → **Developer Hub → Manage API Keys** einen API-Key +
+Secret erzeugen. Niemals committen — entweder pro Befehl übergeben oder als
+Umgebungsvariablen `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` setzen.
 
-## npm scripts
+## npm-Skripte
 
-| Script | What it does |
+| Skript | Was es tut |
 |---|---|
-| `npm run ff:run` | Launch Firefox with the extension, live-reload on save. Dev only — no signing, no version bump. |
-| `npm run ff:build` | Build an **unsigned** `.zip` into `web-ext-artifacts/` (runtime files only). |
-| `npm run ff:bump` | Bump `manifest.json` version (`2.2` → `2.2.1`, then `2.2.2`, …). |
-| `npm run ff:sign` | Upload to Mozilla and download a **signed** `.xpi` (channel `unlisted`). |
-| `npm run ff:release` | `ff:bump` then `ff:sign` — the one-shot release command. |
+| `npm run ff:run` | Startet Firefox mit der Erweiterung, lädt bei jeder Änderung neu. Nur zum Entwickeln — kein Signieren, kein Versions-Bump. |
+| `npm run ff:build` | Baut ein **unsigniertes** `.zip` nach `web-ext-artifacts/` (nur Laufzeit-Dateien). |
+| `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.2` → `2.2.1`, dann `2.2.2`, …). |
+| `npm run ff:sign` | Lädt zu Mozilla hoch und holt eine **signierte** `.xpi` (Kanal `unlisted`). |
+| `npm run ff:release` | `ff:bump` dann `ff:sign` — der Ein-Befehl-Release. |
 
-## Scenario A — just develop / try it out
+## Szenario A — nur entwickeln / ausprobieren
 
 ```bash
 git checkout firefox-build
 npm run ff:run
 ```
 
-No signing, no restart problem. This launches a dedicated Firefox instance and
-reloads the extension whenever you save a file.
+Kein Signieren, kein Neustart-Problem. Startet eine eigene Firefox-Instanz und
+lädt die Erweiterung neu, sobald du eine Datei speicherst.
 
-## Scenario B — new installable version (manual install)
+## Szenario B — neue installierbare Version (manuell einspielen)
 
 ```bash
 git checkout firefox-build
-git rebase feature/search-engine-suite       # only if you changed the feature
-npm run ff:release -- --api-key=YOUR_KEY --api-secret=YOUR_SECRET
+git rebase feature/search-engine-suite       # nur falls du am Feature etwas geändert hast
+npm run ff:release -- --api-key=DEIN_KEY --api-secret=DEIN_SECRET
 ```
 
-This bumps the version, signs, and writes the signed `.xpi` to
-`web-ext-artifacts/`. Install it once via **about:addons → gear → Install
-Add-on From File**.
+Das bumpt die Version, signiert und legt die signierte `.xpi` in
+`web-ext-artifacts/` ab. Einmal installieren über **about:addons → Zahnrad →
+„Add-on aus Datei installieren"**.
 
-> AMO refuses to sign a version it has already signed — that is why
-> `ff:release` bumps first. Version `2.2` is already signed, so the next
-> release becomes `2.2.1`.
+> AMO verweigert das erneute Signieren einer bereits signierten Version —
+> darum bumpt `ff:release` zuerst. Version `2.2` ist schon signiert, die nächste
+> wird also `2.2.1`.
 
-Regular Firefox installs only **signed** extensions. Developer Edition /
-Nightly / ESR can install an unsigned `.xpi` after setting
-`xpinstall.signatures.required = false` in `about:config`.
+Reguläres Firefox installiert nur **signierte** Erweiterungen. Developer
+Edition / Nightly / ESR können eine unsignierte `.xpi` installieren, nachdem
+`xpinstall.signatures.required = false` in `about:config` gesetzt wurde.
 
-## Scenario C — auto-update (install the signed `.xpi` only once, ever)
+## Szenario C — Auto-Update (die signierte `.xpi` nur ein einziges Mal installieren)
 
-`manifest.json` already points `browser_specific_settings.gecko.update_url`
-at `updates.json` on this branch (a raw GitHub URL). Per release:
+`manifest.json` verweist bereits mit
+`browser_specific_settings.gecko.update_url` auf `updates.json` in diesem Branch
+(eine raw-GitHub-URL). Pro Release:
 
 1. `npm run ff:release -- --api-key=… --api-secret=…`
-2. Create a GitHub release on your fork (e.g. tag `ff-2.2.1`) and upload the
-   signed `.xpi` as an asset.
-3. Add an entry to `updates.json` — `version` = new manifest version,
-   `update_link` = the exact release asset URL — and push the branch:
+2. Auf deinem Fork ein GitHub-Release anlegen (z. B. Tag `ff-2.2.1`) und die
+   signierte `.xpi` als Asset hochladen.
+3. In `updates.json` einen Eintrag ergänzen — `version` = neue
+   Manifest-Version, `update_link` = die exakte Asset-URL — und den Branch
+   pushen:
    ```bash
    git commit -am "release ff-2.2.1"
    git push origin firefox-build
    ```
 
-Firefox polls `updates.json`, sees the higher version, and updates itself — no
-more manual re-install.
+Firefox pollt `updates.json`, sieht die höhere Version und aktualisiert sich
+selbst — kein manuelles Neuinstallieren mehr.
 
-Requirements for auto-update to resolve:
-- `firefox-build` must be pushed to `origin` (so the raw `update_url` works).
-- The extension id in `updates.json` must match the manifest
+Voraussetzungen, damit das Auto-Update auflöst:
+
+- `firefox-build` muss zu `origin` gepusht sein (damit die raw-`update_url`
+  funktioniert).
+- Die Extension-ID in `updates.json` muss zum Manifest passen
   (`flowmouse-fork@local`).
-- `update_link` must be HTTPS and point to the **signed** `.xpi`.
+- `update_link` muss HTTPS sein und auf die **signierte** `.xpi` zeigen.
 
-Until you create the first release + `updates.json` entry, Firefox simply
-finds no newer version — nothing breaks.
+Bis du das erste Release + den `updates.json`-Eintrag angelegt hast, findet
+Firefox einfach keine neuere Version — es geht nichts kaputt.
 
-## Keeping up with upstream
+## Mit Upstream Schritt halten
 
-When upstream FlowMouse changes, replay this branch on top of the updated
-feature branch (see `../FORK-NOTES.md` for the full remote/branch workflow):
+Wenn sich das Upstream-FlowMouse ändert, spiele diesen Branch neu auf den
+aktualisierten Feature-Branch (siehe `../FORK-NOTES.md` für den vollständigen
+Remote-/Branch-Workflow):
 
 ```bash
 git fetch upstream
@@ -103,5 +109,5 @@ git checkout firefox-build
 git rebase feature/search-engine-suite
 ```
 
-Because `firefox-build` is only a handful of commits on top of the feature
-branch, this rebase is small.
+Da `firefox-build` nur eine Handvoll Commits über dem Feature-Branch liegt, ist
+dieses Rebase klein.
