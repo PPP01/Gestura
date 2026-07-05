@@ -82,24 +82,55 @@ They are stored as settings data, not code, so they never affect a rebase.
 sandbox (`offscreen`), engine favicons (`favicon`), and save-as-MHTML
 (`pageCapture`). The core search/menu features work.
 
-### Packaging / permanent install
+### npm scripts (run on the `firefox-build` branch)
 
-A temporary add-on (`about:debugging`) disappears on Firefox restart. For a
-build a `.zip`/`.xpi`:
+Run `npm install` once. Signing reads credentials from the environment
+(`WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET`) — never commit them.
+
+| Script | What it does |
+|---|---|
+| `npm run ff:run` | Launch Firefox with the extension, live-reload on save. Dev only — no signing, no version bump. |
+| `npm run ff:build` | Build an **unsigned** `.zip` into `web-ext-artifacts/` (runtime files only, via `web-ext-config.mjs`). |
+| `npm run ff:bump` | Bump `manifest.json` version (`2.2` → `2.2.1`, then `2.2.2`, …). |
+| `npm run ff:sign` | Upload to Mozilla and download a **signed** `.xpi` (channel `unlisted`). |
+| `npm run ff:release` | `ff:bump` then `ff:sign` — the one-shot release command. |
+
+A permanent install always needs a **signed** `.xpi` in regular Firefox. (Dev
+Edition / Nightly / ESR can install unsigned after setting
+`xpinstall.signatures.required = false` in `about:config`.)
+
+### Routine: ship a new version
 
 ```bash
 git checkout firefox-build
-npx web-ext build --overwrite-dest   # writes web-ext-artifacts/*.zip (rename to .xpi)
+git rebase feature/search-engine-suite      # only if you changed the feature
+export WEB_EXT_API_KEY=user:XXXX:XX          # from addons.mozilla.org → Manage API Keys
+export WEB_EXT_API_SECRET=XXXX
+npm run ff:release                           # bumps version, signs, writes web-ext-artifacts/*.xpi
 ```
 
-A permanent install needs a **signed** `.xpi`. Two paths:
+Then install the signed `.xpi` once via **about:addons → gear → Install
+Add-on From File**. AMO refuses to sign a version it already signed — that's
+why `ff:release` bumps first.
 
-- **Regular Firefox** installs only signed extensions. Sign it as an *unlisted*
-  add-on via a free Mozilla add-on account + API key:
-  `npx web-ext sign --channel=unlisted --api-key=… --api-secret=…`
-  → produces a signed `.xpi` installable in normal Firefox.
-- **Developer Edition / Nightly / ESR** can install an unsigned `.xpi` after
-  setting `xpinstall.signatures.required = false` in `about:config`.
+### Auto-update (install the signed `.xpi` only once, ever)
+
+`manifest.json` already points `browser_specific_settings.gecko.update_url`
+at `updates.json` on this branch (raw GitHub URL). To make a release
+auto-reach your browser:
+
+1. `npm run ff:release` (bumps + signs).
+2. Create a GitHub release on your fork and upload the signed `.xpi` as an
+   asset (e.g. tag `ff-2.2.1`).
+3. Add an entry to `updates.json` — `version` = new manifest version,
+   `update_link` = the exact release asset URL — and push `firefox-build`:
+   ```bash
+   git commit -am "release ff-2.2.1" && git push origin firefox-build
+   ```
+
+Firefox polls `updates.json`, sees the higher version, and updates itself —
+no more manual re-install. (For this to work, `firefox-build` must be pushed
+to `origin` so the raw `update_url` resolves.)
 
 ## If you ever re-attempt an upstream PR
 

@@ -1,0 +1,12 @@
+{
+	"addons": {
+		"flowmouse-fork@local": {
+			"updates": [
+				{
+					"version": "2.2",
+					"update_link": "https://github.com/PPP01/FlowMouse/releases/download/ff-2.2/flowmouse-firefox-2.2.xpi"
+				}
+			]
+		}
+	}
+}

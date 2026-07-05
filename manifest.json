@@ -10,6 +10,7 @@
         "gecko": {
             "id": "flowmouse-fork@local",
             "strict_min_version": "140.0",
+            "update_url": "https://raw.githubusercontent.com/PPP01/FlowMouse/firefox-build/updates.json",
             "data_collection_permissions": {
                 "required": ["none"]
             }

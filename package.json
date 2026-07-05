@@ -1,3 +1,17 @@
-{ "name": "flowmouse-fork-tests", "private": true, "type": "module",
-  "scripts": { "test": "vitest run" },
-  "devDependencies": { "vitest": "^2.1.0" } }
+{
+	"name": "flowmouse-fork-tests",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "vitest run",
+		"ff:run": "web-ext run --config web-ext-config.mjs",
+		"ff:build": "web-ext build --config web-ext-config.mjs",
+		"ff:bump": "node scripts/bump-manifest.mjs",
+		"ff:sign": "web-ext sign --config web-ext-config.mjs",
+		"ff:release": "npm run ff:bump && npm run ff:sign"
+	},
+	"devDependencies": {
+		"vitest": "^2.1.0",
+		"web-ext": "^8.3.0"
+	}
+}
