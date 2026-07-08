@@ -3064,22 +3064,50 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		});
 
-		function faviconFor(url) {
-			try { return `/_favicon/?pageUrl=${encodeURIComponent(url)}&size=32`; } catch { return ''; }
+		// Favicons: bundled catalog icon → cached fetched favicon → monogram fallback.
+		// (Chrome's /_favicon/ is unavailable in Firefox, so we resolve icons ourselves.)
+		const faviconMem = new Map(); // origin -> dataURL | null
+		function faviconOrigin(url) { try { return new URL(url).origin; } catch { return null; } }
+		function monogramFor(name, url) { return window.FlowMouseFavicon.monogramDataUri(name || url || '?'); }
+		function iconFor(url, name) {
+			const o = faviconOrigin(url);
+			return (o && faviconMem.get(o)) || monogramFor(name, url);
+		}
+		async function requestFavicon(url) {
+			const o = faviconOrigin(url);
+			if (!o) return null;
+			if (faviconMem.has(o)) return faviconMem.get(o);
+			const resp = await safeSendMessage({ action: 'getFavicon', url });
+			const icon = (resp && resp.success) ? resp.icon : null;
+			faviconMem.set(o, icon);
+			return icon;
+		}
+		// Upgrade menu items still on a monogram placeholder to the real favicon.
+		// Items opt in via `_faviconUrl`; setItems() strips it (only label/icon/active/time ship).
+		async function upgradeMenuIcons(items) {
+			const jobs = [];
+			for (const it of items) {
+				if (!it || it === 'separator' || !it._faviconUrl) continue;
+				jobs.push(requestFavicon(it._faviconUrl).then(icon => { if (icon) { it.icon = icon; return true; } return false; }));
+			}
+			if (!jobs.length) return;
+			const results = await Promise.all(jobs);
+			if (results.some(Boolean) && ctxMenu.isOpen) ctxMenu.setItems(items);
 		}
 		function resolveSearchLink(cfg) {
 			const catalog = window.FlowMouseEngineCatalogApi ? window.FlowMouseEngineCatalogApi.ENGINE_CATALOG : [];
 			const se = SETTINGS.searchEngines || {};
 			const link = window.FlowMouseEngineRegistry.resolveMenuItemLink(catalog, se, cfg);
 			if (!link) return null;
-			let icon = '';
+			let icon = '', iconBundled = false;
 			if (cfg.engineId) {
 				const b = window.FlowMouseEngineCatalogApi ? window.FlowMouseEngineCatalogApi.getEngine(cfg.engineId) : null;
-				icon = (b && b.icon) ? b.icon : faviconFor(link.url);
+				if (b && b.icon) { icon = b.icon; iconBundled = true; }
+				else { icon = monogramFor(b && b.name, link.url); }
 			} else {
-				icon = faviconFor(link.url);
+				icon = monogramFor(cfg.customName || link.name, link.url);
 			}
-			return { ...link, icon };
+			return { ...link, icon, iconBundled };
 		}
 		function resolveContextualMenuId(menus) {
 			// First menu (in object order) whose patterns match the current URL; else first with empty patterns.
@@ -3299,11 +3327,10 @@ window.ContentContextMenu = ContentContextMenu;
 						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
 						const result = await fetchPromise;
 						if (result?.success) {
-							const getIcon = (tab) => `/_favicon/?pageUrl=${encodeURIComponent(tab.url)}&size=32`;
 							const td = mergedConfig.timeDisplay || 'lastAccess';
 							const items = result.tabs.map(tab => ({
 								label: tab.title ?? tab.url,
-								icon: tab.url ? getIcon(tab) : '',
+								icon: tab.url ? iconFor(tab.url, tab.title) : '',
 								active: tab.active,
 								time: td !== 'none' ? tab.lastAccess : undefined,
 								onClick: () => {
@@ -3327,11 +3354,10 @@ window.ContentContextMenu = ContentContextMenu;
 						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
 						const result = await fetchPromise;
 						if (result?.success) {
-							const getIcon = (tab) => `/_favicon/?pageUrl=${encodeURIComponent(tab.url)}&size=32`;
 							const td = mergedConfig.timeDisplay || 'closedTime';
 							const items = result.tabs.map(tab => ({
 								label: tab.title ?? tab.url,
-								icon: tab.url ? getIcon(tab) : '',
+								icon: tab.url ? iconFor(tab.url, tab.title) : '',
 								time: td !== 'none' && tab.lastModified ? (tab.lastModified * 1000) : undefined,
 								onClick: () => {
 									safeSendMessage({ action: 'restoreSession', sessionId: tab.sessionId });
@@ -3353,14 +3379,13 @@ window.ContentContextMenu = ContentContextMenu;
 						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
 						const result = await fetchPromise;
 						if (result?.success) {
-							const getIcon = (bm) => `/_favicon/?pageUrl=${encodeURIComponent(bm.url)}&size=32`;
 							const position = mergedConfig.position || 'right';
 							const active = mergedConfig.active !== false;
 							const incognito = !!mergedConfig.incognito;
 							const td = mergedConfig.timeDisplay || 'dateAdded';
 							const items = result.bookmarks.map(bm => ({
 								label: bm.title ?? bm.url,
-								icon: bm.url ? getIcon(bm) : '',
+								icon: bm.url ? iconFor(bm.url, bm.title) : '',
 								time: td === 'none' ? undefined : bm.date,
 								onClick: () => {
 									safeSendMessage({ action: 'openTabAtPosition', url: bm.url, position, active, incognito });
@@ -3396,6 +3421,7 @@ window.ContentContextMenu = ContentContextMenu;
 									return {
 										label,
 										icon: rl ? rl.icon : '',
+										_faviconUrl: rl && !rl.iconBundled ? rl.url : undefined,
 										onClick: () => {
 											const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
 											itemConfig.__selectionText = menuSelectionText;
@@ -3413,6 +3439,7 @@ window.ContentContextMenu = ContentContextMenu;
 								};
 							});
 						ctxMenu.setItems(items);
+						upgradeMenuIcons(items);
 						break;
 					}
 				}

@@ -1,4 +1,5 @@
 importScripts('menu-patterns.js');
+importScripts('favicon-util.js');
 
 const isEdge = navigator.userAgent.includes('Edg/') || navigator.userAgent.includes('EdgA/');
 
@@ -132,6 +133,9 @@ let _transformIdCounter = 0;
 
 async function handleAction(request, sender) {
 	switch (request.action) {
+		case 'getFavicon':
+			return { success: true, icon: await resolveFavicon(request.url) };
+
 		case 'back':
 			if (sender.tab?.id) {
 				await chrome.tabs.goBack(sender.tab.id).catch(() => { });
@@ -1117,6 +1121,87 @@ async function handleAction(request, sender) {
 			return { success: true };
 		}
 	}
+}
+
+// ---- Favicon resolution (cross-browser; replaces Chrome-only /_favicon/) ----
+// Fetches the site's own favicon once (parsing <link rel="icon">, then
+// /favicon.ico), stores it as a data URL in storage.local, and serves from cache.
+const FAVICON_CACHE_KEY = 'faviconCache';
+const FAVICON_TTL_HIT = 1000 * 60 * 60 * 24 * 30; // 30 days
+const FAVICON_TTL_MISS = 1000 * 60 * 60 * 24 * 3; // 3 days (retry sooner)
+const FAVICON_MAX_BYTES = 60000;
+const faviconInflight = new Map();
+
+function faviconFetch(url, ms) {
+	const ctl = new AbortController();
+	const t = setTimeout(() => ctl.abort(), ms || 4000);
+	return fetch(url, { signal: ctl.signal, credentials: 'omit', redirect: 'follow' })
+		.catch(() => null)
+		.finally(() => clearTimeout(t));
+}
+
+function bytesToBase64(bytes) {
+	let bin = '';
+	const chunk = 0x8000;
+	for (let i = 0; i < bytes.length; i += chunk) {
+		bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+	}
+	return btoa(bin);
+}
+
+async function faviconToDataUrl(url) {
+	const res = await faviconFetch(url);
+	if (!res || !res.ok) return null;
+	const ct = (res.headers.get('content-type') || '').toLowerCase().split(';')[0];
+	if (ct && !ct.startsWith('image/')) return null; // reject HTML error pages
+	const buf = await res.arrayBuffer().catch(() => null);
+	if (!buf || !buf.byteLength || buf.byteLength > FAVICON_MAX_BYTES) return null;
+	const mime = ct && ct.startsWith('image/') ? ct : 'image/x-icon';
+	return `data:${mime};base64,${bytesToBase64(new Uint8Array(buf))}`;
+}
+
+async function faviconFetchFresh(origin) {
+	// 1) parse the page head for <link rel="icon">
+	const res = await faviconFetch(origin + '/');
+	if (res && res.ok) {
+		const html = (await res.text().catch(() => '')).slice(0, 50000);
+		const links = self.FlowMouseFavicon.parseIconLinks(html, origin + '/');
+		const best = self.FlowMouseFavicon.pickBestIconHref(links, 32);
+		if (best) {
+			const icon = await faviconToDataUrl(best);
+			if (icon) return icon;
+		}
+	}
+	// 2) fallback: /favicon.ico
+	return await faviconToDataUrl(origin + '/favicon.ico');
+}
+
+async function resolveFavicon(pageUrl) {
+	let origin;
+	try { origin = new URL(pageUrl).origin; } catch { return null; }
+	if (!/^https?:$/.test(new URL(origin).protocol)) return null;
+
+	const store = await chrome.storage.local.get(FAVICON_CACHE_KEY);
+	const cache = store[FAVICON_CACHE_KEY] || {};
+	const hit = cache[origin];
+	const now = Date.now();
+	if (hit && (now - hit.ts) < (hit.icon ? FAVICON_TTL_HIT : FAVICON_TTL_MISS)) {
+		return hit.icon;
+	}
+
+	if (faviconInflight.has(origin)) return faviconInflight.get(origin);
+	const job = (async () => {
+		let icon = null;
+		try { icon = await faviconFetchFresh(origin); } catch { icon = null; }
+		try {
+			const fresh = (await chrome.storage.local.get(FAVICON_CACHE_KEY))[FAVICON_CACHE_KEY] || {};
+			fresh[origin] = { icon, ts: Date.now() };
+			await chrome.storage.local.set({ [FAVICON_CACHE_KEY]: fresh });
+		} catch { }
+		return icon;
+	})().finally(() => faviconInflight.delete(origin));
+	faviconInflight.set(origin, job);
+	return job;
 }
 
 chrome.runtime.onMessage.addListener(asyncMessageHandler(async (request, sender) => {

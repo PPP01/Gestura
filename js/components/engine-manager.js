@@ -380,6 +380,19 @@ class EngineManager extends LitElement {
 			.map(p => p[0]);
 	}
 
+	#faviconCache = new Map(); // origin -> dataURL | null (null = inflight / none found)
+
+	async #loadFavicon(url, origin) {
+		this.#faviconCache.set(origin, null); // mark inflight to avoid duplicate requests
+		try {
+			const resp = await chrome.runtime.sendMessage({ action: 'getFavicon', url });
+			if (resp && resp.success && resp.icon) {
+				this.#faviconCache.set(origin, resp.icon);
+				this.requestUpdate();
+			}
+		} catch { }
+	}
+
 	#getEngineIcon(eng) {
 		if (eng.builtin) {
 			const catalogEntry = window.FlowMouseEngineCatalogApi.getEngine(eng.id);
@@ -388,8 +401,12 @@ class EngineManager extends LitElement {
 			}
 		}
 		if (eng.url) {
-			const faviconUrl = `/_favicon/?pageUrl=${encodeURIComponent(eng.url)}&size=32`;
-			return html`<img src="${faviconUrl}" alt="" @error=${(e) => { e.target.style.display = 'none'; }}>`;
+			let origin = null;
+			try { origin = new URL(eng.url).origin; } catch { }
+			const cached = origin && this.#faviconCache.get(origin);
+			if (cached) return html`<img src="${cached}" alt="">`;
+			if (origin && !this.#faviconCache.has(origin)) this.#loadFavicon(eng.url, origin);
+			return html`<img src="${window.FlowMouseFavicon.monogramDataUri(eng.name || eng.url)}" alt="">`;
 		}
 		return html`${unsafeHTML(icon('search', { size: 16, strokeWidth: 2 }))}`;
 	}

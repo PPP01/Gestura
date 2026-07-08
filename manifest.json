@@ -44,6 +44,7 @@
                 "js/search-url.js",
                 "js/search-engines-catalog.js",
                 "js/engine-registry.js",
+                "js/favicon-util.js",
                 "js/content.js"
             ],
             "run_at": "document_start",
