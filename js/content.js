@@ -582,6 +582,10 @@ class ContentContextMenu {
 		return this.#activeMenuClose !== null;
 	}
 
+	get currentMenuId() {
+		return this.#activeMenuId;
+	}
+
 	close() {
 		if (this.#activeMenuClose) {
 			this.#activeMenuClose();
@@ -3085,14 +3089,17 @@ window.ContentContextMenu = ContentContextMenu;
 		// Upgrade menu items still on a monogram placeholder to the real favicon.
 		// Items opt in via `_faviconUrl`; setItems() strips it (only label/icon/active/time ship).
 		async function upgradeMenuIcons(items) {
-			const jobs = [];
-			for (const it of items) {
-				if (!it || it === 'separator' || !it._faviconUrl) continue;
-				jobs.push(requestFavicon(it._faviconUrl).then(icon => { if (icon) { it.icon = icon; return true; } return false; }));
-			}
-			if (!jobs.length) return;
-			const results = await Promise.all(jobs);
-			if (results.some(Boolean) && ctxMenu.isOpen) ctxMenu.setItems(items);
+			// Resolve each favicon independently and re-render as soon as it arrives,
+			// so cached icons show immediately instead of waiting for the slowest lookup.
+			// Guard on the menu token so a late result can't leak into a different menu.
+			const token = ctxMenu.currentMenuId;
+			await Promise.all(items.map(async (it) => {
+				if (!it || it === 'separator' || !it._faviconUrl) return;
+				const icon = await requestFavicon(it._faviconUrl);
+				if (!icon || it.icon === icon) return;
+				it.icon = icon;
+				if (ctxMenu.isOpen && ctxMenu.currentMenuId === token) ctxMenu.setItems(items);
+			}));
 		}
 		function resolveSearchLink(cfg) {
 			const catalog = window.FlowMouseEngineCatalogApi ? window.FlowMouseEngineCatalogApi.ENGINE_CATALOG : [];
