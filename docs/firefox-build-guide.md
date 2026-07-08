@@ -1,6 +1,6 @@
-# FlowMouse-Fork — Firefox-Build- & Release-Anleitung
+# Gestura (Firefox) — Build- & Release-Anleitung
 
-Wie du die Firefox-Variante dieses Forks baust, signierst, installierst und
+Wie du die Firefox-Variante von Gestura (einem FlowMouse-Fork) baust, signierst, installierst und
 automatisch aktualisierst. Alles hier läuft auf dem Branch **`firefox-build`**.
 
 - `firefox-build` = `feature/search-engine-suite` (die Feature-Arbeit) + einige
@@ -91,7 +91,7 @@ Voraussetzungen, damit das Auto-Update auflöst:
 - `firefox-build` muss zu `origin` gepusht sein (damit die raw-`update_url`
   funktioniert).
 - Die Extension-ID in `updates.json` muss zum Manifest passen
-  (`flowmouse-fork@local`).
+  (`gestura@gestura.de`).
 - `update_link` muss HTTPS sein und auf die **signierte** `.xpi` zeigen.
 
 Bis du das erste Release + den `updates.json`-Eintrag angelegt hast, findet

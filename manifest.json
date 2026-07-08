@@ -8,9 +8,9 @@
     "minimum_chrome_version": "109",
     "browser_specific_settings": {
         "gecko": {
-            "id": "flowmouse-fork@local",
+            "id": "gestura@gestura.de",
             "strict_min_version": "140.0",
-            "update_url": "https://raw.githubusercontent.com/PPP01/FlowMouse/firefox-build/updates.json",
+            "update_url": "https://raw.githubusercontent.com/PPP01/Gestura/firefox-build/updates.json",
             "data_collection_permissions": {
                 "required": ["none"]
             }
