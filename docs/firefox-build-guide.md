@@ -33,7 +33,7 @@ Umgebungsvariablen `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` setzen.
 | `npm run ff:run` | Startet Firefox mit der Erweiterung, lädt bei jeder Änderung neu. Nur zum Entwickeln — kein Signieren, kein Versions-Bump. |
 | `npm run ff:build` | Baut ein **unsigniertes** `.zip` nach `web-ext-artifacts/` (nur Laufzeit-Dateien). |
 | `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.2` → `2.2.1`, dann `2.2.2`, …). |
-| `npm run ff:sign` | Lädt zu Mozilla hoch und holt eine **signierte** `.xpi` (Kanal `unlisted`). |
+| `npm run ff:sign` | Reicht die Version bei **AMO** ein (Kanal `listed`) und durchläuft die AMO-Review. |
 | `npm run ff:release` | `ff:bump` dann `ff:sign` — der Ein-Befehl-Release. |
 
 ## Szenario A — nur entwickeln / ausprobieren
@@ -46,7 +46,11 @@ npm run ff:run
 Kein Signieren, kein Neustart-Problem. Startet eine eigene Firefox-Instanz und
 lädt die Erweiterung neu, sobald du eine Datei speicherst.
 
-## Szenario B — neue installierbare Version (manuell einspielen)
+## Szenario B — neue Version bei AMO veröffentlichen
+
+Gestura wird als **AMO-gelistetes** Add-on verteilt (Firefox Add-ons Store). AMO
+signiert, verteilt und aktualisiert automatisch — kein Self-Hosting, kein
+`update_url`, kein `updates.json`.
 
 ```bash
 git checkout firefox-build
@@ -54,48 +58,22 @@ git rebase feature/search-engine-suite       # nur falls du am Feature etwas ge�
 npm run ff:release -- --api-key=DEIN_KEY --api-secret=DEIN_SECRET
 ```
 
-Das bumpt die Version, signiert und legt die signierte `.xpi` in
-`web-ext-artifacts/` ab. Einmal installieren über **about:addons → Zahnrad →
-„Add-on aus Datei installieren"**.
+Das bumpt die Version und reicht sie über `web-ext sign --channel=listed` bei AMO
+ein. Nach bestandener AMO-Review erscheint die Version im Store; installierte
+Instanzen **aktualisieren sich automatisch über AMO**.
 
-> AMO verweigert das erneute Signieren einer bereits signierten Version —
-> darum bumpt `ff:release` zuerst. Version `2.2` ist schon signiert, die nächste
-> wird also `2.2.1`.
+> AMO verweigert eine bereits vorhandene Versionsnummer — darum bumpt
+> `ff:release` zuerst. Version `2.2` existiert schon, die nächste wird `2.2.1`.
 
-Reguläres Firefox installiert nur **signierte** Erweiterungen. Developer
-Edition / Nightly / ESR können eine unsignierte `.xpi` installieren, nachdem
-`xpinstall.signatures.required = false` in `about:config` gesetzt wurde.
+Hinweise:
 
-## Szenario C — Auto-Update (die signierte `.xpi` nur ein einziges Mal installieren)
-
-`manifest.json` verweist bereits mit
-`browser_specific_settings.gecko.update_url` auf `updates.json` in diesem Branch
-(eine raw-GitHub-URL). Pro Release:
-
-1. `npm run ff:release -- --api-key=… --api-secret=…`
-2. Auf deinem Fork ein GitHub-Release anlegen (z. B. Tag `ff-2.2.1`) und die
-   signierte `.xpi` als Asset hochladen.
-3. In `updates.json` einen Eintrag ergänzen — `version` = neue
-   Manifest-Version, `update_link` = die exakte Asset-URL — und den Branch
-   pushen:
-   ```bash
-   git commit -am "release ff-2.2.1"
-   git push origin firefox-build
-   ```
-
-Firefox pollt `updates.json`, sieht die höhere Version und aktualisiert sich
-selbst — kein manuelles Neuinstallieren mehr.
-
-Voraussetzungen, damit das Auto-Update auflöst:
-
-- `firefox-build` muss zu `origin` gepusht sein (damit die raw-`update_url`
-  funktioniert).
-- Die Extension-ID in `updates.json` muss zum Manifest passen
-  (`gestura@gestura.de`).
-- `update_link` muss HTTPS sein und auf die **signierte** `.xpi` zeigen.
-
-Bis du das erste Release + den `updates.json`-Eintrag angelegt hast, findet
-Firefox einfach keine neuere Version — es geht nichts kaputt.
+- Die **erste** Einreichung legt den AMO-Listing-Eintrag an. Dort Beschreibung,
+  Screenshots und die Datenschutz-URL ergänzen (Vorlagen in `docs/store/`).
+- Endnutzer installieren Gestura aus dem Firefox Add-ons Store; Auto-Update
+  übernimmt AMO.
+- Zum **lokalen Testen** einer unsignierten Version: `npm run ff:build` und in
+  Firefox Developer Edition / Nightly / ESR mit
+  `xpinstall.signatures.required = false` in `about:config` laden.
 
 ## Mit Upstream Schritt halten
 

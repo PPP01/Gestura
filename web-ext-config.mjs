@@ -20,5 +20,5 @@ export default {
 		'*.zip', '*.xpi',
 	],
 	build: { overwriteDest: true },
-	sign: { channel: 'unlisted' },
+	sign: { channel: 'listed' },
 };
