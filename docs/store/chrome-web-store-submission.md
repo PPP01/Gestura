@@ -16,7 +16,7 @@ Domain/Privacy-URL, der eigentliche Upload) ist unten klar markiert 👤.
 | Screenshots 1280×800 PNG | `assets/store/chrome/01…05-*.png` | ✅ 5 Stück |
 | Kurz-/Langbeschreibung (EN+DE) | `docs/store/listing-descriptions.md` | ✅ |
 | Permission-Begründungen | `docs/store/permission-justifications.md` | ✅ |
-| Datenschutzerklärung (Inhalt) | `PRIVACY.md` | ✅ – muss noch als **öffentliche URL** gehostet werden 👤 |
+| Datenschutz-URL (öffentlich) | <https://github.com/PPP01/Gestura/blob/main/PRIVACY.md> | ✅ Repo ist öffentlich, URL erreichbar |
 
 Screenshots (Reihenfolge = Empfehlung fürs Listing):
 
@@ -47,20 +47,16 @@ Screenshots (Reihenfolge = Empfehlung fürs Listing):
 
 ## Blocker vorab klären
 
-### Öffentliche Datenschutz-URL 👤 (Pflicht)
+### Öffentliche Datenschutz-URL ✅ (erledigt)
 
 Chrome verlangt eine **öffentlich erreichbare** URL zur Datenschutzerklärung
 (wegen `host_permissions: <all_urls>`, `tabs`, `clipboardRead`, `downloads`).
-Der Inhalt steht fertig in `PRIVACY.md`. Das Gestura-GitHub-Repo ist derzeit
-**privat**, eine Raw-GitHub-URL wäre also nicht erreichbar. Optionen:
+Das Repo `PPP01/Gestura` ist jetzt **öffentlich**, damit ist die URL erreichbar:
 
-| Option | Aufwand | Empfehlung |
-|---|---|---|
-| **A. Auf `gestura.eu` hosten** (z. B. `https://gestura.eu/privacy`) | mittel | ✅ sauberste Lösung, wenn du die Domain schon betreibst |
-| **B. GitHub-Repo öffentlich schalten** → Raw-URL oder GitHub Pages nutzen | klein | passt zur GPL (Quelloffenlegung ohnehin nötig) |
-| **C. Öffentlicher GitHub-Gist mit dem PRIVACY-Text** | minimal | schneller Zwischenschritt für den Launch |
+> **Datenschutz-URL:** <https://github.com/PPP01/Gestura/blob/main/PRIVACY.md>
 
-Trage die gewählte URL später im *Privacy*-Tab ein (siehe unten).
+Diese URL im *Privacy*-Tab eintragen. (Optional später schöner: GitHub Pages oder
+eine eigene Seite unter `gestura.eu` — nicht erforderlich für die Einreichung.)
 
 ### Sichtbarkeit / Regionen
 
