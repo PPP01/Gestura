@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - 心流滑鼠手勢",
+		"message": "Gestura - 心流滑鼠手勢",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse 心流滑鼠",
+		"message": "Gestura 心流滑鼠",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "專注於隱私與流暢體驗的開源滑鼠手勢擴充功能。手勢操作流暢順手，支援超級拖曳。",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "喜歡 FlowMouse？請在 %appStoreInfo% 給我們一個五星鼓勵，這是我們更新的動力！",
+		"message": "喜歡 Gestura？請在 %appStoreInfo% 給我們一個五星鼓勵，這是我們更新的動力！",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "遇到問題或有建議？請透過 <a href='mailto:Service@52pojie.cn'>Email</a>、<a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> 或 <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>論壇</a> 告訴我們，我們會盡快改進！",
+		"message": "遇到問題或有建議？請透過 <a href='mailto:contact@gestura.eu'>Email</a>、<a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> 或 <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>論壇</a> 告訴我們，我們會盡快改進！",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "遇到問題或有建議？請透過 <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chrome 線上應用程式商店支援中心</a>、<a href='mailto:Service@52pojie.cn'>Email</a>、<a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> 或 <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>論壇</a> 告訴我們，我們會盡快改進！",
+		"message": "遇到問題或有建議？請透過 <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chrome 線上應用程式商店支援中心</a>、<a href='mailto:contact@gestura.eu'>Email</a>、<a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> 或 <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>論壇</a> 告訴我們，我們會盡快改進！",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% 具有內建手勢功能。如需使用 FlowMouse 的手勢，請前往 %browserName% 設定中<a href=\"#\" class=\"edge-gesture-link\">停用其內建手勢</a>。",
+		"message": "%browserName% 具有內建手勢功能。如需使用 Gestura 的手勢，請前往 %browserName% 設定中<a href=\"#\" class=\"edge-gesture-link\">停用其內建手勢</a>。",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "設定自訂 CSS 以調整 FlowMouse 自身的介面樣式",
+		"message": "設定自訂 CSS 以調整 Gestura 自身的介面樣式",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "樣式會被注入到 FlowMouse 建立的每個 Shadow DOM 中。按 Ctrl+S 儲存。",
+		"message": "樣式會被注入到 Gestura 建立的每個 Shadow DOM 中。按 Ctrl+S 儲存。",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "關於 FlowMouse",
+		"message": "關於 Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "感謝 Microsoft Edge 瀏覽器和 crxMouse 擴充功能的設計靈感。\n感謝吾愛破解論壇、論壇公眾號等熱心使用者的回饋與建議！",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse 未載入，點擊重新整理",
+		"message": "Gestura 未載入，點擊重新整理",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse 無法使用，了解原因",
+		"message": "Gestura 無法使用，了解原因",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "歡迎使用 FlowMouse",
+		"message": "歡迎使用 Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse 超級拖曳",
+		"message": "Gestura 超級拖曳",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse 設定",
+		"message": "Gestura 設定",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "提示：安裝 FlowMouse 前已開啟的分頁，需要<span class=\"text-highlight\">重新整理</span>後才能使用手勢",
+		"message": "提示：安裝 Gestura 前已開啟的分頁，需要<span class=\"text-highlight\">重新整理</span>後才能使用手勢",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "為了將頁面新增到書籤，FlowMouse 需要書籤權限。",
+		"message": "為了將頁面新增到書籤，Gestura 需要書籤權限。",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "為了儲存圖片，FlowMouse 需要下載權限。",
+		"message": "為了儲存圖片，Gestura 需要下載權限。",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "為了儲存內容，FlowMouse 需要存取頁面和下載權限。",
+		"message": "為了儲存內容，Gestura 需要存取頁面和下載權限。",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "如需在無痕視窗中使用，您需要手動為 FlowMouse 開啟「在無痕模式下啟用」權限。",
+		"message": "如需在無痕視窗中使用，您需要手動為 Gestura 開啟「在無痕模式下啟用」權限。",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "為了貼上剪貼簿內容，FlowMouse 需要讀取剪貼簿的權限。",
+		"message": "為了貼上剪貼簿內容，Gestura 需要讀取剪貼簿的權限。",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "如需在隱私視窗中使用，您需要手動在附加元件管理員中為 FlowMouse 開啟「在隱私視窗中執行」。",
+		"message": "如需在隱私視窗中使用，您需要手動在附加元件管理員中為 Gestura 開啟「在隱私視窗中執行」。",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse 需要權限",
+		"message": "Gestura 需要權限",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "點擊<span class='icon-ext'></span><b>擴充功能</b>，並<span class='icon-pin'></span><b>釘選</b> FlowMouse，讓設定更便捷！",
+		"message": "點擊<span class='icon-ext'></span><b>擴充功能</b>，並<span class='icon-pin'></span><b>釘選</b> Gestura，讓設定更便捷！",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

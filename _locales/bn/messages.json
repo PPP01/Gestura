@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - মাউস জেসচার",
+		"message": "Gestura - মাউস জেসচার",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "গোপনীয়তা এবং মসৃণ অভিজ্ঞতার উপর দৃষ্টি নিবদ্ধ করা একটি ওপেন সোর্স মাউস জেসচার এক্সটেনশন। মসৃণ জেসচার অপারেশন, সুপার ড্র্যাগ সমর্থন করে।",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "FlowMouse পছন্দ হয়েছে? আমাদের সমর্থন করতে %appStoreInfo% একটি ৫-স্টার রেটিং দিন!",
+		"message": "Gestura পছন্দ হয়েছে? আমাদের সমর্থন করতে %appStoreInfo% একটি ৫-স্টার রেটিং দিন!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "সমস্যা বা পরামর্শ আছে? অনুগ্রহ করে <a href='mailto:Service@52pojie.cn'>ইমেল</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> বা <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>ফোরামের</a> মাধ্যমে আমাদের জানান। আমরা যত দ্রুত সম্ভব এটি উন্নত করব!",
+		"message": "সমস্যা বা পরামর্শ আছে? অনুগ্রহ করে <a href='mailto:contact@gestura.eu'>ইমেল</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> বা <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>ফোরামের</a> মাধ্যমে আমাদের জানান। আমরা যত দ্রুত সম্ভব এটি উন্নত করব!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "সমস্যা বা পরামর্শ আছে? অনুগ্রহ করে <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chrome ওয়েব স্টোর সমর্থন</a>, <a href='mailto:Service@52pojie.cn'>ইমেল</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> বা <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>ফোরামের</a> মাধ্যমে আমাদের জানান। আমরা যত দ্রুত সম্ভব এটি উন্নত করব!",
+		"message": "সমস্যা বা পরামর্শ আছে? অনুগ্রহ করে <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chrome ওয়েব স্টোর সমর্থন</a>, <a href='mailto:contact@gestura.eu'>ইমেল</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> বা <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>ফোরামের</a> মাধ্যমে আমাদের জানান। আমরা যত দ্রুত সম্ভব এটি উন্নত করব!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName%-এ বিল্ট-ইন জেশ্চার বৈশিষ্ট্য রয়েছে। FlowMouse-এর জেশ্চার ব্যবহার করতে, অনুগ্রহ করে %browserName% সেটিংসে <a href=\"#\" class=\"edge-gesture-link\">বিল্ট-ইন জেশ্চারগুলি নিষ্ক্রিয় করুন</a>।",
+		"message": "%browserName%-এ বিল্ট-ইন জেশ্চার বৈশিষ্ট্য রয়েছে। Gestura-এর জেশ্চার ব্যবহার করতে, অনুগ্রহ করে %browserName% সেটিংসে <a href=\"#\" class=\"edge-gesture-link\">বিল্ট-ইন জেশ্চারগুলি নিষ্ক্রিয় করুন</a>।",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "FlowMouse এর নিজস্ব UI কাস্টমাইজ করতে কাস্টম CSS সেট করুন",
+		"message": "Gestura এর নিজস্ব UI কাস্টমাইজ করতে কাস্টম CSS সেট করুন",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "স্টাইলগুলি FlowMouse-এর তৈরি প্রতিটি Shadow DOM-এ ইনজেক্ট করা হয়। সেভ করতে Ctrl+S চাপুন।",
+		"message": "স্টাইলগুলি Gestura-এর তৈরি প্রতিটি Shadow DOM-এ ইনজেক্ট করা হয়। সেভ করতে Ctrl+S চাপুন।",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "FlowMouse সম্পর্কে",
+		"message": "Gestura সম্পর্কে",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "ডিজাইন অনুপ্রেরণার জন্য Microsoft Edge ব্রাউজার এবং crxMouse এক্সটেনশনকে ধন্যবাদ।\nপ্রতিক্রিয়া এবং পরামর্শের জন্য 52pojie.cn সম্প্রদায় এবং ব্যবহারকারীদের ধন্যবাদ!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse লোড হয়নি, রিফ্রেশ করতে ক্লিক করুন",
+		"message": "Gestura লোড হয়নি, রিফ্রেশ করতে ক্লিক করুন",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse অনুপলব্ধ, কারণ জানুন",
+		"message": "Gestura অনুপলব্ধ, কারণ জানুন",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "FlowMouse-এ স্বাগতম",
+		"message": "Gestura-এ স্বাগতম",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse সুপার ড্র্যাগ",
+		"message": "Gestura সুপার ড্র্যাগ",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse সেটিংস",
+		"message": "Gestura সেটিংস",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "পরামর্শ: ইনস্টলেশনের আগে খোলা ট্যাবগুলি FlowMouse ব্যবহার করতে <span class=\"text-highlight\">রিফ্রেশ</span> করা প্রয়োজন",
+		"message": "পরামর্শ: ইনস্টলেশনের আগে খোলা ট্যাবগুলি Gestura ব্যবহার করতে <span class=\"text-highlight\">রিফ্রেশ</span> করা প্রয়োজন",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "আপনার বুকমার্কসে পেজ যোগ করতে, FlowMouse-এর আপনার বুকমার্কসে অ্যাক্সেস প্রয়োজন।",
+		"message": "আপনার বুকমার্কসে পেজ যোগ করতে, Gestura-এর আপনার বুকমার্কসে অ্যাক্সেস প্রয়োজন।",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "ইমেজ সংরক্ষণ করতে, FlowMouse-এর আপনার ডাউনলোডসে অ্যাক্সেস প্রয়োজন।",
+		"message": "ইমেজ সংরক্ষণ করতে, Gestura-এর আপনার ডাউনলোডসে অ্যাক্সেস প্রয়োজন।",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "কন্টেন্ট সংরক্ষণ করতে, FlowMouse-এর পেজ এবং ডাউনলোডসে অ্যাক্সেস প্রয়োজন।",
+		"message": "কন্টেন্ট সংরক্ষণ করতে, Gestura-এর পেজ এবং ডাউনলোডসে অ্যাক্সেস প্রয়োজন।",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "অজ্ঞাত উইন্ডোতে কাজ করার জন্য, আপনাকে ম্যানুয়ালি FlowMouse-এর জন্য 'অজ্ঞাত মোডে অনুমতি দিন' সক্ষম করতে হবে।",
+		"message": "অজ্ঞাত উইন্ডোতে কাজ করার জন্য, আপনাকে ম্যানুয়ালি Gestura-এর জন্য 'অজ্ঞাত মোডে অনুমতি দিন' সক্ষম করতে হবে।",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "ক্লিপবোর্ডের বিষয়বস্তু পেস্ট করতে, FlowMouse-এর আপনার ক্লিপবোর্ড পড়ার অ্যাক্সেস প্রয়োজন।",
+		"message": "ক্লিপবোর্ডের বিষয়বস্তু পেস্ট করতে, Gestura-এর আপনার ক্লিপবোর্ড পড়ার অ্যাক্সেস প্রয়োজন।",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "ব্যক্তিগত উইন্ডোতে কাজ করার জন্য, আপনাকে অ্যাড-অন ম্যানেজারে FlowMouse-এর জন্য 'ব্যক্তিগত উইন্ডোতে চালান' সক্ষম করতে হবে।",
+		"message": "ব্যক্তিগত উইন্ডোতে কাজ করার জন্য, আপনাকে অ্যাড-অন ম্যানেজারে Gestura-এর জন্য 'ব্যক্তিগত উইন্ডোতে চালান' সক্ষম করতে হবে।",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse অনুমতি",
+		"message": "Gestura অনুমতি",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "সহজে অ্যাক্সেসের জন্য<span class='icon-ext'></span><b>এক্সটেনশনস</b> ক্লিক করুন এবং FlowMouse<span class='icon-pin'></span><b>পিন</b> করুন!",
+		"message": "সহজে অ্যাক্সেসের জন্য<span class='icon-ext'></span><b>এক্সটেনশনস</b> ক্লিক করুন এবং Gestura<span class='icon-pin'></span><b>পিন</b> করুন!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

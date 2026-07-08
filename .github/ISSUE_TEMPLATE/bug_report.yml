@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug or unexpected behavior in FlowMouse
+description: Report a bug or unexpected behavior in Gestura
 labels: ["bug"]
 body:
   - type: markdown
@@ -12,7 +12,7 @@ body:
     id: extension-version
     attributes:
       label: Extension Version
-      description: Found at the bottom-left corner of the FlowMouse options page.
+      description: Found at the bottom-left corner of the Gestura options page.
       placeholder: "e.g. 1.3"
     validations:
       required: true

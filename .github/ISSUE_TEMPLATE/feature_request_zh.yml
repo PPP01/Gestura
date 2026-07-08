@@ -1,5 +1,5 @@
 name: 功能建议
-description: 为 FlowMouse 提出新功能或改进建议
+description: 为 Gestura 提出新功能或改进建议
 labels: ["enhancement"]
 body:
   - type: textarea

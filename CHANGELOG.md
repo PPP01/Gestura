@@ -1,4 +1,9 @@
-## FlowMouse Changelog
+## Gestura Changelog
+
+> Gestura is a fork of [FlowMouse](https://github.com/Hmily-LCG/FlowMouse). The
+> history below includes the upstream FlowMouse changelog; Gestura's added
+> features (configurable search engines, context-aware menus, image search) are
+> the entries under v2.3.
 
 ### v2.3 (Unreleased)
 

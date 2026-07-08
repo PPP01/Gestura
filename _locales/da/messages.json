@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Musebevægelser",
+		"message": "Gestura - Musebevægelser",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "En open-source musebevægelse-udvidelse med fokus på privatliv og flydende oplevelse. Flydende og responsive bevægelser, understøtter super-træk.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Glad for FlowMouse? Giv os venligst 5 stjerner i %appStoreInfo% for at støtte os!",
+		"message": "Glad for Gestura? Giv os venligst 5 stjerner i %appStoreInfo% for at støtte os!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Problemer eller forslag? Rapporter dem via <a href='mailto:Service@52pojie.cn'>E-mail</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> eller <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. Vi vil forbedre det så hurtigt som muligt!",
+		"message": "Problemer eller forslag? Rapporter dem via <a href='mailto:contact@gestura.eu'>E-mail</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> eller <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. Vi vil forbedre det så hurtigt som muligt!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Problemer eller forslag? Rapporter dem via <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chrome Webshop-support</a>, <a href='mailto:Service@52pojie.cn'>E-mail</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> eller <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. Vi vil forbedre det så hurtigt som muligt!",
+		"message": "Problemer eller forslag? Rapporter dem via <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chrome Webshop-support</a>, <a href='mailto:contact@gestura.eu'>E-mail</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> eller <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. Vi vil forbedre det så hurtigt som muligt!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% har indbyggede gestusfunktioner. For at bruge FlowMouse's gestus, skal du <a href=\"#\" class=\"edge-gesture-link\">deaktivere de indbyggede gestus</a> i %browserName% indstillinger.",
+		"message": "%browserName% har indbyggede gestusfunktioner. For at bruge Gestura's gestus, skal du <a href=\"#\" class=\"edge-gesture-link\">deaktivere de indbyggede gestus</a> i %browserName% indstillinger.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Indstil brugerdefineret CSS for at justere FlowMouses egen brugergrænseflade",
+		"message": "Indstil brugerdefineret CSS for at justere Gesturas egen brugergrænseflade",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Typografier injiceres i hver Shadow DOM, som FlowMouse opretter. Tryk på Ctrl+S for at gemme.",
+		"message": "Typografier injiceres i hver Shadow DOM, som Gestura opretter. Tryk på Ctrl+S for at gemme.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "Om FlowMouse",
+		"message": "Om Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Tak til Microsoft Edge-browseren og crxMouse-udvidelsen for designinspiration.\nTak til 52pojie.cn-fællesskabet og brugere for feedback og forslag!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse ikke indlæst, klik for at opdatere",
+		"message": "Gestura ikke indlæst, klik for at opdatere",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse utilgængelig, se hvorfor",
+		"message": "Gestura utilgængelig, se hvorfor",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Velkommen til FlowMouse",
+		"message": "Velkommen til Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "FlowMouse Bevægelser",
+		"message": "Gestura Bevægelser",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Super Træk",
+		"message": "Gestura Super Træk",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse Indstillinger",
+		"message": "Gestura Indstillinger",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Tip: Faner åbnet før installation skal <span class=\"text-highlight\">opdateres</span> for at bruge FlowMouse",
+		"message": "Tip: Faner åbnet før installation skal <span class=\"text-highlight\">opdateres</span> for at bruge Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "For at tilføje sider til bogmærker skal FlowMouse bruge adgang til dine bogmærker.",
+		"message": "For at tilføje sider til bogmærker skal Gestura bruge adgang til dine bogmærker.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "For at gemme billeder skal FlowMouse bruge adgang til dine overførsler.",
+		"message": "For at gemme billeder skal Gestura bruge adgang til dine overførsler.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "For at gemme indhold skal FlowMouse bruge adgang til sider og overførsler.",
+		"message": "For at gemme indhold skal Gestura bruge adgang til sider og overførsler.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "For at fungere i inkognitovinduer skal du manuelt aktivere \"Tillad i inkognitotilstand\" for FlowMouse.",
+		"message": "For at fungere i inkognitovinduer skal du manuelt aktivere \"Tillad i inkognitotilstand\" for Gestura.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "For at indsætte indhold fra udklipsholderen skal FlowMouse have adgang til at læse din udklipsholder.",
+		"message": "For at indsætte indhold fra udklipsholderen skal Gestura have adgang til at læse din udklipsholder.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "For at fungere i private vinduer skal du manuelt aktivere \"Kør i private vinduer\" for FlowMouse i Tilføjelsesstyring.",
+		"message": "For at fungere i private vinduer skal du manuelt aktivere \"Kør i private vinduer\" for Gestura i Tilføjelsesstyring.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse Tilladelse",
+		"message": "Gestura Tilladelse",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "Klik på<span class='icon-ext'></span><b>Udvidelser</b>, og fastgør<span class='icon-pin'></span><b>FlowMouse</b> for nem adgang!",
+		"message": "Klik på<span class='icon-ext'></span><b>Udvidelser</b>, og fastgør<span class='icon-pin'></span><b>Gestura</b> for nem adgang!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Cử chỉ chuột",
+		"message": "Gestura - Cử chỉ chuột",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Cử chỉ chuột mã nguồn mở tập trung vào quyền riêng tư và trải nghiệm mượt mà. Cử chỉ mượt mà, hỗ trợ siêu kéo.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Bạn thích FlowMouse? Hãy đánh giá 5 sao trên %appStoreInfo% để ủng hộ chúng tôi!",
+		"message": "Bạn thích Gestura? Hãy đánh giá 5 sao trên %appStoreInfo% để ủng hộ chúng tôi!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Có vấn đề hoặc góp ý? Vui lòng báo cáo qua <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> hoặc <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Diễn đàn</a>. Chúng tôi sẽ cải thiện sớm nhất có thể!",
+		"message": "Có vấn đề hoặc góp ý? Vui lòng báo cáo qua <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> hoặc <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Diễn đàn</a>. Chúng tôi sẽ cải thiện sớm nhất có thể!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Có vấn đề hoặc góp ý? Vui lòng báo cáo qua <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Hỗ trợ Cửa hàng Chrome trực tuyến</a>, <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> hoặc <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Diễn đàn</a>. Chúng tôi sẽ cải thiện sớm nhất có thể!",
+		"message": "Có vấn đề hoặc góp ý? Vui lòng báo cáo qua <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Hỗ trợ Cửa hàng Chrome trực tuyến</a>, <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> hoặc <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Diễn đàn</a>. Chúng tôi sẽ cải thiện sớm nhất có thể!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% có tính năng cử chỉ tích hợp. Để sử dụng cử chỉ của FlowMouse, vui lòng <a href=\"#\" class=\"edge-gesture-link\">tắt cử chỉ tích hợp</a> trong cài đặt %browserName%.",
+		"message": "%browserName% có tính năng cử chỉ tích hợp. Để sử dụng cử chỉ của Gestura, vui lòng <a href=\"#\" class=\"edge-gesture-link\">tắt cử chỉ tích hợp</a> trong cài đặt %browserName%.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Thiết lập CSS tùy chỉnh để điều chỉnh giao diện của chính FlowMouse",
+		"message": "Thiết lập CSS tùy chỉnh để điều chỉnh giao diện của chính Gestura",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Các kiểu được chèn vào mỗi Shadow DOM do FlowMouse tạo. Nhấn Ctrl+S để lưu.",
+		"message": "Các kiểu được chèn vào mỗi Shadow DOM do Gestura tạo. Nhấn Ctrl+S để lưu.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "Về FlowMouse",
+		"message": "Về Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Cảm ơn trình duyệt Microsoft Edge và tiện ích crxMouse đã truyền cảm hứng thiết kế.\nCảm ơn diễn đàn 52pojie.cn và các diễn đàn khác và người dùng đã phản hồi và đóng góp ý kiến!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse chưa được tải, nhấp để làm mới",
+		"message": "Gestura chưa được tải, nhấp để làm mới",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse không khả dụng, tìm hiểu lý do",
+		"message": "Gestura không khả dụng, tìm hiểu lý do",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Chào mừng đến với FlowMouse",
+		"message": "Chào mừng đến với Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "Cử chỉ FlowMouse",
+		"message": "Cử chỉ Gestura",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Siêu kéo",
+		"message": "Gestura Siêu kéo",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "Cài đặt FlowMouse",
+		"message": "Cài đặt Gestura",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Mẹo: Các tab đã mở trước khi cài đặt cần được <span class=\"text-highlight\">làm mới</span> để sử dụng FlowMouse",
+		"message": "Mẹo: Các tab đã mở trước khi cài đặt cần được <span class=\"text-highlight\">làm mới</span> để sử dụng Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "Để thêm trang vào dấu trang, FlowMouse cần quyền truy cập dấu trang của bạn.",
+		"message": "Để thêm trang vào dấu trang, Gestura cần quyền truy cập dấu trang của bạn.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "Để lưu hình ảnh, FlowMouse cần quyền tải xuống.",
+		"message": "Để lưu hình ảnh, Gestura cần quyền tải xuống.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "Để lưu nội dung, FlowMouse cần quyền truy cập vào các trang và tải xuống.",
+		"message": "Để lưu nội dung, Gestura cần quyền truy cập vào các trang và tải xuống.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "Để hoạt động trong các cửa sổ ẩn danh, bạn cần bật thủ công \"Cho phép ở chế độ ẩn danh\" cho FlowMouse.",
+		"message": "Để hoạt động trong các cửa sổ ẩn danh, bạn cần bật thủ công \"Cho phép ở chế độ ẩn danh\" cho Gestura.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "Để dán nội dung trong khay nhớ tạm, FlowMouse cần quyền truy cập để đọc khay nhớ tạm của bạn.",
+		"message": "Để dán nội dung trong khay nhớ tạm, Gestura cần quyền truy cập để đọc khay nhớ tạm của bạn.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "Để hoạt động trong các cửa sổ riêng tư, bạn cần bật thủ công \"Chạy trong cửa sổ riêng tư\" cho FlowMouse trong Trình quản lý tiện ích.",
+		"message": "Để hoạt động trong các cửa sổ riêng tư, bạn cần bật thủ công \"Chạy trong cửa sổ riêng tư\" cho Gestura trong Trình quản lý tiện ích.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "Quyền truy cập cho FlowMouse",
+		"message": "Quyền truy cập cho Gestura",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "Nhấp<span class='icon-ext'></span><b>Tiện ích</b>, rồi<span class='icon-pin'></span><b>Ghim</b> FlowMouse để truy cập dễ dàng!",
+		"message": "Nhấp<span class='icon-ext'></span><b>Tiện ích</b>, rồi<span class='icon-pin'></span><b>Ghim</b> Gestura để truy cập dễ dàng!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

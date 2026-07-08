@@ -1,0 +1,22 @@
+Gestura
+Copyright (C) 2026 PPP01
+
+This program is a modified version ("fork") of FlowMouse.
+
+  FlowMouse
+  Copyright (C) Hmily[LCG] & Coxxs
+  https://github.com/Hmily-LCG/FlowMouse
+
+Gestura is distributed under the same license as FlowMouse, the
+GNU General Public License version 3 (GPL-3.0). See the LICENSE file for the
+full license text.
+
+Modifications by PPP01 (2026 and later) add, among other things:
+configurable search engines, context-aware search/link menus, per-link
+JavaScript transforms, and image search — features that are not part of
+upstream FlowMouse.
+
+In accordance with section 5(a) of the GPL-3.0, this file records that the
+original work has been modified and identifies the date and author of those
+modifications. The original copyright and author notices of FlowMouse are
+retained; Gestura gratefully acknowledges FlowMouse and its authors.

@@ -315,7 +315,8 @@ class OptionsPage extends LitElement {
 			<div class="container">
 				<header>
 					<div class="header-left">
-						<img src="../icons/icon128.png" class="logo-img" alt="Logo">
+						<img src="../icons/icon128.png" class="logo-img logo-light" alt="Logo">
+						<img src="../icons/icon128-dark.png" class="logo-img logo-dark" alt="Logo">
 						<h1>
 							<span>${i18n.getMessage('extNameShort')}</span>
 							<span class="version">${this.#getVersion()}</span>
@@ -917,7 +918,7 @@ class OptionsPage extends LitElement {
 								<span class="footer-link-icon">${unsafeHTML(icon('bookOpen', { size: 14, strokeWidth: 2 }))}</span>
 								${i18n.getMessage('tutorial')}
 							</a>
-							<a href="https://github.com/Hmily-LCG/FlowMouse" target="_blank" class="footer-link">
+							<a href="https://github.com/PPP01/Gestura" target="_blank" class="footer-link">
 								<span class="footer-link-icon">${unsafeHTML(icon('github', { size: 14, strokeWidth: 2 }))}</span>
 								${i18n.getMessage('aboutOpenSource')}
 							</a>
@@ -1256,7 +1257,7 @@ class OptionsPage extends LitElement {
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = 'FlowMouse-settings.json';
+		a.download = 'Gestura-settings.json';
 		a.click();
 		URL.revokeObjectURL(url);
 		this.#showStatus(window.i18n.getMessage('exportDone'));

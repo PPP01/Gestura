@@ -5,7 +5,7 @@ import { icon, iconDataUri } from '../icons.js';
 
 function buildPreviewItems() {
 	return [
-		{ label: 'FlowMouse', icon: '../icons/icon48.png',    time: Date.now() - 30_000, active: true },
+		{ label: 'Gestura', icon: '../icons/icon48.png',    time: Date.now() - 30_000, active: true },
 		{ label: 'GitHub',    icon: iconDataUri('github'),    time: Date.now() - 5 * 60_000 },
 		{ label: window.i18n.getMessage('aboutTitleShort'), icon: iconDataUri('info'), time: Date.now() - 2 * 3600_000 },
 	];
@@ -15,7 +15,7 @@ const CUSTOM_CSS_MAX_LENGTH = 7500;
 
 const HUD_KEYS = ['hudBgColor', 'hudTextColor', 'hudBlurRadius', 'enableHudShadow'];
 
-const SAMPLE_CSS = `/* FlowMouse - Custom CSS example */
+const SAMPLE_CSS = `/* Gestura - Custom CSS example */
 
 :host {
 	font-family: Consolas, monospace !important;

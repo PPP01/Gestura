@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Gestur Mouse",
+		"message": "Gestura - Gestur Mouse",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Ekstensi gestur mouse sumber terbuka yang berfokus pada privasi dan pengalaman yang lancar. Operasi gestur yang mulus dan responsif, mendukung super drag.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Suka FlowMouse? Berikan kami peringkat bintang 5 di %appStoreInfo% untuk mendukung kami!",
+		"message": "Suka Gestura? Berikan kami peringkat bintang 5 di %appStoreInfo% untuk mendukung kami!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Ada masalah atau saran? Silakan laporkan melalui <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a>, atau <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. Kami akan meningkatkannya sesegera mungkin!",
+		"message": "Ada masalah atau saran? Silakan laporkan melalui <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a>, atau <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. Kami akan meningkatkannya sesegera mungkin!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Ada masalah atau saran? Silakan laporkan melalui <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Dukungan Chrome Web Store</a>, <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a>, atau <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. Kami akan meningkatkannya sesegera mungkin!",
+		"message": "Ada masalah atau saran? Silakan laporkan melalui <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Dukungan Chrome Web Store</a>, <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a>, atau <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. Kami akan meningkatkannya sesegera mungkin!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% memiliki fitur gerakan bawaan. Untuk menggunakan gerakan FlowMouse, harap <a href=\"#\" class=\"edge-gesture-link\">nonaktifkan gerakan bawaan</a> di pengaturan %browserName%.",
+		"message": "%browserName% memiliki fitur gerakan bawaan. Untuk menggunakan gerakan Gestura, harap <a href=\"#\" class=\"edge-gesture-link\">nonaktifkan gerakan bawaan</a> di pengaturan %browserName%.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Tetapkan CSS kustom untuk menyesuaikan UI FlowMouse itu sendiri",
+		"message": "Tetapkan CSS kustom untuk menyesuaikan UI Gestura itu sendiri",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Gaya disuntikkan ke setiap Shadow DOM yang dibuat FlowMouse. Tekan Ctrl+S untuk menyimpan.",
+		"message": "Gaya disuntikkan ke setiap Shadow DOM yang dibuat Gestura. Tekan Ctrl+S untuk menyimpan.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "Tentang FlowMouse",
+		"message": "Tentang Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Terima kasih kepada browser Microsoft Edge dan ekstensi crxMouse untuk inspirasi desain.\nTerima kasih kepada komunitas 52pojie.cn dan pengguna atas umpan balik dan saran!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse belum dimuat, klik untuk menyegarkan",
+		"message": "Gestura belum dimuat, klik untuk menyegarkan",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse tidak tersedia, pelajari alasannya",
+		"message": "Gestura tidak tersedia, pelajari alasannya",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Selamat datang di FlowMouse",
+		"message": "Selamat datang di Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "Gerakan FlowMouse",
+		"message": "Gerakan Gestura",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "Super Drag FlowMouse",
+		"message": "Super Drag Gestura",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "Pengaturan FlowMouse",
+		"message": "Pengaturan Gestura",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Tips: Tab yang dibuka sebelum instalasi perlu <span class=\"text-highlight\">disegarkan</span> untuk menggunakan FlowMouse",
+		"message": "Tips: Tab yang dibuka sebelum instalasi perlu <span class=\"text-highlight\">disegarkan</span> untuk menggunakan Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "Untuk menambahkan halaman ke bookmark Anda, FlowMouse memerlukan akses ke bookmark Anda.",
+		"message": "Untuk menambahkan halaman ke bookmark Anda, Gestura memerlukan akses ke bookmark Anda.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "Untuk menyimpan gambar, FlowMouse memerlukan akses ke unduhan Anda.",
+		"message": "Untuk menyimpan gambar, Gestura memerlukan akses ke unduhan Anda.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "Untuk menyimpan konten, FlowMouse memerlukan akses ke halaman dan unduhan.",
+		"message": "Untuk menyimpan konten, Gestura memerlukan akses ke halaman dan unduhan.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "Untuk bekerja di jendela samaran, Anda harus mengaktifkan \"Izinkan dalam mode samaran\" untuk FlowMouse secara manual.",
+		"message": "Untuk bekerja di jendela samaran, Anda harus mengaktifkan \"Izinkan dalam mode samaran\" untuk Gestura secara manual.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "Untuk menempelkan konten papan klip, FlowMouse memerlukan akses untuk membaca papan klip Anda.",
+		"message": "Untuk menempelkan konten papan klip, Gestura memerlukan akses untuk membaca papan klip Anda.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "Untuk bekerja di Jendela Pribadi, Anda harus mengaktifkan \"Jalankan di Jendela Pribadi\" untuk FlowMouse di Pengelola Komponen Tambahan.",
+		"message": "Untuk bekerja di Jendela Pribadi, Anda harus mengaktifkan \"Jalankan di Jendela Pribadi\" untuk Gestura di Pengelola Komponen Tambahan.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "Izin FlowMouse",
+		"message": "Izin Gestura",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "Klik<span class='icon-ext'></span><b>Ekstensi</b>, dan<span class='icon-pin'></span><b>Sematkan</b> FlowMouse untuk akses mudah!",
+		"message": "Klik<span class='icon-ext'></span><b>Ekstensi</b>, dan<span class='icon-pin'></span><b>Sematkan</b> Gestura untuk akses mudah!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

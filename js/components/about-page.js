@@ -229,10 +229,10 @@ class AboutPage extends LitElement {
 		];
 
 		const infoRows = [
-			{ icon: 'user',         label: i18n.getMessage('aboutAuthor'),     value: html`Hmily[LCG] & Coxxs` },
-			{ icon: 'globe',        label: i18n.getMessage('aboutWebsite'),    value: html`<a href="https://www.52pojie.cn/thread-2080303-1-1.html" target="_blank">https://www.52pojie.cn/thread-2080303-1-1.html</a>` },
-			{ icon: 'github',       label: i18n.getMessage('aboutOpenSource'), value: html`<a href="https://github.com/Hmily-LCG/FlowMouse" target="_blank">https://github.com/Hmily-LCG/FlowMouse</a>` },
-			{ icon: 'mail',         label: i18n.getMessage('aboutEmail'),      value: html`<a href="mailto:Service@52pojie.cn">Service@52pojie.cn</a>` },
+			{ icon: 'user',         label: i18n.getMessage('aboutAuthor'),     value: html`PPP01` },
+			{ icon: 'globe',        label: i18n.getMessage('aboutWebsite'),    value: html`<a href="https://gestura.eu" target="_blank">https://gestura.eu</a>` },
+			{ icon: 'github',       label: i18n.getMessage('aboutOpenSource'), value: html`<a href="https://github.com/PPP01/Gestura" target="_blank">https://github.com/PPP01/Gestura</a>` },
+			{ icon: 'mail',         label: i18n.getMessage('aboutEmail'),      value: html`<a href="mailto:contact@gestura.eu">contact@gestura.eu</a>` },
 			{ icon: 'info',         label: i18n.getMessage('version'),         value: html`<span>${this.#getVersion()}</span>` },
 		];
 
@@ -240,7 +240,8 @@ class AboutPage extends LitElement {
 			<div class="container">
 				<header>
 					<h1>
-						<img src="../icons/icon128.png" class="logo-img" alt="Logo">
+						<img src="../icons/icon128.png" class="logo-img logo-light" alt="Logo">
+						<img src="../icons/icon128-dark.png" class="logo-img logo-dark" alt="Logo">
 						<span>${i18n.getMessage('aboutTitle')}</span>
 					</h1>
 				</header>

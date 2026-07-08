@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Gestá myšou",
+		"message": "Gestura - Gestá myšou",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Open-source rozšírenie pre gestá myšou zamerané na súkromie a plynulý zážitok. Plynulé gestá, podpora Super Drag.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Páči sa vám FlowMouse? Dajte nám 5-hviezdičkové hodnotenie v %appStoreInfo% na našu podporu!",
+		"message": "Páči sa vám Gestura? Dajte nám 5-hviezdičkové hodnotenie v %appStoreInfo% na našu podporu!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Problémy alebo návrhy? Nahláste ich cez <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> alebo <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Fórum</a>. Vylepšíme to čo najskôr!",
+		"message": "Problémy alebo návrhy? Nahláste ich cez <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> alebo <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Fórum</a>. Vylepšíme to čo najskôr!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Problémy alebo návrhy? Nahláste ich cez <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Podporu Internetového obchodu Chrome</a>, <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> alebo <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Fórum</a>. Vylepšíme to čo najskôr!",
+		"message": "Problémy alebo návrhy? Nahláste ich cez <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Podporu Internetového obchodu Chrome</a>, <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> alebo <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Fórum</a>. Vylepšíme to čo najskôr!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% má vstavané funkcie gest. Ak chcete používať gestá FlowMouse, <a href=\"#\" class=\"edge-gesture-link\">vypnite prosím vstavané gestá</a> v nastaveniach %browserName%.",
+		"message": "%browserName% má vstavané funkcie gest. Ak chcete používať gestá Gestura, <a href=\"#\" class=\"edge-gesture-link\">vypnite prosím vstavané gestá</a> v nastaveniach %browserName%.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Nastavte vlastné CSS na úpravu vlastného používateľského rozhrania FlowMouse",
+		"message": "Nastavte vlastné CSS na úpravu vlastného používateľského rozhrania Gestura",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Štýly sa vkladajú do každého Shadow DOM, ktorý vytvorí FlowMouse. Pre uloženie stlačte Ctrl+S.",
+		"message": "Štýly sa vkladajú do každého Shadow DOM, ktorý vytvorí Gestura. Pre uloženie stlačte Ctrl+S.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "O FlowMouse",
+		"message": "O Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Vďaka prehliadaču Microsoft Edge a rozšíreniu crxMouse za inšpiráciu dizajnu.\nVďaka komunite 52pojie.cn a používateľom za spätnú väzbu a návrhy!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse nenačítaný, kliknite pre obnovenie",
+		"message": "Gestura nenačítaný, kliknite pre obnovenie",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse nedostupný, zistite prečo",
+		"message": "Gestura nedostupný, zistite prečo",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Vitajte vo FlowMouse",
+		"message": "Vitajte vo Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "Gestá FlowMouse",
+		"message": "Gestá Gestura",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Super Drag",
+		"message": "Gestura Super Drag",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "Nastavenia FlowMouse",
+		"message": "Nastavenia Gestura",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Tip: Karty otvorené pred inštaláciou je potrebné <span class=\"text-highlight\">obnoviť</span> pre použitie FlowMouse",
+		"message": "Tip: Karty otvorené pred inštaláciou je potrebné <span class=\"text-highlight\">obnoviť</span> pre použitie Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "Na pridanie stránok do záložiek potrebuje FlowMouse prístup k vašim záložkám.",
+		"message": "Na pridanie stránok do záložiek potrebuje Gestura prístup k vašim záložkám.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "Na uloženie obrázkov potrebuje FlowMouse prístup k vašim sťahovaniam.",
+		"message": "Na uloženie obrázkov potrebuje Gestura prístup k vašim sťahovaniam.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "Na uloženie obsahu potrebuje FlowMouse prístup k stránkam a sťahovaniam.",
+		"message": "Na uloženie obsahu potrebuje Gestura prístup k stránkam a sťahovaniam.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "Ak chcete, aby to fungovalo v oknách inkognito, musíte pre FlowMouse manuálne povoliť možnosť „Povoliť v režime inkognito“.",
+		"message": "Ak chcete, aby to fungovalo v oknách inkognito, musíte pre Gestura manuálne povoliť možnosť „Povoliť v režime inkognito“.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "Ak chcete vložiť obsah schránky, FlowMouse potrebuje povolenie na čítanie vašej schránky.",
+		"message": "Ak chcete vložiť obsah schránky, Gestura potrebuje povolenie na čítanie vašej schránky.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "Ak chcete, aby to fungovalo v súkromných oknách, musíte v Správcovi doplnkov manuálne povoliť možnosť „Spustiť v súkromných oknách“ pre FlowMouse.",
+		"message": "Ak chcete, aby to fungovalo v súkromných oknách, musíte v Správcovi doplnkov manuálne povoliť možnosť „Spustiť v súkromných oknách“ pre Gestura.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "Povolenie FlowMouse",
+		"message": "Povolenie Gestura",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "Kliknite na<span class='icon-ext'></span><b>Rozšírenia</b>, a<span class='icon-pin'></span><b>Pripnúť</b> FlowMouse pre ľahký prístup!",
+		"message": "Kliknite na<span class='icon-ext'></span><b>Rozšírenia</b>, a<span class='icon-pin'></span><b>Pripnúť</b> Gestura pre ľahký prístup!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

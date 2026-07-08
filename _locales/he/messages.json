@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - מחוות עכבר",
+		"message": "Gestura - מחוות עכבר",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "תוסף מחוות עכבר בקוד פתוח המתמקד בפרטיות וחוויה חלקה. מחוות חלקות, תמיכה בגרירת-על.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "נהנים מ-FlowMouse? אנא דרגו אותנו 5 כוכבים ב-%appStoreInfo% כדי לתמוך בנו!",
+		"message": "נהנים מ-Gestura? אנא דרגו אותנו 5 כוכבים ב-%appStoreInfo% כדי לתמוך בנו!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "בעיות או הצעות? אנא דווחו דרך <a href='mailto:Service@52pojie.cn'>אימייל</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> או <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>הפורום</a>. אנו נשפר זאת בהקדם!",
+		"message": "בעיות או הצעות? אנא דווחו דרך <a href='mailto:contact@gestura.eu'>אימייל</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> או <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>הפורום</a>. אנו נשפר זאת בהקדם!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "בעיות או הצעות? אנא דווחו דרך <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>התמיכה של חנות האינטרנט של Chrome</a>, <a href='mailto:Service@52pojie.cn'>אימייל</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> או <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>הפורום</a>. אנו נשפר זאת בהקדם!",
+		"message": "בעיות או הצעות? אנא דווחו דרך <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>התמיכה של חנות האינטרנט של Chrome</a>, <a href='mailto:contact@gestura.eu'>אימייל</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> או <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>הפורום</a>. אנו נשפר זאת בהקדם!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "לـ %browserName% יש תכונות מחוות מובנות. כדי להשתמש במחוות של FlowMouse, נא <a href=\"#\" class=\"edge-gesture-link\">להשבית את המחוות המובנות</a> בהגדרות %browserName%.",
+		"message": "לـ %browserName% יש תכונות מחוות מובנות. כדי להשתמש במחוות של Gestura, נא <a href=\"#\" class=\"edge-gesture-link\">להשבית את המחוות המובנות</a> בהגדרות %browserName%.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "הגדר CSS מותאם אישית כדי לשנות את ממשק המשתמש של FlowMouse",
+		"message": "הגדר CSS מותאם אישית כדי לשנות את ממשק המשתמש של Gestura",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "הסגנונות מוזרקים לכל Shadow DOM שנוצר על ידי FlowMouse. הקש Ctrl+S כדי לשמור.",
+		"message": "הסגנונות מוזרקים לכל Shadow DOM שנוצר על ידי Gestura. הקש Ctrl+S כדי לשמור.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "אודות FlowMouse",
+		"message": "אודות Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "תודה לדפדפן Microsoft Edge ולתוסף crxMouse על ההשראה לעיצוב.\nתודה לקהילת 52pojie.cn ולמשתמשים על המשוב וההצעות!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse לא נטען, לחץ לרענון",
+		"message": "Gestura לא נטען, לחץ לרענון",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse לא זמין, למד מדוע",
+		"message": "Gestura לא זמין, למד מדוע",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "ברוכים הבאים ל-FlowMouse",
+		"message": "ברוכים הבאים ל-Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "מחוות FlowMouse",
+		"message": "מחוות Gestura",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse גרירת-על",
+		"message": "Gestura גרירת-על",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "הגדרות FlowMouse",
+		"message": "הגדרות Gestura",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "טיפ: כרטיסיות שנפתחו לפני ההתקנה דורשות <span class=\"text-highlight\">רענון</span> כדי להשתמש ב-FlowMouse",
+		"message": "טיפ: כרטיסיות שנפתחו לפני ההתקנה דורשות <span class=\"text-highlight\">רענון</span> כדי להשתמש ב-Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "להוספת דפים לסימניות, FlowMouse צריך גישה לסימניות שלך.",
+		"message": "להוספת דפים לסימניות, Gestura צריך גישה לסימניות שלך.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "לשמירת תמונות, FlowMouse צריך גישה להורדות שלך.",
+		"message": "לשמירת תמונות, Gestura צריך גישה להורדות שלך.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "לשמירת תוכן, FlowMouse צריך גישה לדפים ולהורדות.",
+		"message": "לשמירת תוכן, Gestura צריך גישה לדפים ולהורדות.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "כדי לפעול בחלונות גלישה בסתר, עליך להפעיל ידנית את 'אפשר במצב גלישה בסתר' עבור FlowMouse.",
+		"message": "כדי לפעול בחלונות גלישה בסתר, עליך להפעיל ידנית את 'אפשר במצב גלישה בסתר' עבור Gestura.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "כדי להדביק תוכן מהלוח, FlowMouse זקוק לגישה כדי לקרוא את הלוח שלך.",
+		"message": "כדי להדביק תוכן מהלוח, Gestura זקוק לגישה כדי לקרוא את הלוח שלך.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "כדי לפעול בחלונות פרטיים, עליך להפעיל ידנית את 'הפעל בחלונות פרטיים' עבור FlowMouse במנהל התוספות.",
+		"message": "כדי לפעול בחלונות פרטיים, עליך להפעיל ידנית את 'הפעל בחלונות פרטיים' עבור Gestura במנהל התוספות.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "הרשאת FlowMouse",
+		"message": "הרשאת Gestura",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "לחץ על<span class='icon-ext'></span><b>תוספים</b>, ו<span class='icon-pin'></span><b>הצמד</b> את FlowMouse לגישה קלה!",
+		"message": "לחץ על<span class='icon-ext'></span><b>תוספים</b>, ו<span class='icon-pin'></span><b>הצמד</b> את Gestura לגישה קלה!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

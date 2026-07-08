@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - マウスジェスチャー",
+		"message": "Gestura - マウスジェスチャー",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "プライバシーとスムーズな体験に重点を置いた、オープンソースのマウスジェスチャー拡張機能です。滑らかな操作感でスーパードラッグに対応。",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "FlowMouseを気に入っていただけましたか？%appStoreInfo%で5つ星の評価をいただけると励みになります！",
+		"message": "Gesturaを気に入っていただけましたか？%appStoreInfo%で5つ星の評価をいただけると励みになります！",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "不具合やご提案がありますか？<a href='mailto:Service@52pojie.cn'>メール</a>、<a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a>、または<a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>フォーラム</a>でお知らせください。迅速に対応いたします！",
+		"message": "不具合やご提案がありますか？<a href='mailto:contact@gestura.eu'>メール</a>、<a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a>、または<a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>フォーラム</a>でお知らせください。迅速に対応いたします！",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "不具合やご提案がありますか？<a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chromeウェブストアのサポート</a>、<a href='mailto:Service@52pojie.cn'>メール</a>、<a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a>、または<a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>フォーラム</a>でお知らせください。迅速に対応いたします！",
+		"message": "不具合やご提案がありますか？<a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chromeウェブストアのサポート</a>、<a href='mailto:contact@gestura.eu'>メール</a>、<a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a>、または<a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>フォーラム</a>でお知らせください。迅速に対応いたします！",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% にはジェスチャ機能が組み込まれています。FlowMouse のジェスチャを使用するには、%browserName% の設定で<a href=\"#\" class=\"edge-gesture-link\">組み込みジェスチャを無効にしてください</a>。",
+		"message": "%browserName% にはジェスチャ機能が組み込まれています。Gestura のジェスチャを使用するには、%browserName% の設定で<a href=\"#\" class=\"edge-gesture-link\">組み込みジェスチャを無効にしてください</a>。",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "カスタム CSS を設定して FlowMouse 自身の UI を調整します",
+		"message": "カスタム CSS を設定して Gestura 自身の UI を調整します",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "スタイルは FlowMouse が作成する各 Shadow DOM に挿入されます。保存するには Ctrl+S を押してください。",
+		"message": "スタイルは Gestura が作成する各 Shadow DOM に挿入されます。保存するには Ctrl+S を押してください。",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "FlowMouse について",
+		"message": "Gestura について",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "デザインのインスピレーションを与えてくれたMicrosoft EdgeブラウザとcrxMouse拡張機能に感謝します。\nまた、フィードバックやご提案をくださった吾愛破解フォーラムや公式アカウントの熱心なユーザーの皆様に感謝いたします！",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse未ロード、クリックして更新",
+		"message": "Gestura未ロード、クリックして更新",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse利用不可、理由を確認",
+		"message": "Gestura利用不可、理由を確認",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "FlowMouseへようこそ",
+		"message": "Gesturaへようこそ",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse スーパードラッグ",
+		"message": "Gestura スーパードラッグ",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse 設定",
+		"message": "Gestura 設定",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "ヒント：FlowMouseのインストール前に開いていたタブは、ジェスチャーを使用するために<span class=\"text-highlight\">更新</span>が必要です",
+		"message": "ヒント：Gesturaのインストール前に開いていたタブは、ジェスチャーを使用するために<span class=\"text-highlight\">更新</span>が必要です",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "ページをブックマークに追加するために、FlowMouseはブックマークの権限を必要とします。",
+		"message": "ページをブックマークに追加するために、Gesturaはブックマークの権限を必要とします。",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "画像を保存するために、FlowMouseはダウンロードの権限を必要とします。",
+		"message": "画像を保存するために、Gesturaはダウンロードの権限を必要とします。",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "コンテンツを保存するために、FlowMouseはページへのアクセスとダウンロードの権限を必要とします。",
+		"message": "コンテンツを保存するために、Gesturaはページへのアクセスとダウンロードの権限を必要とします。",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "シークレット ウィンドウで使用するには、FlowMouse の「シークレット モードでの実行を許可する」を手動で有効にする必要があります。",
+		"message": "シークレット ウィンドウで使用するには、Gestura の「シークレット モードでの実行を許可する」を手動で有効にする必要があります。",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "クリップボードの内容を貼り付けるために、FlowMouseはクリップボードを読み取る権限を必要とします。",
+		"message": "クリップボードの内容を貼り付けるために、Gesturaはクリップボードを読み取る権限を必要とします。",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "プライベートウィンドウで使用するには、アドオンマネージャーで FlowMouse の「プライベートウィンドウでの実行」を手動で許可する必要があります。",
+		"message": "プライベートウィンドウで使用するには、アドオンマネージャーで Gestura の「プライベートウィンドウでの実行」を手動で許可する必要があります。",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse 権限リクエスト",
+		"message": "Gestura 権限リクエスト",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "<span class='icon-ext'></span><b>拡張機能</b>をクリックし、FlowMouseを<span class='icon-pin'></span><b>固定</b>すると設定へのアクセスが便利になります！",
+		"message": "<span class='icon-ext'></span><b>拡張機能</b>をクリックし、Gesturaを<span class='icon-pin'></span><b>固定</b>すると設定へのアクセスが便利になります！",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

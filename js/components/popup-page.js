@@ -365,7 +365,8 @@ class PopupPage extends LitElement {
 
 		return html`
 			<div class="header">
-				<img src="../icons/icon48.png" class="logo-small" alt="Logo">
+				<img src="../icons/icon48.png" class="logo-small logo-light" alt="Logo">
+				<img src="../icons/icon48-darktile.png" class="logo-small logo-dark" alt="Logo">
 				<h1><span>${i18n.getMessage('extNameShort')}</span></h1>
 				<span class="version">${this.#getVersion()}</span>
 				<button class="header-settings" @click=${this.#openOptions} title="${i18n.getMessage('moreSettings')}">

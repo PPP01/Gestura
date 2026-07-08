@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest a new feature or improvement for FlowMouse
+description: Suggest a new feature or improvement for Gestura
 labels: ["enhancement"]
 body:
   - type: textarea

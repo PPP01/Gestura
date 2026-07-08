@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "__MSG_extName__",
     "version": "2.2",
-    "author": "Hmily[LCG] & Coxxs",
+    "author": "PPP01 (based on FlowMouse by Hmily[LCG] & Coxxs)",
     "description": "__MSG_extDescription__",
     "default_locale": "en",
     "minimum_chrome_version": "109",
@@ -55,12 +55,14 @@
         "default_popup": "pages/popup.html",
         "default_icon": {
             "16": "icons/icon16.png",
+            "32": "icons/icon32.png",
             "48": "icons/icon48.png",
             "128": "icons/icon128.png"
         }
     },
     "icons": {
         "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
         "48": "icons/icon48.png",
         "128": "icons/icon128.png"
     },

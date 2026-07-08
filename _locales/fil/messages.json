@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Makinis na Mouse Gestures",
+		"message": "Gestura - Makinis na Mouse Gestures",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Isang open-source na mouse gesture extension na nakatuon sa privacy at maayos na karanasan. Makinis na mga galaw ng mouse, suporta sa super drag.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Nasisiyahan sa FlowMouse? Mangyaring bigyan kami ng 5-star rating sa %appStoreInfo% upang suportahan kami!",
+		"message": "Nasisiyahan sa Gestura? Mangyaring bigyan kami ng 5-star rating sa %appStoreInfo% upang suportahan kami!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "May mga problema o mungkahi? Mangyaring i-ulat sa pamamagitan ng <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a>, o <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. Papabutihin namin ito sa lalong madaling panahon!",
+		"message": "May mga problema o mungkahi? Mangyaring i-ulat sa pamamagitan ng <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a>, o <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. Papabutihin namin ito sa lalong madaling panahon!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "May mga problema o mungkahi? Mangyaring i-ulat sa pamamagitan ng <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Suporta ng Chrome Web Store</a>, <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a>, o <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. Papabutihin namin ito sa lalong madaling panahon!",
+		"message": "May mga problema o mungkahi? Mangyaring i-ulat sa pamamagitan ng <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Suporta ng Chrome Web Store</a>, <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a>, o <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. Papabutihin namin ito sa lalong madaling panahon!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "Ang %browserName% ay may built-in na mga tampok na gesture. Upang magamit ang mga gesture ng FlowMouse, mangyaring <a href=\"#\" class=\"edge-gesture-link\">huwag paganahin ang mga built-in na gesture</a> sa mga setting ng %browserName%.",
+		"message": "Ang %browserName% ay may built-in na mga tampok na gesture. Upang magamit ang mga gesture ng Gestura, mangyaring <a href=\"#\" class=\"edge-gesture-link\">huwag paganahin ang mga built-in na gesture</a> sa mga setting ng %browserName%.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Mag-set ng custom na CSS upang i-tweak ang sariling UI ng FlowMouse",
+		"message": "Mag-set ng custom na CSS upang i-tweak ang sariling UI ng Gestura",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Ang mga istilo ay ini-inject sa bawat Shadow DOM na nililikha ng FlowMouse. Pindutin ang Ctrl+S para i-save.",
+		"message": "Ang mga istilo ay ini-inject sa bawat Shadow DOM na nililikha ng Gestura. Pindutin ang Ctrl+S para i-save.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "Tungkol sa FlowMouse",
+		"message": "Tungkol sa Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Salamat sa Microsoft Edge browser at crxMouse extension para sa inspirasyon sa disenyo.\nSalamat sa komunidad ng 52pojie.cn at mga user para sa feedback at mga mungkahi!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "Hindi na-load ang FlowMouse, i-click para i-refresh",
+		"message": "Hindi na-load ang Gestura, i-click para i-refresh",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "Hindi available ang FlowMouse, alamin kung bakit",
+		"message": "Hindi available ang Gestura, alamin kung bakit",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Maligayang pagdating sa FlowMouse",
+		"message": "Maligayang pagdating sa Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "Mga Galaw ng FlowMouse",
+		"message": "Mga Galaw ng Gestura",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Super Drag",
+		"message": "Gestura Super Drag",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "Mga Setting ng FlowMouse",
+		"message": "Mga Setting ng Gestura",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Tip: Ang mga tab na binuksan bago ang pag-install ay kailangang <span class=\"text-highlight\">i-refresh</span> upang magamit ang FlowMouse",
+		"message": "Tip: Ang mga tab na binuksan bago ang pag-install ay kailangang <span class=\"text-highlight\">i-refresh</span> upang magamit ang Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "Upang magdagdag ng mga pahina sa iyong mga bookmark, kailangan ng FlowMouse ng access sa iyong mga bookmark.",
+		"message": "Upang magdagdag ng mga pahina sa iyong mga bookmark, kailangan ng Gestura ng access sa iyong mga bookmark.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "Upang ma-save ang mga larawan, kailangan ng FlowMouse ng access sa iyong mga download.",
+		"message": "Upang ma-save ang mga larawan, kailangan ng Gestura ng access sa iyong mga download.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "Upang ma-save ang content, kailangan ng FlowMouse ng access sa mga page at mga download.",
+		"message": "Upang ma-save ang content, kailangan ng Gestura ng access sa mga page at mga download.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "Para gumana sa mga window ng Incognito, kailangan mong manual na i-enable ang 'Payagan sa Incognito' para sa FlowMouse.",
+		"message": "Para gumana sa mga window ng Incognito, kailangan mong manual na i-enable ang 'Payagan sa Incognito' para sa Gestura.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "Upang i-paste ang nilalaman ng clipboard, kailangan ng FlowMouse ng access na basahin ang iyong clipboard.",
+		"message": "Upang i-paste ang nilalaman ng clipboard, kailangan ng Gestura ng access na basahin ang iyong clipboard.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "Para gumana sa Pribadong Windows, kailangan mong manual na i-enable ang 'Tumakbo sa Pribadong Windows' para sa FlowMouse sa Add-ons Manager.",
+		"message": "Para gumana sa Pribadong Windows, kailangan mong manual na i-enable ang 'Tumakbo sa Pribadong Windows' para sa Gestura sa Add-ons Manager.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "Pahintulot ng FlowMouse",
+		"message": "Pahintulot ng Gestura",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "I-click ang<span class='icon-ext'></span><b>Extensions</b>, at<span class='icon-pin'></span><b>I-pin</b> ang FlowMouse para sa madaling pag-access!",
+		"message": "I-click ang<span class='icon-ext'></span><b>Extensions</b>, at<span class='icon-pin'></span><b>I-pin</b> ang Gestura para sa madaling pag-access!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

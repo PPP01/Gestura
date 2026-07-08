@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Egérgesztusok",
+		"message": "Gestura - Egérgesztusok",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Nyílt forráskódú egérgesztus bővítmény, amely a magánéletre és a zökkenőmentes élményre összpontosít. Simák a gesztusok, szuper húzási támogatás.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Tetszik a FlowMouse? Kérlek, adj nekünk egy 5 csillagos értékelést az %appStoreInfo%, hogy támogass minket!",
+		"message": "Tetszik a Gestura? Kérlek, adj nekünk egy 5 csillagos értékelést az %appStoreInfo%, hogy támogass minket!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Problémái vagy javaslatai vannak? Kérjük, jelentse <a href='mailto:Service@52pojie.cn'>E-mailben</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHubon</a> vagy a <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Fórumon</a>. A lehető leghamarabb javítjuk!",
+		"message": "Problémái vagy javaslatai vannak? Kérjük, jelentse <a href='mailto:contact@gestura.eu'>E-mailben</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHubon</a> vagy a <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Fórumon</a>. A lehető leghamarabb javítjuk!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Problémái vagy javaslatai vannak? Kérjük, jelentse a <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chrome Webáruház támogatásán</a>, <a href='mailto:Service@52pojie.cn'>E-mailben</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHubon</a> vagy a <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Fórumon</a>. A lehető leghamarabb javítjuk!",
+		"message": "Problémái vagy javaslatai vannak? Kérjük, jelentse a <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chrome Webáruház támogatásán</a>, <a href='mailto:contact@gestura.eu'>E-mailben</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHubon</a> vagy a <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Fórumon</a>. A lehető leghamarabb javítjuk!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "A(z) %browserName% beépített gesztusfunkciókkal rendelkezik. A FlowMouse gesztusainak használatához kérjük, <a href=\"#\" class=\"edge-gesture-link\">tiltse le a beépített gesztusokat</a> a(z) %browserName% beállításaiban.",
+		"message": "A(z) %browserName% beépített gesztusfunkciókkal rendelkezik. A Gestura gesztusainak használatához kérjük, <a href=\"#\" class=\"edge-gesture-link\">tiltse le a beépített gesztusokat</a> a(z) %browserName% beállításaiban.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Állítson be egyéni CSS-t a FlowMouse saját felhasználói felületének finomhangolásához",
+		"message": "Állítson be egyéni CSS-t a Gestura saját felhasználói felületének finomhangolásához",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "A stílusok minden egyes, a FlowMouse által létrehozott Shadow DOM-ba bekerülnek. A mentéshez nyomja le a Ctrl+S billentyűkombinációt.",
+		"message": "A stílusok minden egyes, a Gestura által létrehozott Shadow DOM-ba bekerülnek. A mentéshez nyomja le a Ctrl+S billentyűkombinációt.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "A FlowMouse-ról",
+		"message": "A Gestura-ról",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Köszönet a Microsoft Edge böngészőnek és a crxMouse bővítménynek a tervezési inspirációért.\nKöszönet a 52pojie.cn közösségnek és a felhasználóknak a visszajelzésekért és javaslatokért!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "A FlowMouse nem töltődött be, kattints a frissítéshez",
+		"message": "A Gestura nem töltődött be, kattints a frissítéshez",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "A FlowMouse nem elérhető, tudj meg többet",
+		"message": "A Gestura nem elérhető, tudj meg többet",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Üdvözöl a FlowMouse",
+		"message": "Üdvözöl a Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "FlowMouse Gesztusok",
+		"message": "Gestura Gesztusok",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Super Drag",
+		"message": "Gestura Super Drag",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse beállítások",
+		"message": "Gestura beállítások",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Tipp: A telepítés előtt megnyitott lapokat <span class=\"text-highlight\">frissíteni</span> kell a FlowMouse használatához",
+		"message": "Tipp: A telepítés előtt megnyitott lapokat <span class=\"text-highlight\">frissíteni</span> kell a Gestura használatához",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "Az oldalak könyvjelzőkhöz adásához a FlowMouse hozzáférést igényel a könyvjelzőidhez.",
+		"message": "Az oldalak könyvjelzőkhöz adásához a Gestura hozzáférést igényel a könyvjelzőidhez.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "Képek mentéséhez a FlowMouse hozzáférést igényel a letöltéseidhez.",
+		"message": "Képek mentéséhez a Gestura hozzáférést igényel a letöltéseidhez.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "Tartalom mentéséhez a FlowMouse hozzáférést igényel az oldalakhoz és a letöltéseidhez.",
+		"message": "Tartalom mentéséhez a Gestura hozzáférést igényel az oldalakhoz és a letöltéseidhez.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "Ahhoz, hogy inkognitó ablakokban működjön, manuálisan engedélyeznie kell az \"Engedélyezés inkognitó módban\" lehetőséget a FlowMouse számára.",
+		"message": "Ahhoz, hogy inkognitó ablakokban működjön, manuálisan engedélyeznie kell az \"Engedélyezés inkognitó módban\" lehetőséget a Gestura számára.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "A vágólap tartalmának beillesztéséhez a FlowMouse-nak hozzá kell férnie a vágólap olvasásához.",
+		"message": "A vágólap tartalmának beillesztéséhez a Gestura-nak hozzá kell férnie a vágólap olvasásához.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "Ahhoz, hogy privát ablakokban működjön, manuálisan engedélyeznie kell a \"Futtatás privát ablakokban\" lehetőséget a FlowMouse számára a Kiegészítőkezelőben.",
+		"message": "Ahhoz, hogy privát ablakokban működjön, manuálisan engedélyeznie kell a \"Futtatás privát ablakokban\" lehetőséget a Gestura számára a Kiegészítőkezelőben.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse Engedély",
+		"message": "Gestura Engedély",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "Kattints a<span class='icon-ext'></span><b>Bővítmények</b> gombra, és<span class='icon-pin'></span><b>Rögzítsd</b> a FlowMouse-t a könnyű hozzáférésért!",
+		"message": "Kattints a<span class='icon-ext'></span><b>Bővítmények</b> gombra, és<span class='icon-pin'></span><b>Rögzítsd</b> a Gestura-t a könnyű hozzáférésért!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {

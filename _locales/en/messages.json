@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Mouse Gestures",
+		"message": "Gestura - Mouse Gestures",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "A privacy-focused, open-source mouse gesture extension for seamless browsing. Enjoy responsive gestures and super drag support.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "Enjoying FlowMouse? Please give us a 5-star rating on the %appStoreInfo% to support us!",
+		"message": "Enjoying Gestura? Please give us a 5-star rating on the %appStoreInfo% to support us!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Issues or suggestions? Please report via <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> or <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. We'll improve it ASAP!",
+		"message": "Issues or suggestions? Please report via <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> or <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. We'll improve it ASAP!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Issues or suggestions? Please report via <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chrome Web Store Support</a>, <a href='mailto:Service@52pojie.cn'>Email</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> or <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a>. We'll improve it ASAP!",
+		"message": "Issues or suggestions? Please report via <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chrome Web Store Support</a>, <a href='mailto:contact@gestura.eu'>Email</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> or <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a>. We'll improve it ASAP!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% has built-in gesture features. To use FlowMouse's gestures, please <a href=\"#\" class=\"edge-gesture-link\">disable the built-in gestures</a> in %browserName% settings.",
+		"message": "%browserName% has built-in gesture features. To use Gestura's gestures, please <a href=\"#\" class=\"edge-gesture-link\">disable the built-in gestures</a> in %browserName% settings.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "Set custom CSS to tweak FlowMouse's own UI",
+		"message": "Set custom CSS to tweak Gestura's own UI",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Styles are injected into each Shadow DOM that FlowMouse creates. Press Ctrl+S to save.",
+		"message": "Styles are injected into each Shadow DOM that Gestura creates. Press Ctrl+S to save.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "About FlowMouse",
+		"message": "About Gestura",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1072,7 +1072,7 @@
 		"description": "Privacy statement"
 	},
 	"aboutPrivacyText": {
-		"message": "This extension is an open-source project with code hosted on GitHub. Contributions and code review are welcome. All data processing is done locally on your device. The extension itself does not establish any network connections and has no backend servers, so it does not collect or upload any user data to external servers. Your saved settings are encrypted and synced between your logged-in devices via %browserName% browser's built-in sync service. This process is entirely controlled by the browser and follows your browser's privacy and sync settings.",
+		"message": "This extension is an open-source project with code hosted on GitHub. Contributions and code review are welcome. All data processing is done locally on your device. The extension itself does not establish any network connections and has no backend servers, so it does not collect or upload any user data to external servers. Your saved settings are encrypted and synced between your logged-in devices via %browserName% browser's built-in sync service. This process is entirely controlled by the browser and follows your browser's privacy and sync settings. Note: Brave does not sync extension settings across devices, even when Brave Sync is enabled — this is a limitation of Brave itself, not of this extension. Your settings are still saved on each Brave device; to move your configuration between devices, use Export and Import on the options page.",
 		"description": "Privacy statement text"
 	},
 	"aboutCredits": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Thanks to Microsoft Edge browser and crxMouse extension for design inspiration.\nThanks to 52pojie.cn community and users for feedback and suggestions!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse not loaded, click to refresh",
+		"message": "Gestura not loaded, click to refresh",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse unavailable, learn why",
+		"message": "Gestura unavailable, learn why",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "Welcome to FlowMouse",
+		"message": "Welcome to Gestura",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1428,7 +1428,7 @@
 		"description": "Tutorial Step 1 instruction releasing"
 	},
 	"tutorialStep2Title": {
-		"message": "FlowMouse Gestures",
+		"message": "Gestura Gestures",
 		"description": "Tutorial Step 2 title"
 	},
 	"tutorialStep2Subtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Super Drag",
+		"message": "Gestura Super Drag",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse Settings",
+		"message": "Gestura Settings",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "Tip: Tabs opened before installation need to be <span class=\"text-highlight\">refreshed</span> to use FlowMouse",
+		"message": "Tip: Tabs opened before installation need to be <span class=\"text-highlight\">refreshed</span> to use Gestura",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "To manage your bookmarks, FlowMouse needs access to your bookmarks.",
+		"message": "To manage your bookmarks, Gestura needs access to your bookmarks.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "To save images, FlowMouse needs access to your downloads.",
+		"message": "To save images, Gestura needs access to your downloads.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "To save content, FlowMouse needs access to pages and downloads.",
+		"message": "To save content, Gestura needs access to pages and downloads.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "To work in Incognito windows, you need to manually enable \"Allow in Incognito\" for FlowMouse.",
+		"message": "To work in Incognito windows, you need to manually enable \"Allow in Incognito\" for Gestura.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "To paste clipboard content, FlowMouse needs access to read your clipboard.",
+		"message": "To paste clipboard content, Gestura needs access to read your clipboard.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "To work in Private Windows, you need to manually enable \"Run in Private Windows\" for FlowMouse in Add-ons Manager.",
+		"message": "To work in Private Windows, you need to manually enable \"Run in Private Windows\" for Gestura in Add-ons Manager.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse Permission",
+		"message": "Gestura Permission",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "Click<span class='icon-ext'></span><b>Extensions</b>, and<span class='icon-pin'></span><b>Pin</b> FlowMouse for easy access!",
+		"message": "Click<span class='icon-ext'></span><b>Extensions</b>, and<span class='icon-pin'></span><b>Pin</b> Gestura for easy access!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {
@@ -1721,7 +1721,7 @@
 	},
 	"customMenuContextual": {
 		"message": "Pick menu by current site",
-		"description": "Checkbox label — when checked, FlowMouse picks the menu whose site patterns match the current page instead of using a fixed menu"
+		"description": "Checkbox label — when checked, Gestura picks the menu whose site patterns match the current page instead of using a fixed menu"
 	},
 	"customMenuContextualHint": {
 		"message": "Opens the first menu whose site patterns match the current page; configure patterns in each menu.",

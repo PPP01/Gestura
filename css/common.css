@@ -573,6 +573,27 @@ textarea.input-mono {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
+/* Theme-aware logo: light variant by default, dark variant in dark mode.
+   Rules are duplicated for light-DOM pages ([data-theme]) and shadow-DOM
+   components (:host-context), because shared-styles.js injects this same CSS
+   into component shadow roots. */
+.logo-dark {
+	display: none;
+}
+[data-theme="dark"] .logo-light,
+:host-context([data-theme="dark"]) .logo-light {
+	display: none;
+}
+[data-theme="dark"] .logo-dark,
+:host-context([data-theme="dark"]) .logo-dark {
+	display: inline-block;
+}
+[data-theme="dark"] .logo-img,
+:host-context([data-theme="dark"]) .logo-img {
+	background: linear-gradient(145deg, #2a3040, #1c222e);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
 .separator {
 	padding: 0 4px;
 }

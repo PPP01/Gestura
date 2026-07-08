@@ -1,14 +1,14 @@
 {
 	"extName": {
-		"message": "FlowMouse - Fare Hareketleri",
+		"message": "Gestura - Fare Hareketleri",
 		"description": "Extension name"
 	},
 	"extNameShort": {
-		"message": "FlowMouse",
+		"message": "Gestura",
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Gizlilik ve akıcı deneyime odaklanan açık kaynaklı bir fare hareketi eklentisi. Akıcı ve hızlı hareketler, süper sürükleme desteği.",
+		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -48,7 +48,7 @@
 		"description": "Privacy note in footer"
 	},
 	"supportUsText": {
-		"message": "FlowMouse'u sevdiniz mi? Bize destek olmak için lütfen %appStoreInfo% 5 yıldız verin!",
+		"message": "Gestura'u sevdiniz mi? Bize destek olmak için lütfen %appStoreInfo% 5 yıldız verin!",
 		"description": "Rating text"
 	},
 	"storeNameChrome": {
@@ -64,11 +64,11 @@
 		"description": "Firefox Add-ons name"
 	},
 	"feedbackText": {
-		"message": "Sorun mu yaşıyorsunuz veya bir öneriniz mi var? Lütfen <a href='mailto:Service@52pojie.cn'>E-posta</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> veya <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a> üzerinden bildirin. En kısa sürede düzelteceğiz!",
+		"message": "Sorun mu yaşıyorsunuz veya bir öneriniz mi var? Lütfen <a href='mailto:contact@gestura.eu'>E-posta</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> veya <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a> üzerinden bildirin. En kısa sürede düzelteceğiz!",
 		"description": "Feedback text"
 	},
 	"feedbackTextChrome": {
-		"message": "Sorun mu yaşıyorsunuz veya bir öneriniz mi var? Lütfen <a href='https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/support' target='_blank'>Chrome Web Mağazası Desteği</a>, <a href='mailto:Service@52pojie.cn'>E-posta</a>, <a href='https://github.com/Hmily-LCG/FlowMouse/issues' target='_blank'>GitHub</a> veya <a href='https://www.52pojie.cn/thread-2080303-1-1.html' target='_blank'>Forum</a> üzerinden bildirin. En kısa sürede düzelteceğiz!",
+		"message": "Sorun mu yaşıyorsunuz veya bir öneriniz mi var? Lütfen <a href='https://chromewebstore.google.com/detail/GESTURA_CWS_ID/support' target='_blank'>Chrome Web Mağazası Desteği</a>, <a href='mailto:contact@gestura.eu'>E-posta</a>, <a href='https://github.com/PPP01/Gestura/issues' target='_blank'>GitHub</a> veya <a href='https://github.com/PPP01/Gestura/discussions' target='_blank'>Forum</a> üzerinden bildirin. En kısa sürede düzelteceğiz!",
 		"description": "Feedback text for Chrome browser"
 	},
 	"supportAndFeedback": {
@@ -152,7 +152,7 @@
 		"description": "Short toast hint shown on first right-click on macOS/Linux explaining double-click requirement"
 	},
 	"edgeGestureConflictNotice": {
-		"message": "%browserName% yerleşik el hareketi özelliklerine sahiptir. FlowMouse'un el hareketlerini kullanmak için lütfen %browserName% ayarlarında <a href=\"#\" class=\"edge-gesture-link\">yerleşik el hareketlerini devre dışı bırakın</a>.",
+		"message": "%browserName% yerleşik el hareketi özelliklerine sahiptir. Gestura'un el hareketlerini kullanmak için lütfen %browserName% ayarlarında <a href=\"#\" class=\"edge-gesture-link\">yerleşik el hareketlerini devre dışı bırakın</a>.",
 		"description": "Notice for Edge users about built-in gesture conflict"
 	},
 	"macTextDragNotice": {
@@ -208,7 +208,7 @@
 		"description": "Advanced setting: user-provided CSS injected into extension-created Shadow DOMs"
 	},
 	"customCssDesc": {
-		"message": "FlowMouse'un kendi arayüzünü ayarlamak için özel CSS ayarlayın",
+		"message": "Gestura'un kendi arayüzünü ayarlamak için özel CSS ayarlayın",
 		"description": "Description for the Custom CSS advanced setting"
 	},
 	"customCssConfigure": {
@@ -224,7 +224,7 @@
 		"description": "Title of the dedicated custom CSS editor page"
 	},
 	"customCssEditorHint": {
-		"message": "Stiller, FlowMouse'un oluşturduğu her Shadow DOM'a enjekte edilir. Kaydetmek için Ctrl+S tuşlarına basın.",
+		"message": "Stiller, Gestura'un oluşturduğu her Shadow DOM'a enjekte edilir. Kaydetmek için Ctrl+S tuşlarına basın.",
 		"description": "Hint shown above the editor textarea."
 	},
 	"customCssEditorPlaceholder": {
@@ -1044,7 +1044,7 @@
 		"description": "Drag open link hint"
 	},
 	"aboutTitle": {
-		"message": "FlowMouse Hakkında",
+		"message": "Gestura Hakkında",
 		"description": "About title"
 	},
 	"aboutTitleShort": {
@@ -1080,7 +1080,7 @@
 		"description": "Credits"
 	},
 	"aboutCreditsText": {
-		"message": "Tasarım ilhamı için Microsoft Edge tarayıcısına ve crxMouse eklentisine teşekkürler.\nGeri bildirim ve önerileri için 52pojie.cn topluluğuna ve kullanıcılara teşekkürler!",
+		"message": "Gestura is a fork of FlowMouse by Hmily[LCG] & Coxxs - heartfelt thanks to them for the original extension.\nThanks to the Microsoft Edge browser and the crxMouse extension for design inspiration.",
 		"description": "Credits text"
 	},
 	"aboutFeatures": {
@@ -1292,11 +1292,11 @@
 		"description": "Badge shown next to fields that must be filled in (e.g., URL for Open URL)"
 	},
 	"menuNeedRefresh": {
-		"message": "FlowMouse yüklenmedi, yenilemek için tıkla",
+		"message": "Gestura yüklenmedi, yenilemek için tıkla",
 		"description": "Context menu title for pages needing refresh"
 	},
 	"menuRestricted": {
-		"message": "FlowMouse kullanılamıyor, nedenini öğren",
+		"message": "Gestura kullanılamıyor, nedenini öğren",
 		"description": "Context menu title for restricted pages"
 	},
 	"showRestrictedNotice": {
@@ -1396,7 +1396,7 @@
 		"description": "Tutorial Step 0 instruction"
 	},
 	"tutorialWelcomeTitle": {
-		"message": "FlowMouse'a Hoş Geldiniz",
+		"message": "Gestura'a Hoş Geldiniz",
 		"description": "Tutorial welcome title"
 	},
 	"tutorialWelcomeSubtitle": {
@@ -1488,7 +1488,7 @@
 		"description": "Tutorial Step 3 text box label"
 	},
 	"tutorialStep3SelectableText": {
-		"message": "FlowMouse Süper Sürükleme",
+		"message": "Gestura Süper Sürükleme",
 		"description": "Tutorial Step 3 selectable text"
 	},
 	"tutorialStep4Title": {
@@ -1504,7 +1504,7 @@
 		"description": "Tutorial Step 4 instruction. Note: Must drag to right. Use SVG arrow instead of text for direction."
 	},
 	"tutorialSettingsLink": {
-		"message": "FlowMouse Ayarları",
+		"message": "Gestura Ayarları",
 		"description": "Tutorial settings link"
 	},
 	"tutorialSettingsHint": {
@@ -1524,7 +1524,7 @@
 		"description": "Tutorial drag wrong button error"
 	},
 	"tutorialRefreshTip": {
-		"message": "İpucu: FlowMouse yüklenmeden önce açılan sekmelerin hareketleri kullanabilmesi için <span class=\"text-highlight\">yenilenmesi</span> gerekir",
+		"message": "İpucu: Gestura yüklenmeden önce açılan sekmelerin hareketleri kullanabilmesi için <span class=\"text-highlight\">yenilenmesi</span> gerekir",
 		"description": "Tip about refreshing tabs"
 	},
 	"permissionBookmarksTitle": {
@@ -1532,7 +1532,7 @@
 		"description": "Permission popup title for bookmarks"
 	},
 	"permissionBookmarksDesc": {
-		"message": "Sayfaları yer işaretlerine eklemek için FlowMouse yer işareti iznine ihtiyaç duyar.",
+		"message": "Sayfaları yer işaretlerine eklemek için Gestura yer işareti iznine ihtiyaç duyar.",
 		"description": "Permission popup description for bookmarks"
 	},
 	"permissionDownloadsTitle": {
@@ -1540,7 +1540,7 @@
 		"description": "Permission popup title for downloads"
 	},
 	"permissionDownloadsDesc": {
-		"message": "Resimleri kaydetmek için FlowMouse indirme iznine ihtiyaç duyar.",
+		"message": "Resimleri kaydetmek için Gestura indirme iznine ihtiyaç duyar.",
 		"description": "Permission popup description for downloads"
 	},
 	"permissionDownloadsPageCaptureTitle": {
@@ -1548,7 +1548,7 @@
 		"description": "Permission popup title for downloads and page capture"
 	},
 	"permissionDownloadsPageCaptureDesc": {
-		"message": "İçeriği kaydetmek için FlowMouse sayfa ve indirme erişimine ihtiyaç duyar.",
+		"message": "İçeriği kaydetmek için Gestura sayfa ve indirme erişimine ihtiyaç duyar.",
 		"description": "Permission popup description for downloads and page capture"
 	},
 	"permissionIncognitoTitle": {
@@ -1556,7 +1556,7 @@
 		"description": "Permission popup title for incognito"
 	},
 	"permissionIncognitoDesc": {
-		"message": "Gizli pencerelerde çalışmak için FlowMouse için \"Gizli modda izin ver\" seçeneğini manuel olarak etkinleştirmeniz gerekir.",
+		"message": "Gizli pencerelerde çalışmak için Gestura için \"Gizli modda izin ver\" seçeneğini manuel olarak etkinleştirmeniz gerekir.",
 		"description": "Permission popup description for incognito"
 	},
 	"permissionClipboardReadTitle": {
@@ -1564,7 +1564,7 @@
 		"description": "Permission popup title for clipboard read"
 	},
 	"permissionClipboardReadDesc": {
-		"message": "Pano içeriğini yapıştırmak için FlowMouse'un panonuzu okuma iznine ihtiyacı vardır.",
+		"message": "Pano içeriğini yapıştırmak için Gestura'un panonuzu okuma iznine ihtiyacı vardır.",
 		"description": "Permission popup description for clipboard read"
 	},
 	"openExtensionsSettings": {
@@ -1576,7 +1576,7 @@
 		"description": "Permission popup title for Firefox private browsing"
 	},
 	"permissionFirefoxIncognitoDesc": {
-		"message": "Gizli pencerelerde çalışmak için FlowMouse için Eklenti Yöneticisi'nde \"Gizli Pencerelerde Çalıştır\" seçeneğini manuel olarak etkinleştirmeniz gerekir.",
+		"message": "Gizli pencerelerde çalışmak için Gestura için Eklenti Yöneticisi'nde \"Gizli Pencerelerde Çalıştır\" seçeneğini manuel olarak etkinleştirmeniz gerekir.",
 		"description": "Permission popup description for Firefox private browsing"
 	},
 	"grantPermission": {
@@ -1588,11 +1588,11 @@
 		"description": "Cancel button"
 	},
 	"permissionTitle": {
-		"message": "FlowMouse İzin Gerektiriyor",
+		"message": "Gestura İzin Gerektiriyor",
 		"description": "Generic permission window title"
 	},
 	"tutorialPinHint": {
-		"message": "<span class='icon-ext'></span><b>Eklentiler</b>'e tıklayın ve FlowMouse'u<span class='icon-pin'></span><b>Sabitleyin</b>, ayarlar daha erişilebilir olsun!",
+		"message": "<span class='icon-ext'></span><b>Eklentiler</b>'e tıklayın ve Gestura'u<span class='icon-pin'></span><b>Sabitleyin</b>, ayarlar daha erişilebilir olsun!",
 		"description": "Hint to pin the extension in tutorial step 4. Do not add space around icon."
 	},
 	"downloadErrorHotlink": {
