@@ -36,7 +36,7 @@
         "<all_urls>"
     ],
     "background": {
-        "scripts": ["js/menu-patterns.js", "js/background.js"]
+        "scripts": ["js/menu-patterns.js", "js/favicon-util.js", "js/background.js"]
     },
     "content_scripts": [
         {
