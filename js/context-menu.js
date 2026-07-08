@@ -156,14 +156,27 @@ class FmContextMenu extends LitElement {
 		}
 		window.addEventListener('contextmenu', this.#preventDefault, true);
 		window.addEventListener('keydown', this.#onKeyDown, true);
-		chrome.runtime.onMessage.addListener(this.#onMessage);
+		window.addEventListener('message', this.#onWindowMessage);
 		this.#fetchItems();
 		this.#loadCustomCss();
 	}
 
-	#onMessage = (msg) => {
-		if (msg && msg.action === 'ctxMenuUpdateItems' && msg.menuId === this.#menuId) {
-			this._items = msg.items;
+	// Live item updates pushed straight from the content script (e.g. lazy
+	// favicons). Security model: only accept messages from our creating parent
+	// frame, and gate on the random menuId. The menuId is an unguessable
+	// capability token the host page cannot obtain — the menu lives in a CLOSED
+	// shadow root, so the iframe element/URL (which carries the id) is unreachable
+	// from page script, and the id is otherwise only exchanged over chrome.runtime
+	// and postMessage targeted at this window (never page-observable). Origin
+	// validation is not usable here: the content script posts from the page's
+	// window (page origin), and the iframe's origin is dynamic (use_dynamic_url).
+	// Even a forged message could at most alter display: Lit escapes all output
+	// and clicks run the content script's real items by index.
+	#onWindowMessage = (e) => {
+		if (e.source !== window.parent) return;
+		const d = e.data;
+		if (d && d.__gestura === 'ctxItems' && d.menuId === this.#menuId && Array.isArray(d.items)) {
+			this._items = d.items;
 		}
 	};
 
@@ -204,7 +217,7 @@ class FmContextMenu extends LitElement {
 		if (this.preview) return;
 		window.removeEventListener('contextmenu', this.#preventDefault, true);
 		window.removeEventListener('keydown', this.#onKeyDown, true);
-		chrome.runtime.onMessage.removeListener(this.#onMessage);
+		window.removeEventListener('message', this.#onWindowMessage);
 	}
 
 	#preventDefault = (e) => e.preventDefault();

@@ -414,6 +414,7 @@ class ContentContextMenu {
 	#activeMenuClose = null;
 	#activeMenuId = null;
 	#activeItems = null;
+	#activeIframe = null;
 
 	updateSettings(s) {
 		this.#settings = { ...this.#settings, ...s };
@@ -474,6 +475,14 @@ class ContentContextMenu {
 				items: serializedItems,
 			});
 		} catch {}
+
+		// Push straight into the menu iframe for live updates (e.g. lazy favicons).
+		// The background pull handles the initial load; runtime broadcasts don't
+		// reach an embedded extension-page iframe, so postMessage directly.
+		try {
+			this.#activeIframe?.contentWindow?.postMessage(
+				{ __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems }, '*');
+		} catch {}
 	}
 
 	#createMenuIframe(x, y, menuId, options) {
@@ -498,6 +507,7 @@ class ContentContextMenu {
 		`;
 
 		host.shadow.appendChild(iframe);
+		this.#activeIframe = iframe;
 
 		const url = new URL(chrome.runtime.getURL('pages/context-menu.html'));
 		url.searchParams.set('id', menuId);
@@ -569,6 +579,7 @@ class ContentContextMenu {
 			this.#activeMenuClose = null;
 			this.#activeMenuId = null;
 			this.#activeItems = null;
+			this.#activeIframe = null;
 			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
 			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
 			host.cleanup();

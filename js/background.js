@@ -994,14 +994,11 @@ async function handleAction(request, sender) {
 		case 'ctxMenuPrepare': {
 			const { menuId } = request;
 			if (!menuId) return { success: false };
-			let resolve;
-			const items = new Promise((r) => { resolve = r; });
-			const timeout = setTimeout(() => resolve({ items: null }), 10000);
 			ctxMenuSessions.set(menuId, {
 				tabId: sender.tab?.id,
 				frameId: sender.frameId ?? 0,
-				items,
-				setItems: (v) => { clearTimeout(timeout); resolve({ items: v }); },
+				latest: undefined, // most recent items (fetch always returns these)
+				waiters: [],
 			});
 			return { success: true };
 		}
@@ -1009,22 +1006,20 @@ async function handleAction(request, sender) {
 		case 'ctxMenuSetItems': {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return { success: false };
-			session.setItems(request.items);
-			// The iframe fetches items once (via the session promise). Also push
-			// every update so post-fetch changes (lazy favicons) show live; the
-			// menu iframe filters by menuId. Fire-and-forget extension broadcast.
-			chrome.runtime.sendMessage({
-				action: 'ctxMenuUpdateItems',
-				menuId: request.menuId,
-				items: request.items,
-			}).catch(() => { });
+			session.latest = request.items;
+			const waiters = session.waiters;
+			session.waiters = [];
+			waiters.forEach((r) => r());
 			return { success: true };
 		}
 
 		case 'ctxMenuFetch': {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return { items: [] };
-			return await session.items;
+			// Return the latest items; if none have been set yet, wait for the first.
+			if (session.latest !== undefined) return { items: session.latest };
+			await new Promise((r) => { session.waiters.push(r); setTimeout(r, 10000); });
+			return { items: session.latest ?? null };
 		}
 
 		case 'ctxMenuDimensions': {
