@@ -156,9 +156,16 @@ class FmContextMenu extends LitElement {
 		}
 		window.addEventListener('contextmenu', this.#preventDefault, true);
 		window.addEventListener('keydown', this.#onKeyDown, true);
+		chrome.runtime.onMessage.addListener(this.#onMessage);
 		this.#fetchItems();
 		this.#loadCustomCss();
 	}
+
+	#onMessage = (msg) => {
+		if (msg && msg.action === 'ctxMenuUpdateItems' && msg.menuId === this.#menuId) {
+			this._items = msg.items;
+		}
+	};
 
 	async #loadCustomCss() {
 		try {
@@ -197,6 +204,7 @@ class FmContextMenu extends LitElement {
 		if (this.preview) return;
 		window.removeEventListener('contextmenu', this.#preventDefault, true);
 		window.removeEventListener('keydown', this.#onKeyDown, true);
+		chrome.runtime.onMessage.removeListener(this.#onMessage);
 	}
 
 	#preventDefault = (e) => e.preventDefault();

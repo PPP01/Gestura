@@ -1010,6 +1010,14 @@ async function handleAction(request, sender) {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return { success: false };
 			session.setItems(request.items);
+			// The iframe fetches items once (via the session promise). Also push
+			// every update so post-fetch changes (lazy favicons) show live; the
+			// menu iframe filters by menuId. Fire-and-forget extension broadcast.
+			chrome.runtime.sendMessage({
+				action: 'ctxMenuUpdateItems',
+				menuId: request.menuId,
+				items: request.items,
+			}).catch(() => { });
 			return { success: true };
 		}
 
