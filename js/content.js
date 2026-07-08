@@ -3307,7 +3307,10 @@ window.ContentContextMenu = ContentContextMenu;
 								}
 							}
 							const res = await safeSendMessage({ action: 'runTransform', code: link.transformCode, selection: text, clipboard: clip });
-							if (!res || !res.ok) {
+							if (res && res.unsupported) {
+								// Transform can't run here (no offscreen API, e.g. Firefox);
+								// fall through and search with the raw selection.
+							} else if (!res || !res.ok) {
 								const emsg = (res && res.error) || 'error';
 								if (typeof toaster !== 'undefined' && toaster && toaster.showToast) {
 									toaster.showToast(msg('transformFailed').replace('%error%', emsg), { duration: 4000 });
@@ -3315,9 +3318,10 @@ window.ContentContextMenu = ContentContextMenu;
 									console.warn('[FlowMouse] search-link transform failed:', emsg);
 								}
 								break;
+							} else {
+								text = res.result;
+								if (link.transformRawResult) link.rawTerm = true;
 							}
-							text = res.result;
-							if (link.transformRawResult) link.rawTerm = true;
 						}
 						// A catalog entry (engineId) is always a search; a custom link with %s is a search.
 						// A custom link without %s is a fixed link → open directly, ignoring any selection.
@@ -3729,14 +3733,18 @@ window.ContentContextMenu = ContentContextMenu;
 						if (!eng) break;
 						if (eng.transformEnabled && eng.transformCode) {
 							const res = await safeSendMessage({ action: 'runTransform', code: eng.transformCode, selection: imgUrl, clipboard: '' });
-							if (!res || !res.ok) {
+							if (res && res.unsupported) {
+								// Transform can't run here (no offscreen API, e.g. Firefox);
+								// fall through and search with the raw image URL.
+							} else if (!res || !res.ok) {
 								const emsg = (res && res.error) || 'error';
 								if (typeof toaster !== 'undefined' && toaster && toaster.showToast) {
 									toaster.showToast(msg('transformFailed').replace('%error%', emsg), { duration: 4000 });
 								} else { console.warn('[FlowMouse] image-search transform failed:', emsg); }
 								break;
+							} else {
+								imgUrl = res.result;
 							}
-							imgUrl = res.result;
 						}
 						cfgForBuild = { engine: 'custom', url: eng.url, plus: eng.plus, slug: eng.slug, suffix: eng.suffix, rawTerm: eng.rawResult };
 					}

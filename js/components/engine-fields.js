@@ -205,6 +205,10 @@ class EngineFields extends LitElement {
 		const transformClipboard = this._get('transformClipboard', false);
 		const transformRawResult = this._get('transformRawResult', false);
 		const raw = transformRawResult;
+		// The JS transform runs in an offscreen document; Firefox has no such API,
+		// so the whole feature is unavailable there. Hide it rather than offer a
+		// control that can't work.
+		const transformSupported = typeof chrome !== 'undefined' && !!chrome.offscreen;
 
 		return html`
 			<div class="ef-row">
@@ -288,6 +292,7 @@ class EngineFields extends LitElement {
 				</div>
 			` : ''}
 
+			${transformSupported ? html`
 			<div class="ef-checkbox-row">
 				<input
 					id="ef-transform-enabled"
@@ -346,6 +351,7 @@ class EngineFields extends LitElement {
 
 					<div class="ef-transform-note">${i18n.getMessage('transformIsolationNote')}</div>
 				</div>
+			` : ''}
 			` : ''}
 		`;
 	}

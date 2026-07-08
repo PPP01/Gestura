@@ -1068,6 +1068,11 @@ async function handleAction(request, sender) {
 			if (typeof request.code !== 'string') {
 				return { ok: false, error: 'no code' };
 			}
+			if (!chrome.offscreen) {
+				// No offscreen document API (e.g. Firefox): the transform can't run.
+				// Signal the caller to skip it and search with the raw selection.
+				return { ok: false, unsupported: true };
+			}
 			await ensureOffscreen();
 			const transformId = 'ft-' + (++_transformIdCounter);
 			const replyPromise = new Promise((resolve) => {
