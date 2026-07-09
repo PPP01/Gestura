@@ -1,4 +1,7 @@
 {
+	"categories": {
+		"firefox": ["tabs", "search-tools"]
+	},
 	"version": {
 		"license": "GPL-3.0-only"
 	}
