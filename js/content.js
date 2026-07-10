@@ -415,6 +415,7 @@ class ContentContextMenu {
 	#activeMenuId = null;
 	#activeItems = null;
 	#activeIframe = null;
+	#switchHandler = null;
 
 	updateSettings(s) {
 		this.#settings = { ...this.#settings, ...s };
@@ -459,7 +460,7 @@ class ContentContextMenu {
 		return this.#createMenuIframe(x, y, menuId, options);
 	}
 
-	setItems(items) {
+	setItems(items, header = null) {
 		if (!this.#activeMenuId) return;
 		this.#activeItems = items;
 
@@ -473,6 +474,7 @@ class ContentContextMenu {
 				action: 'ctxMenuSetItems',
 				menuId: this.#activeMenuId,
 				items: serializedItems,
+				header,
 			});
 		} catch {}
 
@@ -481,8 +483,12 @@ class ContentContextMenu {
 		// reach an embedded extension-page iframe, so postMessage directly.
 		try {
 			this.#activeIframe?.contentWindow?.postMessage(
-				{ __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems }, '*');
+				{ __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems, header }, '*');
 		} catch {}
+	}
+
+	setSwitcher(fn) {
+		this.#switchHandler = fn;
 	}
 
 	#createMenuIframe(x, y, menuId, options) {
@@ -565,6 +571,10 @@ class ContentContextMenu {
 				if (item && typeof item.onClick === 'function') item.onClick();
 			}
 
+			if (request.action === 'ctxMenuSwitch') {
+				if (typeof this.#switchHandler === 'function') this.#switchHandler(request.id);
+			}
+
 			if (request.action === 'ctxMenuClose') {
 				closeMenu();
 			}
@@ -580,6 +590,7 @@ class ContentContextMenu {
 			this.#activeMenuId = null;
 			this.#activeItems = null;
 			this.#activeIframe = null;
+			this.#switchHandler = null;
 			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
 			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
 			host.cleanup();
@@ -3427,48 +3438,73 @@ window.ContentContextMenu = ContentContextMenu;
 						break;
 					}
 					case 'customMenu': {
-						const menuId = mergedConfig.contextual
+						const initialMenuId = mergedConfig.contextual
 							? resolveContextualMenuId(SETTINGS.customMenus)
 							: mergedConfig.menuId;
-						const menuDef = SETTINGS.customMenus?.[menuId];
-						const menuItems = menuDef?.items;
-						if (!menuItems) break;
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
-						ctxMenu.prepare(cursor.endX, cursor.endY);
-						const items = menuItems
-							.filter(it => it === 'separator' || (it.action && it.action !== 'none'))
-							.map(it => {
-								if (it === 'separator') return 'separator';
-								let label = it.customName;
-								if (!label && it.action === 'actionChain') {
-									const chain = SETTINGS.actionChains?.[it.chainId];
-									label = chain?.name || msg(ACTION_KEYS[it.action]);
-								}
-								if (it.action === 'searchLink') {
-									const rl = resolveSearchLink({ ...(ACTION_DEFAULTS['searchLink'] || {}), ...it });
-									label = it.customName || rl?.name || msg(ACTION_KEYS['searchLink']);
+
+						// Header list = all custom menus except the current, in definition order.
+						const buildHeader = (menuId) => {
+							const def = SETTINGS.customMenus?.[menuId];
+							if (!def?.showHeader) return null;
+							const menus = Object.entries(SETTINGS.customMenus || {})
+								.filter(([id]) => id !== menuId)
+								.map(([id, m]) => ({ id, name: m?.name || msg('actionCustomMenu') }));
+							return { name: def.name || msg('actionCustomMenu'), menus };
+						};
+
+						const buildCustomMenu = (menuId) => {
+							const menuDef = SETTINGS.customMenus?.[menuId];
+							const menuItems = menuDef?.items;
+							if (!menuItems) return null;
+							const items = menuItems
+								.filter(it => it === 'separator' || (it.action && it.action !== 'none'))
+								.map(it => {
+									if (it === 'separator') return 'separator';
+									let label = it.customName;
+									if (!label && it.action === 'actionChain') {
+										const chain = SETTINGS.actionChains?.[it.chainId];
+										label = chain?.name || msg(ACTION_KEYS[it.action]);
+									}
+									if (it.action === 'searchLink') {
+										const rl = resolveSearchLink({ ...(ACTION_DEFAULTS['searchLink'] || {}), ...it });
+										label = it.customName || rl?.name || msg(ACTION_KEYS['searchLink']);
+										return {
+											label,
+											icon: rl ? rl.icon : '',
+											_faviconUrl: rl && !rl.iconBundled ? rl.url : undefined,
+											onClick: () => {
+												const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
+												itemConfig.__selectionText = menuSelectionText;
+												executeAction(it.action, itemConfig, cursor, startTarget);
+											}
+										};
+									}
+									if (!label) label = msg(ACTION_KEYS[it.action]) || it.action;
 									return {
 										label,
-										icon: rl ? rl.icon : '',
-										_faviconUrl: rl && !rl.iconBundled ? rl.url : undefined,
 										onClick: () => {
 											const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
-											itemConfig.__selectionText = menuSelectionText;
 											executeAction(it.action, itemConfig, cursor, startTarget);
 										}
 									};
-								}
-								if (!label) label = msg(ACTION_KEYS[it.action]) || it.action;
-								return {
-									label,
-									onClick: () => {
-										const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
-										executeAction(it.action, itemConfig, cursor, startTarget);
-									}
-								};
-							});
-						ctxMenu.setItems(items);
-						upgradeMenuIcons(items);
+								});
+							return { items, header: buildHeader(menuId) };
+						};
+
+						const initial = buildCustomMenu(initialMenuId);
+						if (!initial) break;
+
+						ctxMenu.prepare(cursor.endX, cursor.endY);
+						ctxMenu.setSwitcher((id) => {
+							if (!SETTINGS.customMenus?.[id]) return; // deleted → no-op, keep current
+							const rebuilt = buildCustomMenu(id);
+							if (!rebuilt) return;
+							ctxMenu.setItems(rebuilt.items, rebuilt.header);
+							upgradeMenuIcons(rebuilt.items);
+						});
+						ctxMenu.setItems(initial.items, initial.header);
+						upgradeMenuIcons(initial.items);
 						break;
 					}
 				}
