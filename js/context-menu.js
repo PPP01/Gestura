@@ -374,6 +374,7 @@ class FmContextMenu extends LitElement {
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			const active = this.renderRoot.activeElement;
+			if (active?.dataset.switchId != null) { this.#switchTo(active.dataset.switchId); return; }
 			const index = active?.dataset.index;
 			if (index != null) this.#selectItem(Number(index));
 		}
@@ -434,7 +435,7 @@ class FmContextMenu extends LitElement {
 						${this._header.menus?.length ? html`<span class="fm-ctx-header-chevron">${this._switcherOpen ? '▴' : '▾'}</span>` : ''}
 					</li>
 					${this._switcherOpen ? this._header.menus.map(m => html`
-						<li class="fm-ctx-switch-item" role="menuitem" tabindex="-1"
+						<li class="fm-ctx-switch-item" role="menuitem" tabindex="-1" data-switch-id=${m.id}
 							@click=${(e) => { e.stopPropagation(); this.#switchTo(m.id); }}
 						>
 							<span class="fm-ctx-icon"></span>

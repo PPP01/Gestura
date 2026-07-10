@@ -460,7 +460,7 @@ class ContentContextMenu {
 		return this.#createMenuIframe(x, y, menuId, options);
 	}
 
-	setItems(items, header = null) {
+	setItems(items, header) {
 		if (!this.#activeMenuId) return;
 		this.#activeItems = items;
 
@@ -470,20 +470,22 @@ class ContentContextMenu {
 		});
 
 		try {
-			chrome.runtime.sendMessage({
+			const payload = {
 				action: 'ctxMenuSetItems',
 				menuId: this.#activeMenuId,
 				items: serializedItems,
-				header,
-			});
+			};
+			if (header !== undefined) payload.header = header;
+			chrome.runtime.sendMessage(payload);
 		} catch {}
 
 		// Push straight into the menu iframe for live updates (e.g. lazy favicons).
 		// The background pull handles the initial load; runtime broadcasts don't
 		// reach an embedded extension-page iframe, so postMessage directly.
 		try {
-			this.#activeIframe?.contentWindow?.postMessage(
-				{ __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems, header }, '*');
+			const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
+			if (header !== undefined) msg.header = header;
+			this.#activeIframe?.contentWindow?.postMessage(msg, '*');
 		} catch {}
 	}
 
