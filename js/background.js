@@ -1007,6 +1007,7 @@ async function handleAction(request, sender) {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return { success: false };
 			session.latest = request.items;
+			if ('header' in request) session.latestHeader = request.header;
 			const waiters = session.waiters;
 			session.waiters = [];
 			waiters.forEach((r) => r());
@@ -1015,11 +1016,11 @@ async function handleAction(request, sender) {
 
 		case 'ctxMenuFetch': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session) return { items: [] };
+			if (!session) return { items: [], header: null };
 			// Return the latest items; if none have been set yet, wait for the first.
-			if (session.latest !== undefined) return { items: session.latest };
+			if (session.latest !== undefined) return { items: session.latest, header: session.latestHeader ?? null };
 			await new Promise((r) => { session.waiters.push(r); setTimeout(r, 10000); });
-			return { items: session.latest ?? null };
+			return { items: session.latest ?? null, header: session.latestHeader ?? null };
 		}
 
 		case 'ctxMenuDimensions': {
@@ -1043,6 +1044,17 @@ async function handleAction(request, sender) {
 				index: request.index,
 			}, { frameId: session.frameId }).catch(() => {});
 			ctxMenuSessions.delete(request.menuId);
+			return { success: true };
+		}
+
+		case 'ctxMenuSwitch': {
+			const session = ctxMenuSessions.get(request.menuId);
+			if (!session) return;
+			chrome.tabs.sendMessage(session.tabId, {
+				action: 'ctxMenuSwitch',
+				menuId: request.menuId,
+				id: request.id,
+			}, { frameId: session.frameId }).catch(() => {});
 			return { success: true };
 		}
 
