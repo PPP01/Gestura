@@ -2042,9 +2042,16 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 			if (action === 'customMenu') {
 				const config = SETTINGS.mouseGestures?.[pattern];
-				const menuDef = SETTINGS.customMenus?.[config?.menuId];
+				const menuId = config?.contextual
+					? resolveContextualMenuId(SETTINGS.customMenus)
+					: config?.menuId;
+				const menuDef = SETTINGS.customMenus?.[menuId];
 				if (menuDef?.name) return menuDef.name;
-				if (!menuDef) return `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`;
+				if (!menuDef) {
+					return config?.contextual
+						? msg('customMenuContextualLabel')
+						: `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`;
+				}
 			}
 			if (action === 'simulateKey') {
 				const config = SETTINGS.mouseGestures?.[pattern] || {};
