@@ -71,6 +71,32 @@ class MenuPanel extends LitElement {
 				width: 100%;
 			}
 
+			.header-toggle-field {
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+				margin-block: 2px 4px;
+			}
+			.header-toggle-field input[type="checkbox"] {
+				margin-top: 2px;
+				flex-shrink: 0;
+			}
+			.header-toggle-text {
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+			}
+			.header-toggle-label {
+				font-size: 12px;
+				font-weight: 600;
+				color: var(--text-secondary);
+			}
+			.header-toggle-hint {
+				font-size: 11px;
+				color: var(--text-secondary);
+				opacity: 0.8;
+			}
+
 			.items-container {
 				display: flex;
 				flex-direction: column;
@@ -295,6 +321,7 @@ class MenuPanel extends LitElement {
 		return html`
 			${this.#renderSelectorRow(entries, activeId)}
 			${this.#renderNameField(activeId, activeMenu)}
+			${this.#renderHeaderToggle(activeId, activeMenu)}
 			${this.#renderPatternsSection(activeId, activeMenu)}
 			${this.#renderItemsSection(activeId, activeMenu)}
 		`;
@@ -346,6 +373,22 @@ class MenuPanel extends LitElement {
 					@change=${(e) => this.#updateMenu(activeId, { name: e.target.value })}
 				>
 			</div>
+		`;
+	}
+
+	#renderHeaderToggle(activeId, menu) {
+		const i18n = window.i18n;
+		return html`
+			<label class="header-toggle-field">
+				<input type="checkbox"
+					.checked=${!!menu.showHeader}
+					@change=${(e) => this.#updateMenu(activeId, { showHeader: e.target.checked })}
+				>
+				<span class="header-toggle-text">
+					<span class="header-toggle-label">${i18n.getMessage('menuShowHeader')}</span>
+					<span class="header-toggle-hint">${i18n.getMessage('menuShowHeaderHint')}</span>
+				</span>
+			</label>
 		`;
 	}
 

@@ -1731,6 +1731,14 @@
 		"message": "Dynamic menu",
 		"description": "Gesture-overview label shown for a custom-menu action in contextual mode (menu chosen by current site instead of a fixed menu)"
 	},
+	"menuShowHeader": {
+		"message": "Show header with menu switcher",
+		"description": "Toggle label in the menu editor — when on, the popup menu shows a header with the menu name and a dropdown to switch to another menu"
+	},
+	"menuShowHeaderHint": {
+		"message": "Adds a title row to this menu. Click it to switch to another menu on the fly.",
+		"description": "Hint shown next to the show-header toggle in the menu editor"
+	},
 	"addMenu": {
 		"message": "Add Menu",
 		"description": "Add menu button"
