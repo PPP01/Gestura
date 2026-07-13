@@ -409,6 +409,7 @@ class ContentContextMenu {
 		lang: '',
 		isRtl: false,
 		customCss: '',
+		menuTheme: 'auto',
 	};
 
 	#activeMenuClose = null;
@@ -438,8 +439,12 @@ class ContentContextMenu {
 				}
 			}
 
+			.fm-ctx-frame.fm-theme-dark {
+				background: rgba(30, 30, 32, 0.95);
+			}
+
 			@media (prefers-color-scheme: dark) {
-				.fm-ctx-frame {
+				.fm-ctx-frame.fm-theme-auto {
 					background: rgba(30, 30, 32, 0.95);
 				}
 			}
@@ -506,6 +511,8 @@ class ContentContextMenu {
 
 		const iframe = host.createElement('iframe');
 		iframe.className = 'fm-ctx-frame';
+		const theme = this.#settings.menuTheme || 'auto';
+		iframe.classList.add(`fm-theme-${theme}`);
 		iframe.style.cssText = `
 			position: fixed;
 			border: 0;
@@ -522,6 +529,7 @@ class ContentContextMenu {
 		url.searchParams.set('dir', this.#settings.isRtl ? 'rtl' : 'ltr');
 		if (this.#settings.lang) url.searchParams.set('lang', this.#settings.lang);
 		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
+		url.searchParams.set('theme', theme);
 
 		try {
 			iframe.contentWindow.location = url.href;
@@ -2173,7 +2181,7 @@ window.ContentContextMenu = ContentContextMenu;
 						lang,
 						isRtl
 					});
-					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss });
+					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss, menuTheme: SETTINGS.customMenuTheme });
 				}
 
 				eventManager.update();
