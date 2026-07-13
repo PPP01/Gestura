@@ -144,24 +144,40 @@ class FmContextMenu extends LitElement {
 		.fm-ctx-switch-item:focus-visible {
 			background: rgba(0, 0, 0, 0.08);
 		}
-		@media (prefers-color-scheme: dark) {
-			.fm-ctx-header--switchable:hover,
-			.fm-ctx-header--switchable:focus-visible,
-			.fm-ctx-switch-item:hover,
-			.fm-ctx-switch-item:focus-visible {
-				background: rgba(255, 255, 255, 0.1);
-			}
+		/* Forced dark — applies regardless of OS */
+		:host([data-theme="dark"]) .fm-ctx-menu {
+			color: #e5e5e7;
+		}
+		:host([data-theme="dark"]) .fm-ctx-item:hover,
+		:host([data-theme="dark"]) .fm-ctx-item:focus-visible {
+			background: rgba(255, 255, 255, 0.1);
+		}
+		:host([data-theme="dark"]) .fm-ctx-sep {
+			background: rgba(255, 255, 255, 0.1);
+		}
+		:host([data-theme="dark"]) .fm-ctx-header--switchable:hover,
+		:host([data-theme="dark"]) .fm-ctx-header--switchable:focus-visible,
+		:host([data-theme="dark"]) .fm-ctx-switch-item:hover,
+		:host([data-theme="dark"]) .fm-ctx-switch-item:focus-visible {
+			background: rgba(255, 255, 255, 0.1);
 		}
 
+		/* Auto — follow the OS/browser setting */
 		@media (prefers-color-scheme: dark) {
-			.fm-ctx-menu {
+			:host([data-theme="auto"]) .fm-ctx-menu {
 				color: #e5e5e7;
 			}
-			.fm-ctx-item:hover,
-			.fm-ctx-item:focus-visible {
+			:host([data-theme="auto"]) .fm-ctx-item:hover,
+			:host([data-theme="auto"]) .fm-ctx-item:focus-visible {
 				background: rgba(255, 255, 255, 0.1);
 			}
-			.fm-ctx-sep {
+			:host([data-theme="auto"]) .fm-ctx-sep {
+				background: rgba(255, 255, 255, 0.1);
+			}
+			:host([data-theme="auto"]) .fm-ctx-header--switchable:hover,
+			:host([data-theme="auto"]) .fm-ctx-header--switchable:focus-visible,
+			:host([data-theme="auto"]) .fm-ctx-switch-item:hover,
+			:host([data-theme="auto"]) .fm-ctx-switch-item:focus-visible {
 				background: rgba(255, 255, 255, 0.1);
 			}
 		}
@@ -171,6 +187,7 @@ class FmContextMenu extends LitElement {
 	#rtf = null;
 	#dimensionsSent = false;
 	#scrollToBottom = false;
+	#theme = 'auto';
 
 	constructor() {
 		super();
@@ -187,6 +204,7 @@ class FmContextMenu extends LitElement {
 		const dir = params.get('dir') || 'ltr';
 		const lang = params.get('lang') || '';
 		this.#scrollToBottom = params.get('bottom') === '1';
+		this.#theme = params.get('theme') || 'auto';
 
 		if (!this.hasAttribute('preview')) {
 			document.documentElement.dir = dir;
@@ -202,6 +220,7 @@ class FmContextMenu extends LitElement {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.setAttribute('data-theme', this.#theme);
 		if (this.preview) {
 			this._items = Array.isArray(this.previewItems) ? this.previewItems : [];
 			return;
