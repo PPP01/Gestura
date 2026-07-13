@@ -291,6 +291,12 @@ class FmContextMenu extends LitElement {
 			this._items = Array.isArray(this.previewItems) ? this.previewItems : [];
 			return;
 		}
+		// Pin the iframe document's color-scheme to the resolved theme. The menu
+		// body is transparent, so the visible background is the UA document canvas,
+		// which otherwise follows the color-scheme inherited from the embedding page
+		// (e.g. a light-pinned site) — leaving a light canvas under our dark text.
+		// Setting it explicitly makes the canvas (and native scrollbars) match.
+		document.documentElement.style.colorScheme = this.#theme === 'dark' ? 'dark' : 'light';
 		window.addEventListener('contextmenu', this.#preventDefault, true);
 		window.addEventListener('keydown', this.#onKeyDown, true);
 		window.addEventListener('message', this.#onWindowMessage);
