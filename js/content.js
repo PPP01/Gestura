@@ -511,7 +511,15 @@ class ContentContextMenu {
 
 		const iframe = host.createElement('iframe');
 		iframe.className = 'fm-ctx-frame';
-		const theme = this.#settings.menuTheme || 'auto';
+		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
+		// where prefers-color-scheme reflects the real OS setting. Inside the menu
+		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
+		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
+		// iframe-side media query would wrongly report light on a dark OS.
+		let theme = this.#settings.menuTheme || 'auto';
+		if (theme === 'auto') {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
 		iframe.classList.add(`fm-theme-${theme}`);
 		iframe.style.cssText = `
 			position: fixed;
