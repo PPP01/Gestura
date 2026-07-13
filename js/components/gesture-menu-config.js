@@ -154,11 +154,50 @@ class GestureMenuConfig extends LitElement {
 	}
 
 	#renderForkEditor(cfg, i18n) {
-		// Vollständige Fork-UI kommt in Task 10; bis dahin nur Basis-Auswahl.
+		const siteMenus = SettingsStore.current.siteMenus;
+		const base = M().getBaseMenu(CATALOG(), siteMenus, cfg.menuId);
+		if (!cfg.menuId || !base) {
+			const first = this.#activeMenus()[0];
+			if (!cfg.menuId && first) queueMicrotask(() => this.#update({ menuId: first.id, fork: cfg.fork || M().emptyFork() }));
+			return html`<div class="row">${this.#menuSelect(cfg.menuId, (id) => this.#onForkBaseChange(id))}</div>`;
+		}
+		const fork = cfg.fork || M().emptyFork();
+		const baseItems = base.items || [];
+		const baseIds = new Set(baseItems.map(it => it.id));
+		const resolved = M().resolveFork(baseItems, fork);
+		const rows = resolved.map(item => ({
+			item,
+			state: !baseIds.has(item.id) ? 'own'
+				: (fork.overrides || {})[item.id] ? 'modified'
+				: 'inherited',
+		}));
+		const hiddenItems = baseItems.filter(it => (fork.removed || []).includes(it.id));
+		const saveFork = (next) => this.#update({ fork: next });
 		return html`
 			<div class="row">
 				${this.#menuSelect(cfg.menuId, (id) => this.#onForkBaseChange(id))}
 			</div>
+			<site-menu-editor show-badges
+				.rows=${rows}
+				.hiddenItems=${hiddenItems}
+				.name=${fork.name || ''}
+				.namePlaceholder=${base.name || ''}
+				.patterns=${null}
+				@name-change=${(e) => saveFork({ ...fork, name: e.detail.name })}
+				@item-change=${(e) => saveFork(M().forkOverrideItem(fork, baseItems, e.detail.item))}
+				@item-delete=${(e) => saveFork(M().forkDeleteItem(fork, baseItems, e.detail.itemId))}
+				@item-reset=${(e) => saveFork(M().forkRestoreItem(fork, e.detail.itemId))}
+				@item-restore=${(e) => saveFork(M().forkRestoreItem(fork, e.detail.itemId))}
+				@item-add=${(e) => saveFork(M().forkAddItem(fork, e.detail.item, e.detail.afterId))}
+				@item-duplicate=${(e) => {
+					const src = resolved.find(it => it.id === e.detail.itemId);
+					if (!src) return;
+					const copy = structuredClone(src);
+					copy.id = `item_${crypto.randomUUID().replace(/-/g, '').slice(0, 10)}`;
+					saveFork(M().forkAddItem(fork, copy, e.detail.itemId));
+				}}
+				@items-reorder=${(e) => saveFork(M().forkReorder(fork, e.detail.orderedIds))}
+			></site-menu-editor>
 		`;
 	}
 
