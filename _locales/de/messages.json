@@ -1716,7 +1716,7 @@
 		"description": "Add site to menu action config description"
 	},
 	"customMenuDesc": {
-		"message": "Erstellen Sie benutzerdefinierte Popup-Menüs mit mehreren Aktionen.",
+		"message": "Öffnet ein konfigurierbares Menü an der Gestenposition.",
 		"description": "Custom menu section description"
 	},
 	"customMenuContextual": {
@@ -1731,6 +1731,36 @@
 	"customMenuOwnLabel": {
 		"message": "Eigenes Menü",
 		"description": "Übersichts-Label für eine Custom-Menu-Geste im Modus 'eigenes Menü' (ein vollständig eigenes, gesten-privates Menü ohne Katalog-Eintrag)"
+	},
+	"menuModeLabel": {
+		"message": "Menü-Quelle"
+	},
+	"menuModeStandard": {
+		"message": "Standard-Menü"
+	},
+	"menuModeFork": {
+		"message": "Standard-Menü, angepasst"
+	},
+	"menuModeOwn": {
+		"message": "Eigenes Menü (nur diese Geste)"
+	},
+	"menuModeContextual": {
+		"message": "Je nach Website (kontextabhängig)"
+	},
+	"menuFallbackLabel": {
+		"message": "Wenn keine Website passt"
+	},
+	"menuFallbackNone": {
+		"message": "Nichts öffnen"
+	},
+	"editGlobalMenuHint": {
+		"message": "Änderungen an diesem Menü wirken überall, wo es verwendet wird."
+	},
+	"openSiteMenusSection": {
+		"message": "Website-Menüs verwalten"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "Beim Wechsel des Basis-Menüs gehen deine Anpassungen verloren. Fortfahren?"
 	},
 	"menuThemeTitle": {
 		"message": "Erscheinungsbild"

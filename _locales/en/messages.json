@@ -1720,7 +1720,7 @@
 		"description": "Search link action name — opens a configured search link with the selected text"
 	},
 	"customMenuDesc": {
-		"message": "Create custom popup menus with multiple actions.",
+		"message": "Opens a configurable menu at the gesture position.",
 		"description": "Custom menu section description"
 	},
 	"customMenuContextual": {
@@ -1738,6 +1738,46 @@
 	"customMenuOwnLabel": {
 		"message": "Own menu",
 		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "Menu source",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "Standard menu",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "Standard menu, customized",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "Own menu (this gesture only)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "By website (contextual)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "If no site matches",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "Do nothing",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "Changes to this menu apply everywhere it is used.",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "Manage website menus",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "Changing the base menu discards your customizations. Continue?",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
 	},
 	"menuSwitcherEnable": {
 		"message": "Show header/footer with menu switcher",
