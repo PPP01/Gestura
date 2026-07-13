@@ -154,20 +154,29 @@ class FmContextMenu extends LitElement {
 			width: max-content;
 			max-width: 343px;
 			margin: 0;
-			padding: 4px 0;
+			padding: 5px 0;
 			list-style: none;
 			z-index: 2;
 			background: #ffffff;
-			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
-			border-radius: 6px;
+			border: 1px solid rgba(41, 98, 255, 0.40);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+			border-radius: 8px;
 		}
-		.fm-ctx-switcher--header { top: 0; }
-		.fm-ctx-switcher--footer { bottom: 0; }
+		/* Thicker accent edge on the side facing the switcher bar, tying the
+		   two together and making the floating selection unmistakable. */
+		.fm-ctx-switcher--header {
+			top: 0;
+			border-top: 3px solid rgba(41, 98, 255, 0.85);
+		}
+		.fm-ctx-switcher--footer {
+			bottom: 0;
+			border-bottom: 3px solid rgba(41, 98, 255, 0.85);
+		}
 		.fm-ctx-switch-item {
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			padding: 4px 12px;
+			padding: 5px 12px;
 			cursor: default;
 			white-space: nowrap;
 			overflow: hidden;
@@ -175,7 +184,7 @@ class FmContextMenu extends LitElement {
 		}
 		.fm-ctx-switch-item:hover,
 		.fm-ctx-switch-item:focus-visible {
-			background: rgba(0, 0, 0, 0.08);
+			background: rgba(41, 98, 255, 0.14);
 		}
 		@media (prefers-color-scheme: dark) {
 			.fm-ctx-root { color: #e5e5e7; }
@@ -189,11 +198,15 @@ class FmContextMenu extends LitElement {
 				background: rgba(120, 160, 255, 0.22);
 			}
 			.fm-ctx-switcher {
-				background: #232326;
+				background: #30323a;
+				border-color: rgba(120, 160, 255, 0.55);
+				box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
 			}
+			.fm-ctx-switcher--header { border-top-color: rgba(120, 160, 255, 0.95); }
+			.fm-ctx-switcher--footer { border-bottom-color: rgba(120, 160, 255, 0.95); }
 			.fm-ctx-switch-item:hover,
 			.fm-ctx-switch-item:focus-visible {
-				background: rgba(255, 255, 255, 0.1);
+				background: rgba(120, 160, 255, 0.24);
 			}
 		}
 
