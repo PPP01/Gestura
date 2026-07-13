@@ -8,6 +8,8 @@ class FmContextMenu extends LitElement {
 
 	static properties = {
 		_items: { state: true },
+		_switcher: { state: true },
+		_switcherOpen: { state: true },
 		_customCss: { state: true },
 		preview: { type: Boolean },
 		previewItems: { attribute: false },
@@ -20,23 +22,33 @@ class FmContextMenu extends LitElement {
 			user-select: none;
 		}
 
-		.fm-ctx-menu {
+		.fm-ctx-root {
 			font-family: 'Segoe UI', sans-serif;
 			font-size: 12.5px;
 			line-height: 19px;
 			color: #1d1d1f;
-
+			display: flex;
+			flex-direction: column;
 			width: max-content;
 			min-width: 160px;
 			max-width: 340px;
+		}
+		.fm-ctx-root.loaded {
+			width: auto;
+			max-width: 343px;
+		}
+		.fm-ctx-list {
 			list-style: none;
 			margin: 0;
 			padding: 4px 0;
 		}
-
-		.fm-ctx-menu.loaded {
-			width: auto;
-			max-width: 343px; 
+		.fm-ctx-body {
+			position: relative;
+		}
+		.fm-ctx-root--footer .fm-ctx-body {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
 		}
 
 		.fm-ctx-item {
@@ -103,10 +115,102 @@ class FmContextMenu extends LitElement {
 			justify-content: center;
 		}
 
+		.fm-ctx-bar {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 12px;
+			font-weight: 600;
+			white-space: nowrap;
+			background: rgba(41, 98, 255, 0.07);
+		}
+		.fm-ctx-root--header .fm-ctx-bar {
+			border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+		}
+		.fm-ctx-root--footer .fm-ctx-bar {
+			border-top: 1px solid rgba(0, 0, 0, 0.06);
+		}
+		.fm-ctx-bar--switchable {
+			cursor: default;
+		}
+		.fm-ctx-bar--switchable:hover,
+		.fm-ctx-bar--switchable:focus-visible {
+			background: rgba(41, 98, 255, 0.13);
+		}
+		.fm-ctx-bar-name {
+			flex: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.fm-ctx-bar-chevron {
+			flex-shrink: 0;
+			opacity: 0.55;
+			font-size: 0.9em;
+		}
+		.fm-ctx-switcher {
+			position: absolute;
+			left: 0;
+			min-width: 100%;
+			width: max-content;
+			max-width: 343px;
+			margin: 0;
+			padding: 5px 0;
+			list-style: none;
+			z-index: 2;
+			background: #ffffff;
+			border: 1px solid rgba(41, 98, 255, 0.40);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+			border-radius: 8px;
+		}
+		/* Thicker accent edge on the side facing the switcher bar, tying the
+		   two together and making the floating selection unmistakable. */
+		.fm-ctx-switcher--header {
+			top: 0;
+			border-top: 3px solid rgba(41, 98, 255, 0.85);
+		}
+		.fm-ctx-switcher--footer {
+			bottom: 0;
+			border-bottom: 3px solid rgba(41, 98, 255, 0.85);
+		}
+		.fm-ctx-switch-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 5px 12px;
+			cursor: default;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.fm-ctx-switch-item:hover,
+		.fm-ctx-switch-item:focus-visible {
+			background: rgba(41, 98, 255, 0.14);
+		}
 		@media (prefers-color-scheme: dark) {
-			.fm-ctx-menu {
-				color: #e5e5e7;
+			.fm-ctx-root { color: #e5e5e7; }
+			.fm-ctx-bar {
+				background: rgba(120, 160, 255, 0.13);
 			}
+			.fm-ctx-root--header .fm-ctx-bar { border-bottom-color: rgba(255, 255, 255, 0.08); }
+			.fm-ctx-root--footer .fm-ctx-bar { border-top-color: rgba(255, 255, 255, 0.08); }
+			.fm-ctx-bar--switchable:hover,
+			.fm-ctx-bar--switchable:focus-visible {
+				background: rgba(120, 160, 255, 0.22);
+			}
+			.fm-ctx-switcher {
+				background: #30323a;
+				border-color: rgba(120, 160, 255, 0.55);
+				box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+			}
+			.fm-ctx-switcher--header { border-top-color: rgba(120, 160, 255, 0.95); }
+			.fm-ctx-switcher--footer { border-bottom-color: rgba(120, 160, 255, 0.95); }
+			.fm-ctx-switch-item:hover,
+			.fm-ctx-switch-item:focus-visible {
+				background: rgba(120, 160, 255, 0.24);
+			}
+		}
+
+		@media (prefers-color-scheme: dark) {
 			.fm-ctx-item:hover,
 			.fm-ctx-item:focus-visible {
 				background: rgba(255, 255, 255, 0.1);
@@ -125,6 +229,8 @@ class FmContextMenu extends LitElement {
 	constructor() {
 		super();
 		this._items = null;
+		this._switcher = null;
+		this._switcherOpen = false;
 		this.preview = false;
 		this.previewItems = null;
 		this.previewCss = '';
@@ -177,6 +283,7 @@ class FmContextMenu extends LitElement {
 		const d = e.data;
 		if (d && d.__gestura === 'ctxItems' && d.menuId === this.#menuId && Array.isArray(d.items)) {
 			this._items = d.items;
+			if ('switcher' in d) this._switcher = d.switcher ?? null;
 		}
 	};
 
@@ -229,6 +336,7 @@ class FmContextMenu extends LitElement {
 				return;
 			}
 			this._items = response.items;
+			this._switcher = response.switcher ?? null;
 		});
 	}
 
@@ -239,44 +347,66 @@ class FmContextMenu extends LitElement {
 			}
 			return;
 		}
-		if (changedProperties.has('_items')) {
+		if (changedProperties.has('_items') || changedProperties.has('_switcher') || changedProperties.has('_switcherOpen')) {
 			this.#measureAndReport();
 		}
 	}
 
 	#measureAndReport() {
-		if (this.#dimensionsSent || this._items === null) return;
-		const list = this.renderRoot.querySelector('ul');
-		if (!list) return;
+		if (this._items === null) return;
+		const root = this.renderRoot.querySelector('.fm-ctx-root');
+		if (!root) return;
+
+		const hasSwitcher = !!this._switcher;
+		// Switcher-less menus keep the original one-shot behaviour.
+		if (this.#dimensionsSent && !hasSwitcher) return;
+
+		const firstReport = !this.#dimensionsSent;
+
+		// The open selection is an absolute overlay; grow the body to its size so
+		// the overlay is never clipped. When closed (or absent) the body is just
+		// the items and the overlay floats over them without resizing the output.
+		const body = this.renderRoot.querySelector('.fm-ctx-body');
+		const overlay = this.renderRoot.querySelector('.fm-ctx-switcher');
+		if (body) {
+			if (overlay) {
+				body.style.minHeight = Math.ceil(overlay.offsetHeight) + 'px';
+				body.style.minWidth = Math.ceil(overlay.offsetWidth) + 'px';
+			} else {
+				body.style.minHeight = '';
+				body.style.minWidth = '';
+			}
+		}
 
 		const sendDimensions = (width, height) => {
-			if (this.#dimensionsSent) return;
 			this.#dimensionsSent = true;
-			list.classList.add('loaded');
+			root.classList.add('loaded');
 			chrome.runtime.sendMessage({
 				action: 'ctxMenuDimensions',
 				menuId: this.#menuId,
 				width,
 				height,
 			});
-			if (this.#scrollToBottom) {
-				requestAnimationFrame(() => { document.documentElement.scrollTop = document.documentElement.scrollHeight; });
+			if (firstReport) {
+				if (this.#scrollToBottom) {
+					requestAnimationFrame(() => { document.documentElement.scrollTop = document.documentElement.scrollHeight; });
+				}
+				window.focus();
+				window.addEventListener('blur', this.#close);
 			}
-			window.focus();
-			window.addEventListener('blur', this.#close);
 		};
 
+		// Re-measure once per layout change; ResizeObserver would loop if kept.
 		const resizeObserver = new ResizeObserver((entries) => {
 			const entry = entries[entries.length - 1];
 			const size = Array.isArray(entry.borderBoxSize) ? entry.borderBoxSize[0] : entry.borderBoxSize;
 			resizeObserver.disconnect();
 			sendDimensions(Math.ceil(size.inlineSize) + 1, Math.ceil(size.blockSize));
 		});
+		resizeObserver.observe(root, { box: 'border-box' });
 
-		resizeObserver.observe(list, { box: 'border-box' });
-
-		const rect = list.getBoundingClientRect();
-		if (!this.#dimensionsSent && rect.width > 0 && rect.height > 0) {
+		const rect = root.getBoundingClientRect();
+		if (rect.width > 0 && rect.height > 0) {
 			resizeObserver.disconnect();
 			sendDimensions(Math.ceil(rect.width) + 1, Math.ceil(rect.height));
 		}
@@ -289,6 +419,7 @@ class FmContextMenu extends LitElement {
 	#onKeyDown = (e) => {
 		if (e.key === 'Escape') {
 			e.preventDefault();
+			if (this._switcherOpen) { this._switcherOpen = false; return; }
 			this.#close();
 			return;
 		}
@@ -312,6 +443,7 @@ class FmContextMenu extends LitElement {
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			const active = this.renderRoot.activeElement;
+			if (active?.dataset.switchId != null) { this.#switchTo(active.dataset.switchId); return; }
 			const index = active?.dataset.index;
 			if (index != null) this.#selectItem(Number(index));
 		}
@@ -322,6 +454,18 @@ class FmContextMenu extends LitElement {
 		if (Number.isFinite(index)) {
 			chrome.runtime.sendMessage({ action: 'ctxMenuSelect', menuId: this.#menuId, index });
 		}
+	}
+
+	#toggleSwitcher = (e) => {
+		e.stopPropagation();
+		if (!this._switcher?.menus?.length) return;
+		this._switcherOpen = !this._switcherOpen;
+	};
+
+	#switchTo(id) {
+		if (this.preview) return;
+		this._switcherOpen = false;
+		chrome.runtime.sendMessage({ action: 'ctxMenuSwitch', menuId: this.#menuId, id });
 	}
 
 	#close = () => {
@@ -340,14 +484,47 @@ class FmContextMenu extends LitElement {
 		return this.#rtf.format(Math.round(diffSec / 31536000), 'year');
 	}
 
+	#chevron(position) {
+		const down = '▾', up = '▴';
+		if (position === 'footer') return this._switcherOpen ? down : up;
+		return this._switcherOpen ? up : down;
+	}
+
 	render() {
 		if (this._items === null) return '';
 
 		const customCss = this.preview ? (this.previewCss || '') : this._customCss;
+		const sw = this._switcher;
+		const position = sw?.position === 'footer' ? 'footer' : 'header';
+		const hasMenus = !!sw?.menus?.length;
 
-		return html`
-			${customCss ? html`<style>${customCss}</style>` : ''}
-			<ul class="fm-ctx-menu" role="menu">
+		const bar = sw ? html`
+			<div class="fm-ctx-bar${hasMenus ? ' fm-ctx-bar--switchable' : ''}"
+				role=${hasMenus ? 'button' : 'presentation'}
+				tabindex=${hasMenus ? '0' : '-1'}
+				aria-expanded=${this._switcherOpen ? 'true' : 'false'}
+				@click=${this.#toggleSwitcher}
+				@keydown=${(e) => { if ((e.key === 'Enter' || e.key === ' ') && hasMenus) { e.preventDefault(); this.#toggleSwitcher(e); } }}
+			>
+				<span class="fm-ctx-bar-name">${sw.name || ''}</span>
+				${hasMenus ? html`<span class="fm-ctx-bar-chevron">${this.#chevron(position)}</span>` : ''}
+			</div>
+		` : '';
+
+		const overlay = (sw && this._switcherOpen && hasMenus) ? html`
+			<ul class="fm-ctx-switcher fm-ctx-switcher--${position}" role="menu">
+				${sw.menus.map(m => html`
+					<li class="fm-ctx-switch-item" role="menuitem" tabindex="-1" data-switch-id=${m.id}
+						@click=${(e) => { e.stopPropagation(); this.#switchTo(m.id); }}
+					>
+						<span class="fm-ctx-label">${m.name || ''}</span>
+					</li>
+				`)}
+			</ul>
+		` : '';
+
+		const list = html`
+			<ul class="fm-ctx-list" role="menu">
 				${!this._items.length ? html`
 					<li class="fm-ctx-item fm-ctx-item--empty" aria-disabled="true">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-off-icon lucide-circle-off"><path d="m2 2 20 20"/><path d="M8.35 2.69A10 10 0 0 1 21.3 15.65"/><path d="M19.08 19.08A10 10 0 1 1 4.92 4.92"/></svg>
@@ -357,7 +534,6 @@ class FmContextMenu extends LitElement {
 					if (item === 'separator') {
 						return html`<li class="fm-ctx-sep" role="separator"></li>`;
 					}
-
 					return html`
 						<li
 							class="fm-ctx-item${item.active ? ' fm-ctx-item--active' : ''}"
@@ -376,6 +552,18 @@ class FmContextMenu extends LitElement {
 					`;
 				})}
 			</ul>
+		`;
+
+		return html`
+			${customCss ? html`<style>${customCss}</style>` : ''}
+			<div class="fm-ctx-root fm-ctx-root--${position}">
+				${position === 'header' ? bar : ''}
+				<div class="fm-ctx-body">
+					${list}
+					${overlay}
+				</div>
+				${position === 'footer' ? bar : ''}
+			</div>
 		`;
 	}
 }

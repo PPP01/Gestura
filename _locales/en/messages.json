@@ -1731,6 +1731,26 @@
 		"message": "Dynamic menu",
 		"description": "Gesture-overview label shown for a custom-menu action in contextual mode (menu chosen by current site instead of a fixed menu)"
 	},
+	"menuSwitcherEnable": {
+		"message": "Show header/footer with menu switcher",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Adds a bar to the custom menu. Click it to switch between menus on the fly.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Header",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Footer",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Show in menu selection",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
 	"addMenu": {
 		"message": "Add Menu",
 		"description": "Add menu button"
