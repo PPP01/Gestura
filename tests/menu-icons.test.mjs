@@ -18,7 +18,7 @@ describe('FlowMouseMenuIcons', () => {
 			'messageSquare', 'briefcase', 'newspaper', 'image', 'fileText', 'upload', 'rss',
 			'history', 'star', 'heart', 'mail', 'user', 'search', 'bookmark', 'timer',
 			'refreshCw', 'compass', 'squarePen', 'trash2', 'ban', 'circleHelp', 'layers',
-			'hardDrive', 'github', 'globe', 'layoutList', 'settings', 'link', 'externalLink']) {
+			'hardDrive', 'github', 'globe', 'layoutList', 'settings', 'link', 'externalLink', 'rotateCcw']) {
 			expect(ICONS[n], `missing icon ${n}`).toBeTruthy();
 		}
 	});

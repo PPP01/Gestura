@@ -1,0 +1,133 @@
+(function (root) {
+	// Vordefinierte Website-Menüs (Katalog). Nur Daten — Auflösung in menu-model.js.
+	// Menü-Namen sind Markennamen (unübersetzt). Item-Labels: labelKey (i18n)
+	// oder customName (Markenname). Alle URLs funktionieren ohne Nutzerkontext.
+	// '{domain}' wird nur in Menüs mit domains-Config verwendet.
+	const SITE_MENU_CATALOG = [
+		{ id: 'github', name: 'GitHub', icon: 'github', patterns: ['*github.com*'], items: [
+			{ id: 'gh-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://github.com/dashboard' },
+			{ id: 'gh-notif', labelKey: 'siteMenuItemNotifications', icon: 'bell', action: 'openCustomUrl', customUrl: 'https://github.com/notifications' },
+			{ id: 'gh-issues', labelKey: 'siteMenuItemIssues', icon: 'circleDot', action: 'openCustomUrl', customUrl: 'https://github.com/issues' },
+			{ id: 'gh-pulls', labelKey: 'siteMenuItemPullRequests', icon: 'gitPullRequest', action: 'openCustomUrl', customUrl: 'https://github.com/pulls' },
+			{ id: 'gh-sep1', type: 'separator' },
+			{ id: 'gh-new', labelKey: 'siteMenuItemNewRepo', icon: 'squarePen', action: 'openCustomUrl', customUrl: 'https://github.com/new' },
+			{ id: 'gh-gists', customName: 'Gists', icon: 'fileText', action: 'openCustomUrl', customUrl: 'https://gist.github.com/' },
+			{ id: 'gh-trending', labelKey: 'siteMenuItemTrending', icon: 'trendingUp', action: 'openCustomUrl', customUrl: 'https://github.com/trending' },
+			{ id: 'gh-settings', labelKey: 'siteMenuItemSettings', icon: 'settings', action: 'openCustomUrl', customUrl: 'https://github.com/settings' },
+		] },
+		{ id: 'm365', name: 'Microsoft 365', icon: 'layoutGrid', patterns: ['*office.com*', '*microsoft365.com*', '*cloud.microsoft*'], items: [
+			{ id: 'ms-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.office.com/' },
+			{ id: 'ms-outlook', customName: 'Outlook', icon: 'mail', action: 'openCustomUrl', customUrl: 'https://outlook.office.com/mail/' },
+			{ id: 'ms-calendar', labelKey: 'siteMenuItemCalendar', icon: 'calendar', action: 'openCustomUrl', customUrl: 'https://outlook.office.com/calendar/' },
+			{ id: 'ms-onedrive', customName: 'OneDrive', icon: 'hardDrive', action: 'openCustomUrl', customUrl: 'https://www.office.com/launch/onedrive' },
+			{ id: 'ms-sep1', type: 'separator' },
+			{ id: 'ms-word', customName: 'Word', icon: 'fileText', action: 'openCustomUrl', customUrl: 'https://www.office.com/launch/word' },
+			{ id: 'ms-excel', customName: 'Excel', icon: 'layoutGrid', action: 'openCustomUrl', customUrl: 'https://www.office.com/launch/excel' },
+			{ id: 'ms-powerpoint', customName: 'PowerPoint', icon: 'play', action: 'openCustomUrl', customUrl: 'https://www.office.com/launch/powerpoint' },
+			{ id: 'ms-teams', customName: 'Teams', icon: 'users', action: 'openCustomUrl', customUrl: 'https://teams.microsoft.com/' },
+			{ id: 'ms-todo', customName: 'To Do', icon: 'check', action: 'openCustomUrl', customUrl: 'https://to-do.office.com/' },
+		] },
+		{ id: 'amazon', name: 'Amazon', icon: 'shoppingCart', patterns: ['*amazon.*'],
+			domains: { choices: ['amazon.de', 'amazon.com', 'amazon.co.uk', 'amazon.fr', 'amazon.it', 'amazon.es', 'amazon.nl', 'amazon.com.be', 'amazon.pl', 'amazon.se', 'amazon.ca', 'amazon.com.au', 'amazon.co.jp'], default: 'amazon.de' }, items: [
+			{ id: 'amz-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.{domain}/' },
+			{ id: 'amz-cart', labelKey: 'siteMenuItemCart', icon: 'shoppingCart', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/cart/view.html' },
+			{ id: 'amz-orders', labelKey: 'siteMenuItemOrders', icon: 'package', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/css/order-history' },
+			{ id: 'amz-wishlist', labelKey: 'siteMenuItemWishlist', icon: 'heart', action: 'openCustomUrl', customUrl: 'https://www.{domain}/hz/wishlist/ls' },
+			{ id: 'amz-sep1', type: 'separator' },
+			{ id: 'amz-subscribe', labelKey: 'siteMenuItemSubscribeSave', icon: 'refreshCw', action: 'openCustomUrl', customUrl: 'https://www.{domain}/auto-deliveries' },
+			{ id: 'amz-returns', labelKey: 'siteMenuItemReturns', icon: 'rotateCcw', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/css/returns/homepage.html' },
+			{ id: 'amz-deals', labelKey: 'siteMenuItemDeals', icon: 'tag', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/goldbox' },
+			{ id: 'amz-help', labelKey: 'siteMenuItemCustomerService', icon: 'circleHelp', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/help/customer/display.html' },
+			{ id: 'amz-account', labelKey: 'siteMenuItemAccount', icon: 'user', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/css/homepage.html' },
+		] },
+		{ id: 'google', name: 'Google', icon: 'search', patterns: ['*google.com*', '*google.de*'], items: [
+			{ id: 'goo-home', labelKey: 'siteMenuItemSearch', icon: 'search', action: 'openCustomUrl', customUrl: 'https://www.google.com/' },
+			{ id: 'goo-images', labelKey: 'siteMenuItemImages', icon: 'image', action: 'openCustomUrl', customUrl: 'https://images.google.com/' },
+			{ id: 'goo-news', labelKey: 'siteMenuItemNews', icon: 'newspaper', action: 'openCustomUrl', customUrl: 'https://news.google.com/' },
+			{ id: 'goo-translate', labelKey: 'siteMenuItemTranslate', icon: 'globe', action: 'openCustomUrl', customUrl: 'https://translate.google.com/' },
+			{ id: 'goo-sep1', type: 'separator' },
+			{ id: 'goo-drive', customName: 'Drive', icon: 'hardDrive', action: 'openCustomUrl', customUrl: 'https://drive.google.com/' },
+			{ id: 'goo-photos', labelKey: 'siteMenuItemPhotos', icon: 'image', action: 'openCustomUrl', customUrl: 'https://photos.google.com/' },
+			{ id: 'goo-calendar', labelKey: 'siteMenuItemCalendar', icon: 'calendar', action: 'openCustomUrl', customUrl: 'https://calendar.google.com/' },
+			{ id: 'goo-contacts', labelKey: 'siteMenuItemContacts', icon: 'users', action: 'openCustomUrl', customUrl: 'https://contacts.google.com/' },
+		] },
+		{ id: 'gmail', name: 'Gmail', icon: 'mail', patterns: ['*mail.google.com*'], items: [
+			{ id: 'gm-inbox', labelKey: 'siteMenuItemInbox', icon: 'inbox', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#inbox' },
+			{ id: 'gm-starred', labelKey: 'siteMenuItemStarred', icon: 'star', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#starred' },
+			{ id: 'gm-sent', labelKey: 'siteMenuItemSent', icon: 'send', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#sent' },
+			{ id: 'gm-drafts', labelKey: 'siteMenuItemDrafts', icon: 'fileText', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#drafts' },
+			{ id: 'gm-sep1', type: 'separator' },
+			{ id: 'gm-spam', labelKey: 'siteMenuItemSpam', icon: 'ban', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#spam' },
+			{ id: 'gm-trash', labelKey: 'siteMenuItemTrash', icon: 'trash2', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#trash' },
+		] },
+		{ id: 'gmaps', name: 'Google Maps', icon: 'mapPin', patterns: ['*google.com/maps*', '*maps.google.*'], items: [
+			{ id: 'map-home', labelKey: 'siteMenuItemHome', icon: 'mapPin', action: 'openCustomUrl', customUrl: 'https://www.google.com/maps' },
+			{ id: 'map-dir', labelKey: 'siteMenuItemDirections', icon: 'compass', action: 'openCustomUrl', customUrl: 'https://www.google.com/maps/dir/' },
+			{ id: 'map-timeline', labelKey: 'siteMenuItemTimeline', icon: 'history', action: 'openCustomUrl', customUrl: 'https://timeline.google.com/' },
+			{ id: 'map-contrib', labelKey: 'siteMenuItemContributions', icon: 'squarePen', action: 'openCustomUrl', customUrl: 'https://www.google.com/maps/contrib/' },
+		] },
+		{ id: 'youtube', name: 'YouTube', icon: 'play', patterns: ['*youtube.com*'], items: [
+			{ id: 'yt-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/' },
+			{ id: 'yt-subs', labelKey: 'siteMenuItemSubscriptions', icon: 'rss', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/feed/subscriptions' },
+			{ id: 'yt-history', labelKey: 'siteMenuItemHistory', icon: 'history', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/feed/history' },
+			{ id: 'yt-later', labelKey: 'siteMenuItemWatchLater', icon: 'timer', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/playlist?list=WL' },
+			{ id: 'yt-playlists', labelKey: 'siteMenuItemPlaylists', icon: 'layoutList', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/feed/playlists' },
+			{ id: 'yt-sep1', type: 'separator' },
+			{ id: 'yt-trending', labelKey: 'siteMenuItemTrending', icon: 'trendingUp', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/feed/trending' },
+			{ id: 'yt-shorts', customName: 'Shorts', icon: 'video', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/shorts' },
+			{ id: 'yt-studio', customName: 'YouTube Studio', icon: 'upload', action: 'openCustomUrl', customUrl: 'https://studio.youtube.com/' },
+		] },
+		{ id: 'facebook', name: 'Facebook', icon: 'users', patterns: ['*facebook.com*'], items: [
+			{ id: 'fb-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/' },
+			{ id: 'fb-notif', labelKey: 'siteMenuItemNotifications', icon: 'bell', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/notifications' },
+			{ id: 'fb-friends', labelKey: 'siteMenuItemFriends', icon: 'users', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/friends' },
+			{ id: 'fb-groups', labelKey: 'siteMenuItemGroups', icon: 'users', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/groups/' },
+			{ id: 'fb-sep1', type: 'separator' },
+			{ id: 'fb-marketplace', customName: 'Marketplace', icon: 'tag', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/marketplace/' },
+			{ id: 'fb-saved', labelKey: 'siteMenuItemSaved', icon: 'bookmark', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/saved/' },
+			{ id: 'fb-watch', labelKey: 'siteMenuItemVideos', icon: 'play', action: 'openCustomUrl', customUrl: 'https://www.facebook.com/watch/' },
+			{ id: 'fb-messenger', customName: 'Messenger', icon: 'messageSquare', action: 'openCustomUrl', customUrl: 'https://www.messenger.com/' },
+		] },
+		{ id: 'instagram', name: 'Instagram', icon: 'image', patterns: ['*instagram.com*'], items: [
+			{ id: 'ig-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.instagram.com/' },
+			{ id: 'ig-direct', labelKey: 'siteMenuItemMessages', icon: 'send', action: 'openCustomUrl', customUrl: 'https://www.instagram.com/direct/inbox/' },
+			{ id: 'ig-explore', labelKey: 'siteMenuItemExplore', icon: 'compass', action: 'openCustomUrl', customUrl: 'https://www.instagram.com/explore/' },
+			{ id: 'ig-reels', customName: 'Reels', icon: 'play', action: 'openCustomUrl', customUrl: 'https://www.instagram.com/reels/' },
+		] },
+		{ id: 'x', name: 'X (Twitter)', icon: 'messageSquare', patterns: ['*x.com*', '*twitter.com*'], items: [
+			{ id: 'x-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://x.com/home' },
+			{ id: 'x-notif', labelKey: 'siteMenuItemNotifications', icon: 'bell', action: 'openCustomUrl', customUrl: 'https://x.com/notifications' },
+			{ id: 'x-messages', labelKey: 'siteMenuItemMessages', icon: 'mail', action: 'openCustomUrl', customUrl: 'https://x.com/messages' },
+			{ id: 'x-bookmarks', labelKey: 'siteMenuItemBookmarks', icon: 'bookmark', action: 'openCustomUrl', customUrl: 'https://x.com/i/bookmarks' },
+			{ id: 'x-explore', labelKey: 'siteMenuItemExplore', icon: 'search', action: 'openCustomUrl', customUrl: 'https://x.com/explore' },
+			{ id: 'x-compose', labelKey: 'siteMenuItemCompose', icon: 'squarePen', action: 'openCustomUrl', customUrl: 'https://x.com/compose/post' },
+		] },
+		{ id: 'reddit', name: 'Reddit', icon: 'messageSquare', patterns: ['*reddit.com*'], items: [
+			{ id: 'rd-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.reddit.com/' },
+			{ id: 'rd-popular', customName: 'r/popular', icon: 'trendingUp', action: 'openCustomUrl', customUrl: 'https://www.reddit.com/r/popular/' },
+			{ id: 'rd-all', customName: 'r/all', icon: 'layers', action: 'openCustomUrl', customUrl: 'https://www.reddit.com/r/all/' },
+			{ id: 'rd-inbox', labelKey: 'siteMenuItemMessages', icon: 'inbox', action: 'openCustomUrl', customUrl: 'https://www.reddit.com/message/inbox/' },
+			{ id: 'rd-saved', labelKey: 'siteMenuItemSaved', icon: 'bookmark', action: 'openCustomUrl', customUrl: 'https://www.reddit.com/user/me/saved/' },
+			{ id: 'rd-submit', labelKey: 'siteMenuItemCompose', icon: 'squarePen', action: 'openCustomUrl', customUrl: 'https://www.reddit.com/submit' },
+		] },
+		{ id: 'linkedin', name: 'LinkedIn', icon: 'briefcase', patterns: ['*linkedin.com*'], items: [
+			{ id: 'li-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.linkedin.com/feed/' },
+			{ id: 'li-network', labelKey: 'siteMenuItemNetwork', icon: 'users', action: 'openCustomUrl', customUrl: 'https://www.linkedin.com/mynetwork/' },
+			{ id: 'li-jobs', labelKey: 'siteMenuItemJobs', icon: 'briefcase', action: 'openCustomUrl', customUrl: 'https://www.linkedin.com/jobs/' },
+			{ id: 'li-messages', labelKey: 'siteMenuItemMessages', icon: 'messageSquare', action: 'openCustomUrl', customUrl: 'https://www.linkedin.com/messaging/' },
+			{ id: 'li-notif', labelKey: 'siteMenuItemNotifications', icon: 'bell', action: 'openCustomUrl', customUrl: 'https://www.linkedin.com/notifications/' },
+			{ id: 'li-profile', labelKey: 'siteMenuItemProfile', icon: 'user', action: 'openCustomUrl', customUrl: 'https://www.linkedin.com/in/me/' },
+		] },
+		{ id: 'wikipedia', name: 'Wikipedia', icon: 'bookOpen', patterns: ['*wikipedia.org*'],
+			domains: { choices: ['de.wikipedia.org', 'en.wikipedia.org', 'fr.wikipedia.org', 'es.wikipedia.org', 'it.wikipedia.org', 'nl.wikipedia.org', 'pl.wikipedia.org', 'pt.wikipedia.org', 'ru.wikipedia.org', 'ja.wikipedia.org', 'zh.wikipedia.org'], default: 'de.wikipedia.org' }, items: [
+			{ id: 'wp-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://{domain}/' },
+			{ id: 'wp-random', labelKey: 'siteMenuItemRandomArticle', icon: 'compass', action: 'openCustomUrl', customUrl: 'https://{domain}/wiki/Special:Random' },
+			{ id: 'wp-watchlist', labelKey: 'siteMenuItemWatchlist', icon: 'star', action: 'openCustomUrl', customUrl: 'https://{domain}/wiki/Special:Watchlist' },
+			{ id: 'wp-recent', labelKey: 'siteMenuItemRecentChanges', icon: 'history', action: 'openCustomUrl', customUrl: 'https://{domain}/wiki/Special:RecentChanges' },
+		] },
+	];
+
+	const api = { SITE_MENU_CATALOG };
+	if (typeof module !== 'undefined' && module.exports) module.exports = api;
+	root.FlowMouseMenuCatalog = api;
+})(typeof self !== 'undefined' ? self : globalThis);
