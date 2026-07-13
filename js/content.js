@@ -529,6 +529,13 @@ class ContentContextMenu {
 			iframe.src = url.href;
 		}
 
+		// Top-left anchor, chosen once on the first dimensions report and then
+		// kept fixed for the life of this menu. Re-measures after a menu switch
+		// or dropdown toggle only change width/height (the right/bottom edge),
+		// so the menu never jumps to a new origin while it is open.
+		let placedLeft = null;
+		let placedTop = null;
+
 		const onMessage = (request) => {
 			if (request.menuId !== menuId) return;
 
@@ -540,29 +547,42 @@ class ContentContextMenu {
 
 				const maxW = vw - pad * 2;
 				const maxH = vh - pad * 2;
-				const clampedW = Math.min(width, maxW);
-				const clampedH = Math.min(height, maxH);
 
-				let left = x;
-				if (left + clampedW + pad > vw) {
-					left = (x - clampedW >= pad) ? x - clampedW - 1 : vw - clampedW - pad;
-				} else {
-					left += 1;
-				}
-				if (left + clampedW + pad > vw) left = vw - clampedW - pad;
-				if (left < pad) left = pad;
+				if (placedLeft === null) {
+					// First placement: anchor at the cursor, flipping left/up only
+					// as needed to keep the initial size on-screen.
+					const w0 = Math.min(width, maxW);
+					const h0 = Math.min(height, maxH);
 
-				let top = y;
-				if (top + clampedH + pad > vh) {
-					top = (y - clampedH >= pad) ? y - clampedH : vh - clampedH - pad;
+					let left = x;
+					if (left + w0 + pad > vw) {
+						left = (x - w0 >= pad) ? x - w0 - 1 : vw - w0 - pad;
+					} else {
+						left += 1;
+					}
+					if (left + w0 + pad > vw) left = vw - w0 - pad;
+					if (left < pad) left = pad;
+
+					let top = y;
+					if (top + h0 + pad > vh) {
+						top = (y - h0 >= pad) ? y - h0 : vh - h0 - pad;
+					}
+					if (top + h0 + pad > vh) top = vh - h0 - pad;
+					if (top < pad) top = pad;
+
+					placedLeft = left;
+					placedTop = top;
 				}
-				if (top + clampedH + pad > vh) top = vh - clampedH - pad;
-				if (top < pad) top = pad;
+
+				// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
+				// the space available below/right of the anchor so it stays on-screen.
+				const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
+				const clampedH = Math.min(height, maxH, vh - pad - placedTop);
 
 				iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
 				iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
-				iframe.style.setProperty('left', Math.round(left) + 'px', 'important');
-				iframe.style.setProperty('top', Math.round(top) + 'px', 'important');
+				iframe.style.setProperty('left', Math.round(placedLeft) + 'px', 'important');
+				iframe.style.setProperty('top', Math.round(placedTop) + 'px', 'important');
 				iframe.style.setProperty('opacity', '1', 'important');
 				iframe.style.setProperty('pointer-events', 'auto', 'important');
 			}
