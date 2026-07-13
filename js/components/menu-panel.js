@@ -123,6 +123,16 @@ class MenuPanel extends LitElement {
 				background: var(--accent-color, #2962ff);
 				color: #fff;
 			}
+			.theme-row {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				font-size: 12px;
+				color: var(--text-secondary);
+			}
+			.theme-label {
+				font-weight: 500;
+			}
 			.show-in-switcher-field {
 				display: flex;
 				align-items: center;
@@ -333,11 +343,19 @@ class MenuPanel extends LitElement {
 		SettingsStore.save({ customMenuSwitcher: next });
 	}
 
+	get menuTheme() {
+		return SettingsStore.current.customMenuTheme || 'auto';
+	}
+
+	#updateTheme(value) {
+		SettingsStore.save({ customMenuTheme: value });
+	}
+
 	connectedCallback() {
 		super.connectedCallback();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore = SettingsStore.onChange((changed) => {
-			if ('customMenus' in changed || 'customMenuSwitcher' in changed) this.requestUpdate();
+			if ('customMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed) this.requestUpdate();
 		});
 	}
 
@@ -450,6 +468,23 @@ class MenuPanel extends LitElement {
 						>${i18n.getMessage('menuSwitcherFooter')}</button>
 					</div>
 				` : ''}
+				<div class="theme-row">
+					<span class="theme-label">${i18n.getMessage('menuThemeTitle')}</span>
+					<div class="switcher-position" role="group">
+						<button type="button"
+							class="switcher-pos-btn${this.menuTheme === 'auto' ? ' active' : ''}"
+							@click=${() => this.#updateTheme('auto')}
+						>${i18n.getMessage('menuThemeAuto')}</button>
+						<button type="button"
+							class="switcher-pos-btn${this.menuTheme === 'light' ? ' active' : ''}"
+							@click=${() => this.#updateTheme('light')}
+						>${i18n.getMessage('menuThemeLight')}</button>
+						<button type="button"
+							class="switcher-pos-btn${this.menuTheme === 'dark' ? ' active' : ''}"
+							@click=${() => this.#updateTheme('dark')}
+						>${i18n.getMessage('menuThemeDark')}</button>
+					</div>
+				</div>
 			</div>
 		`;
 	}
