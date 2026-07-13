@@ -460,7 +460,7 @@ class ContentContextMenu {
 		return this.#createMenuIframe(x, y, menuId, options);
 	}
 
-	setItems(items, header) {
+	setItems(items, switcher) {
 		if (!this.#activeMenuId) return;
 		this.#activeItems = items;
 
@@ -475,7 +475,7 @@ class ContentContextMenu {
 				menuId: this.#activeMenuId,
 				items: serializedItems,
 			};
-			if (header !== undefined) payload.header = header;
+			if (switcher !== undefined) payload.switcher = switcher;
 			chrome.runtime.sendMessage(payload);
 		} catch {}
 
@@ -484,7 +484,7 @@ class ContentContextMenu {
 		// reach an embedded extension-page iframe, so postMessage directly.
 		try {
 			const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
-			if (header !== undefined) msg.header = header;
+			if (switcher !== undefined) msg.switcher = switcher;
 			this.#activeIframe?.contentWindow?.postMessage(msg, '*');
 		} catch {}
 	}
@@ -3445,14 +3445,19 @@ window.ContentContextMenu = ContentContextMenu;
 							: mergedConfig.menuId;
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
-						// Header list = all custom menus except the current, in definition order.
-						const buildHeader = (menuId) => {
+						// Switcher bar (header/footer) is a global custom-menu setting.
+						const buildSwitcher = (menuId) => {
+							const sw = SETTINGS.customMenuSwitcher;
+							if (!sw?.enabled) return null;
 							const def = SETTINGS.customMenus?.[menuId];
-							if (!def?.showHeader) return null;
-							const menus = Object.entries(SETTINGS.customMenus || {})
-								.filter(([id]) => id !== menuId)
-								.map(([id, m]) => ({ id, name: m?.name || msg('actionCustomMenu') }));
-							return { name: def.name || msg('actionCustomMenu'), menus };
+							if (!def) return null;
+							const menus = window.FlowMouseMenuSwitcher.buildSwitcherMenus(
+								SETTINGS.customMenus, menuId, msg('actionCustomMenu'));
+							return {
+								name: def.name || msg('actionCustomMenu'),
+								position: sw.position === 'footer' ? 'footer' : 'header',
+								menus,
+							};
 						};
 
 						const buildCustomMenu = (menuId) => {
@@ -3491,7 +3496,7 @@ window.ContentContextMenu = ContentContextMenu;
 										}
 									};
 								});
-							return { items, header: buildHeader(menuId) };
+							return { items, switcher: buildSwitcher(menuId) };
 						};
 
 						const initial = buildCustomMenu(initialMenuId);
@@ -3502,10 +3507,10 @@ window.ContentContextMenu = ContentContextMenu;
 							if (!SETTINGS.customMenus?.[id]) return; // deleted → no-op, keep current
 							const rebuilt = buildCustomMenu(id);
 							if (!rebuilt) return;
-							ctxMenu.setItems(rebuilt.items, rebuilt.header);
+							ctxMenu.setItems(rebuilt.items, rebuilt.switcher);
 							upgradeMenuIcons(rebuilt.items);
 						});
-						ctxMenu.setItems(initial.items, initial.header);
+						ctxMenu.setItems(initial.items, initial.switcher);
 						upgradeMenuIcons(initial.items);
 						break;
 					}
