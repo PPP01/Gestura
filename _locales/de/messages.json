@@ -1724,6 +1724,18 @@
 	"customMenuContextualLabel": {
 		"message": "Dynamisches Menü"
 	},
+	"menuThemeTitle": {
+		"message": "Erscheinungsbild"
+	},
+	"menuThemeAuto": {
+		"message": "Automatisch"
+	},
+	"menuThemeLight": {
+		"message": "Hell"
+	},
+	"menuThemeDark": {
+		"message": "Dunkel"
+	},
 	"addMenu": {
 		"message": "Menü hinzufügen",
 		"description": "Add menu button"

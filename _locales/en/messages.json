@@ -1751,6 +1751,22 @@
 		"message": "Show in menu selection",
 		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
 	},
+	"menuThemeTitle": {
+		"message": "Appearance",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Auto",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Light",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Dark",
+		"description": "Appearance option — always show the menu in dark mode"
+	},
 	"addMenu": {
 		"message": "Add Menu",
 		"description": "Add menu button"
