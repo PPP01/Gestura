@@ -262,6 +262,7 @@
 		actionChains: {},
 		customMenus: {},
 		customMenuSwitcher: { enabled: false, position: 'header' },
+		customMenuTheme: 'auto',
 		searchEngines: { overrides: {}, hidden: [], custom: [], order: [] },
 		blacklist: [],
 		enableBlacklistContextMenu: false,

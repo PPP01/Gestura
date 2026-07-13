@@ -18,4 +18,7 @@ describe("DEFAULT_SETTINGS", () => {
 	it("searchEngines defaults to empty diff structure", () => {
 		expect(DEFAULT_SETTINGS.searchEngines).toEqual({ overrides: {}, hidden: [], custom: [], order: [] });
 	});
+	it("customMenuTheme defaults to 'auto'", () => {
+		expect(DEFAULT_SETTINGS.customMenuTheme).toBe("auto");
+	});
 });
