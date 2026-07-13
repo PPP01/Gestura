@@ -334,7 +334,7 @@ class SiteMenuEditor extends LitElement {
 		this.#emit('item-add', { item, afterId });
 	}
 
-	// --- Drag & Drop (übernommen aus menu-panel.js) ---
+	// --- Drag & Drop ---
 	#onItemDragStart(e, idx) {
 		this._dragState = { fromIdx: idx, active: true, overIdx: -1, position: null };
 		e.dataTransfer.effectAllowed = 'move';

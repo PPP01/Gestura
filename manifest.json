@@ -46,7 +46,6 @@
                 "js/search-engines-catalog.js",
                 "js/engine-registry.js",
                 "js/favicon-util.js",
-                "js/menu-switcher.js",
                 "js/menu-catalog.js",
                 "js/menu-model.js",
                 "js/content.js"

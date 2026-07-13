@@ -9,6 +9,10 @@
 
 **New Features:**
 
+- **Website menus:** predefined, fully editable menus for popular sites (GitHub, YouTube, Amazon incl. country selection, …) with icons; new settings section.
+- **Custom menu action** now has four sources: standard menu, customized standard menu (inherits updates for unchanged items), own per-gesture menu, or contextual by URL.
+- Menu items support links, searches, and any gesture action, each with a selectable icon (Lucide set or favicon).
+- **Breaking:** the old shared custom-menu pool was removed; gestures using it must be reconfigured.
 - **Context-aware search menus:** Custom mouse menus can now contain search-engine entries from a built-in catalog (displayed with icons) alongside custom search/link items; menus carry site patterns so the same gesture automatically opens the right menu per site (contextual mode); a new "Add current site to menu" gesture appends `*hostname*` to a menu's patterns, making it quick to assign a menu to the site you're currently visiting.
   - **Editable Search Engines section:** The options page now has a top-level "Search Engines" section where you can add, edit, hide, reorder, and reset both built-in and custom search engines.
   - **Clipboard-open mode:** A new per-engine option copies the selected text to the clipboard and opens the page without a query parameter — useful for services like Gemini that do not accept a `?q=` URL.
