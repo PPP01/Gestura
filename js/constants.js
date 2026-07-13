@@ -261,6 +261,7 @@
 		areaSelectDelay: 0.3,
 		actionChains: {},
 		customMenus: {},
+		customMenuSwitcher: { enabled: false, position: 'header' },
 		searchEngines: { overrides: {}, hidden: [], custom: [], order: [] },
 		blacklist: [],
 		enableBlacklistContextMenu: false,
