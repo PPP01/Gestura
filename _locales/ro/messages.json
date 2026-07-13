@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Fără pictogramă",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Căutare",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Cumpărături",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Adaugă bara de căutare rapidă la fiecare meniu",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Intrările de mai jos sunt adăugate la finalul fiecărui meniu personalizat, după un separator. Selecția curentă este transmisă căutărilor.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Adaugă bara de căutare rapidă la acest meniu",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

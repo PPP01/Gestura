@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "アイコンなし",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "検索",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "ショッピング",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "すべてのメニューにクイック検索バーを追加",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "以下の項目は、区切り線の後にすべてのカスタムメニューの下部に追加されます。現在の選択範囲が検索に渡されます。",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "このメニューにクイック検索バーを追加",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

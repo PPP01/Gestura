@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Без значка",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Пошук",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Покупки",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Додавати панель швидкого пошуку до кожного меню",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Пункти нижче додаються в кінець кожного користувацького меню після розділювача. Поточне виділення передається в пошук.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Додавати панель швидкого пошуку до цього меню",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Žádná ikona",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Hledání",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Nakupování",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Připojit lištu rychlého hledání ke každé nabídce",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Níže uvedené položky se připojí na konec každé vlastní nabídky za oddělovač. Aktuální výběr se předá vyhledávání.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Připojit lištu rychlého hledání k této nabídce",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

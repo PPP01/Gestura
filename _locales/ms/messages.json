@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Tiada ikon",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Carian",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Beli-belah",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Tambah bar carian pantas pada setiap menu",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Entri di bawah ditambah di bahagian bawah setiap menu tersuai, selepas pemisah. Pilihan semasa dihantar kepada carian.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Tambah bar carian pantas pada menu ini",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

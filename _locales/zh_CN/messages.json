@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "无图标",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "搜索",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "购物",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "在每个菜单底部附加快捷搜索栏",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "以下条目会在分隔线之后附加到每个自定义菜单的底部。当前选中的文本会传递给搜索。",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "在此菜单附加快捷搜索栏",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

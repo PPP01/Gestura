@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "無圖示",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "搜尋",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "購物",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "在每個選單底部附加快速搜尋列",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "以下項目會在分隔線之後附加到每個自訂選單的底部。目前選取的文字會傳遞給搜尋。",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "在此選單附加快速搜尋列",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "ללא סמל",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "חיפוש",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "קניות",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "הוספת סרגל חיפוש מהיר לכל תפריט",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "הפריטים שלהלן נוספים לתחתית כל תפריט מותאם אישית, אחרי קו מפריד. הבחירה הנוכחית מועברת לחיפושים.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "הוספת סרגל החיפוש המהיר לתפריט זה",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

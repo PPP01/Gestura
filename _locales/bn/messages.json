@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "কোনো আইকন নেই",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "অনুসন্ধান",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "কেনাকাটা",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "প্রতিটি মেনুতে দ্রুত-অনুসন্ধান বার যুক্ত করুন",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "নিচের এন্ট্রিগুলি প্রতিটি কাস্টম মেনুর নিচে একটি বিভাজকের পরে যুক্ত হয়। বর্তমান নির্বাচন অনুসন্ধানে পাঠানো হয়।",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "এই মেনুতে দ্রুত-অনুসন্ধান বার যুক্ত করুন",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

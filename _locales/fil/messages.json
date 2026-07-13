@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Walang icon",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Paghahanap",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Shopping",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Idagdag ang quick-search bar sa bawat menu",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Ang mga entry sa ibaba ay idinadagdag sa dulo ng bawat custom na menu, pagkatapos ng separator. Ipinapasa sa mga paghahanap ang kasalukuyang seleksyon.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Idagdag ang quick-search bar sa menu na ito",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

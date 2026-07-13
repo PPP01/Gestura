@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "بدون أيقونة",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "البحث",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "التسوق",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "إلحاق شريط البحث السريع بكل قائمة",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "تُضاف الإدخالات أدناه إلى أسفل كل قائمة مخصصة بعد فاصل. ويتم تمرير التحديد الحالي إلى عمليات البحث.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "إلحاق شريط البحث السريع بهذه القائمة",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

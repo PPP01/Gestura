@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Ei kuvaketta",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Haku",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Ostokset",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Lisää pikahakupalkki jokaiseen valikkoon",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Alla olevat kohteet lisätään jokaisen mukautetun valikon loppuun erottimen jälkeen. Nykyinen valinta välitetään hauille.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Lisää pikahakupalkki tähän valikkoon",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

@@ -3,6 +3,7 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { SettingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
+import { menuDisplayName } from './gesture-menu-config.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -80,7 +81,7 @@ class SiteMenuManager extends LitElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this._unsubscribe = SettingsStore.onChange((changed) => {
-			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed) this.requestUpdate();
+			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed) this.requestUpdate();
 		});
 	}
 
@@ -156,7 +157,59 @@ class SiteMenuManager extends LitElement {
 						`)}
 					</div>
 				</div>
+				${this.#renderMenuAppend(i18n)}
 			</div>
+		`;
+	}
+
+	get menuAppend() {
+		return SettingsStore.current.menuAppend || { enabled: false, items: [] };
+	}
+
+	async #saveMenuAppend(next) {
+		const ok = await SettingsStore.save({ menuAppend: next });
+		if (!ok) alert(window.i18n.getMessage('menuSyncSaveError'));
+		this.requestUpdate();
+	}
+
+	#renderMenuAppend(i18n) {
+		const a = this.menuAppend;
+		const save = (mutate) => {
+			const next = structuredClone(a);
+			mutate(next);
+			this.#saveMenuAppend(next);
+		};
+		return html`
+			<label class="switcher-toggle">
+				<input type="checkbox" .checked=${!!a.enabled}
+					@change=${(e) => this.#saveMenuAppend({ ...a, enabled: e.target.checked })}>
+				<span class="switcher-toggle-text">
+					<span class="switcher-toggle-label">${i18n.getMessage('siteMenuAppendEnable')}</span>
+					<span class="switcher-toggle-hint">${i18n.getMessage('siteMenuAppendHint')}</span>
+				</span>
+			</label>
+			${a.enabled ? html`
+				<div class="editor-wrap">
+					<site-menu-editor hide-name
+						.rows=${(a.items || []).map(item => ({ item, state: 'own' }))}
+						.patterns=${null}
+						@item-change=${(e) => save(d => { d.items = d.items.map(it => it.id === e.detail.item.id ? e.detail.item : it); })}
+						@item-delete=${(e) => save(d => { d.items = d.items.filter(it => it.id !== e.detail.itemId); })}
+						@item-add=${(e) => save(d => { d.items = [...(d.items || []), e.detail.item]; })}
+						@item-duplicate=${(e) => save(d => {
+							const idx = d.items.findIndex(it => it.id === e.detail.itemId);
+							if (idx === -1) return;
+							const copy = structuredClone(d.items[idx]);
+							copy.id = `item_${crypto.randomUUID().replace(/-/g, '').slice(0, 10)}`;
+							d.items.splice(idx + 1, 0, copy);
+						})}
+						@items-reorder=${(e) => save(d => {
+							const byId = new Map((d.items || []).map(it => [it.id, it]));
+							d.items = e.detail.orderedIds.map(id => byId.get(id)).filter(Boolean);
+						})}
+					></site-menu-editor>
+				</div>
+			` : ''}
 		`;
 	}
 
@@ -168,7 +221,7 @@ class SiteMenuManager extends LitElement {
 			<div class="menu-row ${m.disabled ? 'disabled' : ''}">
 				<span class="menu-icon">${menuIcon ? unsafeHTML(menuIcon) : ''}</span>
 				<span class="menu-name">
-					${m.def.name || i18n.getMessage('menuNamePlaceholder')}
+					${menuDisplayName(m.def, 'menuNamePlaceholder')}
 					<span class="menu-count">(${count})</span>
 					${m.isEdited ? html`<span class="edited-badge">${i18n.getMessage('siteMenuEdited')}</span>` : ''}
 				</span>
@@ -208,6 +261,7 @@ class SiteMenuManager extends LitElement {
 			<site-menu-editor
 				.rows=${rows}
 				.name=${def.name || ''}
+				.namePlaceholder=${menuDisplayName(def, 'menuNamePlaceholder')}
 				.patterns=${def.patterns || []}
 				.domainChoices=${def.domains?.choices || null}
 				.domainValue=${domainValue}
@@ -240,6 +294,13 @@ class SiteMenuManager extends LitElement {
 					@change=${(e) => this.#saveDef(m.id, d => { d.showInSwitcher = e.target.checked; })}>
 				<span>${i18n.getMessage('menuShowInSwitcher')}</span>
 			</label>
+			${this.menuAppend.enabled ? html`
+				<label class="show-in-switcher">
+					<input type="checkbox" .checked=${def.appendMini !== false}
+						@change=${(e) => this.#saveDef(m.id, d => { d.appendMini = e.target.checked; })}>
+					<span>${i18n.getMessage('siteMenuAppendPerMenu')}</span>
+				</label>
+			` : ''}
 		`;
 	}
 
@@ -257,14 +318,14 @@ class SiteMenuManager extends LitElement {
 
 	#resetMenu(m) {
 		const i18n = window.i18n;
-		if (!confirm(i18n.getMessage('siteMenuResetConfirm').replace('%name%', m.def.name || ''))) return;
+		if (!confirm(i18n.getMessage('siteMenuResetConfirm').replace('%name%', menuDisplayName(m.def, 'menuNamePlaceholder')))) return;
 		this.#saveSiteMenus(M().withMenuReset(this.siteMenus, m.id));
 	}
 
 	#deleteMenu(m) {
 		const i18n = window.i18n;
 		if ((m.def.items || []).length &&
-			!confirm(i18n.getMessage('deleteMenuConfirm').replace('%name%', m.def.name || ''))) return;
+			!confirm(i18n.getMessage('deleteMenuConfirm').replace('%name%', menuDisplayName(m.def, 'menuNamePlaceholder')))) return;
 		if (this._expandedId === m.id) this._expandedId = '';
 		this.#saveSiteMenus(M().withoutCustomMenu(this.siteMenus, m.id));
 	}

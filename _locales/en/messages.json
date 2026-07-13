@@ -2690,5 +2690,25 @@
 	"iconPickerNone": {
 		"message": "No icon",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Search",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Shopping",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Append quick-search bar to every menu",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "The entries below are appended to the bottom of every custom menu, after a separator. The current selection is passed to searches.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Append quick-search bar to this menu",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

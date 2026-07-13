@@ -2094,6 +2094,10 @@ window.ContentContextMenu = ContentContextMenu;
 				if (config?.mode === 'own') return config.ownMenu?.name || msg('customMenuOwnLabel');
 				const resolved = resolveGestureMenu(config);
 				if (resolved?.name) return resolved.name;
+				if (resolved?.nameKey) {
+					const localized = msg(resolved.nameKey);
+					if (localized) return localized;
+				}
 				if (!resolved) {
 					return config?.mode === 'contextual'
 						? msg('customMenuContextualLabel')
@@ -3520,10 +3524,10 @@ window.ContentContextMenu = ContentContextMenu;
 								window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SETTINGS.siteMenus);
 							const menus = active
 								.filter(m => m.id !== resolved.menuId && m.def.showInSwitcher !== false)
-								.map(m => ({ id: m.id, name: m.def.name || msg('actionCustomMenu') }));
+								.map(m => ({ id: m.id, name: m.def.name || (m.def.nameKey && msg(m.def.nameKey)) || msg('actionCustomMenu') }));
 							if (!menus.length) return null;
 							return {
-								name: resolved.name || msg('actionCustomMenu'),
+								name: resolved.name || (resolved.nameKey && msg(resolved.nameKey)) || msg('actionCustomMenu'),
 								position: sw.position === 'footer' ? 'footer' : 'header',
 								menus,
 							};
@@ -3531,7 +3535,8 @@ window.ContentContextMenu = ContentContextMenu;
 
 						const buildMenu = (resolved) => {
 							if (!resolved) return null;
-							return { items: buildItems(resolved), switcher: buildSwitcher(resolved) };
+							const appended = window.FlowMouseMenuModel.applyMenuAppend(resolved, SETTINGS.menuAppend);
+							return { items: buildItems(appended), switcher: buildSwitcher(appended) };
 						};
 
 						const initialResolved = resolveGestureMenu(gestureCfg);

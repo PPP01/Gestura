@@ -151,7 +151,7 @@
 		if (mode === 'own') {
 			const m = c.ownMenu;
 			if (!m) return null;
-			return { menuId: '', name: m.name || '', items: (m.items || []).map(clone), domain: '' };
+			return { menuId: '', name: m.name || '', nameKey: '', items: (m.items || []).map(clone), domain: '', appendMini: m.appendMini !== false };
 		}
 		let menuId = c.menuId;
 		if (mode === 'contextual') {
@@ -171,7 +171,19 @@
 		if (domain) {
 			items = items.map(it => it.customUrl ? { ...it, customUrl: applyDomain(it.customUrl, domain) } : it);
 		}
-		return { menuId: base.id, name, items, domain };
+		return { menuId: base.id, name, nameKey: base.nameKey || '', items, domain, appendMini: base.appendMini !== false };
+	}
+
+	// Hängt das globale Mini-Menü (menuAppend-Setting) unten an ein aufgelöstes
+	// Menü an — nach einem Trenner, sofern das Menü eigene Einträge hat.
+	function applyMenuAppend(resolved, appendCfg) {
+		if (!resolved) return resolved;
+		if (!appendCfg || !appendCfg.enabled || !(appendCfg.items || []).length) return resolved;
+		if (resolved.appendMini === false) return resolved;
+		const items = [...resolved.items];
+		if (items.length) items.push({ id: '__append_sep', type: 'separator' });
+		for (const it of appendCfg.items) items.push(clone(it));
+		return { ...resolved, items };
 	}
 
 	function isCatalogId(catalog, menuId) {
@@ -230,7 +242,7 @@
 		getBaseMenu, listMenus, listActiveMenus,
 		emptyFork, resolveFork,
 		forkOverrideItem, forkDeleteItem, forkRestoreItem, forkAddItem, forkReorder,
-		resolveMenu, resolveContextualMenuId, applyDomain,
+		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
 		addPatternToMenu,
 	};

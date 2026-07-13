@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "아이콘 없음",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "검색",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "쇼핑",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "모든 메뉴에 빠른 검색 바 추가",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "아래 항목은 구분선 뒤에 모든 사용자 지정 메뉴 하단에 추가됩니다. 현재 선택 영역이 검색에 전달됩니다.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "이 메뉴에 빠른 검색 바 추가",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

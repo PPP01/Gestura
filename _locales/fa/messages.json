@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "بدون نماد",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "جستجو",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "خرید",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "افزودن نوار جستجوی سریع به همه منوها",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "موارد زیر پس از یک جداکننده به انتهای هر منوی سفارشی افزوده می‌شوند. انتخاب فعلی به جستجوها منتقل می‌شود.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "افزودن نوار جستجوی سریع به این منو",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

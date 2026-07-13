@@ -264,3 +264,20 @@ maschinell übersetzt; `en` ist `default_locale`-Fallback).
   Overrides fremder Item-IDs wären sinnlos.
 - **Icon-Subset statt Voll-Set:** hält das in alle Frames geladene
   `menu-icons.js` klein; das große `js/icons.js` bleibt ES-Modul der Seiten.
+
+## Nachtrag R2 (2026-07-13, nach Nutzertest freigegeben)
+
+1. **Suche-Menü als Standard-Fallback:** neues Katalog-Menü `search`
+   (kuratierte `searchLink`-Einträge: Google, Brave, Perplexity, DuckDuckGo,
+   Bing, DeepL, Wikipedia; Selektion wird übergeben). Es ist der Default für
+   `fallbackMenuId` (kontextabhängiger Modus) und die Vorauswahl im Modus
+   „Standard-Menü". Katalog-Menüs können statt Markenname einen `nameKey`
+   (i18n) tragen.
+2. **Mini-Suchmenü (Quick-Search-Bar):** Settings-Key
+   `menuAppend { enabled, items }` (Default: aus; Brave, Google, Perplexity).
+   Bei aktivierter Option hängt jedes Custom-Menu (alle 4 Modi) die Einträge
+   nach einem Trenner unten an — pure Funktion `applyMenuAppend()` in
+   `menu-model.js`. Pro Menü abwählbar über `appendMini: false` in der
+   Menüdefinition (Checkbox im Editor; Forks erben das Flag der Basis).
+3. **Shopping-Menü:** Katalog-Menü `shopping` mit Suchen Brave, Google,
+   Amazon, eBay (Selektion wird übergeben).

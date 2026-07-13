@@ -710,7 +710,8 @@ class ActionSelect extends LitElement {
 		if (!menuId) return null;
 		const base = window.FlowMouseMenuModel.getBaseMenu(
 			window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SettingsStore.current.siteMenus, menuId);
-		return base?.name || null;
+		if (!base) return null;
+		return base.name || (base.nameKey && window.i18n.getMessage(base.nameKey)) || null;
 	}
 
 	#getActionLabel(val) {
@@ -1581,7 +1582,7 @@ class ActionSelect extends LitElement {
 				<div class="action-config-row">
 					<select class="action-config-select"
 						@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, menuId: e.target.value }; }}>
-						${menus.map(m => html`<option value=${m.id} ?selected=${m.id === cur}>${m.def.name}</option>`)}
+						${menus.map(m => html`<option value=${m.id} ?selected=${m.id === cur}>${m.def.name || (m.def.nameKey && window.i18n.getMessage(m.def.nameKey)) || m.id}</option>`)}
 					</select>
 				</div>
 			`;

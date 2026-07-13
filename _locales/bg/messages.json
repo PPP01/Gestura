@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Без икона",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Търсене",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Пазаруване",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Добавяне на лента за бързо търсене към всяко меню",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Долните елементи се добавят в края на всяко персонализирано меню след разделител. Текущата селекция се предава на търсенията.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Добавяне на лентата за бързо търсене към това меню",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

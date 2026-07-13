@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Nincs ikon",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Keresés",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Vásárlás",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Gyorskereső sáv hozzáfűzése minden menühöz",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Az alábbi elemek minden egyéni menü aljához hozzáfűződnek egy elválasztó után. Az aktuális kijelölés átadódik a kereséseknek.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Gyorskereső sáv hozzáfűzése ehhez a menühöz",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

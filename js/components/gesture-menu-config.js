@@ -5,6 +5,12 @@ import { SettingsStore } from '../settings-store.js';
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
 
+// Anzeigename eines Menüs: Markenname oder lokalisierter nameKey.
+export function menuDisplayName(def, fallbackKey = 'actionCustomMenu') {
+	const i18n = window.i18n;
+	return def?.name || (def?.nameKey && i18n.getMessage(def.nameKey)) || i18n.getMessage(fallbackKey);
+}
+
 // Anzeigename der Geste im zugeklappten action-select.
 export function getGestureMenuLabel(config) {
 	const i18n = window.i18n;
@@ -15,10 +21,10 @@ export function getGestureMenuLabel(config) {
 	const base = M().getBaseMenu(CATALOG(), siteMenus, cfg.menuId);
 	if (!base) return `${i18n.getMessage('actionCustomMenu')} ${i18n.getMessage('menuNotFound')}`;
 	if (cfg.mode === 'fork') {
-		const name = cfg.fork?.name || base.name;
+		const name = cfg.fork?.name || menuDisplayName(base);
 		return `${name} (${i18n.getMessage('forkBadgeModified')})`;
 	}
-	return base.name || i18n.getMessage('actionCustomMenu');
+	return menuDisplayName(base);
 }
 
 class GestureMenuConfig extends LitElement {
@@ -61,7 +67,7 @@ class GestureMenuConfig extends LitElement {
 			<select @change=${(e) => onChange(e.target.value)}>
 				${emptyLabel !== undefined ? html`<option value="" ?selected=${!value}>${emptyLabel}</option>` : ''}
 				${menus.map(m => html`
-					<option value=${m.id} ?selected=${m.id === value}>${m.def.name}</option>
+					<option value=${m.id} ?selected=${m.id === value}>${menuDisplayName(m.def)}</option>
 				`)}
 			</select>
 		`;
@@ -96,7 +102,9 @@ class GestureMenuConfig extends LitElement {
 
 	#renderModeBody(cfg, i18n) {
 		if (cfg.mode === 'standard') {
-			const first = this.#activeMenus()[0];
+			const active = this.#activeMenus();
+			// Vorauswahl: das Suche-Menü (Standard-Fallback), sonst das erste aktive.
+			const first = active.find(m => m.id === 'search') || active[0];
 			if (!cfg.menuId && first) queueMicrotask(() => this.#update({ menuId: first.id }));
 			return html`
 				<div class="row">
@@ -150,6 +158,13 @@ class GestureMenuConfig extends LitElement {
 					d.items = e.detail.orderedIds.map(id => byId.get(id)).filter(Boolean);
 				})}
 			></site-menu-editor>
+			${SettingsStore.current.menuAppend?.enabled ? html`
+				<label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-secondary)">
+					<input type="checkbox" .checked=${ownMenu.appendMini !== false}
+						@change=${(e) => saveOwn(d => { d.appendMini = e.target.checked; })}>
+					<span>${i18n.getMessage('siteMenuAppendPerMenu')}</span>
+				</label>
+			` : ''}
 		`;
 	}
 
@@ -181,7 +196,7 @@ class GestureMenuConfig extends LitElement {
 				.rows=${rows}
 				.hiddenItems=${hiddenItems}
 				.name=${fork.name || ''}
-				.namePlaceholder=${base.name || ''}
+				.namePlaceholder=${menuDisplayName(base)}
 				.patterns=${null}
 				@name-change=${(e) => saveFork({ ...fork, name: e.detail.name })}
 				@item-change=${(e) => saveFork(M().forkOverrideItem(fork, baseItems, e.detail.item))}

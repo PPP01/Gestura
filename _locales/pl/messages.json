@@ -2592,5 +2592,25 @@
 	"iconPickerNone": {
 		"message": "Brak ikony",
 		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Wyszukiwanie",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Zakupy",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Dołącz pasek szybkiego wyszukiwania do każdego menu",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Poniższe pozycje są dołączane na dole każdego własnego menu, po separatorze. Bieżące zaznaczenie jest przekazywane do wyszukiwań.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Dołącz pasek szybkiego wyszukiwania do tego menu",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
 	}
 }

@@ -198,6 +198,45 @@ describe('resolveMenu', () => {
 		const r = M.resolveMenu(CATALOG, { ...EMPTY, domains: { amz: 'amazon.com' } }, cfg);
 		expect(r.items.map(i => i.customUrl)).toEqual(['https://www.amazon.com/cart2', 'https://www.amazon.com/neu']);
 	});
+	it('passes nameKey through for catalog menus without brand name', () => {
+		const cat = [{ id: 'search', nameKey: 'siteMenuNameSearch', patterns: [], items: [] }];
+		const r = M.resolveMenu(cat, EMPTY, { mode: 'standard', menuId: 'search' });
+		expect(r.name).toBe('');
+		expect(r.nameKey).toBe('siteMenuNameSearch');
+	});
+	it('reports appendMini (default true; false when the menu opts out; own menus too)', () => {
+		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'standard', menuId: 'gh' }).appendMini).toBe(true);
+		const sm = { ...EMPTY, edited: { gh: { name: 'GH', appendMini: false, items: [] } } };
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'standard', menuId: 'gh' }).appendMini).toBe(false);
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'fork', menuId: 'gh', fork: M.emptyFork() }).appendMini).toBe(false);
+		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'own', ownMenu: { name: 'P', appendMini: false, items: [] } }).appendMini).toBe(false);
+	});
+});
+
+describe('applyMenuAppend', () => {
+	const resolved = () => ({ menuId: 'gh', name: 'GitHub', appendMini: true,
+		items: [{ id: 'a', action: 'none' }] });
+	const cfg = { enabled: true, items: [{ id: 'append-brave', action: 'searchLink', engineId: 'brave' }] };
+	it('appends separator + items when enabled', () => {
+		const r = M.applyMenuAppend(resolved(), cfg);
+		expect(r.items.map(i => i.type === 'separator' ? 'sep' : i.id)).toEqual(['a', 'sep', 'append-brave']);
+	});
+	it('is a no-op when disabled, when items are empty, or when the menu opts out', () => {
+		expect(M.applyMenuAppend(resolved(), { ...cfg, enabled: false }).items).toHaveLength(1);
+		expect(M.applyMenuAppend(resolved(), { enabled: true, items: [] }).items).toHaveLength(1);
+		expect(M.applyMenuAppend({ ...resolved(), appendMini: false }, cfg).items).toHaveLength(1);
+		expect(M.applyMenuAppend(null, cfg)).toBeNull();
+	});
+	it('skips the leading separator when the menu has no items of its own', () => {
+		const r = M.applyMenuAppend({ ...resolved(), items: [] }, cfg);
+		expect(r.items.map(i => i.id)).toEqual(['append-brave']);
+	});
+	it('does not mutate its inputs', () => {
+		const base = resolved();
+		M.applyMenuAppend(base, cfg);
+		expect(base.items).toHaveLength(1);
+		expect(cfg.items).toHaveLength(1);
+	});
 });
 
 describe('settings helpers', () => {

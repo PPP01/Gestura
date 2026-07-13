@@ -1,9 +1,21 @@
 (function (root) {
 	// Vordefinierte Website-Menüs (Katalog). Nur Daten — Auflösung in menu-model.js.
-	// Menü-Namen sind Markennamen (unübersetzt). Item-Labels: labelKey (i18n)
-	// oder customName (Markenname). Alle URLs funktionieren ohne Nutzerkontext.
-	// '{domain}' wird nur in Menüs mit domains-Config verwendet.
+	// Menü-Namen sind Markennamen (unübersetzt) oder nameKey (i18n, für generische
+	// Namen wie „Suche"). Item-Labels: labelKey (i18n) oder customName (Markenname);
+	// searchLink-Einträge beziehen Label und Icon aus der Engine-Registry und
+	// bekommen die aktuelle Selektion übergeben. Alle URLs funktionieren ohne
+	// Nutzerkontext. '{domain}' wird nur in Menüs mit domains-Config verwendet.
 	const SITE_MENU_CATALOG = [
+		{ id: 'search', nameKey: 'siteMenuNameSearch', icon: 'search', patterns: [], items: [
+			{ id: 'srch-google', action: 'searchLink', engineId: 'google' },
+			{ id: 'srch-brave', action: 'searchLink', engineId: 'brave' },
+			{ id: 'srch-perplexity', action: 'searchLink', engineId: 'perplexity' },
+			{ id: 'srch-duckduckgo', action: 'searchLink', engineId: 'duckduckgo' },
+			{ id: 'srch-bing', action: 'searchLink', engineId: 'bing' },
+			{ id: 'srch-sep1', type: 'separator' },
+			{ id: 'srch-deepl', action: 'searchLink', engineId: 'deepl' },
+			{ id: 'srch-wikipedia', action: 'searchLink', engineId: 'wikipedia' },
+		] },
 		{ id: 'github', name: 'GitHub', icon: 'github', patterns: ['*github.com*'], items: [
 			{ id: 'gh-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://github.com/dashboard' },
 			{ id: 'gh-notif', labelKey: 'siteMenuItemNotifications', icon: 'bell', action: 'openCustomUrl', customUrl: 'https://github.com/notifications' },
@@ -39,6 +51,12 @@
 			{ id: 'amz-deals', labelKey: 'siteMenuItemDeals', icon: 'tag', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/goldbox' },
 			{ id: 'amz-help', labelKey: 'siteMenuItemCustomerService', icon: 'circleHelp', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/help/customer/display.html' },
 			{ id: 'amz-account', labelKey: 'siteMenuItemAccount', icon: 'user', action: 'openCustomUrl', customUrl: 'https://www.{domain}/gp/css/homepage.html' },
+		] },
+		{ id: 'shopping', nameKey: 'siteMenuNameShopping', icon: 'shoppingCart', patterns: [], items: [
+			{ id: 'shop-brave', action: 'searchLink', engineId: 'brave' },
+			{ id: 'shop-google', action: 'searchLink', engineId: 'google' },
+			{ id: 'shop-amazon', action: 'searchLink', engineId: 'amazon' },
+			{ id: 'shop-ebay', action: 'searchLink', engineId: 'ebay' },
 		] },
 		{ id: 'google', name: 'Google', icon: 'search', patterns: ['*google.com*', '*google.de*'], items: [
 			{ id: 'goo-home', labelKey: 'siteMenuItemSearch', icon: 'search', action: 'openCustomUrl', customUrl: 'https://www.google.com/' },
