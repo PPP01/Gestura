@@ -1792,6 +1792,27 @@
 	"menuPatternsPlaceholder": {
 		"message": "z. B. github.com"
 	},
+	"siteMenuDomainLabel": {
+		"message": "Land / Domain"
+	},
+	"forkBadgeInherited": {
+		"message": "Standard"
+	},
+	"forkBadgeModified": {
+		"message": "Verändert"
+	},
+	"forkBadgeOwn": {
+		"message": "Eigen"
+	},
+	"forkResetItem": {
+		"message": "Auf Standard zurücksetzen"
+	},
+	"forkShowHidden": {
+		"message": "Ausgeblendete Einträge (%n%)"
+	},
+	"forkRestore": {
+		"message": "Wiederherstellen"
+	},
 	"addChain": {
 		"message": "Kette hinzufügen",
 		"description": "Add chain button"

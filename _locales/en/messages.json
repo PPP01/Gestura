@@ -1827,6 +1827,34 @@
 		"message": "e.g. github.com",
 		"description": "Placeholder for the site-pattern input"
 	},
+	"siteMenuDomainLabel": {
+		"message": "Country / domain",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "Standard",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "Modified",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "Own",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "Reset to standard",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "Hidden entries (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "Restore",
+		"description": "Button to restore a hidden default menu item"
+	},
 	"addChain": {
 		"message": "Add Chain",
 		"description": "Add chain button"
