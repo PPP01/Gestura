@@ -2574,5 +2574,21 @@
 	"siteMenuItemRecentChanges": {
 		"message": "Recent changes",
 		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "Icon",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "Search icons…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "Favicon",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "No icon",
+		"description": "Button label for no icon option in icon picker"
 	}
 }
