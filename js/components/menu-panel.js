@@ -71,30 +71,67 @@ class MenuPanel extends LitElement {
 				width: 100%;
 			}
 
-			.header-toggle-field {
+			.switcher-settings {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				margin-bottom: 4px;
+			}
+			.switcher-toggle {
 				display: flex;
 				align-items: flex-start;
 				gap: 10px;
-				margin-block: 2px 4px;
 			}
-			.header-toggle-field input[type="checkbox"] {
+			.switcher-toggle input[type="checkbox"] {
 				margin-top: 2px;
 				flex-shrink: 0;
 			}
-			.header-toggle-text {
+			.switcher-toggle-text {
 				display: flex;
 				flex-direction: column;
 				gap: 3px;
 			}
-			.header-toggle-label {
+			.switcher-toggle-label {
 				font-size: 12px;
 				font-weight: 600;
 				color: var(--text-secondary);
 			}
-			.header-toggle-hint {
+			.switcher-toggle-hint {
 				font-size: 11px;
 				color: var(--text-secondary);
 				opacity: 0.8;
+			}
+			.switcher-position {
+				display: inline-flex;
+				gap: 0;
+				border: 1px solid var(--border-color, rgba(128,128,128,0.35));
+				border-radius: 6px;
+				overflow: hidden;
+				width: max-content;
+			}
+			.switcher-pos-btn {
+				appearance: none;
+				border: 0;
+				background: transparent;
+				color: var(--text-secondary);
+				font: inherit;
+				font-size: 12px;
+				padding: 5px 14px;
+				cursor: pointer;
+			}
+			.switcher-pos-btn.active {
+				background: var(--accent-color, #2962ff);
+				color: #fff;
+			}
+			.show-in-switcher-field {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				font-size: 12px;
+				color: var(--text-secondary);
+			}
+			.show-in-switcher-field input[type="checkbox"] {
+				flex-shrink: 0;
 			}
 
 			.items-container {
@@ -287,11 +324,20 @@ class MenuPanel extends LitElement {
 		return SettingsStore.current.customMenus || {};
 	}
 
+	get switcherSettings() {
+		return SettingsStore.current.customMenuSwitcher || { enabled: false, position: 'header' };
+	}
+
+	#updateSwitcher(patch) {
+		const next = { ...this.switcherSettings, ...patch };
+		SettingsStore.save({ customMenuSwitcher: next });
+	}
+
 	connectedCallback() {
 		super.connectedCallback();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore = SettingsStore.onChange((changed) => {
-			if ('customMenus' in changed) this.requestUpdate();
+			if ('customMenus' in changed || 'customMenuSwitcher' in changed) this.requestUpdate();
 		});
 	}
 
@@ -319,9 +365,10 @@ class MenuPanel extends LitElement {
 		}
 
 		return html`
+			${this.#renderSwitcherSettings()}
 			${this.#renderSelectorRow(entries, activeId)}
 			${this.#renderNameField(activeId, activeMenu)}
-			${this.#renderHeaderToggle(activeId, activeMenu)}
+			${this.switcherSettings.enabled ? this.#renderShowInSwitcher(activeId, activeMenu) : ''}
 			${this.#renderPatternsSection(activeId, activeMenu)}
 			${this.#renderItemsSection(activeId, activeMenu)}
 		`;
@@ -376,18 +423,46 @@ class MenuPanel extends LitElement {
 		`;
 	}
 
-	#renderHeaderToggle(activeId, menu) {
+	#renderSwitcherSettings() {
+		const i18n = window.i18n;
+		const s = this.switcherSettings;
+		return html`
+			<div class="switcher-settings">
+				<label class="switcher-toggle">
+					<input type="checkbox"
+						.checked=${!!s.enabled}
+						@change=${(e) => this.#updateSwitcher({ enabled: e.target.checked })}
+					>
+					<span class="switcher-toggle-text">
+						<span class="switcher-toggle-label">${i18n.getMessage('menuSwitcherEnable')}</span>
+						<span class="switcher-toggle-hint">${i18n.getMessage('menuSwitcherEnableHint')}</span>
+					</span>
+				</label>
+				${s.enabled ? html`
+					<div class="switcher-position" role="group">
+						<button type="button"
+							class="switcher-pos-btn${s.position !== 'footer' ? ' active' : ''}"
+							@click=${() => this.#updateSwitcher({ position: 'header' })}
+						>${i18n.getMessage('menuSwitcherHeader')}</button>
+						<button type="button"
+							class="switcher-pos-btn${s.position === 'footer' ? ' active' : ''}"
+							@click=${() => this.#updateSwitcher({ position: 'footer' })}
+						>${i18n.getMessage('menuSwitcherFooter')}</button>
+					</div>
+				` : ''}
+			</div>
+		`;
+	}
+
+	#renderShowInSwitcher(activeId, menu) {
 		const i18n = window.i18n;
 		return html`
-			<label class="header-toggle-field">
+			<label class="show-in-switcher-field">
 				<input type="checkbox"
-					.checked=${!!menu.showHeader}
-					@change=${(e) => this.#updateMenu(activeId, { showHeader: e.target.checked })}
+					.checked=${menu.showInSwitcher !== false}
+					@change=${(e) => this.#updateMenu(activeId, { showInSwitcher: e.target.checked })}
 				>
-				<span class="header-toggle-text">
-					<span class="header-toggle-label">${i18n.getMessage('menuShowHeader')}</span>
-					<span class="header-toggle-hint">${i18n.getMessage('menuShowHeaderHint')}</span>
-				</span>
+				<span>${i18n.getMessage('menuShowInSwitcher')}</span>
 			</label>
 		`;
 	}
