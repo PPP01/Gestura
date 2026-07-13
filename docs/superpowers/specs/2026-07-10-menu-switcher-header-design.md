@@ -1,7 +1,11 @@
 # Design: Switchable custom-menu header
 
 **Date:** 2026-07-10
-**Status:** Approved for planning
+**Status:** Superseded by Revision 2 (see bottom); Revision 1 shipped in commits b22a5a0..4cde5a0
+
+> **Revision 2 (2026-07-13)** reworks this feature after user feedback. Read the
+> **Revision 2** section at the end of this document — it governs. The original
+> Revision 1 design below is kept for history; where the two differ, Revision 2 wins.
 
 ## Summary
 
@@ -133,3 +137,96 @@ Manual verification checklist:
 - Dropdown expansion beyond the initial size is not clipped (iframe grows).
 - Next gesture trigger opens the originally-configured menu (ephemeral).
 - Headerless menus behave exactly as before (one-shot sizing).
+
+---
+
+# Revision 2 (2026-07-13)
+
+User feedback reshaped the feature. This section governs.
+
+## Terminology (user-defined)
+
+- **Custom Menu** — the whole system of all sub-menus (global settings level).
+- **Untermenü / sub-menu** — one selectable menu, i.e. one `customMenus[id]`.
+- **Menü-Auswahl / menu selection** — the switcher list in the header/footer.
+- **Custom Menü-Ausgabe / menu output** — the popup rendered on the page (the iframe).
+
+## Changes vs. Revision 1
+
+1. **Global toggle, not per-sub-menu.** The "show switcher bar" setting moves from
+   per-sub-menu (`customMenus[id].showHeader`, R1) to a single **global** setting on
+   the Custom Menu as a whole. It exists exactly once.
+2. **Header OR footer.** Instead of header-only, the bar's position is configurable
+   (`header` | `footer`), also global, and only meaningful/enabled when the switcher
+   is on.
+3. **Per-sub-menu visibility in the selection.** Each sub-menu gets a
+   `showInSwitcher` flag (default `true`) controlling whether it appears in the
+   Menü-Auswahl. Only shown/editable when the global switcher is on.
+4. **Colored bar.** The header/footer bar is visually offset with a subtle
+   accent-tinted background (theme-aware, light + dark).
+5. **Overlay, not push.** Expanding the Menü-Auswahl overlays the menu output
+   (absolutely-positioned layer over the items) instead of growing the output.
+   The output grows **only** when the selection needs more room than the current
+   items provide (e.g. 2 items in the sub-menu but 10 entries in the selection).
+
+## Data model
+
+- **Global (new), sibling of `customMenus` in `DEFAULT_SETTINGS`:**
+  `customMenuSwitcher: { enabled: false, position: 'header' }` — `position ∈ {'header','footer'}`.
+- **Per sub-menu:** `customMenus[id].showInSwitcher: boolean` (default `true`).
+- The R1 per-sub-menu `showHeader` flag is removed (and its two i18n keys
+  `menuShowHeader` / `menuShowHeaderHint`).
+
+## Options UI (`js/components/menu-panel.js`)
+
+- **Top of the Custom Menu section** (above the sub-menu selector row): a global
+  toggle "Show header/footer with menu switcher". When on, a **Header | Footer**
+  segmented control selects `position`.
+- **Per sub-menu** (near the Name field): a "Show in menu selection" checkbox
+  bound to `showInSwitcher`, shown only when the global switcher is enabled.
+- New i18n keys (en, others fall back): global toggle label + hint, position
+  labels (Header / Footer), the per-sub-menu "show in selection" label.
+
+## Menu output (`js/context-menu.js`)
+
+- Render a bar as **header (top)** or **footer (bottom)** per `position`, with an
+  accent-tinted background, showing the current sub-menu's name + a chevron.
+- The Menü-Auswahl dropdown is an **absolutely-positioned overlay** over the items
+  region: header → expands downward, footer → expands upward. The item list does
+  not move.
+- **Sizing:** closed → bar + items (as R1's headerless one-shot, but now with a
+  bar). Open → report height = bar + `max(itemsHeight, selectionHeight)` and
+  width = `max(itemsWidth, selectionWidth)`. So the output grows only when the
+  selection is taller/wider than the items; otherwise it stays and the selection
+  floats over the items. The repeatable-measure mechanism from R1 stays, extended
+  to compute this max explicitly (an absolute overlay does not extend parent box).
+- The selection lists all sub-menus with `showInSwitcher`, **excluding the current
+  one**, in definition order. Switching is ephemeral and in-place (R1 behavior).
+  Escape closes the open selection first, then the menu. Keyboard activation of a
+  selection entry (the R1 final-fix) is preserved.
+
+## Protocol / wiring
+
+- The transport field `header` is renamed to **`switcher`** across content.js,
+  background.js, and context-menu.js (it can now be a footer): shape
+  `{ name, position, menus:[{id,name}] }` or `null`. Same three routes as R1
+  (content → background session set/fetch → iframe; plus `ctxMenuSwitch` back).
+- `content.js` `buildSwitcher(menuId)` returns `null` when
+  `customMenuSwitcher.enabled` is false; otherwise the object above. The pure list
+  logic (sub-menus with `showInSwitcher`, ≠ current, in order) is extracted to a
+  new content-script helper **`js/menu-switcher.js`** exposing
+  `buildSwitcherMenus(customMenus, currentId)` (attached to `window`/`globalThis`,
+  added to `content_scripts` before `content.js`), and unit-tested with vitest.
+
+## Testing
+
+- Manual browser verification for UI/iframe/content (no harness), plus the vitest
+  regression suite staying green.
+- New: `tests/menu-switcher.test.mjs` covering `buildSwitcherMenus` (exclusion of
+  current, `showInSwitcher` filter incl. default-true when the flag is absent,
+  definition-order preservation, empty/edge inputs).
+
+## Non-goals (unchanged from R1)
+
+- No persistence of a manual switch; no per-site memory. The switcher list is not
+  further curated beyond `showInSwitcher`. No nested/submenu flyout.
