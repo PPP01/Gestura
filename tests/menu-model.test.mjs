@@ -135,6 +135,11 @@ describe('fork edit helpers (immutabel)', () => {
 		f = M.forkAddItem(f, { id: 'n1', action: 'none' }, 'b');
 		expect(f.order).toEqual(['b', 'n1', 'a']);
 	});
+	it('forkAddItem with afterId "" prepends to a fixed order (consistent with start-insert)', () => {
+		let f = M.forkReorder(M.emptyFork(), ['b', 'a']);
+		f = M.forkAddItem(f, { id: 'n1', action: 'none' }, '');
+		expect(f.order).toEqual(['n1', 'b', 'a']);
+	});
 });
 
 describe('resolveMenu', () => {

@@ -115,9 +115,12 @@
 		const f = clone(fork) || emptyFork();
 		f.added = [...(f.added || []), { ...clone(item), afterId: afterId ?? '' }];
 		if (Array.isArray(f.order)) {
-			const idx = f.order.indexOf(afterId);
-			if (idx === -1) f.order = [...f.order, item.id];
-			else f.order = [...f.order.slice(0, idx + 1), item.id, ...f.order.slice(idx + 1)];
+			if (!afterId) f.order = [item.id, ...f.order];
+			else {
+				const idx = f.order.indexOf(afterId);
+				if (idx === -1) f.order = [...f.order, item.id];
+				else f.order = [...f.order.slice(0, idx + 1), item.id, ...f.order.slice(idx + 1)];
+			}
 		}
 		return f;
 	}
