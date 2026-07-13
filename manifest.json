@@ -47,6 +47,8 @@
                 "js/engine-registry.js",
                 "js/favicon-util.js",
                 "js/menu-switcher.js",
+                "js/menu-catalog.js",
+                "js/menu-model.js",
                 "js/content.js"
             ],
             "run_at": "document_start",

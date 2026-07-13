@@ -1,4 +1,6 @@
 importScripts('menu-patterns.js');
+importScripts('menu-catalog.js');
+importScripts('menu-model.js');
 importScripts('favicon-util.js');
 
 const isEdge = navigator.userAgent.includes('Edg/') || navigator.userAgent.includes('EdgA/');
@@ -811,9 +813,11 @@ async function handleAction(request, sender) {
 			const menuId = request.menuId;
 			const url = sender.tab?.url;
 			if (!menuId || !url) return { success: false };
-			const cur = await new Promise(res => chrome.storage.sync.get(['customMenus'], items => res(items.customMenus || {})));
-			const { menus, added } = self.FlowMouseMenuPatterns.addSiteToMenuPatterns(cur, menuId, url);
-			if (added) await chrome.storage.sync.set({ customMenus: menus });
+			const pattern = self.FlowMouseMenuPatterns.siteToPattern(url);
+			const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], items => res(items.siteMenus || {})));
+			const { siteMenus, added } = self.FlowMouseMenuModel.addPatternToMenu(
+				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, pattern);
+			if (added) await chrome.storage.sync.set({ siteMenus });
 			return { success: true, added };
 		}
 

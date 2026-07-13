@@ -1,5 +1,5 @@
 import './lib/lit-config.js';
-import { LitElement, html, css } from './lib/lit-all.min.js';
+import { LitElement, html, css, unsafeHTML } from './lib/lit-all.min.js';
 
 const CUSTOM_CSS_CACHE_KEY = 'fm:customCss';
 
@@ -82,6 +82,12 @@ class FmContextMenu extends LitElement {
 			height: 16px;
 			object-fit: contain;
 			border-radius: 3px;
+		}
+
+		.fm-ctx-icon svg {
+			width: 16px;
+			height: 16px;
+			display: block;
 		}
 
 		.fm-ctx-label {
@@ -581,7 +587,9 @@ class FmContextMenu extends LitElement {
 							@mouseup=${(e) => { if (e.buttons === 0 && (e.button === 0 || e.button === 2)) this.#selectItem(i); }}
 						>
 							<span class="fm-ctx-icon">
-								${item.icon ? html`<img src="${item.icon}" alt="" draggable="false">` : ''}
+								${item.iconName && globalThis.FlowMouseMenuIcons?.[item.iconName]
+									? unsafeHTML(globalThis.FlowMouseMenuIcons[item.iconName])
+									: item.icon ? html`<img src="${item.icon}" alt="" draggable="false">` : ''}
 							</span>
 							<span class="fm-ctx-label">${item.label || ''}</span>
 							${item.time ? html`<span class="fm-ctx-time">${this.#formatTime(item.time)}</span>` : ''}

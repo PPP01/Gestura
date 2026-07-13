@@ -1724,6 +1724,10 @@
 	"customMenuContextualLabel": {
 		"message": "Dynamisches Menü"
 	},
+	"customMenuOwnLabel": {
+		"message": "Eigenes Menü",
+		"description": "Übersichts-Label für eine Custom-Menu-Geste im Modus 'eigenes Menü' (ein vollständig eigenes, gesten-privates Menü ohne Katalog-Eintrag)"
+	},
 	"menuThemeTitle": {
 		"message": "Erscheinungsbild"
 	},
