@@ -308,13 +308,27 @@ class SiteMenuEditor extends LitElement {
 	}
 
 	#onItemActionChange(item, detail) {
-		// action-select liefert {action, config}; id und icon des Items bleiben erhalten.
-		this.#emit('item-change', { item: { id: item.id, icon: item.icon, action: detail.action, ...(detail.config || {}) } });
+		// action-select liefert {action, config}; id, icon und labelKey des Items bleiben erhalten.
+		const next = { id: item.id, action: detail.action, ...(detail.config || {}) };
+		if (item.icon) next.icon = item.icon;
+		if (item.labelKey) next.labelKey = item.labelKey;
+		if (!next.customName) delete next.customName;
+		if (this.#itemsEqual(next, item)) return; // folgenloses Bestätigen erzeugt keine Änderung
+		this.#emit('item-change', { item: next });
+	}
+
+	#itemsEqual(a, b) {
+		const norm = (o) => JSON.stringify(Object.keys(o).sort().reduce((r, k) => {
+			if (o[k] !== undefined && o[k] !== '') r[k] = o[k];
+			return r;
+		}, {}));
+		return norm(a) === norm(b);
 	}
 
 	#addItem(separator) {
 		const id = this.#generateItemId();
-		const last = (this.rows || [])[this.rows.length - 1];
+		const rows = this.rows || [];
+		const last = rows[rows.length - 1];
 		const afterId = last ? last.item.id : '';
 		const item = separator ? { id, type: 'separator' } : { id, action: 'none' };
 		this.#emit('item-add', { item, afterId });
