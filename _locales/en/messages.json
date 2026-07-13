@@ -459,6 +459,10 @@
 		"message": "Delete",
 		"description": "Generic delete button tooltip"
 	},
+	"edit": {
+		"message": "Edit",
+		"description": "Generic edit button tooltip"
+	},
 	"autoSaved": {
 		"message": "Auto-saved",
 		"description": "Auto-saved message"
@@ -1806,6 +1810,30 @@
 	"deleteMenuConfirm": {
 		"message": "Delete menu \"%name%\"?",
 		"description": "Delete menu confirmation"
+	},
+	"siteMenusTitle": {
+		"message": "Website menus",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "Predefined, fully editable menus for popular sites. Gestures can open them directly, contextually by URL, or as a customized copy.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "Add custom menu",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "Customized",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "Reset to default",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "Reset \"%name%\" to its default? Your changes to this menu will be lost.",
+		"description": "Confirmation before resetting a customized catalog menu"
 	},
 	"menuItemNumber": {
 		"message": "Item %n%",

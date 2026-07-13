@@ -459,6 +459,10 @@
 		"message": "Löschen",
 		"description": "Generic delete button tooltip"
 	},
+	"edit": {
+		"message": "Bearbeiten",
+		"description": "Generic edit button tooltip"
+	},
 	"autoSaved": {
 		"message": "Automatisch gespeichert",
 		"description": "Auto-saved message"
@@ -1775,6 +1779,30 @@
 	"deleteMenuConfirm": {
 		"message": "Menü \"%name%\" löschen?",
 		"description": "Delete menu confirmation"
+	},
+	"siteMenusTitle": {
+		"message": "Website-Menüs",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "Vordefinierte, voll editierbare Menüs für bekannte Websites. Gesten können sie direkt öffnen, kontextabhängig zur URL oder als angepasste Kopie.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "Eigenes Menü anlegen",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "Angepasst",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "Auf Standard zurücksetzen",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "„%name%“ auf den Standard zurücksetzen? Deine Änderungen an diesem Menü gehen verloren.",
+		"description": "Confirmation before resetting a customized catalog menu"
 	},
 	"menuItemNumber": {
 		"message": "Element %n%",

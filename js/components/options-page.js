@@ -784,6 +784,13 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
+				<div class="section ${this._activeSection === 'siteMenus' ? 'active' : ''}" data-nav="siteMenus">
+					<h2><span class="section-icon">${unsafeHTML(icon('layoutList', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('siteMenusTitle')}</span></h2>
+					<div class="section-body">
+						<site-menu-manager></site-menu-manager>
+					</div>
+				</div>
+
 				<div class="section ${this._activeSection === 'searchEngines' ? 'active' : ''}" data-nav="searchEngines">
 					<h2><span class="section-icon">${unsafeHTML(icon('search', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('sectionSearchEngines')}</span></h2>
 					<div class="section-body">
@@ -975,6 +982,7 @@ class OptionsPage extends LitElement {
 			{ id: 'areaSelect', label: i18n.getMessage('areaSelectTitle'), icon: icons.squareDashedMousePointer },
 			{ id: 'wheel', label: i18n.getMessage('wheelGestures'), icon: icons.mouse },
 			{ id: 'special', label: i18n.getMessage('specialGestures'), icon: icons.mousePointerClick },
+			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList },
 			{ id: 'searchEngines', label: i18n.getMessage('sectionSearchEngines'), icon: icons.search },
 			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff },
 			{ id: 'other', label: i18n.getMessage('otherSettings'), icon: icons.slidersHorizontal },
