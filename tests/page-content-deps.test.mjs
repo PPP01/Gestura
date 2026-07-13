@@ -8,7 +8,8 @@ const pagesDir = join(__dirname, '..', 'pages');
 
 // content.js consumes these window.* globals at gesture time. Any extension page
 // that loads content.js must load its script dependencies too, or actions crash
-// (e.g. resolveContextualMenuId -> window.FlowMouseSearchUrl.matchesPatterns).
+// (e.g. resolveGestureMenu -> window.FlowMouseMenuCatalog / window.FlowMouseMenuModel,
+// or window.FlowMouseSearchUrl.matchesPatterns).
 const REQUIRED_BEFORE_CONTENT = [
 	'constants.js',
 	'gesture-visual.js',
@@ -16,6 +17,8 @@ const REQUIRED_BEFORE_CONTENT = [
 	'search-url.js',
 	'search-engines-catalog.js',
 	'engine-registry.js',
+	'menu-catalog.js',
+	'menu-model.js',
 ];
 
 function scriptSrcOrder(html) {

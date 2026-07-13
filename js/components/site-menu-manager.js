@@ -94,8 +94,9 @@ class SiteMenuManager extends LitElement {
 		return SettingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [] };
 	}
 
-	#saveSiteMenus(next) {
-		SettingsStore.save({ siteMenus: next });
+	async #saveSiteMenus(next) {
+		const ok = await SettingsStore.save({ siteMenus: next });
+		if (!ok) alert(window.i18n.getMessage('menuSyncSaveError'));
 		window.dispatchEvent(new Event('action-catalog-changed'));
 		this.requestUpdate();
 	}

@@ -1799,6 +1799,10 @@
 		"message": "Show in menu selection",
 		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
 	},
+	"menuSyncSaveError": {
+		"message": "Saving failed — the menu data exceeds the sync storage limit. Undo your last change or reset a menu.",
+		"description": "Alert shown when saving site-menu edits fails because chrome.storage.sync rejected the write (e.g. per-item quota exceeded)"
+	},
 	"menuThemeTitle": {
 		"message": "Appearance",
 		"description": "Label for the custom-menu light/dark appearance selector"

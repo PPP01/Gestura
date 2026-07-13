@@ -181,6 +181,23 @@ describe('resolveMenu', () => {
 		const sm = { ...EMPTY, disabled: ['gh'] };
 		expect(M.resolveMenu(CATALOG, sm, { mode: 'standard', menuId: 'gh' })).not.toBeNull();
 	});
+	it('contextual: siteMenus.order promotes which matching menu wins', () => {
+		const cat = [
+			{ id: 'a', name: 'A', patterns: ['*example.com*'], items: [] },
+			{ id: 'b', name: 'B', patterns: ['*example.com*'], items: [] },
+		];
+		const matches = (url, pats) => pats.some(p => url.includes(p.replaceAll('*', '')));
+		expect(M.resolveContextualMenuId(cat, EMPTY, 'https://example.com/', matches)).toBe('a');
+		const sm = { ...EMPTY, order: ['b'] };
+		expect(M.resolveContextualMenuId(cat, sm, 'https://example.com/', matches)).toBe('b');
+	});
+	it('applies {domain} to fork-added and overridden items (substitution after overlay)', () => {
+		const cfg = { mode: 'fork', menuId: 'amz', fork: { ...M.emptyFork(),
+			overrides: { cart: { action: 'openCustomUrl', customUrl: 'https://www.{domain}/cart2' } },
+			added: [{ id: 'n1', afterId: 'cart', action: 'openCustomUrl', customUrl: 'https://www.{domain}/neu' }] } };
+		const r = M.resolveMenu(CATALOG, { ...EMPTY, domains: { amz: 'amazon.com' } }, cfg);
+		expect(r.items.map(i => i.customUrl)).toEqual(['https://www.amazon.com/cart2', 'https://www.amazon.com/neu']);
+	});
 });
 
 describe('settings helpers', () => {

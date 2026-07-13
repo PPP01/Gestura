@@ -1759,6 +1759,10 @@
 	"openSiteMenusSection": {
 		"message": "Website-Menüs verwalten"
 	},
+	"menuSyncSaveError": {
+		"message": "Speichern fehlgeschlagen — die Menüdaten überschreiten das Sync-Speicherlimit. Mache die letzte Änderung rückgängig oder setze ein Menü zurück.",
+		"description": "Alert shown when saving site-menu edits fails because chrome.storage.sync rejected the write (e.g. per-item quota exceeded)"
+	},
 	"forkBaseChangeConfirm": {
 		"message": "Beim Wechsel des Basis-Menüs gehen deine Anpassungen verloren. Fortfahren?"
 	},
