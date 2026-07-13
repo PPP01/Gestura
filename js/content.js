@@ -465,7 +465,7 @@ class ContentContextMenu {
 		return this.#createMenuIframe(x, y, menuId, options);
 	}
 
-	setItems(items, header) {
+	setItems(items, switcher) {
 		if (!this.#activeMenuId) return;
 		this.#activeItems = items;
 
@@ -480,7 +480,7 @@ class ContentContextMenu {
 				menuId: this.#activeMenuId,
 				items: serializedItems,
 			};
-			if (header !== undefined) payload.header = header;
+			if (switcher !== undefined) payload.switcher = switcher;
 			chrome.runtime.sendMessage(payload);
 		} catch {}
 
@@ -489,7 +489,7 @@ class ContentContextMenu {
 		// reach an embedded extension-page iframe, so postMessage directly.
 		try {
 			const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
-			if (header !== undefined) msg.header = header;
+			if (switcher !== undefined) msg.switcher = switcher;
 			this.#activeIframe?.contentWindow?.postMessage(msg, '*');
 		} catch {}
 	}
@@ -537,6 +537,13 @@ class ContentContextMenu {
 			iframe.src = url.href;
 		}
 
+		// Top-left anchor, chosen once on the first dimensions report and then
+		// kept fixed for the life of this menu. Re-measures after a menu switch
+		// or dropdown toggle only change width/height (the right/bottom edge),
+		// so the menu never jumps to a new origin while it is open.
+		let placedLeft = null;
+		let placedTop = null;
+
 		const onMessage = (request) => {
 			if (request.menuId !== menuId) return;
 
@@ -548,29 +555,42 @@ class ContentContextMenu {
 
 				const maxW = vw - pad * 2;
 				const maxH = vh - pad * 2;
-				const clampedW = Math.min(width, maxW);
-				const clampedH = Math.min(height, maxH);
 
-				let left = x;
-				if (left + clampedW + pad > vw) {
-					left = (x - clampedW >= pad) ? x - clampedW - 1 : vw - clampedW - pad;
-				} else {
-					left += 1;
-				}
-				if (left + clampedW + pad > vw) left = vw - clampedW - pad;
-				if (left < pad) left = pad;
+				if (placedLeft === null) {
+					// First placement: anchor at the cursor, flipping left/up only
+					// as needed to keep the initial size on-screen.
+					const w0 = Math.min(width, maxW);
+					const h0 = Math.min(height, maxH);
 
-				let top = y;
-				if (top + clampedH + pad > vh) {
-					top = (y - clampedH >= pad) ? y - clampedH : vh - clampedH - pad;
+					let left = x;
+					if (left + w0 + pad > vw) {
+						left = (x - w0 >= pad) ? x - w0 - 1 : vw - w0 - pad;
+					} else {
+						left += 1;
+					}
+					if (left + w0 + pad > vw) left = vw - w0 - pad;
+					if (left < pad) left = pad;
+
+					let top = y;
+					if (top + h0 + pad > vh) {
+						top = (y - h0 >= pad) ? y - h0 : vh - h0 - pad;
+					}
+					if (top + h0 + pad > vh) top = vh - h0 - pad;
+					if (top < pad) top = pad;
+
+					placedLeft = left;
+					placedTop = top;
 				}
-				if (top + clampedH + pad > vh) top = vh - clampedH - pad;
-				if (top < pad) top = pad;
+
+				// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
+				// the space available below/right of the anchor so it stays on-screen.
+				const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
+				const clampedH = Math.min(height, maxH, vh - pad - placedTop);
 
 				iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
 				iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
-				iframe.style.setProperty('left', Math.round(left) + 'px', 'important');
-				iframe.style.setProperty('top', Math.round(top) + 'px', 'important');
+				iframe.style.setProperty('left', Math.round(placedLeft) + 'px', 'important');
+				iframe.style.setProperty('top', Math.round(placedTop) + 'px', 'important');
 				iframe.style.setProperty('opacity', '1', 'important');
 				iframe.style.setProperty('pointer-events', 'auto', 'important');
 			}
@@ -3453,14 +3473,19 @@ window.ContentContextMenu = ContentContextMenu;
 							: mergedConfig.menuId;
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
-						// Header list = all custom menus except the current, in definition order.
-						const buildHeader = (menuId) => {
+						// Switcher bar (header/footer) is a global custom-menu setting.
+						const buildSwitcher = (menuId) => {
+							const sw = SETTINGS.customMenuSwitcher;
+							if (!sw?.enabled) return null;
 							const def = SETTINGS.customMenus?.[menuId];
-							if (!def?.showHeader) return null;
-							const menus = Object.entries(SETTINGS.customMenus || {})
-								.filter(([id]) => id !== menuId)
-								.map(([id, m]) => ({ id, name: m?.name || msg('actionCustomMenu') }));
-							return { name: def.name || msg('actionCustomMenu'), menus };
+							if (!def) return null;
+							const menus = window.FlowMouseMenuSwitcher.buildSwitcherMenus(
+								SETTINGS.customMenus, menuId, msg('actionCustomMenu'));
+							return {
+								name: def.name || msg('actionCustomMenu'),
+								position: sw.position === 'footer' ? 'footer' : 'header',
+								menus,
+							};
 						};
 
 						const buildCustomMenu = (menuId) => {
@@ -3499,7 +3524,7 @@ window.ContentContextMenu = ContentContextMenu;
 										}
 									};
 								});
-							return { items, header: buildHeader(menuId) };
+							return { items, switcher: buildSwitcher(menuId) };
 						};
 
 						const initial = buildCustomMenu(initialMenuId);
@@ -3510,10 +3535,10 @@ window.ContentContextMenu = ContentContextMenu;
 							if (!SETTINGS.customMenus?.[id]) return; // deleted → no-op, keep current
 							const rebuilt = buildCustomMenu(id);
 							if (!rebuilt) return;
-							ctxMenu.setItems(rebuilt.items, rebuilt.header);
+							ctxMenu.setItems(rebuilt.items, rebuilt.switcher);
 							upgradeMenuIcons(rebuilt.items);
 						});
-						ctxMenu.setItems(initial.items, initial.header);
+						ctxMenu.setItems(initial.items, initial.switcher);
 						upgradeMenuIcons(initial.items);
 						break;
 					}

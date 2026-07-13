@@ -341,6 +341,10 @@ class MenuPanel extends LitElement {
 	#updateSwitcher(patch) {
 		const next = { ...this.switcherSettings, ...patch };
 		SettingsStore.save({ customMenuSwitcher: next });
+		// save() mutates the store in place but does not notify the saving
+		// instance, so re-render explicitly to reflect gated sub-controls
+		// (position picker, per-sub-menu "show in selection").
+		this.requestUpdate();
 	}
 
 	get menuTheme() {
