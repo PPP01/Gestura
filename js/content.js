@@ -517,9 +517,11 @@ class ContentContextMenu {
 		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
 		// iframe-side media query would wrongly report light on a dark OS.
 		let theme = this.#settings.menuTheme || 'auto';
+		const mqDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 		if (theme === 'auto') {
-			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			theme = mqDark ? 'dark' : 'light';
 		}
+		console.log('[Gestura] custom-menu theme:', { setting: this.#settings.menuTheme, prefersDark: mqDark, resolved: theme, frame: window === window.top ? 'top' : 'subframe' });
 		iframe.classList.add(`fm-theme-${theme}`);
 		iframe.style.cssText = `
 			position: fixed;
