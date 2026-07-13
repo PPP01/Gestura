@@ -1,0 +1,3 @@
+#!/bin/sh
+# Re-stamp manifest.json version_name after a merge/pull.
+sh "$(git rev-parse --show-toplevel)/scripts/stamp-version.sh" stamp
