@@ -11,7 +11,7 @@ Domain/Privacy-URL, der eigentliche Upload) ist unten klar markiert 👤.
 
 | Was | Wo | Status |
 |---|---|---|
-| Upload-Paket (ZIP) | `web-ext-artifacts/gestura-2.2-chrome.zip` | ✅ fertig (994 KB, nur Runtime) |
+| Upload-Paket (ZIP) | `web-ext-artifacts/gestura-2.3-chrome.zip` | ✅ fertig (994 KB, nur Runtime) |
 | Store-Icon 128 px | `icons/icon128.png` | ✅ (steckt auch im Manifest) |
 | Screenshots 1280×800 PNG | `assets/store/chrome/01…05-*.png` | ✅ 5 Stück |
 | Kurz-/Langbeschreibung (EN+DE) | `docs/store/listing-descriptions.md` | ✅ |
@@ -68,7 +68,7 @@ i. d. R. „alle Länder".
 
 ## Upload-Paket (ZIP)
 
-Das fertige Paket liegt unter `web-ext-artifacts/gestura-2.2-chrome.zip`.
+Das fertige Paket liegt unter `web-ext-artifacts/gestura-2.3-chrome.zip`.
 
 **Neu bauen** (falls du Code änderst — vorher `version` in `manifest.json` erhöhen
 und committen, das ZIP zieht aus dem committeten Stand):
@@ -87,7 +87,7 @@ nur die Laufzeit-Dateien.
 ## Schritt für Schritt im Developer Dashboard
 
 ### 1. Neues Item anlegen 👤
-Dashboard → **„Add new item"** → `web-ext-artifacts/gestura-2.2-chrome.zip`
+Dashboard → **„Add new item"** → `web-ext-artifacts/gestura-2.3-chrome.zip`
 hochladen. Chrome liest Name, Version, Icons und Beschreibung aus dem Manifest.
 
 ### 2. Store listing (Tab „Store listing")
@@ -138,7 +138,7 @@ die Permission-Begründungen sind genau dafür vorbereitet.
 
 - [ ] Google-Entwicklerkonto registriert (5 USD) + Kontakt verifiziert 👤
 - [ ] Öffentliche Datenschutz-URL steht 👤
-- [ ] ZIP hochgeladen (`gestura-2.2-chrome.zip`)
+- [ ] ZIP hochgeladen (`gestura-2.3-chrome.zip`)
 - [ ] Kurz- + Langbeschreibung (EN, optional DE) eingefügt
 - [ ] 5 Screenshots hochgeladen
 - [ ] Kategorie = Productivity, Sprache(n) gesetzt

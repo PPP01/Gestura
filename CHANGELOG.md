@@ -5,7 +5,7 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
-### v2.3 (Unreleased)
+### v2.3 (2026-07-14)
 
 **New Features:**
 

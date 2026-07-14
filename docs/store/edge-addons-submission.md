@@ -12,7 +12,7 @@ Was **nur du** tun kannst (Konto, Upload) ist mit 👤 markiert.
 
 | Was | Wo | Status |
 |---|---|---|
-| Upload-Paket (ZIP) | `web-ext-artifacts/gestura-2.2-chrome.zip` | ✅ dasselbe wie Chrome (~1 MB) |
+| Upload-Paket (ZIP) | `web-ext-artifacts/gestura-2.3-chrome.zip` | ✅ dasselbe wie Chrome (~1 MB) |
 | **Store-Logo 300×300** | `assets/store/edge/store-logo-300x300.png` | ✅ neu erzeugt (Edge-Pflicht) |
 | Screenshots 1280×800 PNG | `assets/store/chrome/01…05-*.png` | ✅ wiederverwendbar |
 | Kurz-/Langbeschreibung (EN+DE) | `docs/store/listing-descriptions.md` | ✅ |
@@ -55,7 +55,7 @@ Soft-Launch ist „verborgen" eine gute Option.
 
 ## Upload-Paket (ZIP)
 
-Fertig: `web-ext-artifacts/gestura-2.2-chrome.zip`. Neu bauen (falls du auf `main`
+Fertig: `web-ext-artifacts/gestura-2.3-chrome.zip`. Neu bauen (falls du auf `main`
 Code änderst — vorher `version` in `manifest.json` erhöhen und committen):
 
 ```bash
@@ -69,7 +69,7 @@ git archive --format=zip -o web-ext-artifacts/gestura-<version>-chrome.zip HEAD 
 ## Schritt für Schritt im Partner Center
 
 ### 1. Neue Extension anlegen 👤
-Edge-Dashboard → **„New extension"** → `gestura-2.2-chrome.zip` hochladen. Edge
+Edge-Dashboard → **„New extension"** → `gestura-2.3-chrome.zip` hochladen. Edge
 liest Name, Version, Icons und Beschreibung aus dem Manifest.
 
 ### 2. Properties / Listing
@@ -141,7 +141,7 @@ Tage; breite Permissions + `<all_urls>` können sie verlängern.
 ## Checkliste
 
 - [ ] Partner-Center-Konto fürs Edge-Programm (kostenlos) + Publisher-Profil 👤
-- [ ] ZIP hochgeladen (`gestura-2.2-chrome.zip`)
+- [ ] ZIP hochgeladen (`gestura-2.3-chrome.zip`)
 - [ ] Store-Logo 300×300 hochgeladen
 - [ ] Kurz- + Langbeschreibung (EN, optional DE)
 - [ ] Screenshots hochgeladen

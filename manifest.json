@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "__MSG_extName__",
-    "version": "2.2",
-    "version_name": "2.2",
+    "version": "2.3",
+    "version_name": "2.3",
     "author": "PPP01 (based on FlowMouse by Hmily[LCG] & Coxxs)",
     "description": "__MSG_extDescription__",
     "default_locale": "en",
