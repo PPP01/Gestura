@@ -63,9 +63,12 @@ Auf `firefox-build`, im Projektordner:
 
 ```bash
 git checkout firefox-build
-npm run ff:release -- --api-key=<JWT-issuer> --api-secret=<JWT-secret>
+npm run ff:release
 ```
 
+- `ff:release` **fragt selbständig** nach dem API-Key (Format `user:XXX`) und
+  dem Secret — die Credentials müssen **nicht** mit ins Kommando. (Optional
+  gehen sie weiterhin per `-- --api-key=… --api-secret=…`.)
 - `ff:release` = `ff:bump` (Versionsnummer hochzählen) + `ff:sign`
   (`web-ext sign --channel=listed`).
 - `channel=listed` reicht die signierte, **gelistete** XPI direkt bei AMO ein.
