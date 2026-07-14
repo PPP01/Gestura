@@ -300,7 +300,17 @@ maschinell übersetzt; `en` ist `default_locale`-Fallback).
    erscheinen nur bei aktiviertem „Erweitert"-Schalter der Sektion
    (`sectionAdvanced.siteMenus`); `withMenuFlag` speichert seither auch
    String-Werte ('' = erben).
-6. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
+6. **Aktions-Split (R7):** Die Gesten-Aktion „Benutzerdefiniertes Menü"
+   (`customMenu`, Config `{ ownMenu }`) ist wieder ausschließlich das private
+   Menü der Geste — ohne Quellen-Dropdown. Neu daneben die Aktion
+   „Website-Menüs" (`siteMenu`, Config `{ mode, menuId, fork }`) mit dem
+   Quellen-Dropdown **Kontextabhängig (Default) / Standard-Menü /
+   Standard-Menü angepasst**. Beide teilen sich Laufzeitpfad und
+   `gesture-menu-config`-Komponente (Property `action`); Aktionsname/Info
+   nutzen die vorhandenen Keys `siteMenusTitle`/`siteMenusDesc`. Alte
+   customMenu-Gesten mit standard/fork/contextual-Modus müssen einmal auf die
+   neue Aktion umgestellt werden (keine Migration, kein Crash).
+7. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
    werden in `siteMenus.flags[menuId]` gespeichert (Präzedenz: Flag → def →
    true), nicht mehr in der Menüdefinition — Umschalten erzeugt damit keine
    „Angepasst"-Kopie mehr. UI: Icon-Toggles direkt in der Menü-Zeile UND

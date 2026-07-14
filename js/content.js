@@ -2091,17 +2091,20 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 			if (action === 'customMenu') {
 				const config = SETTINGS.mouseGestures?.[pattern];
-				if (config?.mode === 'own') return config.ownMenu?.name || msg('customMenuOwnLabel');
-				const resolved = resolveGestureMenu(config);
+				return config?.ownMenu?.name || msg('customMenuOwnLabel');
+			}
+			if (action === 'siteMenu') {
+				const config = SETTINGS.mouseGestures?.[pattern];
+				const resolved = resolveGestureMenu(siteMenuCfg(config));
 				if (resolved?.name) return resolved.name;
 				if (resolved?.nameKey) {
 					const localized = msg(resolved.nameKey);
 					if (localized) return localized;
 				}
 				if (!resolved) {
-					return config?.mode === 'contextual'
-						? msg('customMenuContextualLabel')
-						: `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`;
+					return (config?.mode === 'standard' || config?.mode === 'fork')
+						? `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`
+						: msg('customMenuContextualLabel');
 				}
 			}
 			if (action === 'simulateKey') {
@@ -3191,9 +3194,18 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 			return { ...link, icon, iconBundled };
 		}
-		function resolveGestureMenu(config) {
+		// Config-Normalisierung: customMenu ist immer das private Menü der Geste;
+		// siteMenu deckt standard/fork/contextual ab (Default: kontextabhängig).
+		function siteMenuCfg(config) {
+			const cfg = { ...(ACTION_DEFAULTS.siteMenu || {}), ...(config || {}) };
+			if (cfg.mode !== 'standard' && cfg.mode !== 'fork') cfg.mode = 'contextual';
+			return cfg;
+		}
+		function ownMenuCfg(config) {
+			return { mode: 'own', ownMenu: (config || {}).ownMenu || null };
+		}
+		function resolveGestureMenu(cfg) {
 			if (!window.FlowMouseMenuCatalog || !window.FlowMouseMenuModel) return null;
-			const cfg = { ...(ACTION_DEFAULTS.customMenu || {}), ...(config || {}) };
 			return window.FlowMouseMenuModel.resolveMenu(
 				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG,
 				SETTINGS.siteMenus,
@@ -3480,8 +3492,9 @@ window.ContentContextMenu = ContentContextMenu;
 						}
 						break;
 					}
-					case 'customMenu': {
-						const gestureCfg = { ...(ACTION_DEFAULTS.customMenu || {}), ...mergedConfig };
+					case 'customMenu':
+					case 'siteMenu': {
+						const gestureCfg = action === 'customMenu' ? ownMenuCfg(mergedConfig) : siteMenuCfg(mergedConfig);
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
 						const buildItems = (resolved) => {

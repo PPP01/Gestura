@@ -86,6 +86,7 @@ const ACTION_ICONS = {
 	'menuRecentlyClosed': 'history',
 	'menuShowBookmarks': 'bookOpen',
 	'customMenu': 'layoutGrid',
+	'siteMenu': 'layoutList',
 	'areaSelect': 'squareDashedMousePointer',
 };
 
@@ -103,7 +104,7 @@ const SCROLL_DISTANCE_ACTIONS = ['scrollUp', 'scrollDown'];
 const ACTION_CATEGORIES = [
 	{ key: '', actions: ['none', 'actionChain', 'delay'] },
 	{ key: 'actionCategoryNavigation', icon: 'compass', actions: ['back', 'forward', 'urlLevelUp', 'urlToRoot', 'scrollUp', 'scrollDown', 'scrollToTop', 'scrollToBottom'] },
-	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'customMenu', 'addSiteToMenu'] },
+	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'siteMenu', 'customMenu', 'addSiteToMenu'] },
 	{ key: 'actionCategoryTabs', icon: 'panelTop', actions: ['newTab', 'closeTab', 'refresh', 'refreshAllTabs', 'switchLeftTab', 'switchRightTab', 'switchFirstTab', 'switchLastTab', 'closeOtherTabs', 'closeLeftTabs', 'closeRightTabs', 'closeAllTabs', 'switchLastActiveTab', 'restoreTab', 'duplicateTab', 'togglePinTab', 'moveTabToNewWindow'] },
 	{ key: 'actionCategoryWindow', icon: 'appWindow', actions: ['newWindow', 'newIncognito', 'toggleFullscreen', 'toggleMaximize', 'minimize', 'closeWindow', 'closeBrowser'] },
 	{ key: 'actionCategoryUtilities', icon: 'wrench', actions: ['addToBookmarks', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'openCustomUrl', 'openDownloads', 'openHistory', 'openExtensions', 'zoomIn', 'zoomOut', 'resetZoom', 'toggleMuteTab', 'toggleMuteAllTabs', 'stopLoading', 'stopAllLoading', 'printPage', 'saveAsMhtml', 'viewPageSource', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink', 'pauseGesture', 'simulateKey', 'sendCustomEvent', 'sendExtensionMessage', 'areaSelect'] },
@@ -736,8 +737,8 @@ class ActionSelect extends LitElement {
 		if (val === 'actionChain') {
 			return getChainLabel(this.config?.chainId);
 		}
-		if (val === 'customMenu') {
-			return getGestureMenuLabel(this.config);
+		if (val === 'customMenu' || val === 'siteMenu') {
+			return getGestureMenuLabel(this.config, val);
 		}
 		if (val === 'addSiteToMenu') {
 			return this.config?.customName || this.#getSiteMenuName(this.config?.menuId) || window.i18n.getMessage('actionAddSiteToMenu');
@@ -780,7 +781,7 @@ class ActionSelect extends LitElement {
 			for (const action of cat.actions) {
 				if (!ACTION_KEYS[action]) continue;
 				if (action === 'actionChain' && ctx === 'chain-step') continue;
-				if (action === 'customMenu' && (ctx === 'chain-step' || ctx === 'menu-item')) continue;
+				if ((action === 'customMenu' || action === 'siteMenu') && (ctx === 'chain-step' || ctx === 'menu-item')) continue;
 				if (action === 'delay' && ctx !== 'chain-step') continue;
 				const label = window.i18n.getMessage(ACTION_KEYS[action]);
 				if (!search || label.toLowerCase().includes(search) || action.toLowerCase().includes(search)) {
@@ -897,7 +898,7 @@ class ActionSelect extends LitElement {
 		const key = ACTION_KEYS[val];
 		const name = key ? window.i18n.getMessage(key) : val;
 
-		const canReset = showActionConfig && val !== 'actionChain' && val !== 'customMenu' && this.#isConfigModified();
+		const canReset = showActionConfig && val !== 'actionChain' && val !== 'customMenu' && val !== 'siteMenu' && this.#isConfigModified();
 		return html`
 			<div class="detail-header">
 				<div class="detail-header-icon">${unsafeHTML(icon(ACTION_ICONS[val] || 'minus'))}</div>
@@ -1564,10 +1565,11 @@ class ActionSelect extends LitElement {
 				></chain-panel>
 			`;
 		}
-		if (action === 'customMenu') {
+		if (action === 'customMenu' || action === 'siteMenu') {
 			return html`
-				<div class="action-config-info">${window.i18n.getMessage('customMenuDesc')}</div>
+				<div class="action-config-info">${window.i18n.getMessage(action === 'siteMenu' ? 'siteMenusDesc' : 'customMenuDesc')}</div>
 				<gesture-menu-config
+					.action=${action}
 					.config=${this._pendingConfig}
 					@menu-config-change=${(e) => { this._pendingConfig = { ...e.detail.config }; this.requestUpdate(); }}
 				></gesture-menu-config>

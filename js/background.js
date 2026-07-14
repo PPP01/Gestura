@@ -62,7 +62,7 @@ const CONTENT_ACTIONS = new Set([
 	'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent',
 	'simulateKey', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 	'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
-	'customMenu',
+	'customMenu', 'siteMenu',
 ]);
 
 async function createTabAtPosition(sender, position, extraOpts = {}) {

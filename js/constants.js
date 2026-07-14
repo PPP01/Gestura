@@ -76,6 +76,7 @@
 		'moveTabToNewWindow': 'actionMoveTabToNewWindow',
 		'actionChain': 'actionActionChain',
 		'customMenu': 'actionCustomMenu',
+		'siteMenu': 'siteMenusTitle',
 		'addSiteToMenu': 'actionAddSiteToMenu',
 		'delay': 'actionDelay',
 		'sendCustomEvent': 'actionSendCustomEvent',
@@ -120,7 +121,8 @@
 		switchFirstTab: { moveTab: false },
 		switchLastTab: { moveTab: false },
 		actionChain: { chainId: '' },
-		customMenu: { mode: 'standard', menuId: '', ownMenu: null, fork: null },
+		customMenu: { ownMenu: null },
+		siteMenu: { mode: 'contextual', menuId: '', fork: null },
 		addSiteToMenu: { menuId: '' },
 		delay: { delayMs: 500 },
 		sendCustomEvent: { eventType: 'flowmouse:gesture', eventDetail: '{}', gestureInfo: true },
@@ -144,7 +146,7 @@
 		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent', 'simulateKey',
 		'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 		'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
-		'customMenu',
+		'customMenu', 'siteMenu',
 	]);
 
 

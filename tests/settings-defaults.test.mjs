@@ -35,7 +35,10 @@ describe("DEFAULT_SETTINGS", () => {
 	it("menuOpenBehavior defaults to 'standard' (left=same tab, right=new tab)", () => {
 		expect(DEFAULT_SETTINGS.menuOpenBehavior).toBe("standard");
 	});
-	it("customMenu action has no per-gesture fallback anymore (global default menu instead)", () => {
-		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ mode: "standard", menuId: "", ownMenu: null, fork: null });
+	it("customMenu is the private own-menu action; siteMenu covers the website menus (contextual default)", () => {
+		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ ownMenu: null });
+		expect(globalThis.GestureConstants.ACTION_DEFAULTS.siteMenu).toEqual({ mode: "contextual", menuId: "", fork: null });
+		expect(globalThis.GestureConstants.ACTION_KEYS.siteMenu).toBe("siteMenusTitle");
+		expect(globalThis.GestureConstants.LOCAL_ACTIONS.has("siteMenu")).toBe(true);
 	});
 });

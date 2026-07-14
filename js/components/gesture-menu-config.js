@@ -12,14 +12,15 @@ export function menuDisplayName(def, fallbackKey = 'actionCustomMenu') {
 }
 
 // Anzeigename der Geste im zugeklappten action-select.
-export function getGestureMenuLabel(config) {
+// action: 'customMenu' (privates Menü der Geste) oder 'siteMenu' (Website-Menüs).
+export function getGestureMenuLabel(config, action = 'siteMenu') {
 	const i18n = window.i18n;
-	const cfg = { ...(window.GestureConstants.ACTION_DEFAULTS.customMenu || {}), ...(config || {}) };
+	if (action === 'customMenu') return config?.ownMenu?.name || i18n.getMessage('customMenuOwnLabel');
+	const cfg = { ...(window.GestureConstants.ACTION_DEFAULTS.siteMenu || {}), ...(config || {}) };
 	const siteMenus = SettingsStore.current.siteMenus;
-	if (cfg.mode === 'contextual') return i18n.getMessage('customMenuContextualLabel');
-	if (cfg.mode === 'own') return cfg.ownMenu?.name || i18n.getMessage('customMenuOwnLabel');
+	if (cfg.mode !== 'standard' && cfg.mode !== 'fork') return i18n.getMessage('customMenuContextualLabel');
 	const base = M().getBaseMenu(CATALOG(), siteMenus, cfg.menuId);
-	if (!base) return `${i18n.getMessage('actionCustomMenu')} ${i18n.getMessage('menuNotFound')}`;
+	if (!base) return `${i18n.getMessage('siteMenusTitle')} ${i18n.getMessage('menuNotFound')}`;
 	if (cfg.mode === 'fork') {
 		const name = cfg.fork?.name || menuDisplayName(base);
 		return `${name} (${i18n.getMessage('forkBadgeModified')})`;
@@ -31,6 +32,7 @@ class GestureMenuConfig extends LitElement {
 
 	static properties = {
 		config: { attribute: false },
+		action: { type: String },
 	};
 
 	static styles = [
@@ -47,7 +49,8 @@ class GestureMenuConfig extends LitElement {
 	];
 
 	get #cfg() {
-		return { ...(window.GestureConstants.ACTION_DEFAULTS.customMenu || {}), ...(this.config || {}) };
+		const defaults = window.GestureConstants.ACTION_DEFAULTS[this.action || 'siteMenu'] || {};
+		return { ...defaults, ...(this.config || {}) };
 	}
 
 	#update(patch) {
@@ -75,18 +78,23 @@ class GestureMenuConfig extends LitElement {
 	render() {
 		const i18n = window.i18n;
 		const cfg = this.#cfg;
+		// customMenu = nur das private Menü dieser Geste — kein Quellen-Dropdown.
+		if (this.action === 'customMenu') {
+			return this.#renderOwnEditor(cfg, i18n);
+		}
+		const mode = (cfg.mode === 'standard' || cfg.mode === 'fork') ? cfg.mode : 'contextual';
 		return html`
 			<div class="row">
 				<span class="row-label">${i18n.getMessage('menuModeLabel')}</span>
 				<select @change=${(e) => this.#onModeChange(e.target.value)}>
-					${['standard', 'fork', 'own', 'contextual'].map(m => html`
-						<option value=${m} ?selected=${cfg.mode === m}>
+					${['contextual', 'standard', 'fork'].map(m => html`
+						<option value=${m} ?selected=${mode === m}>
 							${i18n.getMessage('menuMode' + m[0].toUpperCase() + m.slice(1))}
 						</option>
 					`)}
 				</select>
 			</div>
-			${this.#renderModeBody(cfg, i18n)}
+			${this.#renderModeBody({ ...cfg, mode }, i18n)}
 		`;
 	}
 
@@ -95,7 +103,6 @@ class GestureMenuConfig extends LitElement {
 		if (mode === cfg.mode) return;
 		const patch = { mode };
 		if (mode === 'fork' && !cfg.fork) patch.fork = M().emptyFork();
-		if (mode === 'own' && !cfg.ownMenu) patch.ownMenu = { name: '', items: [] };
 		this.#update(patch);
 	}
 
@@ -123,10 +130,7 @@ class GestureMenuConfig extends LitElement {
 				</div>
 			`;
 		}
-		if (cfg.mode === 'own') {
-			return this.#renderOwnEditor(cfg, i18n);
-		}
-		return this.#renderForkEditor(cfg, i18n); // Task 10
+		return this.#renderForkEditor(cfg, i18n);
 	}
 
 	#renderOwnEditor(cfg, i18n) {
