@@ -10,7 +10,12 @@ Keep the FlowMouse attribution — it is both a courtesy and a GPL requirement.
 ### Name
 Gestura – Mouse Gestures
 
-### Short description (≤ 132 chars)
+### Short description (Edge/AMO, ≤ 250 chars)
+Mouse gestures with smart, editable website menus: one gesture opens the right
+menu per site — GitHub, YouTube, Amazon & more. 100% private, no tracking,
+fully open source.
+
+### Short description Chrome Web Store (≤ 132 chars)
 Mouse gestures with smart website menus: one gesture opens the right menu per
 site — GitHub, YouTube, Amazon & more. Private.
 
@@ -29,6 +34,7 @@ Includes everything FlowMouse does
 
 Plus what Gestura adds — headlined by Website Menus
 • Website menus — ready-made, fully editable popup menus for the sites you use daily: GitHub, YouTube, Amazon (with country selection), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia and more, every entry with a fitting icon
+• Your own menus in seconds — creating a menu for any other website is quick: add entries with icons, set URL patterns (or register the current site with a gesture), done
 • One contextual gesture, always the right menu — on GitHub you get Issues & Pull Requests, on YouTube your subscriptions, on Amazon your orders; everywhere else a default Search menu (Google, Brave, Perplexity, DuckDuckGo …), plus a Shopping menu that searches your selection on Amazon & eBay
 • Menus that stay yours — customize a predefined menu globally, or load it into a single gesture as a customized copy that keeps inheriting future improvements for untouched entries; private per-gesture menus included
 • Quick-search bar — optionally append your favorite searches (Brave, Google, Perplexity …) to the bottom of every menu; the current selection is passed along
@@ -57,7 +63,11 @@ Source: https://github.com/PPP01/Gestura
 ### Name
 Gestura – Mausgesten
 
-### Kurzbeschreibung (≤ 132 Zeichen)
+### Kurzbeschreibung (Edge/AMO, ≤ 250 Zeichen)
+Mausgesten mit smarten, editierbaren Website-Menüs: Eine Geste öffnet je Site das passende
+Menü – GitHub, YouTube, Amazon u. v. m. 100 % Privat, kein Tracking, vollständig Open Source.
+
+### Kurzbeschreibung Chrome Web Store (≤ 132 Zeichen)
 Mausgesten mit smarten Website-Menüs: Eine Geste öffnet je Site das passende
 Menü – GitHub, YouTube, Amazon u. v. m. Privat.
 
@@ -76,6 +86,7 @@ Enthält alles, was FlowMouse kann
 
 Dazu kommt bei Gestura — allen voran die Website-Menüs
 • Website-Menüs — fertige, voll editierbare Popup-Menüs für deine täglichen Websites: GitHub, YouTube, Amazon (mit Länderauswahl), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia u. v. m., jeder Eintrag mit passendem Icon
+• Eigene Menüs in Sekunden — für jede weitere Website ist ein eigenes Menü schnell erstellt: Einträge mit Icons anlegen, URL-Muster setzen (oder die aktuelle Site per Geste registrieren), fertig
 • Eine Kontext-Geste, immer das richtige Menü — auf GitHub Issues & Pull Requests, auf YouTube deine Abos, auf Amazon deine Bestellungen; überall sonst ein Standard-Suchmenü (Google, Brave, Perplexity, DuckDuckGo …), dazu ein Shopping-Menü, das die Auswahl direkt bei Amazon & eBay sucht
 • Menüs, die deine bleiben — vordefinierte Menüs global anpassen oder als angepasste Kopie in eine einzelne Geste laden, die für unveränderte Einträge weiterhin Verbesserungen erbt; private Gesten-Menüs inklusive
 • Mini-Suchleiste — auf Wunsch deine Lieblingssuchen (Brave, Google, Perplexity …) unten an jedes Menü angehängt; die aktuelle Auswahl wird übergeben
