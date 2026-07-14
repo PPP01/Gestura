@@ -1722,7 +1722,7 @@
 		"message": "Åpner den første menyen hvis nettstedsmønstre samsvarer med gjeldende side; konfigurer mønstre i hver meny."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamisk meny"
+		"message": "Nettstedmeny (kontekst)"
 	},
 	"addMenu": {
 		"message": "Legg til meny",

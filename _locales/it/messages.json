@@ -1722,7 +1722,7 @@
 		"message": "Apre il primo menu i cui pattern di sito corrispondono alla pagina corrente; configura i pattern in ogni menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Menu dinamico"
+		"message": "Menu del sito (contestuale)"
 	},
 	"addMenu": {
 		"message": "Aggiungi menu",

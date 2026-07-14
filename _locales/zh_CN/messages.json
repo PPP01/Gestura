@@ -1722,7 +1722,7 @@
 		"message": "打开第一个网站模式与当前页面匹配的菜单；在每个菜单中配置模式。"
 	},
 	"customMenuContextualLabel": {
-		"message": "动态菜单"
+		"message": "网站菜单（按上下文）"
 	},
 	"addMenu": {
 		"message": "添加菜单",

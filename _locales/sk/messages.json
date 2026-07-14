@@ -1722,7 +1722,7 @@
 		"message": "Otvorí prvú ponuku, ktorej vzory webu zodpovedajú aktuálnej stránke; nastavte vzory v každej ponuke."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamická ponuka"
+		"message": "Ponuka webu (kontextová)"
 	},
 	"addMenu": {
 		"message": "Pridať ponuku",

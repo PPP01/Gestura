@@ -1722,7 +1722,7 @@
 		"message": "Mở menu đầu tiên có mẫu trang web khớp với trang hiện tại; cấu hình mẫu trong từng menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Menu động"
+		"message": "Menu trang web (theo ngữ cảnh)"
 	},
 	"addMenu": {
 		"message": "Thêm menu",

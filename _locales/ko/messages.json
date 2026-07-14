@@ -1722,7 +1722,7 @@
 		"message": "사이트 패턴이 현재 페이지와 일치하는 첫 번째 메뉴를 엽니다. 각 메뉴에서 패턴을 설정하세요."
 	},
 	"customMenuContextualLabel": {
-		"message": "동적 메뉴"
+		"message": "웹사이트 메뉴(컨텍스트)"
 	},
 	"addMenu": {
 		"message": "메뉴 추가",

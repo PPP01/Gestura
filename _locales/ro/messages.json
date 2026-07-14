@@ -1722,7 +1722,7 @@
 		"message": "Deschide primul meniu ale cărui modele de site corespund paginii curente; configurați modelele în fiecare meniu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Meniu dinamic"
+		"message": "Meniul site-ului (contextual)"
 	},
 	"addMenu": {
 		"message": "Adăugare meniu",

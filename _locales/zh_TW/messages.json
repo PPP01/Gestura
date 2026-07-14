@@ -1722,7 +1722,7 @@
 		"message": "開啟第一個網站模式與目前頁面相符的選單；在每個選單中設定模式。"
 	},
 	"customMenuContextualLabel": {
-		"message": "動態選單"
+		"message": "網站選單（依情境）"
 	},
 	"addMenu": {
 		"message": "新增選單",

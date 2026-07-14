@@ -1722,7 +1722,7 @@
 		"message": "Site kalıpları geçerli sayfayla eşleşen ilk menüyü açar; her menüde kalıpları yapılandırın."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dinamik menü"
+		"message": "Web sitesi menüsü (bağlamsal)"
 	},
 	"addMenu": {
 		"message": "Menü Ekle",

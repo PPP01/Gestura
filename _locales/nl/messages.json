@@ -1722,7 +1722,7 @@
 		"message": "Opent het eerste menu waarvan de sitepatronen overeenkomen met de huidige pagina; configureer patronen in elk menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamisch menu"
+		"message": "Websitemenu (contextueel)"
 	},
 	"addMenu": {
 		"message": "Menu toevoegen",

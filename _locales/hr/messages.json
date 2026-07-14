@@ -1722,7 +1722,7 @@
 		"message": "Otvara prvi izbornik čiji uzorci web-lokacije odgovaraju trenutnoj stranici; konfigurirajte uzorke u svakom izborniku."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dinamički izbornik"
+		"message": "Izbornik web-mjesta (kontekstualno)"
 	},
 	"addMenu": {
 		"message": "Dodaj izbornik",

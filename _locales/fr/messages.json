@@ -1722,7 +1722,7 @@
 		"message": "Ouvre le premier menu dont les modèles de site correspondent à la page actuelle ; configurez les modèles dans chaque menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Menu dynamique"
+		"message": "Menu du site (contextuel)"
 	},
 	"addMenu": {
 		"message": "Ajouter un menu",

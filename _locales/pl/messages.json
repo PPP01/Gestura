@@ -1722,7 +1722,7 @@
 		"message": "Otwiera pierwsze menu, którego wzorce witryny pasują do bieżącej strony; skonfiguruj wzorce w każdym menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Menu dynamiczne"
+		"message": "Menu witryny (kontekstowe)"
 	},
 	"addMenu": {
 		"message": "Dodaj menu",

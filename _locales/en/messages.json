@@ -1732,7 +1732,7 @@
 		"description": "Hint shown below the contextual checkbox when it is checked"
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamic menu",
+		"message": "Website menu (contextual)",
 		"description": "Gesture-overview label shown for a custom-menu action in contextual mode (menu chosen by current site instead of a fixed menu)"
 	},
 	"customMenuOwnLabel": {

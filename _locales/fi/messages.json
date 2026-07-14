@@ -1722,7 +1722,7 @@
 		"message": "Avaa ensimmäisen valikon, jonka sivustomallit vastaavat nykyistä sivua; määritä mallit jokaisessa valikossa."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynaaminen valikko"
+		"message": "Sivustovalikko (kontekstuaalinen)"
 	},
 	"addMenu": {
 		"message": "Lisää valikko",

@@ -1726,7 +1726,7 @@
 		"message": "Öffnet das erste Menü, dessen Website-Muster zur aktuellen Seite passen; Muster in jedem Menü konfigurieren."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamisches Menü"
+		"message": "Website-Menü (Kontext)"
 	},
 	"customMenuOwnLabel": {
 		"message": "Eigenes Menü",

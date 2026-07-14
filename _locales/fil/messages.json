@@ -1722,7 +1722,7 @@
 		"message": "Nagbubukas ng unang menu na ang mga pattern ng site ay tugma sa kasalukuyang pahina; i-configure ang mga pattern sa bawat menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamic na menu"
+		"message": "Menu ng website (kontekstwal)"
 	},
 	"addMenu": {
 		"message": "Magdagdag ng Menu",

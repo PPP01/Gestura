@@ -1722,7 +1722,7 @@
 		"message": "Membuka menu pertama yang corak tapaknya sepadan dengan halaman semasa; konfigurasikan corak dalam setiap menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Menu dinamik"
+		"message": "Menu laman web (kontekstual)"
 	},
 	"addMenu": {
 		"message": "Tambah Menu",

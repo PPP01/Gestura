@@ -1722,7 +1722,7 @@
 		"message": "Megnyitja az első menüt, amelynek webhelymintái egyeznek az aktuális oldallal; minden menüben konfigurálja a mintákat."
 	},
 	"customMenuContextualLabel": {
-		"message": "Dinamikus menü"
+		"message": "Webhelymenü (kontextusfüggő)"
 	},
 	"addMenu": {
 		"message": "Menü hozzáadása",
