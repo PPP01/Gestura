@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "إيماءات فأرة مع قوائم مواقع ذكية: إيماءة واحدة تفتح القائمة المناسبة لكل موقع — GitHub وYouTube وAmazon والمزيد. خاص.",
+		"message": "إيماءات الفأرة تجعل حياتك أسهل — مع قوائم ذكية لـ GitHub وYouTube وAmazon وغيرها. سريعة وخاصة 100%!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "قوائم المواقع: القائمة المناسبة في كل موقع",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "إظهار رأس/تذييل مع مبدّل القوائم",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "يضيف شريطًا إلى القائمة؛ انقر عليه للتبديل بين القوائم فورًا.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "رأس",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "تذييل",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "إظهار في اختيار القوائم",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "المظهر",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "تلقائي",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "فاتح",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "داكن",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "स्मार्ट वेबसाइट मेनू के साथ माउस जेस्चर: एक जेस्चर से हर साइट का सही मेनू — GitHub, YouTube, Amazon और अधिक। निजी।",
+		"message": "माउस जेस्चर जीवन आसान बनाते हैं — GitHub, YouTube, Amazon आदि के लिए स्मार्ट मेनू के साथ। तेज़ और 100% निजी!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "वेबसाइट मेनू: हर साइट पर सही मेनू",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "मेनू स्विचर के साथ हेडर/फुटर दिखाएं",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "मेनू में एक बार जोड़ता है; उस पर क्लिक करके तुरंत मेनू बदलें।",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "हेडर",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "फुटर",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "मेनू चयन में दिखाएं",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "दिखावट",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "स्वचालित",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "हल्का",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "गहरा",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

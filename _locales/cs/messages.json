@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Gesta myší s chytrými nabídkami webů: jedno gesto otevře správnou nabídku pro každý web — GitHub, YouTube, Amazon a další.",
+		"message": "Gesta myší vám usnadní život — s chytrými nabídkami pro GitHub, YouTube, Amazon a spol. Rychlé a 100% soukromé!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "Nabídky webů: správná nabídka na každém webu",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "Zobrazit záhlaví/zápatí s přepínačem nabídek",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Přidá do nabídky lištu; kliknutím na ni přepnete mezi nabídkami.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Záhlaví",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Zápatí",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Zobrazit ve výběru nabídek",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "Vzhled",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Automaticky",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Světlý",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Tmavý",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

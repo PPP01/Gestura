@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Geste mišem s pametnim izbornicima: jedna gesta otvara pravi izbornik po web-mjestu — GitHub, YouTube, Amazon i više.",
+		"message": "Geste mišem olakšavaju život — uz pametne izbornike za GitHub, YouTube, Amazon i dr. Brzo i 100% privatno!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "Izbornici web-mjesta: pravi izbornik na svakom mjestu",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "Prikaži zaglavlje/podnožje s izmjenjivačem izbornika",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Dodaje traku u izbornik; kliknite na nju za brzu promjenu izbornika.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Zaglavlje",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Podnožje",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Prikaži u odabiru izbornika",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "Izgled",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Automatski",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Svijetlo",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Tamno",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "マウスジェスチャー＋スマートなサイトメニュー：1つのジェスチャーでサイトごとに最適なメニューを表示 — GitHub、YouTube、Amazonなど。プライベート。",
+		"message": "マウスジェスチャーで毎日をもっと快適に — GitHub、YouTube、Amazonなどに最適なスマートメニュー付き。高速＆100%プライベート！",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "サイトメニュー：どのサイトでも最適なメニュー",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "メニュー切替バー（ヘッダー/フッター）を表示",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "メニューにバーを追加します。クリックするとその場でメニューを切り替えられます。",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "ヘッダー",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "フッター",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "メニュー選択に表示",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "外観",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "自動",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "ライト",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "ダーク",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

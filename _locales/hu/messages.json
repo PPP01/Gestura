@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Egérmozdulatok okos webhelymenükkel: egy mozdulat a megfelelő menüt nyitja oldalanként — GitHub, YouTube, Amazon és több.",
+		"message": "Az egérmozdulatok megkönnyítik az életed — okos menükkel a GitHubhoz, YouTube-hoz, Amazonhoz és társaikhoz. Gyors és 100% privát!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "Webhelymenük: a megfelelő menü minden oldalon",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "Fejléc/lábléc megjelenítése menüváltóval",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Egy sávot ad a menühöz; kattints rá a menük közötti gyors váltáshoz.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Fejléc",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Lábléc",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Megjelenítés a menüválasztásban",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "Megjelenés",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Automatikus",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Világos",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Sötét",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

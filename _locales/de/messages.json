@@ -2666,5 +2666,25 @@
 	"aboutFeature7": {
 		"message": "Website-Menüs: das passende Menü auf jeder Site",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "Header/Footer mit Menü-Umschalter anzeigen",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Ergänzt das Menü um eine Leiste; ein Klick darauf wechselt direkt zwischen den Menüs.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Kopfzeile",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Fußzeile",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "In der Menü-Auswahl anzeigen",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
 	}
 }

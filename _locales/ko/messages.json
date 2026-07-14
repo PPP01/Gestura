@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "스마트 웹사이트 메뉴를 갖춘 마우스 제스처: 제스처 하나로 사이트마다 알맞은 메뉴가 열립니다 — GitHub, YouTube, Amazon 등. 프라이빗.",
+		"message": "마우스 제스처로 더 편리한 브라우징 — GitHub, YouTube, Amazon 등을 위한 스마트 메뉴 포함. 빠르고 100% 프라이빗!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2648,5 +2648,41 @@
 	"aboutFeature7": {
 		"message": "웹사이트 메뉴: 모든 사이트에서 알맞은 메뉴",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "메뉴 전환기가 있는 머리글/바닥글 표시",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "메뉴에 바를 추가합니다. 클릭하면 즉시 메뉴를 전환할 수 있습니다.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "머리글",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "바닥글",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "메뉴 선택에 표시",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "모양",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "자동",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "라이트",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "다크",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }
