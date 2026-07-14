@@ -1768,7 +1768,7 @@
 		"message": "Papar pada tapak-tapak ini"
 	},
 	"menuPatternsHint": {
-		"message": "Kosong = di mana-mana sahaja (menu lalai). Tambah domain seperti github.com."
+		"message": "Tambah domain seperti github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Tambah tapak"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Tambah bar carian pantas pada menu ini",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menu lalai — dipaparkan di semua laman tanpa menu yang sepadan",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

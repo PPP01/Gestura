@@ -1768,7 +1768,7 @@
 		"message": "הצג באתרים אלה"
 	},
 	"menuPatternsHint": {
-		"message": "ריק = בכל מקום (תפריט ברירת מחדל). הוסף דומיין כמו github.com."
+		"message": "הוסיפו דומיין כמו github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "הוסף אתר"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "הוספת סרגל החיפוש המהיר לתפריט זה",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "תפריט ברירת מחדל — מוצג בכל האתרים ללא תפריט תואם",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

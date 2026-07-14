@@ -155,8 +155,12 @@
 		}
 		let menuId = c.menuId;
 		if (mode === 'contextual') {
+			// Ohne Muster-Treffer greift das globale Standard-Menü — sofern es
+			// nicht deaktiviert ist. (Der frühere Pro-Gesten-Fallback entfällt.)
+			const dm = (siteMenus || {}).defaultMenuId || '';
+			const dmActive = dm && !((siteMenus || {}).disabled || []).includes(dm);
 			menuId = resolveContextualMenuId(catalog, siteMenus, ctx && ctx.url, ctx && ctx.matchesPatterns)
-				|| c.fallbackMenuId || '';
+				|| (dmActive ? dm : '');
 		}
 		const base = getBaseMenu(catalog, siteMenus, menuId);
 		if (!base) return null;
@@ -234,8 +238,17 @@
 		if (sm.custom) delete sm.custom[menuId];
 		if (sm.edited) delete sm.edited[menuId];
 		if (sm.flags) delete sm.flags[menuId];
+		if (sm.defaultMenuId === menuId) sm.defaultMenuId = '';
 		sm.disabled = (sm.disabled || []).filter(id => id !== menuId);
 		sm.order = (sm.order || []).filter(id => id !== menuId);
+		return sm;
+	}
+
+	// Exklusives Standard-Menü: wird auf allen Seiten ohne Muster-Treffer
+	// geöffnet. menuId '' löscht die Zuweisung.
+	function withDefaultMenu(siteMenus, menuId) {
+		const sm = clone(siteMenus) || {};
+		sm.defaultMenuId = menuId || '';
 		return sm;
 	}
 
@@ -261,7 +274,7 @@
 		forkOverrideItem, forkDeleteItem, forkRestoreItem, forkAddItem, forkReorder,
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
-		menuFlag, withMenuFlag,
+		menuFlag, withMenuFlag, withDefaultMenu,
 		addPatternToMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

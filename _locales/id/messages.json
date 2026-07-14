@@ -1768,7 +1768,7 @@
 		"message": "Tampilkan di situs-situs ini"
 	},
 	"menuPatternsHint": {
-		"message": "Kosong = di mana saja (menu default). Tambahkan domain seperti github.com."
+		"message": "Tambahkan domain seperti github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Tambah situs"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Tambahkan bilah pencarian cepat ke menu ini",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menu default — ditampilkan di semua situs tanpa menu yang cocok",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

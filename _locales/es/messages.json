@@ -1768,7 +1768,7 @@
 		"message": "Mostrar en estos sitios"
 	},
 	"menuPatternsHint": {
-		"message": "Vacío = en todas partes (menú predeterminado). Añada un dominio como github.com."
+		"message": "Añade un dominio como github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Añadir sitio"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Añadir la barra de búsqueda rápida a este menú",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menú predeterminado — se muestra en todos los sitios sin un menú coincidente",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

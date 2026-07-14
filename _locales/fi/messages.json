@@ -1768,7 +1768,7 @@
 		"message": "Näytä näillä sivustoilla"
 	},
 	"menuPatternsHint": {
-		"message": "Tyhjä = kaikkialla (oletusvalikko). Lisää verkkotunnus kuten github.com."
+		"message": "Lisää verkkotunnus, kuten github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Lisää sivusto"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Lisää pikahakupalkki tähän valikkoon",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Oletusvalikko — näytetään kaikilla sivustoilla, joilla ei ole vastaavaa valikkoa",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

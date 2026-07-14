@@ -1768,7 +1768,7 @@
 		"message": "Показвай на тези сайтове"
 	},
 	"menuPatternsHint": {
-		"message": "Празно = навсякъде (меню по подразбиране). Добавете домейн като github.com."
+		"message": "Добавете домейн като github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Добавяне на сайт"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Добавяне на лентата за бързо търсене към това меню",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Меню по подразбиране — показва се на всички сайтове без съвпадащо меню",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

@@ -281,7 +281,16 @@ maschinell übersetzt; `en` ist `default_locale`-Fallback).
    Menüdefinition (Checkbox im Editor; Forks erben das Flag der Basis).
 3. **Shopping-Menü:** Katalog-Menü `shopping` mit Suchen Brave, Google,
    Amazon, eBay (Selektion wird übergeben).
-4. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
+4. **Exklusives Standard-Menü (R4):** `siteMenus.defaultMenuId` (Default:
+   `'search'`) markiert genau ein Menü als Standard — es öffnet im
+   kontextabhängigen Modus auf allen Seiten ohne Muster-Treffer (sofern nicht
+   deaktiviert) und ist die Vorauswahl im Modus „Standard-Menü". Der frühere
+   Pro-Gesten-Fallback (`fallbackMenuId`) entfällt ersatzlos. UI: exklusiver
+   Schalter oben im Editor (verschwindet bei allen anderen Menüs, sobald
+   eines gesetzt ist), Stern + fetter Name in der Liste; beim Standard-Menü
+   wird die Website-Muster-Sektion ausgeblendet. Der irreführende Hinweis
+   „Leer = überall" (`menuPatternsHint`) wurde in allen Locales ersetzt.
+5. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
    werden in `siteMenus.flags[menuId]` gespeichert (Präzedenz: Flag → def →
    true), nicht mehr in der Menüdefinition — Umschalten erzeugt damit keine
    „Angepasst"-Kopie mehr. UI: Icon-Toggles direkt in der Menü-Zeile UND

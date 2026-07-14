@@ -1768,7 +1768,7 @@
 		"message": "Zobraziť na týchto weboch"
 	},
 	"menuPatternsHint": {
-		"message": "Prázdne = všade (predvolená ponuka). Pridajte doménu ako github.com."
+		"message": "Pridajte doménu ako github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Pridať web"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Pripojiť lištu rýchleho hľadania k tejto ponuke",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Predvolená ponuka — zobrazí sa na všetkých weboch bez zodpovedajúcej ponuky",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

@@ -1768,7 +1768,7 @@
 		"message": "Wyświetlaj na tych witrynach"
 	},
 	"menuPatternsHint": {
-		"message": "Puste = wszędzie (domyślne menu). Dodaj domenę jak github.com."
+		"message": "Dodaj domenę taką jak github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Dodaj witrynę"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Dołącz pasek szybkiego wyszukiwania do tego menu",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menu domyślne — wyświetlane na wszystkich stronach bez pasującego menu",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

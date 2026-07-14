@@ -1768,7 +1768,7 @@
 		"message": "Vis på disse nettstedene"
 	},
 	"menuPatternsHint": {
-		"message": "Tom = overalt (standardmeny). Legg til et domene som github.com."
+		"message": "Legg til et domene som github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Legg til nettsted"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Legg til hurtigsøkelinjen i denne menyen",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Standardmeny — vises på alle nettsteder uten en samsvarende meny",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

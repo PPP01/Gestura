@@ -1768,7 +1768,7 @@
 		"message": "これらのサイトで表示"
 	},
 	"menuPatternsHint": {
-		"message": "空 = すべてのページ（デフォルトメニュー）。github.com のようなドメインを追加してください。"
+		"message": "github.com のようなドメインを追加してください。"
 	},
 	"menuPatternsAdd": {
 		"message": "サイトを追加"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "このメニューにクイック検索バーを追加",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "デフォルトメニュー — 一致するメニューがないすべてのサイトで表示されます",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

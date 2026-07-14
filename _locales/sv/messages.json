@@ -1768,7 +1768,7 @@
 		"message": "Visa på dessa webbplatser"
 	},
 	"menuPatternsHint": {
-		"message": "Tom = överallt (standardmeny). Lägg till en domän som github.com."
+		"message": "Lägg till en domän som github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Lägg till webbplats"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Lägg till snabbsökfältet i denna meny",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Standardmeny — visas på alla webbplatser utan en matchande meny",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

@@ -1768,7 +1768,7 @@
 		"message": "Hiển thị trên các trang web này"
 	},
 	"menuPatternsHint": {
-		"message": "Trống = mọi nơi (menu mặc định). Thêm tên miền như github.com."
+		"message": "Thêm một tên miền như github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Thêm trang web"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Thêm thanh tìm kiếm nhanh vào menu này",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menu mặc định — hiển thị trên mọi trang không có menu phù hợp",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

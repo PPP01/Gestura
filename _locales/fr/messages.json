@@ -1768,7 +1768,7 @@
 		"message": "Afficher sur ces sites"
 	},
 	"menuPatternsHint": {
-		"message": "Vide = partout (menu par défaut). Ajoutez un domaine comme github.com."
+		"message": "Ajoutez un domaine comme github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Ajouter un site"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Ajouter la barre de recherche rapide à ce menu",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menu par défaut — affiché sur tous les sites sans menu correspondant",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

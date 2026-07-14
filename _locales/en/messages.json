@@ -1888,7 +1888,7 @@
 		"description": "Label for the per-menu site-pattern editor"
 	},
 	"menuPatternsHint": {
-		"message": "Empty = everywhere (default menu). Add a domain like github.com.",
+		"message": "Add a domain like github.com.",
 		"description": "Hint below the site-pattern chip editor"
 	},
 	"menuPatternsAdd": {
@@ -2710,5 +2710,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Append quick-search bar to this menu",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Default menu — shown on all sites without a matching menu",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

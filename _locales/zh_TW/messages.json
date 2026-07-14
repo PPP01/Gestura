@@ -1768,7 +1768,7 @@
 		"message": "在這些網站上顯示"
 	},
 	"menuPatternsHint": {
-		"message": "空白 = 所有地方（預設選單）。新增一個網域，例如 github.com。"
+		"message": "新增一個網域，例如 github.com。"
 	},
 	"menuPatternsAdd": {
 		"message": "新增網站"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "在此選單附加快速搜尋列",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "預設選單 — 在所有沒有相符選單的網站上顯示",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

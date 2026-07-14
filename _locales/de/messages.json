@@ -1846,7 +1846,7 @@
 		"message": "Auf diesen Websites anzeigen"
 	},
 	"menuPatternsHint": {
-		"message": "Leer = überall (Standardmenü). Fügen Sie eine Domain wie github.com hinzu."
+		"message": "Füge eine Domain wie github.com hinzu."
 	},
 	"menuPatternsAdd": {
 		"message": "Website hinzufügen"
@@ -2630,5 +2630,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Mini-Suchmenü an dieses Menü anhängen",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Standard-Menü — wird auf allen nicht konfigurierten Websites angezeigt",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

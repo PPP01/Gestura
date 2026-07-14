@@ -1768,7 +1768,7 @@
 		"message": "Показувати на цих сайтах"
 	},
 	"menuPatternsHint": {
-		"message": "Порожньо = скрізь (меню за замовчуванням). Додайте домен, наприклад github.com."
+		"message": "Додайте домен, наприклад github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Додати сайт"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Додавати панель швидкого пошуку до цього меню",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Меню за замовчуванням — показується на всіх сайтах без відповідного меню",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

@@ -1768,7 +1768,7 @@
 		"message": "এই সাইটগুলোতে দেখান"
 	},
 	"menuPatternsHint": {
-		"message": "খালি = সর্বত্র (ডিফল্ট মেনু)। github.com-এর মতো একটি ডোমেইন যোগ করুন।"
+		"message": "github.com-এর মতো একটি ডোমেইন যোগ করুন।"
 	},
 	"menuPatternsAdd": {
 		"message": "সাইট যোগ করুন"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "এই মেনুতে দ্রুত-অনুসন্ধান বার যুক্ত করুন",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "ডিফল্ট মেনু — মিল থাকা মেনু নেই এমন সব সাইটে দেখানো হয়",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

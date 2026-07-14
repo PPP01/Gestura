@@ -1768,7 +1768,7 @@
 		"message": "عرض على هذه المواقع"
 	},
 	"menuPatternsHint": {
-		"message": "فارغ = في كل مكان (القائمة الافتراضية). أضف نطاقًا مثل github.com."
+		"message": "أضف نطاقًا مثل github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "إضافة موقع"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "إلحاق شريط البحث السريع بهذه القائمة",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "القائمة الافتراضية — تظهر في كل المواقع التي لا تملك قائمة مطابقة",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

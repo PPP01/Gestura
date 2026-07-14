@@ -1768,7 +1768,7 @@
 		"message": "Прикажи на овим сајтовима"
 	},
 	"menuPatternsHint": {
-		"message": "Празно = свуда (подразумевани мени). Додајте домен попут github.com."
+		"message": "Додајте домен као github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Додај сајт"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Додај траку брзе претраге у овај мени",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Подразумевани мени — приказује се на свим сајтовима без одговарајућег менија",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

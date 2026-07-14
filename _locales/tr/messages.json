@@ -1768,7 +1768,7 @@
 		"message": "Bu sitelerde göster"
 	},
 	"menuPatternsHint": {
-		"message": "Boş = her yerde (varsayılan menü). github.com gibi bir alan adı ekleyin."
+		"message": "github.com gibi bir alan adı ekleyin."
 	},
 	"menuPatternsAdd": {
 		"message": "Site ekle"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Hızlı arama çubuğunu bu menüye ekle",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Varsayılan menü — eşleşen menüsü olmayan tüm sitelerde gösterilir",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

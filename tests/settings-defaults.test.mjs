@@ -12,8 +12,8 @@ beforeAll(async () => {
 });
 
 describe("DEFAULT_SETTINGS", () => {
-	it("siteMenus defaults to empty diff structure", () => {
-		expect(DEFAULT_SETTINGS.siteMenus).toEqual({ disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {} });
+	it("siteMenus defaults to empty diff structure with search as default menu", () => {
+		expect(DEFAULT_SETTINGS.siteMenus).toEqual({ disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: "search" });
 	});
 	it("customMenus key is gone", () => {
 		expect(DEFAULT_SETTINGS).not.toHaveProperty("customMenus");
@@ -32,7 +32,7 @@ describe("DEFAULT_SETTINGS", () => {
 			expect(it.id).toBeTruthy();
 		}
 	});
-	it("customMenu action defaults to the search menu as contextual fallback", () => {
-		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu.fallbackMenuId).toBe("search");
+	it("customMenu action has no per-gesture fallback anymore (global default menu instead)", () => {
+		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ mode: "standard", menuId: "", ownMenu: null, fork: null });
 	});
 });

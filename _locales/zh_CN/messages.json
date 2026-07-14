@@ -1768,7 +1768,7 @@
 		"message": "在这些网站上显示"
 	},
 	"menuPatternsHint": {
-		"message": "为空 = 所有地方（默认菜单）。添加一个域名，如 github.com。"
+		"message": "添加一个域名，例如 github.com。"
 	},
 	"menuPatternsAdd": {
 		"message": "添加网站"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "在此菜单附加快捷搜索栏",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "默认菜单 — 在所有没有匹配菜单的网站上显示",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

@@ -1768,7 +1768,7 @@
 		"message": "แสดงบนเว็บไซต์เหล่านี้"
 	},
 	"menuPatternsHint": {
-		"message": "ว่าง = ทุกที่ (เมนูเริ่มต้น) เพิ่มโดเมนเช่น github.com"
+		"message": "เพิ่มโดเมน เช่น github.com"
 	},
 	"menuPatternsAdd": {
 		"message": "เพิ่มเว็บไซต์"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "เพิ่มแถบค้นหาด่วนในเมนูนี้",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "เมนูเริ่มต้น — แสดงในทุกเว็บไซต์ที่ไม่มีเมนูที่ตรงกัน",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

@@ -103,8 +103,9 @@ class GestureMenuConfig extends LitElement {
 	#renderModeBody(cfg, i18n) {
 		if (cfg.mode === 'standard') {
 			const active = this.#activeMenus();
-			// Vorauswahl: das Suche-Menü (Standard-Fallback), sonst das erste aktive.
-			const first = active.find(m => m.id === 'search') || active[0];
+			// Vorauswahl: das globale Standard-Menü, sonst das erste aktive.
+			const dm = SettingsStore.current.siteMenus?.defaultMenuId || '';
+			const first = active.find(m => m.id === dm) || active[0];
 			if (!cfg.menuId && first) queueMicrotask(() => this.#update({ menuId: first.id }));
 			return html`
 				<div class="row">
@@ -115,11 +116,11 @@ class GestureMenuConfig extends LitElement {
 			`;
 		}
 		if (cfg.mode === 'contextual') {
+			// Ohne Muster-Treffer öffnet das globale Standard-Menü (Website-Menüs-Sektion).
 			return html`
 				<div class="row">
 					<span class="hint">${i18n.getMessage('customMenuContextualHint')}</span>
-					<span class="row-label">${i18n.getMessage('menuFallbackLabel')}</span>
-					${this.#menuSelect(cfg.fallbackMenuId, (id) => this.#update({ fallbackMenuId: id }), i18n.getMessage('menuFallbackNone'))}
+					<a class="manage-link" @click=${this.#navigateToSiteMenus}>${i18n.getMessage('openSiteMenusSection')}</a>
 				</div>
 			`;
 		}

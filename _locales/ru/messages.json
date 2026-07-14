@@ -1768,7 +1768,7 @@
 		"message": "Показывать на этих сайтах"
 	},
 	"menuPatternsHint": {
-		"message": "Пусто = везде (меню по умолчанию). Добавьте домен, например github.com."
+		"message": "Добавьте домен, например github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Добавить сайт"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Добавлять панель быстрого поиска в это меню",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Меню по умолчанию — показывается на всех сайтах без подходящего меню",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

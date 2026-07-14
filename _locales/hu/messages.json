@@ -1768,7 +1768,7 @@
 		"message": "Megjelenítés ezeken a webhelyeken"
 	},
 	"menuPatternsHint": {
-		"message": "Üres = mindenhol (alapértelmezett menü). Adjon hozzá egy domaint, például: github.com."
+		"message": "Adj hozzá egy domaint, pl. github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Webhely hozzáadása"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Gyorskereső sáv hozzáfűzése ehhez a menühöz",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Alapértelmezett menü — minden olyan oldalon megjelenik, amelyhez nincs egyező menü",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

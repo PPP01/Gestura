@@ -1768,7 +1768,7 @@
 		"message": "Ipakita sa mga site na ito"
 	},
 	"menuPatternsHint": {
-		"message": "Walang laman = saanman (default na menu). Magdagdag ng domain tulad ng github.com."
+		"message": "Magdagdag ng domain tulad ng github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Magdagdag ng site"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Idagdag ang quick-search bar sa menu na ito",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Default na menu — ipinapakita sa lahat ng site na walang tumugmang menu",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

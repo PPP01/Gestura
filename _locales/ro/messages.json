@@ -1768,7 +1768,7 @@
 		"message": "Afișați pe aceste site-uri"
 	},
 	"menuPatternsHint": {
-		"message": "Gol = peste tot (meniu implicit). Adăugați un domeniu ca github.com."
+		"message": "Adaugă un domeniu precum github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Adăugare site"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Adaugă bara de căutare rapidă la acest meniu",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Meniu implicit — afișat pe toate site-urile fără un meniu potrivit",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

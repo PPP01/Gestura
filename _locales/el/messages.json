@@ -1768,7 +1768,7 @@
 		"message": "Εμφάνιση σε αυτούς τους ιστότοπους"
 	},
 	"menuPatternsHint": {
-		"message": "Κενό = παντού (προεπιλεγμένο μενού). Προσθέστε έναν τομέα όπως github.com."
+		"message": "Προσθέστε έναν τομέα όπως github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Προσθήκη ιστότοπου"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Προσθήκη της γραμμής γρήγορης αναζήτησης σε αυτό το μενού",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Προεπιλεγμένο μενού — εμφανίζεται σε όλους τους ιστότοπους χωρίς αντίστοιχο μενού",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

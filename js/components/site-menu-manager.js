@@ -70,6 +70,8 @@ class SiteMenuManager extends LitElement {
 			.theme-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-secondary); }
 			.show-in-switcher { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 			.flag-fields { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+			.menu-name.default { font-weight: 700; }
+			.default-marker { display: inline-flex; color: var(--accent-color); flex-shrink: 0; }
 			.menu-btn.flag { opacity: 0.4; }
 			.menu-btn.flag:hover { opacity: 0.75; color: var(--text-muted); }
 			.menu-btn.flag.on { opacity: 1; color: var(--accent-color); }
@@ -243,10 +245,14 @@ class SiteMenuManager extends LitElement {
 		const count = (m.def.items || []).filter(it => it.type !== 'separator').length;
 		const menuIcon = (window.FlowMouseMenuIcons || {})[m.def.icon] || '';
 		const expanded = this._expandedId === m.id;
+		const isDefault = (this.siteMenus.defaultMenuId || '') === m.id;
 		return html`
 			<div class="menu-row ${m.disabled ? 'disabled' : ''}">
 				<span class="menu-icon">${menuIcon ? unsafeHTML(menuIcon) : ''}</span>
-				<span class="menu-name">
+				<span class="menu-name ${isDefault ? 'default' : ''}">
+					${isDefault ? html`<span class="default-marker"
+						.tooltip=${tooltip(i18n.getMessage('siteMenuDefaultToggle'))}
+					>${unsafeHTML(icon('star', { size: 13, strokeWidth: 2.5 }))}</span>` : ''}
 					${menuDisplayName(m.def, 'menuNamePlaceholder')}
 					<span class="menu-count">(${count})</span>
 					${m.isEdited ? html`<span class="edited-badge">${i18n.getMessage('siteMenuEdited')}</span>` : ''}
@@ -285,9 +291,20 @@ class SiteMenuManager extends LitElement {
 		const rows = (def.items || []).map(item => ({ item, state: 'own' }));
 		const domainValue = (this.siteMenus.domains || {})[m.id] || def.domains?.default || '';
 		const switcherEnabled = !!(SettingsStore.current.customMenuSwitcher || {}).enabled;
+		const defaultMenuId = this.siteMenus.defaultMenuId || '';
+		const isDefault = defaultMenuId === m.id;
+		// Exklusiv: sobald ein Standard-Menü gesetzt ist, bieten andere Menüs den Schalter nicht an.
+		const defaultToggleVisible = !defaultMenuId || isDefault;
 		return html`
-			${switcherEnabled || this.menuAppend.enabled ? html`
+			${switcherEnabled || this.menuAppend.enabled || defaultToggleVisible ? html`
 				<div class="flag-fields">
+					${defaultToggleVisible ? html`
+						<label class="show-in-switcher">
+							<input type="checkbox" .checked=${isDefault}
+								@change=${(e) => this.#saveSiteMenus(M().withDefaultMenu(this.siteMenus, e.target.checked ? m.id : ''))}>
+							<span>${i18n.getMessage('siteMenuDefaultToggle')}</span>
+						</label>
+					` : ''}
 					${switcherEnabled ? html`
 						<label class="show-in-switcher">
 							<input type="checkbox" .checked=${M().menuFlag(this.siteMenus, m.id, def, 'showInSwitcher')}
@@ -308,7 +325,7 @@ class SiteMenuManager extends LitElement {
 				.rows=${rows}
 				.name=${def.name || ''}
 				.namePlaceholder=${menuDisplayName(def, 'menuNamePlaceholder')}
-				.patterns=${def.patterns || []}
+				.patterns=${isDefault ? null : (def.patterns || [])}
 				.domainChoices=${def.domains?.choices || null}
 				.domainValue=${domainValue}
 				@name-change=${(e) => this.#saveDef(m.id, d => { d.name = e.detail.name; })}

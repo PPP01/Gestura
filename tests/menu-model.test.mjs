@@ -159,12 +159,19 @@ describe('resolveMenu', () => {
 		expect(r.name).toBe('Privat');
 		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'own', ownMenu: null })).toBeNull();
 	});
-	it('mode contextual picks first active matching menu, else fallback, else null', () => {
+	it('mode contextual picks first active matching menu, else the global default menu, else null', () => {
 		const ctx = { url: 'https://github.com/x', matchesPatterns: matches };
-		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'contextual', fallbackMenuId: 'amz' }, ctx).menuId).toBe('gh');
-		const smDis = { ...EMPTY, disabled: ['gh'] };
-		expect(M.resolveMenu(CATALOG, smDis, { mode: 'contextual', fallbackMenuId: 'amz' }, ctx).menuId).toBe('amz');
-		expect(M.resolveMenu(CATALOG, smDis, { mode: 'contextual', fallbackMenuId: '' }, ctx)).toBeNull();
+		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'contextual' }, ctx).menuId).toBe('gh');
+		const smDis = { ...EMPTY, disabled: ['gh'], defaultMenuId: 'amz' };
+		expect(M.resolveMenu(CATALOG, smDis, { mode: 'contextual' }, ctx).menuId).toBe('amz');
+		expect(M.resolveMenu(CATALOG, { ...EMPTY, disabled: ['gh'] }, { mode: 'contextual' }, ctx)).toBeNull();
+	});
+	it('contextual ignores legacy per-gesture fallbackMenuId and skips a disabled default menu', () => {
+		const ctx = { url: 'https://nomatch.example/', matchesPatterns: matches };
+		const sm = { ...EMPTY, defaultMenuId: 'amz' };
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'contextual', fallbackMenuId: 'gh' }, ctx).menuId).toBe('amz');
+		const smDis = { ...EMPTY, defaultMenuId: 'amz', disabled: ['amz'] };
+		expect(M.resolveMenu(CATALOG, smDis, { mode: 'contextual' }, ctx)).toBeNull();
 	});
 	it('legacy config without mode resolves like standard (no crash)', () => {
 		expect(M.resolveMenu(CATALOG, EMPTY, { menuId: 'weg', contextual: false })).toBeNull();
@@ -236,6 +243,14 @@ describe('menu flags', () => {
 		let sm = M.withMenuFlag({ ...EMPTY, custom: { m1: { items: [] } } }, 'm1', 'appendMini', false);
 		sm = M.withoutCustomMenu(sm, 'm1');
 		expect(sm.flags).toEqual({});
+	});
+	it('withDefaultMenu sets/clears the exclusive default; deleting the menu clears it', () => {
+		let sm = M.withDefaultMenu(EMPTY, 'gh');
+		expect(sm.defaultMenuId).toBe('gh');
+		expect(M.withDefaultMenu(sm, '').defaultMenuId).toBe('');
+		sm = M.withDefaultMenu({ ...EMPTY, custom: { m1: { items: [] } } }, 'm1');
+		sm = M.withoutCustomMenu(sm, 'm1');
+		expect(sm.defaultMenuId).toBe('');
 	});
 });
 

@@ -120,7 +120,7 @@
 		switchFirstTab: { moveTab: false },
 		switchLastTab: { moveTab: false },
 		actionChain: { chainId: '' },
-		customMenu: { mode: 'standard', menuId: '', fallbackMenuId: 'search', ownMenu: null, fork: null },
+		customMenu: { mode: 'standard', menuId: '', ownMenu: null, fork: null },
 		addSiteToMenu: { menuId: '' },
 		delay: { delayMs: 500 },
 		sendCustomEvent: { eventType: 'flowmouse:gesture', eventDetail: '{}', gestureInfo: true },
@@ -260,7 +260,7 @@
 		areaSelectWarnThreshold: 15,
 		areaSelectDelay: 0.3,
 		actionChains: {},
-		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {} },
+		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' },
 		menuAppend: { enabled: false, items: [
 			{ id: 'append-brave', action: 'searchLink', engineId: 'brave' },
 			{ id: 'append-google', action: 'searchLink', engineId: 'google' },

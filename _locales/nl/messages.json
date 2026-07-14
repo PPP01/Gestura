@@ -1768,7 +1768,7 @@
 		"message": "Tonen op deze sites"
 	},
 	"menuPatternsHint": {
-		"message": "Leeg = overal (standaardmenu). Voeg een domein toe zoals github.com."
+		"message": "Voeg een domein toe zoals github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Site toevoegen"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Snelzoekbalk aan dit menu toevoegen",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Standaardmenu — wordt getoond op alle sites zonder passend menu",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

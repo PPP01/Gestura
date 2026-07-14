@@ -1768,7 +1768,7 @@
 		"message": "इन साइटों पर दिखाएं"
 	},
 	"menuPatternsHint": {
-		"message": "खाली = हर जगह (डिफ़ॉल्ट मेनू)। github.com जैसा कोई डोमेन जोड़ें।"
+		"message": "github.com जैसा डोमेन जोड़ें।"
 	},
 	"menuPatternsAdd": {
 		"message": "साइट जोड़ें"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "इस मेनू में त्वरित-खोज बार जोड़ें",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "डिफ़ॉल्ट मेनू — बिना मिलान वाले मेनू के सभी साइटों पर दिखाया जाता है",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

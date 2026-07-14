@@ -1768,7 +1768,7 @@
 		"message": "Prikaži na ovim web-lokacijama"
 	},
 	"menuPatternsHint": {
-		"message": "Prazno = svugdje (zadani izbornik). Dodajte domenu kao github.com."
+		"message": "Dodajte domenu poput github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Dodaj web-lokaciju"
@@ -2612,5 +2612,9 @@
 	"siteMenuAppendPerMenu": {
 		"message": "Dodaj traku brzog pretraživanja u ovaj izbornik",
 		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Zadani izbornik — prikazuje se na svim web-mjestima bez odgovarajućeg izbornika",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
 	}
 }

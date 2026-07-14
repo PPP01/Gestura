@@ -10,7 +10,8 @@
 **New Features:**
 
 - **Website menus:** predefined, fully editable menus for popular sites (GitHub, YouTube, Amazon incl. country selection, …) with icons; new settings section.
-- **Search & Shopping menus:** two predefined search-engine menus — "Search" (Google, Brave, Perplexity, DuckDuckGo, Bing, DeepL, Wikipedia) as the default contextual fallback, and "Shopping" (Brave, Google, Amazon, eBay). Searches receive the current selection.
+- **Search & Shopping menus:** two predefined search-engine menus — "Search" (Google, Brave, Perplexity, DuckDuckGo, Bing, DeepL, Wikipedia) and "Shopping" (Brave, Google, Amazon, eBay). Searches receive the current selection.
+- **Default menu:** exactly one website menu can be marked as the default (exclusive toggle; "Search" out of the box) — it opens on all sites without a matching menu and is highlighted in the list (star + bold name).
 - **Quick-search bar:** optional mini menu (default: Brave, Google, Perplexity; editable) appended to the bottom of every custom menu, with a per-menu opt-out.
 - **Custom menu action** now has four sources: standard menu, customized standard menu (inherits updates for unchanged items), own per-gesture menu, or contextual by URL.
 - Menu items support links, searches, and any gesture action, each with a selectable icon (Lucide set or favicon).
