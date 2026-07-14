@@ -32,6 +32,9 @@ describe("DEFAULT_SETTINGS", () => {
 			expect(it.id).toBeTruthy();
 		}
 	});
+	it("menuOpenBehavior defaults to 'standard' (left=same tab, right=new tab)", () => {
+		expect(DEFAULT_SETTINGS.menuOpenBehavior).toBe("standard");
+	});
 	it("customMenu action has no per-gesture fallback anymore (global default menu instead)", () => {
 		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ mode: "standard", menuId: "", ownMenu: null, fork: null });
 	});

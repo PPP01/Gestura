@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "デフォルトメニュー — 一致するメニューがないすべてのサイトで表示されます",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "リンクの開き方",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "標準: 左クリックは同じタブ、右クリックは新しいタブ",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "常に新しいタブ（すぐ右）",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "常に新しいタブ（すぐ左）",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "常に新しいタブ（末尾）",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "常に新しいタブ（先頭）",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "グローバル設定を使用",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

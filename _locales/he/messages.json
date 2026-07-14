@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "תפריט ברירת מחדל — מוצג בכל האתרים ללא תפריט תואם",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "פתיחת קישורים",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "רגיל: לחיצה שמאלית באותה כרטיסייה, לחיצה ימנית בכרטיסייה חדשה",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "תמיד בכרטיסייה חדשה, מייד מימין",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "תמיד בכרטיסייה חדשה, מייד משמאל",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "תמיד בכרטיסייה חדשה בסוף",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "תמיד בכרטיסייה חדשה בהתחלה",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "שימוש בהגדרה הגלובלית",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

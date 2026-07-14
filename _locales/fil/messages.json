@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Default na menu — ipinapakita sa lahat ng site na walang tumugmang menu",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Pagbubukas ng mga link",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standard: left-click sa parehong tab, right-click sa bagong tab",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Palaging sa bagong tab, mismong kanan",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Palaging sa bagong tab, mismong kaliwa",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Palaging sa bagong tab sa dulo",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Palaging sa bagong tab sa simula",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Gamitin ang global na setting",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

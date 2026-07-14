@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Standardmeny — vises på alle nettsteder uten en samsvarende meny",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Åpne lenker",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standard: venstreklikk i samme fane, høyreklikk i ny fane",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Alltid i ny fane, rett til høyre",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Alltid i ny fane, rett til venstre",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Alltid i ny fane til slutt",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Alltid i ny fane først",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Bruk global innstilling",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

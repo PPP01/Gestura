@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Oletusvalikko — näytetään kaikilla sivustoilla, joilla ei ole vastaavaa valikkoa",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Linkkien avaaminen",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Vakio: vasen napsautus samassa välilehdessä, oikea uudessa välilehdessä",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Aina uudessa välilehdessä, heti oikealla",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Aina uudessa välilehdessä, heti vasemmalla",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Aina uudessa välilehdessä lopussa",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Aina uudessa välilehdessä alussa",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Käytä yleistä asetusta",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

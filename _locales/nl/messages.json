@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Standaardmenu — wordt getoond op alle sites zonder passend menu",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Links openen",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standaard: linksklik in hetzelfde tabblad, rechtsklik in nieuw tabblad",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Altijd in nieuw tabblad, direct rechts",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Altijd in nieuw tabblad, direct links",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Altijd in nieuw tabblad aan het einde",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Altijd in nieuw tabblad aan het begin",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Globale instelling gebruiken",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

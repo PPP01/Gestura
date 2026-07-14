@@ -784,10 +784,10 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'siteMenus' ? 'active' : ''}" data-nav="siteMenus">
-					<h2><span class="section-icon">${unsafeHTML(icon('layoutList', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('siteMenusTitle')}</span></h2>
+				<div class="section ${this._activeSection === 'siteMenus' ? 'active' : ''} ${(this._settings.sectionAdvanced?.siteMenus) ? 'advanced-expanded' : ''}" data-nav="siteMenus">
+					<h2><span class="section-icon">${unsafeHTML(icon('layoutList', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('siteMenusTitle')}</span>${this.#renderAdvancedToggle('siteMenus')}</h2>
 					<div class="section-body">
-						<site-menu-manager></site-menu-manager>
+						<site-menu-manager ?advanced-mode=${this._settings.sectionAdvanced?.siteMenus}></site-menu-manager>
 					</div>
 				</div>
 

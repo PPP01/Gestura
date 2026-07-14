@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Výchozí nabídka — zobrazí se na všech webech bez odpovídající nabídky",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Otevírání odkazů",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standardní: levé tlačítko ve stejné kartě, pravé v nové kartě",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Vždy v nové kartě, hned vpravo",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Vždy v nové kartě, hned vlevo",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Vždy v nové kartě na konci",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Vždy v nové kartě na začátku",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Použít globální nastavení",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

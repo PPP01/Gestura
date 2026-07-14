@@ -268,6 +268,7 @@
 		] },
 		customMenuSwitcher: { enabled: false, position: 'header' },
 		customMenuTheme: 'auto',
+		menuOpenBehavior: 'standard',
 		searchEngines: { overrides: {}, hidden: [], custom: [], order: [] },
 		blacklist: [],
 		enableBlacklistContextMenu: false,

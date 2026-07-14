@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "默认菜单 — 在所有没有匹配菜单的网站上显示",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "打开链接",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "标准：左键在当前标签页打开，右键在新标签页打开",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "始终在新标签页中打开，紧邻右侧",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "始终在新标签页中打开，紧邻左侧",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "始终在新标签页中打开，位于末尾",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "始终在新标签页中打开，位于开头",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "使用全局设置",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

@@ -492,10 +492,12 @@ class FmContextMenu extends LitElement {
 		}
 	};
 
-	#selectItem(index) {
+	// button: 0 = links (bzw. Tastatur), 1 = Mitte, 2 = rechts — steuert beim
+	// Öffnungsverhalten 'standard' gleicher Tab vs. neuer Tab.
+	#selectItem(index, button = 0) {
 		if (this.preview) return;
 		if (Number.isFinite(index)) {
-			chrome.runtime.sendMessage({ action: 'ctxMenuSelect', menuId: this.#menuId, index });
+			chrome.runtime.sendMessage({ action: 'ctxMenuSelect', menuId: this.#menuId, index, button });
 		}
 	}
 
@@ -583,8 +585,9 @@ class FmContextMenu extends LitElement {
 							role="menuitem"
 							tabindex="-1"
 							data-index=${i}
-							@click=${() => this.#selectItem(i)}
-							@mouseup=${(e) => { if (e.buttons === 0 && (e.button === 0 || e.button === 2)) this.#selectItem(i); }}
+							@click=${() => this.#selectItem(i, 0)}
+							@mouseup=${(e) => { if (e.buttons === 0 && e.button <= 2) this.#selectItem(i, e.button); }}
+							@contextmenu=${(e) => e.preventDefault()}
 						>
 							<span class="fm-ctx-icon">
 								${item.iconName && globalThis.FlowMouseMenuIcons?.[item.iconName]

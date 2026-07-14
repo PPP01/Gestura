@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Varsayılan menü — eşleşen menüsü olmayan tüm sitelerde gösterilir",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Bağlantıları açma",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standart: sol tıklama aynı sekmede, sağ tıklama yeni sekmede",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Her zaman yeni sekmede, hemen sağda",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Her zaman yeni sekmede, hemen solda",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Her zaman yeni sekmede, en sonda",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Her zaman yeni sekmede, en başta",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Genel ayarı kullan",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

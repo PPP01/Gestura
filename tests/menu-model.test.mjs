@@ -244,6 +244,19 @@ describe('menu flags', () => {
 		sm = M.withoutCustomMenu(sm, 'm1');
 		expect(sm.flags).toEqual({});
 	});
+	it('withMenuFlag stores string values raw and removes the key for empty values', () => {
+		let sm = M.withMenuFlag(EMPTY, 'gh', 'openBehavior', 'right');
+		expect(sm.flags.gh.openBehavior).toBe('right');
+		sm = M.withMenuFlag(sm, 'gh', 'openBehavior', '');
+		expect(sm.flags.gh ? 'openBehavior' in sm.flags.gh : false).toBe(false);
+	});
+	it('resolveMenu exposes openBehavior: flag > def > "" (inherit); own menus use their def', () => {
+		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'standard', menuId: 'gh' }).openBehavior).toBe('');
+		const sm = M.withMenuFlag(EMPTY, 'gh', 'openBehavior', 'last');
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'standard', menuId: 'gh' }).openBehavior).toBe('last');
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'fork', menuId: 'gh', fork: M.emptyFork() }).openBehavior).toBe('last');
+		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'own', ownMenu: { name: 'P', openBehavior: 'first', items: [] } }).openBehavior).toBe('first');
+	});
 	it('withDefaultMenu sets/clears the exclusive default; deleting the menu clears it', () => {
 		let sm = M.withDefaultMenu(EMPTY, 'gh');
 		expect(sm.defaultMenuId).toBe('gh');

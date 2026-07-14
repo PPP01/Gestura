@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "डिफ़ॉल्ट मेनू — बिना मिलान वाले मेनू के सभी साइटों पर दिखाया जाता है",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "लिंक खोलना",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "मानक: बायां क्लिक उसी टैब में, दायां क्लिक नए टैब में",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "हमेशा नए टैब में, ठीक दाईं ओर",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "हमेशा नए टैब में, ठीक बाईं ओर",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "हमेशा नए टैब में, अंत में",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "हमेशा नए टैब में, शुरुआत में",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "वैश्विक सेटिंग का उपयोग करें",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

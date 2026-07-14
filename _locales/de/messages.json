@@ -2634,5 +2634,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Standard-Menü — wird auf allen nicht konfigurierten Websites angezeigt",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Links öffnen",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standard: Linksklick im selben Tab, Rechtsklick in neuem Tab",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Immer in neuem Tab, direkt rechts",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Immer in neuem Tab, direkt links",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Immer in neuem Tab am Ende",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Immer in neuem Tab am Anfang",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Globale Einstellung verwenden",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Alapértelmezett menü — minden olyan oldalon megjelenik, amelyhez nincs egyező menü",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Hivatkozások megnyitása",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Alapértelmezett: bal kattintás ugyanabban a lapon, jobb kattintás új lapon",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Mindig új lapon, közvetlenül jobbra",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Mindig új lapon, közvetlenül balra",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Mindig új lapon, a végén",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Mindig új lapon, az elején",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Globális beállítás használata",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

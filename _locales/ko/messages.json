@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "기본 메뉴 — 일치하는 메뉴가 없는 모든 사이트에서 표시됩니다",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "링크 열기",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "표준: 왼쪽 클릭은 같은 탭, 오른쪽 클릭은 새 탭",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "항상 새 탭에서, 바로 오른쪽",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "항상 새 탭에서, 바로 왼쪽",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "항상 새 탭에서, 맨 끝",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "항상 새 탭에서, 맨 앞",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "전역 설정 사용",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

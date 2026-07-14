@@ -1046,6 +1046,7 @@ async function handleAction(request, sender) {
 				action: 'ctxMenuSelect',
 				menuId: request.menuId,
 				index: request.index,
+				button: request.button || 0,
 			}, { frameId: session.frameId }).catch(() => {});
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };

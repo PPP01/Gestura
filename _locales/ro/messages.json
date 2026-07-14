@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Meniu implicit — afișat pe toate site-urile fără un meniu potrivit",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Deschiderea linkurilor",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standard: clic stânga în aceeași filă, clic dreapta în filă nouă",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Întotdeauna în filă nouă, imediat la dreapta",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Întotdeauna în filă nouă, imediat la stânga",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Întotdeauna în filă nouă la sfârșit",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Întotdeauna în filă nouă la început",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Folosește setarea globală",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

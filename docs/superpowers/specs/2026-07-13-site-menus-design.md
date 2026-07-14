@@ -290,7 +290,17 @@ maschinell übersetzt; `en` ist `default_locale`-Fallback).
    eines gesetzt ist), Stern + fetter Name in der Liste; beim Standard-Menü
    wird die Website-Muster-Sektion ausgeblendet. Der irreführende Hinweis
    „Leer = überall" (`menuPatternsHint`) wurde in allen Locales ersetzt.
-5. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
+5. **Öffnungsverhalten für Menü-Links (R5, „Erweitert"-gated):** globale
+   Einstellung `menuOpenBehavior` (Default `'standard'`: Linksklick öffnet im
+   selben Tab, Rechts-/Mittelklick in neuem Tab rechts daneben; Alternativen:
+   immer neuer Tab rechts/links/am Ende/am Anfang). Gilt für Link- und
+   Such-Einträge in allen Custom-Menus; die Maustaste wird vom Menü-iframe
+   über `ctxMenuSelect.button` durchgereicht. Pro Menü überschreibbar via
+   `siteMenus.flags[menuId].openBehavior` (Select im Editor). Beide UI-Teile
+   erscheinen nur bei aktiviertem „Erweitert"-Schalter der Sektion
+   (`sectionAdvanced.siteMenus`); `withMenuFlag` speichert seither auch
+   String-Werte ('' = erben).
+6. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
    werden in `siteMenus.flags[menuId]` gespeichert (Präzedenz: Flag → def →
    true), nicht mehr in der Menüdefinition — Umschalten erzeugt damit keine
    „Angepasst"-Kopie mehr. UI: Icon-Toggles direkt in der Menü-Zeile UND

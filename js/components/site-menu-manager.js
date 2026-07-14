@@ -15,6 +15,7 @@ class SiteMenuManager extends LitElement {
 
 	static properties = {
 		_expandedId: { state: true },
+		advancedMode: { type: Boolean, attribute: 'advanced-mode' },
 	};
 
 	static styles = [
@@ -82,13 +83,14 @@ class SiteMenuManager extends LitElement {
 	constructor() {
 		super();
 		this._expandedId = '';
+		this.advancedMode = false;
 		this._unsubscribe = null;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		this._unsubscribe = SettingsStore.onChange((changed) => {
-			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed) this.requestUpdate();
+			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed) this.requestUpdate();
 		});
 	}
 
@@ -164,7 +166,36 @@ class SiteMenuManager extends LitElement {
 						`)}
 					</div>
 				</div>
+				${this.#renderOpenBehavior(i18n)}
 				${this.#renderMenuAppend(i18n)}
+			</div>
+		`;
+	}
+
+	// Öffnungsverhalten für Links/Suchen in Menüs (nur bei „Erweitert").
+	// '' steht im Pro-Menü-Override für „globale Einstellung verwenden".
+	#behaviorOptions(i18n, withInherit) {
+		const opts = withInherit ? [['', i18n.getMessage('siteMenuOpenBehaviorInherit')]] : [];
+		return opts.concat([
+			['standard', i18n.getMessage('siteMenuOpenBehaviorStandard')],
+			['right', i18n.getMessage('siteMenuOpenBehaviorRight')],
+			['left', i18n.getMessage('siteMenuOpenBehaviorLeft')],
+			['last', i18n.getMessage('siteMenuOpenBehaviorLast')],
+			['first', i18n.getMessage('siteMenuOpenBehaviorFirst')],
+		]);
+	}
+
+	#renderOpenBehavior(i18n) {
+		if (!this.advancedMode) return '';
+		const value = SettingsStore.current.menuOpenBehavior || 'standard';
+		return html`
+			<div class="theme-row">
+				<span>${i18n.getMessage('siteMenuOpenBehaviorLabel')}</span>
+				<select @change=${(e) => { SettingsStore.save({ menuOpenBehavior: e.target.value }); this.requestUpdate(); }}>
+					${this.#behaviorOptions(i18n, false).map(([v, label]) => html`
+						<option value=${v} ?selected=${v === value}>${label}</option>
+					`)}
+				</select>
 			</div>
 		`;
 	}
@@ -296,7 +327,7 @@ class SiteMenuManager extends LitElement {
 		// Exklusiv: sobald ein Standard-Menü gesetzt ist, bieten andere Menüs den Schalter nicht an.
 		const defaultToggleVisible = !defaultMenuId || isDefault;
 		return html`
-			${switcherEnabled || this.menuAppend.enabled || defaultToggleVisible ? html`
+			${switcherEnabled || this.menuAppend.enabled || defaultToggleVisible || this.advancedMode ? html`
 				<div class="flag-fields">
 					${defaultToggleVisible ? html`
 						<label class="show-in-switcher">
@@ -318,6 +349,16 @@ class SiteMenuManager extends LitElement {
 								@change=${(e) => this.#saveSiteMenus(M().withMenuFlag(this.siteMenus, m.id, 'appendMini', e.target.checked))}>
 							<span>${i18n.getMessage('siteMenuAppendPerMenu')}</span>
 						</label>
+					` : ''}
+					${this.advancedMode ? html`
+						<div class="theme-row">
+							<span>${i18n.getMessage('siteMenuOpenBehaviorLabel')}</span>
+							<select @change=${(e) => this.#saveSiteMenus(M().withMenuFlag(this.siteMenus, m.id, 'openBehavior', e.target.value))}>
+								${this.#behaviorOptions(i18n, true).map(([v, label]) => html`
+									<option value=${v} ?selected=${v === (M().menuFlagRaw(this.siteMenus, m.id, def, 'openBehavior') || '')}>${label}</option>
+								`)}
+							</select>
+						</div>
 					` : ''}
 				</div>
 			` : ''}

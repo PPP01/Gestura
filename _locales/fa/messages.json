@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "منوی پیش‌فرض — در همه سایت‌های بدون منوی منطبق نمایش داده می‌شود",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "باز کردن پیوندها",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "استاندارد: کلیک چپ در همان برگه، کلیک راست در برگه جدید",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "همیشه در برگه جدید، دقیقاً سمت راست",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "همیشه در برگه جدید، دقیقاً سمت چپ",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "همیشه در برگه جدید در انتها",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "همیشه در برگه جدید در ابتدا",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "استفاده از تنظیم سراسری",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Меню по умолчанию — показывается на всех сайтах без подходящего меню",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Открытие ссылок",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Стандартно: левый клик — в той же вкладке, правый — в новой",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Всегда в новой вкладке, сразу справа",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Всегда в новой вкладке, сразу слева",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Всегда в новой вкладке в конце",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Всегда в новой вкладке в начале",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Использовать глобальную настройку",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

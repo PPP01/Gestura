@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Menu default — ditampilkan di semua situs tanpa menu yang cocok",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Membuka tautan",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standar: klik kiri di tab yang sama, klik kanan di tab baru",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Selalu di tab baru, tepat di kanan",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Selalu di tab baru, tepat di kiri",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Selalu di tab baru di akhir",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Selalu di tab baru di awal",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Gunakan pengaturan global",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

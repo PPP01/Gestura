@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "القائمة الافتراضية — تظهر في كل المواقع التي لا تملك قائمة مطابقة",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "فتح الروابط",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "قياسي: النقر الأيسر في نفس علامة التبويب، والنقر الأيمن في علامة تبويب جديدة",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "دائمًا في علامة تبويب جديدة، مباشرة إلى اليمين",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "دائمًا في علامة تبويب جديدة، مباشرة إلى اليسار",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "دائمًا في علامة تبويب جديدة في النهاية",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "دائمًا في علامة تبويب جديدة في البداية",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "استخدام الإعداد العام",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

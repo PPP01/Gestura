@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Προεπιλεγμένο μενού — εμφανίζεται σε όλους τους ιστότοπους χωρίς αντίστοιχο μενού",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Άνοιγμα συνδέσμων",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Τυπικό: αριστερό κλικ στην ίδια καρτέλα, δεξί κλικ σε νέα καρτέλα",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Πάντα σε νέα καρτέλα, ακριβώς δεξιά",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Πάντα σε νέα καρτέλα, ακριβώς αριστερά",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Πάντα σε νέα καρτέλα στο τέλος",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Πάντα σε νέα καρτέλα στην αρχή",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Χρήση καθολικής ρύθμισης",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

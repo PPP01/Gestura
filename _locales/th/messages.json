@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "เมนูเริ่มต้น — แสดงในทุกเว็บไซต์ที่ไม่มีเมนูที่ตรงกัน",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "การเปิดลิงก์",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "มาตรฐาน: คลิกซ้ายในแท็บเดิม คลิกขวาในแท็บใหม่",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "เปิดในแท็บใหม่เสมอ ถัดไปทางขวา",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "เปิดในแท็บใหม่เสมอ ถัดไปทางซ้าย",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "เปิดในแท็บใหม่เสมอ ที่ท้ายสุด",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "เปิดในแท็บใหม่เสมอ ที่ต้นสุด",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "ใช้การตั้งค่าส่วนกลาง",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

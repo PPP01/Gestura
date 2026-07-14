@@ -151,7 +151,7 @@
 		if (mode === 'own') {
 			const m = c.ownMenu;
 			if (!m) return null;
-			return { menuId: '', name: m.name || '', nameKey: '', items: (m.items || []).map(clone), domain: '', appendMini: m.appendMini !== false };
+			return { menuId: '', name: m.name || '', nameKey: '', items: (m.items || []).map(clone), domain: '', appendMini: m.appendMini !== false, openBehavior: m.openBehavior || '' };
 		}
 		let menuId = c.menuId;
 		if (mode === 'contextual') {
@@ -175,22 +175,34 @@
 		if (domain) {
 			items = items.map(it => it.customUrl ? { ...it, customUrl: applyDomain(it.customUrl, domain) } : it);
 		}
-		return { menuId: base.id, name, nameKey: base.nameKey || '', items, domain, appendMini: menuFlag(siteMenus, base.id, base, 'appendMini') };
+		return { menuId: base.id, name, nameKey: base.nameKey || '', items, domain,
+			appendMini: menuFlag(siteMenus, base.id, base, 'appendMini'),
+			openBehavior: menuFlagRaw(siteMenus, base.id, base, 'openBehavior') || '' };
 	}
 
-	// Leichtgewichtige Pro-Menü-Flags (showInSwitcher, appendMini) — getrennt von
-	// der Menüdefinition gespeichert, damit Umschalten keinen edited-Fork erzeugt.
-	// Präzedenz: flags[menuId][key] → def[key] (Alt-Daten) → true.
-	function menuFlag(siteMenus, menuId, def, key) {
+	// Leichtgewichtige Pro-Menü-Flags (showInSwitcher, appendMini, openBehavior) —
+	// getrennt von der Menüdefinition gespeichert, damit Umschalten keinen
+	// edited-Fork erzeugt. Präzedenz: flags[menuId][key] → def[key] (Alt-Daten).
+	function menuFlagRaw(siteMenus, menuId, def, key) {
 		const f = ((siteMenus || {}).flags || {})[menuId];
-		const v = (f && key in f) ? f[key] : (def || {})[key];
-		return v !== false;
+		return (f && key in f) ? f[key] : (def || {})[key];
 	}
 
+	// Boolean-Sicht (Default true) für showInSwitcher/appendMini.
+	function menuFlag(siteMenus, menuId, def, key) {
+		return menuFlagRaw(siteMenus, menuId, def, key) !== false;
+	}
+
+	// Speichert Booleans und Strings unverändert; ''/null entfernt den Eintrag
+	// (= erben vom def bzw. der globalen Einstellung).
 	function withMenuFlag(siteMenus, menuId, key, value) {
 		const sm = clone(siteMenus) || {};
 		sm.flags = { ...(sm.flags || {}) };
-		sm.flags[menuId] = { ...(sm.flags[menuId] || {}), [key]: !!value };
+		const cur = { ...(sm.flags[menuId] || {}) };
+		if (value === '' || value == null) delete cur[key];
+		else cur[key] = value;
+		if (Object.keys(cur).length) sm.flags[menuId] = cur;
+		else delete sm.flags[menuId];
 		return sm;
 	}
 
@@ -274,7 +286,7 @@
 		forkOverrideItem, forkDeleteItem, forkRestoreItem, forkAddItem, forkReorder,
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
-		menuFlag, withMenuFlag, withDefaultMenu,
+		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu,
 		addPatternToMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -606,7 +606,7 @@ class ContentContextMenu {
 			if (request.action === 'ctxMenuSelect') {
 				const item = this.#activeItems?.[request.index];
 				closeMenu();
-				if (item && typeof item.onClick === 'function') item.onClick();
+				if (item && typeof item.onClick === 'function') item.onClick(request.button || 0);
 			}
 
 			if (request.action === 'ctxMenuSwitch') {
@@ -3484,7 +3484,14 @@ window.ContentContextMenu = ContentContextMenu;
 						const gestureCfg = { ...(ACTION_DEFAULTS.customMenu || {}), ...mergedConfig };
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
-						const buildItems = (resolved) => resolved.items
+						const buildItems = (resolved) => {
+							// Öffnungsverhalten: Menü-Override → globale Einstellung.
+							// 'standard' = Linksklick im selben Tab, Rechts-/Mittelklick in neuem Tab rechts.
+							const behavior = resolved.openBehavior || SETTINGS.menuOpenBehavior || 'standard';
+							const linkPosition = (button) => behavior === 'standard'
+								? (button ? 'right' : 'current')
+								: behavior;
+							return resolved.items
 							.filter(it => it.type === 'separator' || (it.action && it.action !== 'none'))
 							.map(it => {
 								if (it.type === 'separator') return 'separator';
@@ -3495,9 +3502,13 @@ window.ContentContextMenu = ContentContextMenu;
 									label = chain?.name || msg(ACTION_KEYS[it.action]);
 								}
 								const entry = {
-									onClick: () => {
+									onClick: (button) => {
 										const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
 										if (it.action === 'searchLink') itemConfig.__selectionText = menuSelectionText;
+										if (it.action === 'searchLink' || it.action === 'openCustomUrl') {
+											itemConfig.position = linkPosition(button);
+											itemConfig.active = true;
+										}
 										executeAction(it.action, itemConfig, cursor, startTarget);
 									}
 								};
@@ -3521,6 +3532,7 @@ window.ContentContextMenu = ContentContextMenu;
 								}
 								return entry;
 							});
+						};
 
 						// Switcher zeigt aktive Standard-Menüs (Forks/eigene Menüs sind privat).
 						const buildSwitcher = (resolved) => {

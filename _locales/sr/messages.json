@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Подразумевани мени — приказује се на свим сајтовима без одговарајућег менија",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Отварање веза",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Стандардно: леви клик у истој картици, десни клик у новој картици",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Увек у новој картици, одмах десно",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Увек у новој картици, одмах лево",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Увек у новој картици на крају",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Увек у новој картици на почетку",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Користи глобално подешавање",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }

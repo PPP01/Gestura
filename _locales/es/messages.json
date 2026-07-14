@@ -2616,5 +2616,33 @@
 	"siteMenuDefaultToggle": {
 		"message": "Menú predeterminado — se muestra en todos los sitios sin un menú coincidente",
 		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Abrir enlaces",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Estándar: clic izquierdo en la misma pestaña, clic derecho en pestaña nueva",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Siempre en pestaña nueva, justo a la derecha",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Siempre en pestaña nueva, justo a la izquierda",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Siempre en pestaña nueva al final",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Siempre en pestaña nueva al principio",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Usar el ajuste global",
+		"description": "Per-menu open behavior: inherit the global setting"
 	}
 }
