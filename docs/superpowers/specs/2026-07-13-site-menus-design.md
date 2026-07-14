@@ -281,3 +281,10 @@ maschinell übersetzt; `en` ist `default_locale`-Fallback).
    Menüdefinition (Checkbox im Editor; Forks erben das Flag der Basis).
 3. **Shopping-Menü:** Katalog-Menü `shopping` mit Suchen Brave, Google,
    Amazon, eBay (Selektion wird übergeben).
+4. **Pro-Menü-Flags entkoppelt (R3):** `showInSwitcher` und `appendMini`
+   werden in `siteMenus.flags[menuId]` gespeichert (Präzedenz: Flag → def →
+   true), nicht mehr in der Menüdefinition — Umschalten erzeugt damit keine
+   „Angepasst"-Kopie mehr. UI: Icon-Toggles direkt in der Menü-Zeile UND
+   Checkboxen oben im aufgeklappten Editor; beide erscheinen nur, wenn das
+   jeweilige globale Feature (Switcher bzw. Quick-Search-Bar) aktiv ist.
+   Eigene Gesten-Menüs behalten `appendMini` in ihrer privaten Definition.

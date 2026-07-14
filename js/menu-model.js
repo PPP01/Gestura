@@ -171,7 +171,23 @@
 		if (domain) {
 			items = items.map(it => it.customUrl ? { ...it, customUrl: applyDomain(it.customUrl, domain) } : it);
 		}
-		return { menuId: base.id, name, nameKey: base.nameKey || '', items, domain, appendMini: base.appendMini !== false };
+		return { menuId: base.id, name, nameKey: base.nameKey || '', items, domain, appendMini: menuFlag(siteMenus, base.id, base, 'appendMini') };
+	}
+
+	// Leichtgewichtige Pro-Menü-Flags (showInSwitcher, appendMini) — getrennt von
+	// der Menüdefinition gespeichert, damit Umschalten keinen edited-Fork erzeugt.
+	// Präzedenz: flags[menuId][key] → def[key] (Alt-Daten) → true.
+	function menuFlag(siteMenus, menuId, def, key) {
+		const f = ((siteMenus || {}).flags || {})[menuId];
+		const v = (f && key in f) ? f[key] : (def || {})[key];
+		return v !== false;
+	}
+
+	function withMenuFlag(siteMenus, menuId, key, value) {
+		const sm = clone(siteMenus) || {};
+		sm.flags = { ...(sm.flags || {}) };
+		sm.flags[menuId] = { ...(sm.flags[menuId] || {}), [key]: !!value };
+		return sm;
 	}
 
 	// Hängt das globale Mini-Menü (menuAppend-Setting) unten an ein aufgelöstes
@@ -217,6 +233,7 @@
 		const sm = clone(siteMenus) || {};
 		if (sm.custom) delete sm.custom[menuId];
 		if (sm.edited) delete sm.edited[menuId];
+		if (sm.flags) delete sm.flags[menuId];
 		sm.disabled = (sm.disabled || []).filter(id => id !== menuId);
 		sm.order = (sm.order || []).filter(id => id !== menuId);
 		return sm;
@@ -244,6 +261,7 @@
 		forkOverrideItem, forkDeleteItem, forkRestoreItem, forkAddItem, forkReorder,
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
+		menuFlag, withMenuFlag,
 		addPatternToMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -3523,7 +3523,8 @@ window.ContentContextMenu = ContentContextMenu;
 							const active = window.FlowMouseMenuModel.listActiveMenus(
 								window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SETTINGS.siteMenus);
 							const menus = active
-								.filter(m => m.id !== resolved.menuId && m.def.showInSwitcher !== false)
+								.filter(m => m.id !== resolved.menuId
+									&& window.FlowMouseMenuModel.menuFlag(SETTINGS.siteMenus, m.id, m.def, 'showInSwitcher'))
 								.map(m => ({ id: m.id, name: m.def.name || (m.def.nameKey && msg(m.def.nameKey)) || msg('actionCustomMenu') }));
 							if (!menus.length) return null;
 							return {

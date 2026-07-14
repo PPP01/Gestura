@@ -13,7 +13,7 @@ beforeAll(async () => {
 
 describe("DEFAULT_SETTINGS", () => {
 	it("siteMenus defaults to empty diff structure", () => {
-		expect(DEFAULT_SETTINGS.siteMenus).toEqual({ disabled: [], edited: {}, custom: {}, domains: {}, order: [] });
+		expect(DEFAULT_SETTINGS.siteMenus).toEqual({ disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {} });
 	});
 	it("customMenus key is gone", () => {
 		expect(DEFAULT_SETTINGS).not.toHaveProperty("customMenus");

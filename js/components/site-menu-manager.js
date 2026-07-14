@@ -68,7 +68,12 @@ class SiteMenuManager extends LitElement {
 			}
 			.seg button.active { background: var(--accent-color, #2962ff); color: #fff; }
 			.theme-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-secondary); }
-			.show-in-switcher { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); margin-top: 10px; }
+			.show-in-switcher { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+			.flag-fields { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+			.menu-btn.flag { opacity: 0.4; }
+			.menu-btn.flag:hover { opacity: 0.75; color: var(--text-muted); }
+			.menu-btn.flag.on { opacity: 1; color: var(--accent-color); }
+			.menu-btn.flag.on:hover { color: var(--accent-color); }
 		`,
 	];
 
@@ -213,6 +218,27 @@ class SiteMenuManager extends LitElement {
 		`;
 	}
 
+	// Pro-Menü-Flags (Switcher-Sichtbarkeit, Quick-Search-Anhang) — nur sichtbar,
+	// wenn das jeweilige globale Feature aktiv ist. Umschalten forkt das Menü nicht.
+	#renderFlagToggles(m, i18n, size = 14) {
+		const switcherEnabled = !!(SettingsStore.current.customMenuSwitcher || {}).enabled;
+		const appendEnabled = !!this.menuAppend.enabled;
+		const toggle = (key, current, iconName, label) => html`
+			<button class="menu-btn flag ${current ? 'on' : ''}" .tooltip=${tooltip(label)}
+				@click=${(e) => { e.stopPropagation(); this.#saveSiteMenus(M().withMenuFlag(this.siteMenus, m.id, key, !current)); }}>
+				${unsafeHTML(icon(iconName, { size, strokeWidth: 2 }))}
+			</button>
+		`;
+		return html`
+			${switcherEnabled ? toggle('showInSwitcher',
+				M().menuFlag(this.siteMenus, m.id, m.def, 'showInSwitcher'),
+				'panelTop', i18n.getMessage('menuShowInSwitcher')) : ''}
+			${appendEnabled ? toggle('appendMini',
+				M().menuFlag(this.siteMenus, m.id, m.def, 'appendMini'),
+				'search', i18n.getMessage('siteMenuAppendPerMenu')) : ''}
+		`;
+	}
+
 	#renderMenuRow(m, i18n) {
 		const count = (m.def.items || []).filter(it => it.type !== 'separator').length;
 		const menuIcon = (window.FlowMouseMenuIcons || {})[m.def.icon] || '';
@@ -226,6 +252,7 @@ class SiteMenuManager extends LitElement {
 					${m.isEdited ? html`<span class="edited-badge">${i18n.getMessage('siteMenuEdited')}</span>` : ''}
 				</span>
 				<div class="menu-buttons">
+					${this.#renderFlagToggles(m, i18n)}
 					${m.isEdited ? html`
 						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('siteMenuReset'))}
 							@click=${() => this.#resetMenu(m)}>
@@ -257,7 +284,26 @@ class SiteMenuManager extends LitElement {
 		const def = m.def;
 		const rows = (def.items || []).map(item => ({ item, state: 'own' }));
 		const domainValue = (this.siteMenus.domains || {})[m.id] || def.domains?.default || '';
+		const switcherEnabled = !!(SettingsStore.current.customMenuSwitcher || {}).enabled;
 		return html`
+			${switcherEnabled || this.menuAppend.enabled ? html`
+				<div class="flag-fields">
+					${switcherEnabled ? html`
+						<label class="show-in-switcher">
+							<input type="checkbox" .checked=${M().menuFlag(this.siteMenus, m.id, def, 'showInSwitcher')}
+								@change=${(e) => this.#saveSiteMenus(M().withMenuFlag(this.siteMenus, m.id, 'showInSwitcher', e.target.checked))}>
+							<span>${i18n.getMessage('menuShowInSwitcher')}</span>
+						</label>
+					` : ''}
+					${this.menuAppend.enabled ? html`
+						<label class="show-in-switcher">
+							<input type="checkbox" .checked=${M().menuFlag(this.siteMenus, m.id, def, 'appendMini')}
+								@change=${(e) => this.#saveSiteMenus(M().withMenuFlag(this.siteMenus, m.id, 'appendMini', e.target.checked))}>
+							<span>${i18n.getMessage('siteMenuAppendPerMenu')}</span>
+						</label>
+					` : ''}
+				</div>
+			` : ''}
 			<site-menu-editor
 				.rows=${rows}
 				.name=${def.name || ''}
@@ -289,18 +335,6 @@ class SiteMenuManager extends LitElement {
 					d.items = e.detail.orderedIds.map(id => byId.get(id)).filter(Boolean);
 				})}
 			></site-menu-editor>
-			<label class="show-in-switcher">
-				<input type="checkbox" .checked=${def.showInSwitcher !== false}
-					@change=${(e) => this.#saveDef(m.id, d => { d.showInSwitcher = e.target.checked; })}>
-				<span>${i18n.getMessage('menuShowInSwitcher')}</span>
-			</label>
-			${this.menuAppend.enabled ? html`
-				<label class="show-in-switcher">
-					<input type="checkbox" .checked=${def.appendMini !== false}
-						@change=${(e) => this.#saveDef(m.id, d => { d.appendMini = e.target.checked; })}>
-					<span>${i18n.getMessage('siteMenuAppendPerMenu')}</span>
-				</label>
-			` : ''}
 		`;
 	}
 

@@ -213,6 +213,32 @@ describe('resolveMenu', () => {
 	});
 });
 
+describe('menu flags', () => {
+	it('withMenuFlag stores explicit booleans; menuFlag: flag wins over def, default true', () => {
+		let sm = M.withMenuFlag(EMPTY, 'gh', 'showInSwitcher', false);
+		expect(sm.flags.gh.showInSwitcher).toBe(false);
+		expect(M.menuFlag(sm, 'gh', {}, 'showInSwitcher')).toBe(false);
+		expect(M.menuFlag(EMPTY, 'gh', {}, 'showInSwitcher')).toBe(true);
+		// Flag true überstimmt ein def-seitiges false (Alt-Daten in edited-Kopien)
+		sm = M.withMenuFlag(sm, 'gh', 'showInSwitcher', true);
+		expect(M.menuFlag(sm, 'gh', { showInSwitcher: false }, 'showInSwitcher')).toBe(true);
+		// ohne Flag gilt das def
+		expect(M.menuFlag(EMPTY, 'gh', { showInSwitcher: false }, 'showInSwitcher')).toBe(false);
+		expect(EMPTY.flags).toBeUndefined(); // Eingabe unangetastet
+	});
+	it('resolveMenu appendMini respects flags over def (standard and fork)', () => {
+		const sm = M.withMenuFlag(EMPTY, 'gh', 'appendMini', false);
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'standard', menuId: 'gh' }).appendMini).toBe(false);
+		expect(M.resolveMenu(CATALOG, sm, { mode: 'fork', menuId: 'gh', fork: M.emptyFork() }).appendMini).toBe(false);
+		expect(M.resolveMenu(CATALOG, EMPTY, { mode: 'standard', menuId: 'gh' }).appendMini).toBe(true);
+	});
+	it('withoutCustomMenu drops the menu flags', () => {
+		let sm = M.withMenuFlag({ ...EMPTY, custom: { m1: { items: [] } } }, 'm1', 'appendMini', false);
+		sm = M.withoutCustomMenu(sm, 'm1');
+		expect(sm.flags).toEqual({});
+	});
+});
+
 describe('applyMenuAppend', () => {
 	const resolved = () => ({ menuId: 'gh', name: 'GitHub', appendMini: true,
 		items: [{ id: 'a', action: 'none' }] });

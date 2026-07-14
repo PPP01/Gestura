@@ -260,7 +260,7 @@
 		areaSelectWarnThreshold: 15,
 		areaSelectDelay: 0.3,
 		actionChains: {},
-		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [] },
+		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {} },
 		menuAppend: { enabled: false, items: [
 			{ id: 'append-brave', action: 'searchLink', engineId: 'brave' },
 			{ id: 'append-google', action: 'searchLink', engineId: 'google' },
