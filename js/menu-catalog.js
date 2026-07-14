@@ -60,6 +60,7 @@
 		] },
 		{ id: 'gmail', name: 'Gmail', icon: 'mail', patterns: ['*mail.google.com*'], items: [
 			{ id: 'gm-inbox', labelKey: 'siteMenuItemInbox', icon: 'inbox', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#inbox' },
+			{ id: 'gm-compose', labelKey: 'siteMenuItemCompose', icon: 'squarePen', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#inbox?compose=new' },
 			{ id: 'gm-starred', labelKey: 'siteMenuItemStarred', icon: 'star', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#starred' },
 			{ id: 'gm-sent', labelKey: 'siteMenuItemSent', icon: 'send', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#sent' },
 			{ id: 'gm-drafts', labelKey: 'siteMenuItemDrafts', icon: 'fileText', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#drafts' },
