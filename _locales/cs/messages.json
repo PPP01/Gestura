@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Gesta myší s chytrými nabídkami webů: jedno gesto otevře správnou nabídku pro každý web — GitHub, YouTube, Amazon a další.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Použít globální nastavení",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Nabídky webů: správná nabídka na každém webu",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

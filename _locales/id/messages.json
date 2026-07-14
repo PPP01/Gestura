@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Gestur mouse dengan menu situs pintar: satu gestur membuka menu yang tepat per situs — GitHub, YouTube, Amazon, dll. Privat.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Gunakan pengaturan global",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Menu situs web: menu yang tepat di setiap situs",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

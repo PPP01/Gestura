@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "스마트 웹사이트 메뉴를 갖춘 마우스 제스처: 제스처 하나로 사이트마다 알맞은 메뉴가 열립니다 — GitHub, YouTube, Amazon 등. 프라이빗.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "전역 설정 사용",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "웹사이트 메뉴: 모든 사이트에서 알맞은 메뉴",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

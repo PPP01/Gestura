@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "स्मार्ट वेबसाइट मेनू के साथ माउस जेस्चर: एक जेस्चर से हर साइट का सही मेनू — GitHub, YouTube, Amazon और अधिक। निजी।",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "वैश्विक सेटिंग का उपयोग करें",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "वेबसाइट मेनू: हर साइट पर सही मेनू",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

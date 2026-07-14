@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Geste mišem s pametnim izbornicima: jedna gesta otvara pravi izbornik po web-mjestu — GitHub, YouTube, Amazon i više.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Koristi globalnu postavku",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Izbornici web-mjesta: pravi izbornik na svakom mjestu",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

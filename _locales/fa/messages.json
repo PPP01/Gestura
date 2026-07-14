@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "اشاره‌های ماوس با منوهای هوشمند: یک اشاره منوی مناسب هر سایت را باز می‌کند — GitHub، YouTube، Amazon و بیشتر. خصوصی.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "استفاده از تنظیم سراسری",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "منوهای وب‌سایت: منوی مناسب در هر سایت",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

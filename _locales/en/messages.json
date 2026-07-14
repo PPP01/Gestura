@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Mouse gestures with smart website menus: one gesture opens the right menu per site — GitHub, YouTube, Amazon & more. Private.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2742,5 +2742,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Use global setting",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Website menus: the right menu on every site",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

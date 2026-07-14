@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Musebevægelser med smarte webstedsmenuer: én bevægelse åbner den rigtige menu pr. websted — GitHub, YouTube, Amazon m.fl.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Brug global indstilling",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Webstedsmenuer: den rigtige menu på alle websteder",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

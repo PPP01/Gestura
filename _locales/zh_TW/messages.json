@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "滑鼠手勢＋智慧網站選單：一個手勢即可為每個網站開啟合適的選單 — GitHub、YouTube、Amazon 等。注重隱私。",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "使用全域設定",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "網站選單：每個網站都有合適的選單",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

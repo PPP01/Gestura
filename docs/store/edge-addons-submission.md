@@ -95,7 +95,7 @@ beanstanden). Details zu jeder Berechtigung stehen in
 `permission-justifications.md`.
 
 ```text
-Gestura is a mouse-gesture navigation extension (mouse gestures, super drag, wheel/rocker gestures, area selection, and context-aware search menus). It is an open-source fork of FlowMouse, licensed GPL-3.0. Full source: https://github.com/PPP01/Gestura
+Gestura is a mouse-gesture navigation extension (mouse gestures with smart per-site website menus, super drag, wheel/rocker gestures, and area selection). It is an open-source fork of FlowMouse, licensed GPL-3.0. Full source: https://github.com/PPP01/Gestura
 
 No remote code. Nothing is ever downloaded or executed from the network; all logic ships inside the package (no remote scripts, no hosted config). The optional custom-JS-transform feature runs user-authored code only, inside an isolated chrome.offscreen sandbox with no access to the page or extension context, and only after the user explicitly enables and triggers it.
 

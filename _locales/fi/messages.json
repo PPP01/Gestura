@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Hiirieleet ja älykkäät sivustovalikot: yksi ele avaa oikean valikon joka sivustolle — GitHub, YouTube, Amazon ym. Yksityinen.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Käytä yleistä asetusta",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Sivustovalikot: oikea valikko joka sivustolla",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

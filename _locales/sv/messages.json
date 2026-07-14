@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Musgester med smarta webbplatsmenyer: en gest öppnar rätt meny per webbplats — GitHub, YouTube, Amazon m.fl. Privat.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Använd global inställning",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Webbplatsmenyer: rätt meny på varje webbplats",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

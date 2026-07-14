@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Browser per Mausgeste steuern: zeichnen, ziehen, scrollen - navigieren, suchen, Tabs verwalten. Anpassbar und datenschutzfreundlich.",
+		"message": "Mausgesten mit smarten Website-Menüs: Eine Geste öffnet je Site das passende Menü – GitHub, YouTube, Amazon u. v. m. Privat.",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2662,5 +2662,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "Globale Einstellung verwenden",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Website-Menüs: das passende Menü auf jeder Site",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

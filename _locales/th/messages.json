@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "เจสเจอร์เมาส์พร้อมเมนูเว็บไซต์อัจฉริยะ: เจสเจอร์เดียวเปิดเมนูที่ใช่ของแต่ละเว็บ — GitHub, YouTube, Amazon และอื่น ๆ",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -2644,5 +2644,9 @@
 	"siteMenuOpenBehaviorInherit": {
 		"message": "ใช้การตั้งค่าส่วนกลาง",
 		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "เมนูเว็บไซต์: เมนูที่ใช่ในทุกเว็บไซต์",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }
