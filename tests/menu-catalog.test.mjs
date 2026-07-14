@@ -11,11 +11,23 @@ const en = JSON.parse(readFileSync(new URL('../_locales/en/messages.json', impor
 const de = JSON.parse(readFileSync(new URL('../_locales/de/messages.json', import.meta.url), 'utf8'));
 
 describe('SITE_MENU_CATALOG', () => {
-	it('has the expected menus', () => {
+	it('has the expected menus (specific menus before broad ones: gmail/gmaps before google)', () => {
 		expect(SITE_MENU_CATALOG.map(m => m.id)).toEqual([
-			'search', 'github', 'm365', 'amazon', 'shopping', 'google', 'gmail', 'gmaps', 'youtube',
+			'search', 'github', 'm365', 'amazon', 'shopping', 'gmail', 'gmaps', 'google', 'youtube',
 			'facebook', 'instagram', 'x', 'reddit', 'linkedin', 'wikipedia',
 		]);
+	});
+	it('contextual resolution picks the specific menu on google subdomains', async () => {
+		await import('../js/menu-model.js');
+		await import('../js/search-url.js');
+		const M = globalThis.FlowMouseMenuModel;
+		const { matchesPatterns } = globalThis.FlowMouseSearchUrl;
+		const EMPTY = { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {} };
+		const resolve = (url) => M.resolveContextualMenuId(SITE_MENU_CATALOG, EMPTY, url, matchesPatterns);
+		expect(resolve('https://mail.google.com/mail/u/0/#inbox')).toBe('gmail');
+		expect(resolve('https://maps.google.com/')).toBe('gmaps');
+		expect(resolve('https://www.google.com/maps/place/x')).toBe('gmaps');
+		expect(resolve('https://www.google.com/search?q=x')).toBe('google');
 	});
 	it('menu ids and item ids are globally unique; every item has an id', () => {
 		const menuIds = new Set(); const itemIds = new Set();

@@ -58,17 +58,6 @@
 			{ id: 'shop-amazon', action: 'searchLink', engineId: 'amazon' },
 			{ id: 'shop-ebay', action: 'searchLink', engineId: 'ebay' },
 		] },
-		{ id: 'google', name: 'Google', icon: 'search', patterns: ['*google.com*', '*google.de*'], items: [
-			{ id: 'goo-home', labelKey: 'siteMenuItemSearch', icon: 'search', action: 'openCustomUrl', customUrl: 'https://www.google.com/' },
-			{ id: 'goo-images', labelKey: 'siteMenuItemImages', icon: 'image', action: 'openCustomUrl', customUrl: 'https://images.google.com/' },
-			{ id: 'goo-news', labelKey: 'siteMenuItemNews', icon: 'newspaper', action: 'openCustomUrl', customUrl: 'https://news.google.com/' },
-			{ id: 'goo-translate', labelKey: 'siteMenuItemTranslate', icon: 'globe', action: 'openCustomUrl', customUrl: 'https://translate.google.com/' },
-			{ id: 'goo-sep1', type: 'separator' },
-			{ id: 'goo-drive', customName: 'Drive', icon: 'hardDrive', action: 'openCustomUrl', customUrl: 'https://drive.google.com/' },
-			{ id: 'goo-photos', labelKey: 'siteMenuItemPhotos', icon: 'image', action: 'openCustomUrl', customUrl: 'https://photos.google.com/' },
-			{ id: 'goo-calendar', labelKey: 'siteMenuItemCalendar', icon: 'calendar', action: 'openCustomUrl', customUrl: 'https://calendar.google.com/' },
-			{ id: 'goo-contacts', labelKey: 'siteMenuItemContacts', icon: 'users', action: 'openCustomUrl', customUrl: 'https://contacts.google.com/' },
-		] },
 		{ id: 'gmail', name: 'Gmail', icon: 'mail', patterns: ['*mail.google.com*'], items: [
 			{ id: 'gm-inbox', labelKey: 'siteMenuItemInbox', icon: 'inbox', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#inbox' },
 			{ id: 'gm-starred', labelKey: 'siteMenuItemStarred', icon: 'star', action: 'openCustomUrl', customUrl: 'https://mail.google.com/mail/u/0/#starred' },
@@ -83,6 +72,19 @@
 			{ id: 'map-dir', labelKey: 'siteMenuItemDirections', icon: 'compass', action: 'openCustomUrl', customUrl: 'https://www.google.com/maps/dir/' },
 			{ id: 'map-timeline', labelKey: 'siteMenuItemTimeline', icon: 'history', action: 'openCustomUrl', customUrl: 'https://timeline.google.com/' },
 			{ id: 'map-contrib', labelKey: 'siteMenuItemContributions', icon: 'squarePen', action: 'openCustomUrl', customUrl: 'https://www.google.com/maps/contrib/' },
+		] },
+		// Nach Gmail/Maps einsortiert: '*google.com*' matcht auch deren Subdomains —
+		// die kontextabhängige Auflösung nimmt das erste aktive Menü in Katalogreihenfolge.
+		{ id: 'google', name: 'Google', icon: 'search', patterns: ['*google.com*', '*google.de*'], items: [
+			{ id: 'goo-home', labelKey: 'siteMenuItemSearch', icon: 'search', action: 'openCustomUrl', customUrl: 'https://www.google.com/' },
+			{ id: 'goo-images', labelKey: 'siteMenuItemImages', icon: 'image', action: 'openCustomUrl', customUrl: 'https://images.google.com/' },
+			{ id: 'goo-news', labelKey: 'siteMenuItemNews', icon: 'newspaper', action: 'openCustomUrl', customUrl: 'https://news.google.com/' },
+			{ id: 'goo-translate', labelKey: 'siteMenuItemTranslate', icon: 'globe', action: 'openCustomUrl', customUrl: 'https://translate.google.com/' },
+			{ id: 'goo-sep1', type: 'separator' },
+			{ id: 'goo-drive', customName: 'Drive', icon: 'hardDrive', action: 'openCustomUrl', customUrl: 'https://drive.google.com/' },
+			{ id: 'goo-photos', labelKey: 'siteMenuItemPhotos', icon: 'image', action: 'openCustomUrl', customUrl: 'https://photos.google.com/' },
+			{ id: 'goo-calendar', labelKey: 'siteMenuItemCalendar', icon: 'calendar', action: 'openCustomUrl', customUrl: 'https://calendar.google.com/' },
+			{ id: 'goo-contacts', labelKey: 'siteMenuItemContacts', icon: 'users', action: 'openCustomUrl', customUrl: 'https://contacts.google.com/' },
 		] },
 		{ id: 'youtube', name: 'YouTube', icon: 'play', patterns: ['*youtube.com*'], items: [
 			{ id: 'yt-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: 'https://www.youtube.com/' },
