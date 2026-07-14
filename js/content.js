@@ -2174,6 +2174,12 @@ window.ContentContextMenu = ContentContextMenu;
 					...structuredClone(DEFAULT_SETTINGS.specialGestures || {}),
 					...(SETTINGS.specialGestures || {}),
 				};
+				// Gespeicherte siteMenus aus älteren Ständen kennen neue Felder
+				// (flags, defaultMenuId) nicht — Defaults untermischen.
+				SETTINGS.siteMenus = {
+					...structuredClone(DEFAULT_SETTINGS.siteMenus || {}),
+					...(SETTINGS.siteMenus || {}),
+				};
 
 				await window.ContentI18n.loadLanguage(SETTINGS.language);
 

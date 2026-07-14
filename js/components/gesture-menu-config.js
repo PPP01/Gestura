@@ -61,11 +61,10 @@ class GestureMenuConfig extends LitElement {
 		return M().listActiveMenus(CATALOG(), SettingsStore.current.siteMenus);
 	}
 
-	#menuSelect(value, onChange, emptyLabel) {
+	#menuSelect(value, onChange) {
 		const menus = this.#activeMenus();
 		return html`
 			<select @change=${(e) => onChange(e.target.value)}>
-				${emptyLabel !== undefined ? html`<option value="" ?selected=${!value}>${emptyLabel}</option>` : ''}
 				${menus.map(m => html`
 					<option value=${m.id} ?selected=${m.id === value}>${menuDisplayName(m.def)}</option>
 				`)}

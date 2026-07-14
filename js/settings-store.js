@@ -60,6 +60,12 @@ export const SettingsStore = {
 					...structuredClone(DEFAULT_SETTINGS.specialGestures || {}),
 					...(this._current.specialGestures || {}),
 				};
+				// Gespeicherte siteMenus aus älteren Ständen kennen neue Felder
+				// (flags, defaultMenuId) nicht — Defaults untermischen.
+				this._current.siteMenus = {
+					...structuredClone(DEFAULT_SETTINGS.siteMenus || {}),
+					...(this._current.siteMenus || {}),
+				};
 
 				this._current.mouseGestures = reorderMouseGestures(this._current.mouseGestures);
 
