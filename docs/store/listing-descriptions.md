@@ -11,13 +11,12 @@ Keep the FlowMouse attribution — it is both a courtesy and a GPL requirement.
 Gestura – Mouse Gestures
 
 ### Short description (Edge/AMO, ≤ 250 chars)
-Mouse gestures with smart, editable website menus: one gesture opens the right
-menu per site — GitHub, YouTube, Amazon & more. 100% private, no tracking,
-fully open source.
+Mouse gestures make your life easier — including smart menus made for GitHub,
+YouTube, Amazon & co. Fast & 100% private, no tracking, fully open source!
 
 ### Short description Chrome Web Store (≤ 132 chars)
-Mouse gestures with smart website menus: one gesture opens the right menu per
-site — GitHub, YouTube, Amazon & more. Private.
+Mouse gestures make your life easier — with smart menus made for GitHub,
+YouTube, Amazon & co. Fast & 100% private!
 
 ### Detailed description
 Gestura makes browsing faster with smooth, customizable mouse gestures — no data
@@ -64,12 +63,13 @@ Source: https://github.com/PPP01/Gestura
 Gestura – Mausgesten
 
 ### Kurzbeschreibung (Edge/AMO, ≤ 250 Zeichen)
-Mausgesten mit smarten, editierbaren Website-Menüs: Eine Geste öffnet je Site das passende
-Menü – GitHub, YouTube, Amazon u. v. m. 100 % Privat, kein Tracking, vollständig Open Source.
+Mausgesten machen dein Leben leichter – u. a. mit smarten Menüs passend für
+GitHub, YouTube, Amazon & Co. Schnell & 100 % Privat, kein Tracking,
+vollständig Open Source!
 
 ### Kurzbeschreibung Chrome Web Store (≤ 132 Zeichen)
-Mausgesten mit smarten Website-Menüs: Eine Geste öffnet je Site das passende
-Menü – GitHub, YouTube, Amazon u. v. m. Privat.
+Mausgesten machen dein Leben leichter – u. a. mit smarten Menüs passend für
+GitHub, YouTube, Amazon & Co. Schnell & 100% privat!
 
 ### Ausführliche Beschreibung
 Gestura macht das Surfen schneller – mit flüssigen, anpassbaren Mausgesten. Keine
