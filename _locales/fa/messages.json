@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "اشاره‌های ماوس زندگی را آسان‌تر می‌کنند — با منوهای هوشمند برای GitHub، YouTube، Amazon و غیره. سریع و ۱۰۰٪ خصوصی!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "اولین منویی را باز می‌کند که الگوهای سایتش با صفحه جاری مطابقت دارند؛ الگوها را در هر منو تنظیم کنید."
 	},
 	"customMenuContextualLabel": {
-		"message": "منوی پویا"
+		"message": "منوی وب‌سایت (وابسته به زمینه)"
 	},
 	"addMenu": {
 		"message": "افزودن منو",
@@ -1768,7 +1768,7 @@
 		"message": "نمایش در این سایت‌ها"
 	},
 	"menuPatternsHint": {
-		"message": "خالی = همه جا (منوی پیش‌فرض). یک دامنه مانند github.com اضافه کنید."
+		"message": "دامنه‌ای مانند github.com اضافه کنید."
 	},
 	"menuPatternsAdd": {
 		"message": "افزودن سایت"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "یک بدنهٔ تابع بنویسید. متغیرهای selection (متن انتخاب‌شده) و clipboard در دسترس هستند؛ رشته‌ای را که جایگزین %s می‌شود بازگردانید. در یک محیط ایزوله با مهلت ~1s اجرا می‌شود — بدون دسترسی به صفحه یا افزونه.",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "منوی اختصاصی",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "منبع منو",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "منوی استاندارد",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "منوی استاندارد، شخصی‌سازی‌شده",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "منوی اختصاصی (فقط برای این حرکت)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "بر اساس وب‌سایت (وابسته به زمینه)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "اگر هیچ وب‌سایتی مطابقت نداشت",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "کاری انجام نده",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "تغییرات این منو در همه‌جایی که استفاده می‌شود اعمال می‌شود.",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "مدیریت منوهای وب‌سایت",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "تغییر منوی پایه باعث از بین رفتن سفارشی‌سازی‌های شما می‌شود. ادامه می‌دهید؟",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "منوهای وب‌سایت",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "منوهای از پیش تعریف‌شده و کاملاً قابل ویرایش برای وب‌سایت‌های محبوب. حرکت‌ها می‌توانند آن‌ها را مستقیم، بر اساس آدرس (وابسته به زمینه)، یا به‌صورت نسخه‌ای سفارشی باز کنند.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "افزودن منوی سفارشی",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "سفارشی‌شده",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "بازنشانی به حالت پیش‌فرض",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "«%name%» به حالت پیش‌فرض بازنشانی شود؟ تغییرات شما در این منو از بین می‌رود.",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "کشور / دامنه",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "استاندارد",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "تغییریافته",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "اختصاصی",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "بازنشانی به استاندارد",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "موارد پنهان (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "بازیابی",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "خانه",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "اعلان‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "پیام‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "تاریخچه",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "ذخیره‌شده‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "نشانک‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "کاوش",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "پرطرفدار",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "جستجو",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "پروفایل",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "نوشتن",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "تنظیمات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "تقویم",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "مسائل",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "درخواست‌های Pull",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "مخزن جدید",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "سبد خرید",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "سفارش‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "لیست علاقه‌مندی‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "اشتراک و صرفه‌جویی",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "بازگشت کالا",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "پیشنهادها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "خدمات مشتریان",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "حساب کاربری",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "تصاویر",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "اخبار",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "ترجمه",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "عکس‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "مخاطبین",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "صندوق ورودی",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "ستاره‌دار",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "ارسال‌شده",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "پیش‌نویس‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "هرزنامه",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "زباله‌دان",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "مسیرها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "جدول زمانی شما",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "مشارکت‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "اشتراک‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "تماشا در آینده",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "لیست‌های پخش",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "دوستان",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "گروه‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "ویدیوها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "شبکه من",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "مشاغل",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "یک مقالهٔ تصادفی",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "فهرست پی‌گیری‌ها",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "تغییرات اخیر",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "نماد",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "جستجوی نمادها…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "نماد وب‌سایت",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "بدون نماد",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "جستجو",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "خرید",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "افزودن نوار جستجوی سریع به همه منوها",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "موارد زیر پس از یک جداکننده به انتهای هر منوی سفارشی افزوده می‌شوند. انتخاب فعلی به جستجوها منتقل می‌شود.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "افزودن نوار جستجوی سریع به این منو",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "منوی پیش‌فرض — در همه سایت‌های بدون منوی منطبق نمایش داده می‌شود",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "باز کردن پیوندها",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "استاندارد: کلیک چپ در همان برگه، کلیک راست در برگه جدید",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "همیشه در برگه جدید، دقیقاً سمت راست",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "همیشه در برگه جدید، دقیقاً سمت چپ",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "همیشه در برگه جدید در انتها",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "همیشه در برگه جدید در ابتدا",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "استفاده از تنظیم سراسری",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "منوهای وب‌سایت: منوی مناسب در هر سایت",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "نمایش سربرگ/پابرگ با جابه‌جاکننده منو",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "نواری به منو اضافه می‌کند؛ با کلیک روی آن بین منوها جابه‌جا شوید.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "سربرگ",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "پابرگ",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "نمایش در انتخاب منو",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "ظاهر",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "خودکار",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "روشن",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "تیره",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

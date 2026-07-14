@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Mouse gestures make your life easier — with smart menus made for GitHub, YouTube, Amazon & co. Fast & 100% private!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -458,6 +458,10 @@
 	"delete": {
 		"message": "Delete",
 		"description": "Generic delete button tooltip"
+	},
+	"edit": {
+		"message": "Edit",
+		"description": "Generic edit button tooltip"
 	},
 	"autoSaved": {
 		"message": "Auto-saved",
@@ -1716,7 +1720,7 @@
 		"description": "Search link action name — opens a configured search link with the selected text"
 	},
 	"customMenuDesc": {
-		"message": "Create custom popup menus with multiple actions.",
+		"message": "Opens a configurable menu at the gesture position.",
 		"description": "Custom menu section description"
 	},
 	"customMenuContextual": {
@@ -1728,8 +1732,92 @@
 		"description": "Hint shown below the contextual checkbox when it is checked"
 	},
 	"customMenuContextualLabel": {
-		"message": "Dynamic menu",
+		"message": "Website menu (contextual)",
 		"description": "Gesture-overview label shown for a custom-menu action in contextual mode (menu chosen by current site instead of a fixed menu)"
+	},
+	"customMenuOwnLabel": {
+		"message": "Own menu",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "Menu source",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "Standard menu",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "Standard menu, customized",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "Own menu (this gesture only)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "By website (contextual)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "If no site matches",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "Do nothing",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "Changes to this menu apply everywhere it is used.",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "Manage website menus",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "Changing the base menu discards your customizations. Continue?",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"menuSwitcherEnable": {
+		"message": "Show header/footer with menu switcher",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Adds a bar to the custom menu. Click it to switch between menus on the fly.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Header",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Footer",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Show in menu selection",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuSyncSaveError": {
+		"message": "Saving failed — the menu data exceeds the sync storage limit. Undo your last change or reset a menu.",
+		"description": "Alert shown when saving site-menu edits fails because chrome.storage.sync rejected the write (e.g. per-item quota exceeded)"
+	},
+	"menuThemeTitle": {
+		"message": "Appearance",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Auto",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Light",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Dark",
+		"description": "Appearance option — always show the menu in dark mode"
 	},
 	"addMenu": {
 		"message": "Add Menu",
@@ -1767,6 +1855,30 @@
 		"message": "Delete menu \"%name%\"?",
 		"description": "Delete menu confirmation"
 	},
+	"siteMenusTitle": {
+		"message": "Website menus",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "Predefined, fully editable menus for popular sites. Gestures can open them directly, contextually by URL, or as a customized copy.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "Add custom menu",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "Customized",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "Reset to default",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "Reset \"%name%\" to its default? Your changes to this menu will be lost.",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
 	"menuItemNumber": {
 		"message": "Item %n%",
 		"description": "Menu item number label"
@@ -1776,7 +1888,7 @@
 		"description": "Label for the per-menu site-pattern editor"
 	},
 	"menuPatternsHint": {
-		"message": "Empty = everywhere (default menu). Add a domain like github.com.",
+		"message": "Add a domain like github.com.",
 		"description": "Hint below the site-pattern chip editor"
 	},
 	"menuPatternsAdd": {
@@ -1786,6 +1898,34 @@
 	"menuPatternsPlaceholder": {
 		"message": "e.g. github.com",
 		"description": "Placeholder for the site-pattern input"
+	},
+	"siteMenuDomainLabel": {
+		"message": "Country / domain",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "Standard",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "Modified",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "Own",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "Reset to standard",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "Hidden entries (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "Restore",
+		"description": "Button to restore a hidden default menu item"
 	},
 	"addChain": {
 		"message": "Add Chain",
@@ -2338,5 +2478,273 @@
 	"transformFailed": {
 		"message": "Transform failed: %error%",
 		"description": "Toast shown when a search-link transform script fails; %error% is replaced with the error message"
+	},
+	"siteMenuItemHome": {
+		"message": "Home",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "Notifications",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "Messages",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "History",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "Saved",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "Bookmarks",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "Explore",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "Trending",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "Search",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "Profile",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "Compose",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "Settings",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "Calendar",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "Issues",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "Pull requests",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "New repository",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "Cart",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "Orders",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "Wish list",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "Subscribe & Save",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "Returns",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "Deals",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "Customer service",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "Account",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "Images",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "News",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "Translate",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "Photos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "Contacts",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "Inbox",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "Starred",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "Sent",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "Drafts",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "Spam",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "Trash",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "Directions",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "Your timeline",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "Contributions",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "Subscriptions",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "Watch later",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "Playlists",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "Friends",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "Groups",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "Videos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "My network",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "Jobs",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "Random article",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "Watchlist",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "Recent changes",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "Icon",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "Search icons…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "Favicon",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "No icon",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Search",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Shopping",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Append quick-search bar to every menu",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "The entries below are appended to the bottom of every custom menu, after a separator. The current selection is passed to searches.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Append quick-search bar to this menu",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Default menu — shown on all sites without a matching menu",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Open links",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Standard: left-click in same tab, right-click in new tab",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Always in a new tab, directly right",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Always in a new tab, directly left",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Always in a new tab at the end",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Always in a new tab at the start",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Use global setting",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Website menus: the right menu on every site",
+		"description": "About-page feature bullet: per-site website menus"
 	}
 }

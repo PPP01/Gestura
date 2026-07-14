@@ -215,6 +215,7 @@ class AboutPage extends LitElement {
 
 		const features = [
 			{ icon: 'mouseRight',   key: 'aboutFeature1' },
+			{ icon: 'layoutList',   key: 'aboutFeature7' },
 			{ icon: 'lineSquiggle', key: 'aboutFeature2' },
 			{ icon: 'search',       key: 'aboutFeature3' },
 			{ icon: 'ban',          key: 'aboutFeature4' },

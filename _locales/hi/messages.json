@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "माउस जेस्चर जीवन आसान बनाते हैं — GitHub, YouTube, Amazon आदि के लिए स्मार्ट मेनू के साथ। तेज़ और 100% निजी!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "पहला मेनू खोलता है जिसके साइट पैटर्न वर्तमान पृष्ठ से मेल खाते हैं; प्रत्येक मेनू में पैटर्न कॉन्फ़िगर करें।"
 	},
 	"customMenuContextualLabel": {
-		"message": "गतिशील मेनू"
+		"message": "वेबसाइट मेनू (प्रासंगिक)"
 	},
 	"addMenu": {
 		"message": "मेनू जोड़ें",
@@ -1768,7 +1768,7 @@
 		"message": "इन साइटों पर दिखाएं"
 	},
 	"menuPatternsHint": {
-		"message": "खाली = हर जगह (डिफ़ॉल्ट मेनू)। github.com जैसा कोई डोमेन जोड़ें।"
+		"message": "github.com जैसा डोमेन जोड़ें।"
 	},
 	"menuPatternsAdd": {
 		"message": "साइट जोड़ें"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "एक फ़ंक्शन बॉडी लिखें। चर selection (चयनित टेक्स्ट) और clipboard उपलब्ध हैं; वह स्ट्रिंग लौटाएं जो %s की जगह लेती है। ~1s टाइमआउट के साथ एक पृथक सैंडबॉक्स में चलती है — पृष्ठ या एक्सटेंशन तक कोई पहुंच नहीं।",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "अपना मेनू",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "मेनू स्रोत",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "मानक मेनू",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "मानक मेनू, अनुकूलित",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "अपना मेनू (केवल यह जेस्चर)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "वेबसाइट के अनुसार (प्रासंगिक)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "यदि कोई साइट मेल न खाए",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "कुछ न करें",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "इस मेनू में किए गए बदलाव हर जगह लागू होंगे जहां इसका उपयोग होता है।",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "वेबसाइट मेनू प्रबंधित करें",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "बेस मेनू बदलने से आपके अनुकूलन हट जाएंगे। जारी रखें?",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "वेबसाइट मेनू",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "लोकप्रिय साइटों के लिए पूर्वनिर्धारित, पूरी तरह संपादन योग्य मेनू। जेस्चर इन्हें सीधे, URL के अनुसार प्रासंगिक रूप से, या अनुकूलित प्रतिलिपि के रूप में खोल सकते हैं।",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "कस्टम मेनू जोड़ें",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "अनुकूलित",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "डिफ़ॉल्ट पर रीसेट करें",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "\"%name%\" को उसके डिफ़ॉल्ट पर रीसेट करें? इस मेनू में किए गए आपके बदलाव खो जाएंगे।",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "देश / डोमेन",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "मानक",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "संशोधित",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "अपना",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "मानक पर रीसेट करें",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "छिपी हुई प्रविष्टियां (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "पुनर्स्थापित करें",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "होम",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "सूचनाएं",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "संदेश",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "इतिहास",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "सहेजे गए",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "बुकमार्क",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "एक्सप्लोर करें",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "ट्रेंडिंग",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "खोजें",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "प्रोफ़ाइल",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "लिखें",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "सेटिंग्स",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "कैलेंडर",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "Issues",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "Pull requests",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "नया रिपॉज़िटरी",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "कार्ट",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "ऑर्डर",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "विशलिस्ट",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "Subscribe & Save",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "रिटर्न",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "डील्स",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "ग्राहक सेवा",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "खाता",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "छवियां",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "समाचार",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "अनुवाद करें",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "फ़ोटो",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "संपर्क",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "इनबॉक्स",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "स्टार किए गए",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "भेजा गया मेल",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "ड्राफ़्ट",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "स्पैम",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "ट्रैश",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "दिशा-निर्देश",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "आपकी टाइमलाइन",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "योगदान",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "सदस्यताएं",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "बाद में देखें",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "प्लेलिस्ट",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "मित्र",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "समूह",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "वीडियो",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "मेरा नेटवर्क",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "नौकरियां",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "यादृच्छिक लेख",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "निगरानी सूची",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "हाल में हुए बदलाव",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "आइकन",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "आइकन खोजें…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "फ़ेविकॉन",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "कोई आइकन नहीं",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "खोज",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "शॉपिंग",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "हर मेनू में त्वरित-खोज बार जोड़ें",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "नीचे दी गई प्रविष्टियां हर कस्टम मेनू के नीचे एक विभाजक के बाद जोड़ी जाती हैं। वर्तमान चयन खोजों को भेजा जाता है।",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "इस मेनू में त्वरित-खोज बार जोड़ें",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "डिफ़ॉल्ट मेनू — बिना मिलान वाले मेनू के सभी साइटों पर दिखाया जाता है",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "लिंक खोलना",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "मानक: बायां क्लिक उसी टैब में, दायां क्लिक नए टैब में",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "हमेशा नए टैब में, ठीक दाईं ओर",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "हमेशा नए टैब में, ठीक बाईं ओर",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "हमेशा नए टैब में, अंत में",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "हमेशा नए टैब में, शुरुआत में",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "वैश्विक सेटिंग का उपयोग करें",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "वेबसाइट मेनू: हर साइट पर सही मेनू",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "मेनू स्विचर के साथ हेडर/फुटर दिखाएं",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "मेनू में एक बार जोड़ता है; उस पर क्लिक करके तुरंत मेनू बदलें।",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "हेडर",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "फुटर",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "मेनू चयन में दिखाएं",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "दिखावट",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "स्वचालित",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "हल्का",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "गहरा",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

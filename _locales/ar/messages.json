@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "إيماءات الفأرة تجعل حياتك أسهل — مع قوائم ذكية لـ GitHub وYouTube وAmazon وغيرها. سريعة وخاصة 100%!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "يفتح أول قائمة تطابق أنماط موقعها الصفحةَ الحالية؛ قم بتكوين الأنماط في كل قائمة."
 	},
 	"customMenuContextualLabel": {
-		"message": "قائمة ديناميكية"
+		"message": "قائمة الموقع (حسب السياق)"
 	},
 	"addMenu": {
 		"message": "إضافة قائمة",
@@ -1768,7 +1768,7 @@
 		"message": "عرض على هذه المواقع"
 	},
 	"menuPatternsHint": {
-		"message": "فارغ = في كل مكان (القائمة الافتراضية). أضف نطاقًا مثل github.com."
+		"message": "أضف نطاقًا مثل github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "إضافة موقع"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "اكتب جسم دالة. المتغيران selection (النص المحدد) و clipboard متاحان؛ أعِد السلسلة النصية التي تحل محل %s. يعمل في بيئة معزولة مع مهلة ~1s — بدون وصول إلى الصفحة أو الإضافة.",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "قائمة خاصة",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "مصدر القائمة",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "القائمة القياسية",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "القائمة القياسية، معدلة",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "قائمة خاصة (لهذه الإيماءة فقط)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "حسب الموقع (حسب السياق)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "إذا لم يتطابق أي موقع",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "لا تفعل شيئًا",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "تنطبق التغييرات على هذه القائمة في كل مكان تُستخدم فيه.",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "إدارة قوائم المواقع",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "سيؤدي تغيير القائمة الأساسية إلى فقدان تخصيصاتك. هل تريد المتابعة؟",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "قوائم المواقع",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "قوائم مُعدة مسبقًا وقابلة للتعديل الكامل لمواقع شائعة. يمكن للإيماءات فتحها مباشرة، أو حسب السياق وفق الرابط، أو كنسخة مخصصة.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "إضافة قائمة مخصصة",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "مخصص",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "إعادة الضبط إلى الافتراضي",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "هل تريد إعادة ضبط \"%name%\" إلى الوضع الافتراضي؟ ستفقد تغييراتك على هذه القائمة.",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "الدولة / النطاق",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "قياسي",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "معدل",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "خاص",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "إعادة الضبط إلى القياسي",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "عناصر مخفية (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "استعادة",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "الرئيسية",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "الإشعارات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "الرسائل",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "السجل",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "المحفوظات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "الإشارات المرجعية",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "استكشاف",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "الرائج",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "البحث",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "الملف الشخصي",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "إنشاء",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "الإعدادات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "التقويم",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "المشكلات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "طلبات السحب",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "مستودع جديد",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "عربة التسوق",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "الطلبات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "قائمة الأمنيات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "الاشتراك والتوفير",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "الإرجاعات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "العروض",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "خدمة العملاء",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "الحساب",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "الصور",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "الأخبار",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "الترجمة",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "الصور",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "جهات الاتصال",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "البريد الوارد",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "المميز بنجمة",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "المرسلة",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "المسودات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "غير مرغوب فيه",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "المهملات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "الاتجاهات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "الخط الزمني الخاص بك",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "المساهمات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "الاشتراكات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "مشاهدة لاحقًا",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "قوائم التشغيل",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "الأصدقاء",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "المجموعات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "الفيديوهات",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "شبكتي",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "الوظائف",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "مقالة عشوائية",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "قائمة المراقبة",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "التغييرات الأخيرة",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "الأيقونة",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "البحث عن أيقونات…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "أيقونة الموقع",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "بدون أيقونة",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "البحث",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "التسوق",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "إلحاق شريط البحث السريع بكل قائمة",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "تُضاف الإدخالات أدناه إلى أسفل كل قائمة مخصصة بعد فاصل. ويتم تمرير التحديد الحالي إلى عمليات البحث.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "إلحاق شريط البحث السريع بهذه القائمة",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "القائمة الافتراضية — تظهر في كل المواقع التي لا تملك قائمة مطابقة",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "فتح الروابط",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "قياسي: النقر الأيسر في نفس علامة التبويب، والنقر الأيمن في علامة تبويب جديدة",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "دائمًا في علامة تبويب جديدة، مباشرة إلى اليمين",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "دائمًا في علامة تبويب جديدة، مباشرة إلى اليسار",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "دائمًا في علامة تبويب جديدة في النهاية",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "دائمًا في علامة تبويب جديدة في البداية",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "استخدام الإعداد العام",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "قوائم المواقع: القائمة المناسبة في كل موقع",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "إظهار رأس/تذييل مع مبدّل القوائم",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "يضيف شريطًا إلى القائمة؛ انقر عليه للتبديل بين القوائم فورًا.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "رأس",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "تذييل",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "إظهار في اختيار القوائم",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "المظهر",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "تلقائي",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "فاتح",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "داكن",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

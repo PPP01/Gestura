@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Gestos de rato facilitam a sua vida — com menus inteligentes para GitHub, YouTube, Amazon e companhia. Rápido e 100% privado!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "Abre o primeiro menu cujos padrões de site correspondem à página atual; configure os padrões em cada menu."
 	},
 	"customMenuContextualLabel": {
-		"message": "Menu dinâmico"
+		"message": "Menu do site (contextual)"
 	},
 	"addMenu": {
 		"message": "Adicionar menu",
@@ -1768,7 +1768,7 @@
 		"message": "Mostrar nestes sites"
 	},
 	"menuPatternsHint": {
-		"message": "Vazio = em qualquer lugar (menu predefinido). Adicione um domínio como github.com."
+		"message": "Adicione um domínio como github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Adicionar site"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "Escreva o corpo de uma função. As variáveis selection (o texto selecionado) e clipboard estão disponíveis; devolva a string que substitui %s. É executada numa caixa de areia isolada com um timeout de ~1s — sem acesso à página ou à extensão.",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "Menu próprio",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "Origem do menu",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "Menu predefinido",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "Menu predefinido, personalizado",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "Menu próprio (apenas este gesto)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "Por site (contextual)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "Se nenhum site corresponder",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "Não fazer nada",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "As alterações a este menu aplicam-se em todos os locais onde é utilizado.",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "Gerir menus de sites",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "Alterar o menu base elimina as suas personalizações. Continuar?",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "Menus de sites",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "Menus predefinidos e totalmente editáveis para sites populares. Os gestos podem abri-los diretamente, de forma contextual pela URL ou como cópia personalizada.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "Adicionar menu personalizado",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "Personalizado",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "Repor predefinição",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "Repor «%name%» para a predefinição? As suas alterações a este menu serão perdidas.",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "País / domínio",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "Predefinido",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "Modificado",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "Próprio",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "Repor predefinição",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "Entradas ocultas (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "Restaurar",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "Início",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "Notificações",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "Mensagens",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "Histórico",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "Guardados",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "Favoritos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "Explorar",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "Tendências",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "Pesquisar",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "Perfil",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "Escrever",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "Definições",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "Agenda",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "Problemas",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "Pull requests",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "Novo repositório",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "Carrinho",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "Encomendas",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "Lista de desejos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "Subscrever e poupar",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "Devoluções",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "Ofertas",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "Apoio ao cliente",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "Conta",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "Imagens",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "Notícias",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "Tradutor",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "Fotos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "Contactos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "Caixa de entrada",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "Com estrela",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "Enviados",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "Rascunhos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "Spam",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "Lixo",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "Itinerário",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "A sua cronologia",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "Contribuições",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "Subscrições",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "Ver mais tarde",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "Listas de reprodução",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "Amigos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "Grupos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "Vídeos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "A minha rede",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "Empregos",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "Página aleatória",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "Páginas vigiadas",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "Mudanças recentes",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "Ícone",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "Pesquisar ícones…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "Favicon",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "Sem ícone",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Pesquisa",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Compras",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Anexar barra de pesquisa rápida a todos os menus",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "As entradas abaixo são anexadas ao fundo de cada menu personalizado, após um separador. A seleção atual é passada às pesquisas.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Anexar a barra de pesquisa rápida a este menu",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Menu predefinido — apresentado em todos os sites sem menu correspondente",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Abrir ligações",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Padrão: clique esquerdo no mesmo separador, clique direito em novo separador",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Sempre em novo separador, logo à direita",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Sempre em novo separador, logo à esquerda",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Sempre em novo separador no fim",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Sempre em novo separador no início",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Usar a definição global",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Menus de sites: o menu certo em cada site",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "Mostrar cabeçalho/rodapé com alternador de menus",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Adiciona uma barra ao menu; clique nela para alternar entre menus de imediato.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Cabeçalho",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Rodapé",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Mostrar na seleção de menus",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "Aparência",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Automático",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Claro",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Escuro",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

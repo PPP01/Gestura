@@ -5,10 +5,18 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
-### v2.3 (Unreleased)
+### v2.3 (2026-07-14)
 
 **New Features:**
 
+- **Website menus:** predefined, fully editable menus for popular sites (GitHub, YouTube, Amazon incl. country selection, …) with icons; new settings section.
+- **Search & Shopping menus:** two predefined search-engine menus — "Search" (Google, Brave, Perplexity, DuckDuckGo, Bing, DeepL, Wikipedia) and "Shopping" (Brave, Google, Amazon, eBay). Searches receive the current selection.
+- **Default menu:** exactly one website menu can be marked as the default (exclusive toggle; "Search" out of the box) — it opens on all sites without a matching menu and is highlighted in the list (star + bold name).
+- **Link opening behavior (advanced):** menu links and searches open per a global setting — standard (left-click same tab, right/middle-click new tab) or always in a new tab (right/left/end/start) — with an optional per-menu override.
+- **Quick-search bar:** optional mini menu (default: Brave, Google, Perplexity; editable) appended to the bottom of every custom menu, with a per-menu opt-out.
+- **Two menu actions:** "Website menus" opens the site menus (contextual by URL as the default, or a standard menu / customized standard menu that inherits updates for unchanged items); "Custom menu" is back to being the private per-gesture menu.
+- Menu items support links, searches, and any gesture action, each with a selectable icon (Lucide set or favicon).
+- **Breaking:** the old shared custom-menu pool was removed; gestures using it must be reconfigured.
 - **Context-aware search menus:** Custom mouse menus can now contain search-engine entries from a built-in catalog (displayed with icons) alongside custom search/link items; menus carry site patterns so the same gesture automatically opens the right menu per site (contextual mode); a new "Add current site to menu" gesture appends `*hostname*` to a menu's patterns, making it quick to assign a menu to the site you're currently visiting.
   - **Editable Search Engines section:** The options page now has a top-level "Search Engines" section where you can add, edit, hide, reorder, and reset both built-in and custom search engines.
   - **Clipboard-open mode:** A new per-engine option copies the selected text to the clipboard and opens the page without a query parameter — useful for services like Gemini that do not accept a `?q=` URL.

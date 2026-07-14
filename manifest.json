@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "__MSG_extName__",
-    "version": "2.2.3",
+    "version": "2.3",
     "author": "PPP01 (based on FlowMouse by Hmily[LCG] & Coxxs)",
     "description": "__MSG_extDescription__",
     "default_locale": "en",
@@ -36,7 +36,7 @@
         "<all_urls>"
     ],
     "background": {
-        "scripts": ["js/menu-patterns.js", "js/favicon-util.js", "js/background.js"]
+        "scripts": ["js/menu-patterns.js", "js/menu-catalog.js", "js/menu-model.js", "js/favicon-util.js", "js/background.js"]
     },
     "content_scripts": [
         {
@@ -51,6 +51,8 @@
                 "js/search-engines-catalog.js",
                 "js/engine-registry.js",
                 "js/favicon-util.js",
+                "js/menu-catalog.js",
+                "js/menu-model.js",
                 "js/content.js"
             ],
             "run_at": "document_start",
@@ -61,17 +63,17 @@
     "action": {
         "default_popup": "pages/popup.html",
         "default_icon": {
-            "16": "icons/icon16.png",
-            "32": "icons/icon32.png",
-            "48": "icons/icon48.png",
-            "128": "icons/icon128.png"
+            "16": "icons/icon16-tile.png",
+            "32": "icons/icon32-tile.png",
+            "48": "icons/icon48-tile.png",
+            "128": "icons/icon128-tile.png"
         }
     },
     "icons": {
-        "16": "icons/icon16.png",
-        "32": "icons/icon32.png",
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png"
+        "16": "icons/icon16-tile.png",
+        "32": "icons/icon32-tile.png",
+        "48": "icons/icon48-tile.png",
+        "128": "icons/icon128-tile.png"
     },
     "web_accessible_resources": [
         {

@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "Οι χειρονομίες ποντικιού κάνουν τη ζωή πιο εύκολη — με έξυπνα μενού για GitHub, YouTube, Amazon κ.ά. Γρήγορο και 100% ιδιωτικό!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "Ανοίγει το πρώτο μενού του οποίου τα μοτίβα ιστότοπου ταιριάζουν με την τρέχουσα σελίδα· διαμορφώστε τα μοτίβα σε κάθε μενού."
 	},
 	"customMenuContextualLabel": {
-		"message": "Δυναμικό μενού"
+		"message": "Μενού ιστότοπου (βάσει πλαισίου)"
 	},
 	"addMenu": {
 		"message": "Προσθήκη μενού",
@@ -1768,7 +1768,7 @@
 		"message": "Εμφάνιση σε αυτούς τους ιστότοπους"
 	},
 	"menuPatternsHint": {
-		"message": "Κενό = παντού (προεπιλεγμένο μενού). Προσθέστε έναν τομέα όπως github.com."
+		"message": "Προσθέστε έναν τομέα όπως github.com."
 	},
 	"menuPatternsAdd": {
 		"message": "Προσθήκη ιστότοπου"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "Γράψτε ένα σώμα συνάρτησης. Οι μεταβλητές selection (το επιλεγμένο κείμενο) και clipboard είναι διαθέσιμες· επιστρέψτε τη συμβολοσειρά που αντικαθιστά το %s. Εκτελείται σε ένα απομονωμένο sandbox με χρονικό όριο ~1s — χωρίς πρόσβαση στη σελίδα ή την επέκταση.",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "Δικό μου μενού",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "Πηγή μενού",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "Τυπικό μενού",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "Τυπικό μενού, προσαρμοσμένο",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "Δικό μου μενού (μόνο για αυτή τη χειρονομία)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "Ανά ιστότοπο (ανάλογα με το πλαίσιο)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "Αν καμία ιστοσελίδα δεν ταιριάζει",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "Καμία ενέργεια",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "Οι αλλαγές σε αυτό το μενού ισχύουν παντού όπου χρησιμοποιείται.",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "Διαχείριση μενού ιστότοπων",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "Η αλλαγή του βασικού μενού θα διαγράψει τις προσαρμογές σας. Συνέχεια;",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "Μενού ιστότοπων",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "Προκαθορισμένα, πλήρως επεξεργάσιμα μενού για δημοφιλείς ιστότοπους. Οι χειρονομίες μπορούν να τα ανοίγουν απευθείας, ανάλογα με τη διεύθυνση URL, ή ως προσαρμοσμένο αντίγραφο.",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "Προσθήκη προσαρμοσμένου μενού",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "Προσαρμοσμένο",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "Επαναφορά στο προεπιλεγμένο",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "Επαναφορά του «%name%» στην προεπιλογή του; Οι αλλαγές σας σε αυτό το μενού θα χαθούν.",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "Χώρα / τομέας",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "Τυπικό",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "Τροποποιημένο",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "Δικό",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "Επαναφορά στο τυπικό",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "Κρυφές καταχωρίσεις (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "Επαναφορά",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "Αρχική",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "Ειδοποιήσεις",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "Μηνύματα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "Ιστορικό",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "Αποθηκευμένα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "Σελιδοδείκτες",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "Εξερεύνηση",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "Τάσεις",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "Αναζήτηση",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "Προφίλ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "Σύνταξη",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "Ρυθμίσεις",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "Ημερολόγιο",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "Ζητήματα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "Pull requests",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "Νέο αποθετήριο",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "Καλάθι",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "Παραγγελίες",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "Λίστα επιθυμιών",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "Συνδρομή & Εξοικονόμηση",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "Επιστροφές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "Προσφορές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "Εξυπηρέτηση πελατών",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "Λογαριασμός",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "Εικόνες",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "Ειδήσεις",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "Μετάφραση",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "Φωτογραφίες",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "Επαφές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "Εισερχόμενα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "Με αστέρι",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "Απεσταλμένα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "Πρόχειρα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "Ανεπιθύμητα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "Κάδος απορριμμάτων",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "Διαδρομές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "Το χρονολόγιό σου",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "Συνεισφορές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "Συνδρομές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "Παρακολούθηση αργότερα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "Λίστες αναπαραγωγής",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "Φίλοι",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "Ομάδες",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "Βίντεο",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "Το δίκτυό μου",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "Θέσεις εργασίας",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "Τυχαία σελίδα",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "Λίστα παρακολούθησης",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "Πρόσφατες αλλαγές",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "Εικονίδιο",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "Αναζήτηση εικονιδίων…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "Favicon",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "Χωρίς εικονίδιο",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "Αναζήτηση",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "Αγορές",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "Προσθήκη γραμμής γρήγορης αναζήτησης σε κάθε μενού",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "Οι παρακάτω καταχωρίσεις προστίθενται στο κάτω μέρος κάθε προσαρμοσμένου μενού, μετά από διαχωριστικό. Η τρέχουσα επιλογή μεταβιβάζεται στις αναζητήσεις.",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "Προσθήκη της γραμμής γρήγορης αναζήτησης σε αυτό το μενού",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "Προεπιλεγμένο μενού — εμφανίζεται σε όλους τους ιστότοπους χωρίς αντίστοιχο μενού",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "Άνοιγμα συνδέσμων",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "Τυπικό: αριστερό κλικ στην ίδια καρτέλα, δεξί κλικ σε νέα καρτέλα",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "Πάντα σε νέα καρτέλα, ακριβώς δεξιά",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "Πάντα σε νέα καρτέλα, ακριβώς αριστερά",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "Πάντα σε νέα καρτέλα στο τέλος",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "Πάντα σε νέα καρτέλα στην αρχή",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "Χρήση καθολικής ρύθμισης",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "Μενού ιστότοπων: το σωστό μενού σε κάθε ιστότοπο",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "Εμφάνιση κεφαλίδας/υποσέλιδου με εναλλαγή μενού",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "Προσθέτει μια γραμμή στο μενού· κάντε κλικ για άμεση εναλλαγή μεταξύ μενού.",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "Κεφαλίδα",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "Υποσέλιδο",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "Εμφάνιση στην επιλογή μενού",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "Εμφάνιση",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "Αυτόματα",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "Ανοιχτό",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "Σκούρο",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

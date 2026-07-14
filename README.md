@@ -8,12 +8,12 @@
 
 Gestura is an open-source extension that turns quick mouse movements into browser commands — draw a gesture, drag a link or some text, flick the wheel, and the action happens right away, no keyboard needed.
 
-Gesture navigation, super drag, area selection, wheel and rocker gestures, command chains, and per-site search menus — all of it is yours to customize.
+Gesture navigation, smart per-site **website menus**, super drag, area selection, wheel and rocker gestures, and command chains — all of it is yours to customize.
 </div>
 
 > ### 🙏 Gestura is a fork of [FlowMouse](https://github.com/Hmily-LCG/FlowMouse)
 >
-> **First and foremost: Gestura would not exist without [FlowMouse](https://github.com/Hmily-LCG/FlowMouse) by Hmily\[LCG] & Coxxs.** Gestura is a friendly fork that exists **only** to carry a handful of extra features — configurable search engines, context-aware search/link menus, per-link JS transforms, and image search — that didn't make it into FlowMouse (its authors intentionally want to keep it lightweight).
+> **First and foremost: Gestura would not exist without [FlowMouse](https://github.com/Hmily-LCG/FlowMouse) by Hmily\[LCG] & Coxxs.** Gestura is a friendly fork that exists **only** to carry a handful of extra features — smart per-site website menus, configurable search engines, image search, and per-link JS transforms — that didn't make it into FlowMouse (its authors intentionally want to keep it lightweight).
 >
 > **Huge, heartfelt thanks to the original authors for building such a great extension.** If you don't need the extra features, please use and support the original: **[FlowMouse](https://github.com/Hmily-LCG/FlowMouse)**. Gestura remains open source under the same GPL-3.0 license.
 
@@ -48,8 +48,9 @@ Gestura ships the **complete FlowMouse feature set** — nothing removed:
 
 The reason Gestura exists — the extra features that didn't make it into FlowMouse:
 
-- **Configurable search engines** — add, reorder, and hide your own text **and** image search engines, with sensible per-locale defaults.
-- **Context-aware search & link menus** — build per-site popup menus of search engines (with icons) and custom links; assign site patterns so the right menu opens automatically, and register the current site to a menu with a single swipe.
+- **Website menus — Gestura's headline feature.** Ready-made, fully editable popup menus for the sites you use every day: GitHub, YouTube, Amazon (with country selection), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia, and more — every entry with a fitting icon. One contextual gesture opens the right menu on whatever site you're on; a default **Search** menu (Google, Brave, Perplexity, DuckDuckGo …) covers everything else, and a **Shopping** menu (Amazon, eBay, …) searches your selection where you buy.
+- **Menus that stay yours** — edit any predefined menu globally, or load one into a single gesture as a customized copy that keeps inheriting future improvements for the entries you didn't touch. Private per-gesture menus, an optional quick-search bar appended to every menu, per-menu switcher visibility, and configurable link opening (same tab, or a new tab left/right/first/last) — globally and per menu.
+- **Configurable search engines** — add, reorder, and hide your own text **and** image search engines, with sensible per-locale defaults; register the current site to a menu with a single swipe.
 - **Image search** — drag or invoke a reverse-image search on the engines you choose.
 - **Per-link JavaScript transforms** — reshape the selected text with a small, sandboxed JS snippet before it is handed to a search URL (advanced, runs isolated from the page and the extension).
 

@@ -76,6 +76,7 @@
 		'moveTabToNewWindow': 'actionMoveTabToNewWindow',
 		'actionChain': 'actionActionChain',
 		'customMenu': 'actionCustomMenu',
+		'siteMenu': 'siteMenusTitle',
 		'addSiteToMenu': 'actionAddSiteToMenu',
 		'delay': 'actionDelay',
 		'sendCustomEvent': 'actionSendCustomEvent',
@@ -120,7 +121,8 @@
 		switchFirstTab: { moveTab: false },
 		switchLastTab: { moveTab: false },
 		actionChain: { chainId: '' },
-		customMenu: { menuId: '', contextual: false },
+		customMenu: { ownMenu: null },
+		siteMenu: { mode: 'contextual', menuId: '', fork: null },
 		addSiteToMenu: { menuId: '' },
 		delay: { delayMs: 500 },
 		sendCustomEvent: { eventType: 'flowmouse:gesture', eventDetail: '{}', gestureInfo: true },
@@ -144,7 +146,7 @@
 		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent', 'simulateKey',
 		'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 		'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
-		'customMenu',
+		'customMenu', 'siteMenu',
 	]);
 
 
@@ -260,7 +262,15 @@
 		areaSelectWarnThreshold: 15,
 		areaSelectDelay: 0.3,
 		actionChains: {},
-		customMenus: {},
+		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' },
+		menuAppend: { enabled: false, items: [
+			{ id: 'append-brave', action: 'searchLink', engineId: 'brave' },
+			{ id: 'append-google', action: 'searchLink', engineId: 'google' },
+			{ id: 'append-perplexity', action: 'searchLink', engineId: 'perplexity' },
+		] },
+		customMenuSwitcher: { enabled: false, position: 'header' },
+		customMenuTheme: 'auto',
+		menuOpenBehavior: 'standard',
 		searchEngines: { overrides: {}, hidden: [], custom: [], order: [] },
 		blacklist: [],
 		enableBlacklistContextMenu: false,

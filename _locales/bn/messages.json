@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "মাউস জেসচার জীবনকে সহজ করে — GitHub, YouTube, Amazon প্রভৃতির জন্য স্মার্ট মেনুসহ। দ্রুত ও ১০০% প্রাইভেট!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "যে মেনুর সাইট প্যাটার্ন বর্তমান পৃষ্ঠার সাথে মেলে সেটি খোলে; প্রতিটি মেনুতে প্যাটার্ন কনফিগার করুন।"
 	},
 	"customMenuContextualLabel": {
-		"message": "গতিশীল মেনু"
+		"message": "ওয়েবসাইট মেনু (প্রাসঙ্গিক)"
 	},
 	"addMenu": {
 		"message": "মেনু যোগ করুন",
@@ -1768,7 +1768,7 @@
 		"message": "এই সাইটগুলোতে দেখান"
 	},
 	"menuPatternsHint": {
-		"message": "খালি = সর্বত্র (ডিফল্ট মেনু)। github.com-এর মতো একটি ডোমেইন যোগ করুন।"
+		"message": "github.com-এর মতো একটি ডোমেইন যোগ করুন।"
 	},
 	"menuPatternsAdd": {
 		"message": "সাইট যোগ করুন"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "একটি ফাংশন বডি লিখুন। চলক selection (নির্বাচিত পাঠ্য) এবং clipboard উপলব্ধ; %s-এর জায়গায় যে স্ট্রিং প্রতিস্থাপিত হবে তা ফেরত দিন। ~1s টাইমআউট সহ একটি বিচ্ছিন্ন স্যান্ডবক্সে চলে — পৃষ্ঠা বা এক্সটেনশনে কোনো অ্যাক্সেস নেই।",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "নিজস্ব মেনু",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "মেনুর উৎস",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "স্ট্যান্ডার্ড মেনু",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "স্ট্যান্ডার্ড মেনু, কাস্টমাইজ করা",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "নিজস্ব মেনু (শুধু এই জেসচার)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "ওয়েবসাইট অনুযায়ী (প্রাসঙ্গিক)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "কোনো সাইট না মিললে",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "কিছু করবেন না",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "এই মেনুতে করা পরিবর্তনগুলি এটি যেখানেই ব্যবহৃত হয় সেখানে প্রযোজ্য হবে।",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "ওয়েবসাইট মেনু পরিচালনা করুন",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "বেস মেনু পরিবর্তন করলে আপনার কাস্টমাইজেশন বাতিল হয়ে যাবে। এগিয়ে যাবেন?",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "ওয়েবসাইট মেনু",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "জনপ্রিয় সাইটগুলোর জন্য পূর্বনির্ধারিত, সম্পূর্ণ সম্পাদনযোগ্য মেনু। জেসচারগুলি এগুলো সরাসরি, URL অনুযায়ী প্রাসঙ্গিকভাবে, অথবা কাস্টমাইজ করা কপি হিসেবে খুলতে পারে।",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "কাস্টম মেনু যোগ করুন",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "কাস্টমাইজ করা",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "ডিফল্টে রিসেট করুন",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "\"%name%\" কি এর ডিফল্টে রিসেট করবেন? এই মেনুতে করা আপনার পরিবর্তনগুলি হারিয়ে যাবে।",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "দেশ / ডোমেইন",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "স্ট্যান্ডার্ড",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "পরিবর্তিত",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "নিজস্ব",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "স্ট্যান্ডার্ডে রিসেট করুন",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "লুকানো এন্ট্রি (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "পুনরুদ্ধার করুন",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "হোম",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "নোটিফিকেশন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "মেসেজ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "হিস্ট্রি",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "সংরক্ষিত",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "বুকমার্ক",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "এক্সপ্লোর",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "ট্রেন্ডিং",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "সার্চ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "প্রোফাইল",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "লিখুন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "সেটিংস",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "ক্যালেন্ডার",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "Issues",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "Pull requests",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "নতুন রিপোজিটরি",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "কার্ট",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "অর্ডার",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "উইশ লিস্ট",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "Subscribe & Save",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "রিটার্ন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "ডিল",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "কাস্টমার সার্ভিস",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "অ্যাকাউন্ট",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "ছবি",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "নিউজ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "অনুবাদ করুন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "ফটো",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "পরিচিতি",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "ইনবক্স",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "তারাচিহ্নিত",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "পাঠানো মেইল",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "ড্রাফট",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "স্প্যাম",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "ট্র্যাশ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "দিকনির্দেশ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "আপনার টাইমলাইন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "অবদান",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "সাবস্ক্রিপশন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "পরে দেখুন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "প্লেলিস্ট",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "বন্ধু",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "গ্রুপ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "ভিডিও",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "আমার নেটওয়ার্ক",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "চাকরি",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "যেকোনো পাতা",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "নজরতালিকা",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "সাম্প্রতিক পরিবর্তন",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "আইকন",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "আইকন খুঁজুন…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "ফেভিকন",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "কোনো আইকন নেই",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "অনুসন্ধান",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "কেনাকাটা",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "প্রতিটি মেনুতে দ্রুত-অনুসন্ধান বার যুক্ত করুন",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "নিচের এন্ট্রিগুলি প্রতিটি কাস্টম মেনুর নিচে একটি বিভাজকের পরে যুক্ত হয়। বর্তমান নির্বাচন অনুসন্ধানে পাঠানো হয়।",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "এই মেনুতে দ্রুত-অনুসন্ধান বার যুক্ত করুন",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "ডিফল্ট মেনু — মিল থাকা মেনু নেই এমন সব সাইটে দেখানো হয়",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "লিংক খোলা",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "স্ট্যান্ডার্ড: বাম ক্লিকে একই ট্যাবে, ডান ক্লিকে নতুন ট্যাবে",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "সবসময় নতুন ট্যাবে, ঠিক ডানে",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "সবসময় নতুন ট্যাবে, ঠিক বামে",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "সবসময় নতুন ট্যাবে, শেষে",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "সবসময় নতুন ট্যাবে, শুরুতে",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "গ্লোবাল সেটিং ব্যবহার করুন",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "ওয়েবসাইট মেনু: প্রতিটি সাইটে সঠিক মেনু",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "মেনু-সুইচারসহ হেডার/ফুটার দেখান",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "মেনুতে একটি বার যোগ করে; ক্লিক করে সরাসরি মেনুগুলির মধ্যে পাল্টান।",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "হেডার",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "ফুটার",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "মেনু নির্বাচনে দেখান",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "চেহারা",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "স্বয়ংক্রিয়",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "হালকা",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "গাঢ়",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

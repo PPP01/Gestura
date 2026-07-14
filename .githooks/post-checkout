@@ -1,0 +1,3 @@
+#!/bin/sh
+# Re-stamp manifest.json version_name after checkout (branch switch, clone, etc.).
+sh "$(git rev-parse --show-toplevel)/scripts/stamp-version.sh" stamp

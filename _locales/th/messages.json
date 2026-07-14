@@ -8,7 +8,7 @@
 		"description": "Short extension name for popup"
 	},
 	"extDescription": {
-		"message": "Control your browser with mouse gestures: draw, drag, flick to navigate, search and manage tabs. Customizable and privacy-friendly.",
+		"message": "เจสเจอร์เมาส์ทำให้ชีวิตง่ายขึ้น — พร้อมเมนูอัจฉริยะสำหรับ GitHub, YouTube, Amazon และอื่น ๆ เร็วและเป็นส่วนตัว 100%!",
 		"description": "Extension description"
 	},
 	"theme": {
@@ -1722,7 +1722,7 @@
 		"message": "เปิดเมนูแรกที่รูปแบบเว็บไซต์ตรงกับหน้าปัจจุบัน กำหนดรูปแบบในแต่ละเมนู"
 	},
 	"customMenuContextualLabel": {
-		"message": "เมนูไดนามิก"
+		"message": "เมนูเว็บไซต์ (ตามบริบท)"
 	},
 	"addMenu": {
 		"message": "เพิ่มเมนู",
@@ -1768,7 +1768,7 @@
 		"message": "แสดงบนเว็บไซต์เหล่านี้"
 	},
 	"menuPatternsHint": {
-		"message": "ว่าง = ทุกที่ (เมนูเริ่มต้น) เพิ่มโดเมนเช่น github.com"
+		"message": "เพิ่มโดเมน เช่น github.com"
 	},
 	"menuPatternsAdd": {
 		"message": "เพิ่มเว็บไซต์"
@@ -2284,5 +2284,405 @@
 	"transformHelp": {
 		"message": "เขียนเนื้อหาฟังก์ชัน ตัวแปร selection (ข้อความที่เลือก) และ clipboard พร้อมใช้งาน ให้คืนค่าสตริงที่แทนที่ %s ทำงานในแซนด์บ็อกซ์ที่แยกออกมาพร้อม timeout ~1s — ไม่สามารถเข้าถึงหน้าเว็บหรือส่วนขยายได้",
 		"description": "Help tooltip explaining the custom JS transform function"
+	},
+	"customMenuOwnLabel": {
+		"message": "เมนูของตัวเอง",
+		"description": "Gesture-overview label shown for a custom-menu action in 'own menu' mode (a fully custom, gesture-private menu with no catalog entry)"
+	},
+	"menuModeLabel": {
+		"message": "แหล่งที่มาของเมนู",
+		"description": "Label for the custom-menu mode selector (standard/fork/own/contextual)"
+	},
+	"menuModeStandard": {
+		"message": "เมนูมาตรฐาน",
+		"description": "Custom-menu mode option — use one of the predefined/site menus unmodified"
+	},
+	"menuModeFork": {
+		"message": "เมนูมาตรฐาน ปรับแต่งแล้ว",
+		"description": "Custom-menu mode option — start from a standard menu and customize it for this gesture only"
+	},
+	"menuModeOwn": {
+		"message": "เมนูของตัวเอง (ท่าทางนี้เท่านั้น)",
+		"description": "Custom-menu mode option — a fully custom menu private to this gesture"
+	},
+	"menuModeContextual": {
+		"message": "ตามเว็บไซต์ (ตามบริบท)",
+		"description": "Custom-menu mode option — pick the menu based on the current website"
+	},
+	"menuFallbackLabel": {
+		"message": "หากไม่มีเว็บไซต์ที่ตรงกัน",
+		"description": "Label for the fallback-menu selector used in contextual mode"
+	},
+	"menuFallbackNone": {
+		"message": "ไม่ต้องทำอะไร",
+		"description": "Fallback-menu option — open nothing if no site pattern matches"
+	},
+	"editGlobalMenuHint": {
+		"message": "การเปลี่ยนแปลงเมนูนี้จะมีผลทุกที่ที่ใช้งานเมนูนี้",
+		"description": "Hint shown under the standard-menu selector"
+	},
+	"openSiteMenusSection": {
+		"message": "จัดการเมนูเว็บไซต์",
+		"description": "Link to jump to the website-menus settings section"
+	},
+	"forkBaseChangeConfirm": {
+		"message": "การเปลี่ยนเมนูฐานจะยกเลิกการปรับแต่งของคุณ ดำเนินการต่อหรือไม่",
+		"description": "Confirmation shown before switching the base menu of a fork, discarding its overrides"
+	},
+	"siteMenusTitle": {
+		"message": "เมนูเว็บไซต์",
+		"description": "Settings section title for the site-menu catalog"
+	},
+	"siteMenusDesc": {
+		"message": "เมนูที่กำหนดไว้ล่วงหน้าและแก้ไขได้ทั้งหมดสำหรับเว็บไซต์ยอดนิยม ท่าทางสามารถเปิดเมนูเหล่านี้ได้โดยตรง ตามบริบทของ URL หรือเป็นสำเนาที่ปรับแต่งแล้ว",
+		"description": "Settings section description for the site-menu catalog"
+	},
+	"siteMenuAddCustom": {
+		"message": "เพิ่มเมนูที่กำหนดเอง",
+		"description": "Button to add a new custom site menu"
+	},
+	"siteMenuEdited": {
+		"message": "ปรับแต่งแล้ว",
+		"description": "Badge shown on a catalog menu that has been customized"
+	},
+	"siteMenuReset": {
+		"message": "รีเซ็ตเป็นค่าเริ่มต้น",
+		"description": "Button/tooltip to reset a customized catalog menu"
+	},
+	"siteMenuResetConfirm": {
+		"message": "รีเซ็ต \"%name%\" เป็นค่าเริ่มต้นหรือไม่ การเปลี่ยนแปลงที่คุณทำกับเมนูนี้จะสูญหาย",
+		"description": "Confirmation before resetting a customized catalog menu"
+	},
+	"siteMenuDomainLabel": {
+		"message": "ประเทศ / โดเมน",
+		"description": "Label for the domain/country selector in the site menu editor"
+	},
+	"forkBadgeInherited": {
+		"message": "มาตรฐาน",
+		"description": "Badge shown on a menu item inherited from the default menu"
+	},
+	"forkBadgeModified": {
+		"message": "ปรับเปลี่ยนแล้ว",
+		"description": "Badge shown on a menu item overridden in a fork"
+	},
+	"forkBadgeOwn": {
+		"message": "ของตัวเอง",
+		"description": "Badge shown on a menu item added in a fork"
+	},
+	"forkResetItem": {
+		"message": "รีเซ็ตเป็นมาตรฐาน",
+		"description": "Button to reset a forked menu item back to its default"
+	},
+	"forkShowHidden": {
+		"message": "รายการที่ซ่อนอยู่ (%n%)",
+		"description": "Toggle button label for showing hidden default items in a fork, %n% is the count"
+	},
+	"forkRestore": {
+		"message": "กู้คืน",
+		"description": "Button to restore a hidden default menu item"
+	},
+	"siteMenuItemHome": {
+		"message": "หน้าแรก",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNotifications": {
+		"message": "การแจ้งเตือน",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemMessages": {
+		"message": "ข้อความ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemHistory": {
+		"message": "ประวัติ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSaved": {
+		"message": "รายการที่บันทึกไว้",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemBookmarks": {
+		"message": "บุ๊กมาร์ก",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemExplore": {
+		"message": "สำรวจ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrending": {
+		"message": "กำลังนิยม",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSearch": {
+		"message": "ค้นหา",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemProfile": {
+		"message": "โปรไฟล์",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCompose": {
+		"message": "เขียน",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSettings": {
+		"message": "การตั้งค่า",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCalendar": {
+		"message": "ปฏิทิน",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemIssues": {
+		"message": "Issues",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPullRequests": {
+		"message": "Pull requests",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNewRepo": {
+		"message": "ที่เก็บข้อมูลใหม่",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCart": {
+		"message": "ตะกร้าสินค้า",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemOrders": {
+		"message": "คำสั่งซื้อ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWishlist": {
+		"message": "รายการที่อยากได้",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscribeSave": {
+		"message": "Subscribe & Save",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemReturns": {
+		"message": "การคืนสินค้า",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDeals": {
+		"message": "ดีล",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemCustomerService": {
+		"message": "บริการลูกค้า",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemAccount": {
+		"message": "บัญชี",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemImages": {
+		"message": "รูปภาพ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNews": {
+		"message": "ข่าว",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTranslate": {
+		"message": "แปลภาษา",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPhotos": {
+		"message": "รูปถ่าย",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContacts": {
+		"message": "รายชื่อติดต่อ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemInbox": {
+		"message": "กล่องจดหมาย",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemStarred": {
+		"message": "ที่ติดดาว",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSent": {
+		"message": "ที่ส่งแล้ว",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDrafts": {
+		"message": "ฉบับร่าง",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSpam": {
+		"message": "สแปม",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTrash": {
+		"message": "ถังขยะ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemDirections": {
+		"message": "เส้นทาง",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemTimeline": {
+		"message": "ไทม์ไลน์ของคุณ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemContributions": {
+		"message": "การมีส่วนร่วม",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemSubscriptions": {
+		"message": "การติดตาม",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchLater": {
+		"message": "ดูภายหลัง",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemPlaylists": {
+		"message": "เพลย์ลิสต์",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemFriends": {
+		"message": "เพื่อน",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemGroups": {
+		"message": "กลุ่ม",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemVideos": {
+		"message": "วิดีโอ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemNetwork": {
+		"message": "เครือข่ายของฉัน",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemJobs": {
+		"message": "งาน",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRandomArticle": {
+		"message": "สุ่มบทความ",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemWatchlist": {
+		"message": "รายการเฝ้าดู",
+		"description": "Label for a predefined site-menu item"
+	},
+	"siteMenuItemRecentChanges": {
+		"message": "การเปลี่ยนแปลงล่าสุด",
+		"description": "Label for a predefined site-menu item"
+	},
+	"iconPickerTitle": {
+		"message": "ไอคอน",
+		"description": "Tooltip for icon picker button"
+	},
+	"iconPickerSearch": {
+		"message": "ค้นหาไอคอน…",
+		"description": "Placeholder for icon search input"
+	},
+	"iconPickerFavicon": {
+		"message": "Favicon",
+		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerNone": {
+		"message": "ไม่มีไอคอน",
+		"description": "Button label for no icon option in icon picker"
+	},
+	"siteMenuNameSearch": {
+		"message": "ค้นหา",
+		"description": "Name of the predefined generic search menu"
+	},
+	"siteMenuNameShopping": {
+		"message": "ช้อปปิ้ง",
+		"description": "Name of the predefined shopping search menu"
+	},
+	"siteMenuAppendEnable": {
+		"message": "เพิ่มแถบค้นหาด่วนในทุกเมนู",
+		"description": "Toggle: append the mini search menu to every custom menu"
+	},
+	"siteMenuAppendHint": {
+		"message": "รายการด้านล่างจะถูกเพิ่มที่ด้านล่างของทุกเมนูที่กำหนดเอง หลังตัวคั่น ข้อความที่เลือกอยู่จะถูกส่งไปยังการค้นหา",
+		"description": "Hint below the quick-search append toggle"
+	},
+	"siteMenuAppendPerMenu": {
+		"message": "เพิ่มแถบค้นหาด่วนในเมนูนี้",
+		"description": "Per-menu checkbox to opt out of the appended mini menu"
+	},
+	"siteMenuDefaultToggle": {
+		"message": "เมนูเริ่มต้น — แสดงในทุกเว็บไซต์ที่ไม่มีเมนูที่ตรงกัน",
+		"description": "Exclusive per-menu toggle marking the global default menu (opens on all sites without a matching menu)"
+	},
+	"siteMenuOpenBehaviorLabel": {
+		"message": "การเปิดลิงก์",
+		"description": "Label for the menu link-opening behavior select"
+	},
+	"siteMenuOpenBehaviorStandard": {
+		"message": "มาตรฐาน: คลิกซ้ายในแท็บเดิม คลิกขวาในแท็บใหม่",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
+	"siteMenuOpenBehaviorRight": {
+		"message": "เปิดในแท็บใหม่เสมอ ถัดไปทางขวา",
+		"description": "Open behavior: always new tab directly right"
+	},
+	"siteMenuOpenBehaviorLeft": {
+		"message": "เปิดในแท็บใหม่เสมอ ถัดไปทางซ้าย",
+		"description": "Open behavior: always new tab directly left"
+	},
+	"siteMenuOpenBehaviorLast": {
+		"message": "เปิดในแท็บใหม่เสมอ ที่ท้ายสุด",
+		"description": "Open behavior: always new tab at the end"
+	},
+	"siteMenuOpenBehaviorFirst": {
+		"message": "เปิดในแท็บใหม่เสมอ ที่ต้นสุด",
+		"description": "Open behavior: always new tab at the start"
+	},
+	"siteMenuOpenBehaviorInherit": {
+		"message": "ใช้การตั้งค่าส่วนกลาง",
+		"description": "Per-menu open behavior: inherit the global setting"
+	},
+	"aboutFeature7": {
+		"message": "เมนูเว็บไซต์: เมนูที่ใช่ในทุกเว็บไซต์",
+		"description": "About-page feature bullet: per-site website menus"
+	},
+	"menuSwitcherEnable": {
+		"message": "แสดงส่วนหัว/ส่วนท้ายพร้อมตัวสลับเมนู",
+		"description": "Global toggle in the custom-menu editor — adds a header or footer bar to the popup menu with a switcher to change menus on the fly"
+	},
+	"menuSwitcherEnableHint": {
+		"message": "เพิ่มแถบให้เมนู คลิกเพื่อสลับระหว่างเมนูได้ทันที",
+		"description": "Hint under the menu-switcher toggle"
+	},
+	"menuSwitcherHeader": {
+		"message": "ส่วนหัว",
+		"description": "Option label — place the switcher bar at the top of the menu"
+	},
+	"menuSwitcherFooter": {
+		"message": "ส่วนท้าย",
+		"description": "Option label — place the switcher bar at the bottom of the menu"
+	},
+	"menuShowInSwitcher": {
+		"message": "แสดงในการเลือกเมนู",
+		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"menuThemeTitle": {
+		"message": "ลักษณะ",
+		"description": "Label for the custom-menu light/dark appearance selector"
+	},
+	"menuThemeAuto": {
+		"message": "อัตโนมัติ",
+		"description": "Appearance option — follow the OS/browser light/dark setting"
+	},
+	"menuThemeLight": {
+		"message": "สว่าง",
+		"description": "Appearance option — always show the menu in light mode"
+	},
+	"menuThemeDark": {
+		"message": "มืด",
+		"description": "Appearance option — always show the menu in dark mode"
 	}
 }

@@ -409,12 +409,14 @@ class ContentContextMenu {
 		lang: '',
 		isRtl: false,
 		customCss: '',
+		menuTheme: 'auto',
 	};
 
 	#activeMenuClose = null;
 	#activeMenuId = null;
 	#activeItems = null;
 	#activeIframe = null;
+	#switchHandler = null;
 
 	updateSettings(s) {
 		this.#settings = { ...this.#settings, ...s };
@@ -437,8 +439,12 @@ class ContentContextMenu {
 				}
 			}
 
+			.fm-ctx-frame.fm-theme-dark {
+				background: rgba(30, 30, 32, 0.95);
+			}
+
 			@media (prefers-color-scheme: dark) {
-				.fm-ctx-frame {
+				.fm-ctx-frame.fm-theme-auto {
 					background: rgba(30, 30, 32, 0.95);
 				}
 			}
@@ -459,30 +465,37 @@ class ContentContextMenu {
 		return this.#createMenuIframe(x, y, menuId, options);
 	}
 
-	setItems(items) {
+	setItems(items, switcher) {
 		if (!this.#activeMenuId) return;
 		this.#activeItems = items;
 
 		const serializedItems = items.map(item => {
 			if (item === 'separator') return 'separator';
-			return { label: item.label, icon: item.icon, active: item.active, time: item.time };
+			return { label: item.label, icon: item.icon, iconName: item.iconName, active: item.active, time: item.time };
 		});
 
 		try {
-			chrome.runtime.sendMessage({
+			const payload = {
 				action: 'ctxMenuSetItems',
 				menuId: this.#activeMenuId,
 				items: serializedItems,
-			});
+			};
+			if (switcher !== undefined) payload.switcher = switcher;
+			chrome.runtime.sendMessage(payload);
 		} catch {}
 
 		// Push straight into the menu iframe for live updates (e.g. lazy favicons).
 		// The background pull handles the initial load; runtime broadcasts don't
 		// reach an embedded extension-page iframe, so postMessage directly.
 		try {
-			this.#activeIframe?.contentWindow?.postMessage(
-				{ __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems }, '*');
+			const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
+			if (switcher !== undefined) msg.switcher = switcher;
+			this.#activeIframe?.contentWindow?.postMessage(msg, '*');
 		} catch {}
+	}
+
+	setSwitcher(fn) {
+		this.#switchHandler = fn;
 	}
 
 	#createMenuIframe(x, y, menuId, options) {
@@ -498,6 +511,16 @@ class ContentContextMenu {
 
 		const iframe = host.createElement('iframe');
 		iframe.className = 'fm-ctx-frame';
+		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
+		// where prefers-color-scheme reflects the real OS setting. Inside the menu
+		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
+		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
+		// iframe-side media query would wrongly report light on a dark OS.
+		let theme = this.#settings.menuTheme || 'auto';
+		if (theme === 'auto') {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		iframe.classList.add(`fm-theme-${theme}`);
 		iframe.style.cssText = `
 			position: fixed;
 			border: 0;
@@ -514,12 +537,20 @@ class ContentContextMenu {
 		url.searchParams.set('dir', this.#settings.isRtl ? 'rtl' : 'ltr');
 		if (this.#settings.lang) url.searchParams.set('lang', this.#settings.lang);
 		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
+		url.searchParams.set('theme', theme);
 
 		try {
 			iframe.contentWindow.location = url.href;
 		} catch {
 			iframe.src = url.href;
 		}
+
+		// Top-left anchor, chosen once on the first dimensions report and then
+		// kept fixed for the life of this menu. Re-measures after a menu switch
+		// or dropdown toggle only change width/height (the right/bottom edge),
+		// so the menu never jumps to a new origin while it is open.
+		let placedLeft = null;
+		let placedTop = null;
 
 		const onMessage = (request) => {
 			if (request.menuId !== menuId) return;
@@ -532,29 +563,42 @@ class ContentContextMenu {
 
 				const maxW = vw - pad * 2;
 				const maxH = vh - pad * 2;
-				const clampedW = Math.min(width, maxW);
-				const clampedH = Math.min(height, maxH);
 
-				let left = x;
-				if (left + clampedW + pad > vw) {
-					left = (x - clampedW >= pad) ? x - clampedW - 1 : vw - clampedW - pad;
-				} else {
-					left += 1;
-				}
-				if (left + clampedW + pad > vw) left = vw - clampedW - pad;
-				if (left < pad) left = pad;
+				if (placedLeft === null) {
+					// First placement: anchor at the cursor, flipping left/up only
+					// as needed to keep the initial size on-screen.
+					const w0 = Math.min(width, maxW);
+					const h0 = Math.min(height, maxH);
 
-				let top = y;
-				if (top + clampedH + pad > vh) {
-					top = (y - clampedH >= pad) ? y - clampedH : vh - clampedH - pad;
+					let left = x;
+					if (left + w0 + pad > vw) {
+						left = (x - w0 >= pad) ? x - w0 - 1 : vw - w0 - pad;
+					} else {
+						left += 1;
+					}
+					if (left + w0 + pad > vw) left = vw - w0 - pad;
+					if (left < pad) left = pad;
+
+					let top = y;
+					if (top + h0 + pad > vh) {
+						top = (y - h0 >= pad) ? y - h0 : vh - h0 - pad;
+					}
+					if (top + h0 + pad > vh) top = vh - h0 - pad;
+					if (top < pad) top = pad;
+
+					placedLeft = left;
+					placedTop = top;
 				}
-				if (top + clampedH + pad > vh) top = vh - clampedH - pad;
-				if (top < pad) top = pad;
+
+				// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
+				// the space available below/right of the anchor so it stays on-screen.
+				const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
+				const clampedH = Math.min(height, maxH, vh - pad - placedTop);
 
 				iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
 				iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
-				iframe.style.setProperty('left', Math.round(left) + 'px', 'important');
-				iframe.style.setProperty('top', Math.round(top) + 'px', 'important');
+				iframe.style.setProperty('left', Math.round(placedLeft) + 'px', 'important');
+				iframe.style.setProperty('top', Math.round(placedTop) + 'px', 'important');
 				iframe.style.setProperty('opacity', '1', 'important');
 				iframe.style.setProperty('pointer-events', 'auto', 'important');
 			}
@@ -562,7 +606,11 @@ class ContentContextMenu {
 			if (request.action === 'ctxMenuSelect') {
 				const item = this.#activeItems?.[request.index];
 				closeMenu();
-				if (item && typeof item.onClick === 'function') item.onClick();
+				if (item && typeof item.onClick === 'function') item.onClick(request.button || 0);
+			}
+
+			if (request.action === 'ctxMenuSwitch') {
+				if (typeof this.#switchHandler === 'function') this.#switchHandler(request.id);
 			}
 
 			if (request.action === 'ctxMenuClose') {
@@ -580,6 +628,7 @@ class ContentContextMenu {
 			this.#activeMenuId = null;
 			this.#activeItems = null;
 			this.#activeIframe = null;
+			this.#switchHandler = null;
 			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
 			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
 			host.cleanup();
@@ -2042,9 +2091,21 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 			if (action === 'customMenu') {
 				const config = SETTINGS.mouseGestures?.[pattern];
-				const menuDef = SETTINGS.customMenus?.[config?.menuId];
-				if (menuDef?.name) return menuDef.name;
-				if (!menuDef) return `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`;
+				return config?.ownMenu?.name || msg('customMenuOwnLabel');
+			}
+			if (action === 'siteMenu') {
+				const config = SETTINGS.mouseGestures?.[pattern];
+				const resolved = resolveGestureMenu(siteMenuCfg(config));
+				if (resolved?.name) return resolved.name;
+				if (resolved?.nameKey) {
+					const localized = msg(resolved.nameKey);
+					if (localized) return localized;
+				}
+				if (!resolved) {
+					return (config?.mode === 'standard' || config?.mode === 'fork')
+						? `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`
+						: msg('customMenuContextualLabel');
+				}
 			}
 			if (action === 'simulateKey') {
 				const config = SETTINGS.mouseGestures?.[pattern] || {};
@@ -2116,6 +2177,12 @@ window.ContentContextMenu = ContentContextMenu;
 					...structuredClone(DEFAULT_SETTINGS.specialGestures || {}),
 					...(SETTINGS.specialGestures || {}),
 				};
+				// Gespeicherte siteMenus aus älteren Ständen kennen neue Felder
+				// (flags, defaultMenuId) nicht — Defaults untermischen.
+				SETTINGS.siteMenus = {
+					...structuredClone(DEFAULT_SETTINGS.siteMenus || {}),
+					...(SETTINGS.siteMenus || {}),
+				};
 
 				await window.ContentI18n.loadLanguage(SETTINGS.language);
 
@@ -2153,7 +2220,7 @@ window.ContentContextMenu = ContentContextMenu;
 						lang,
 						isRtl
 					});
-					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss });
+					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss, menuTheme: SETTINGS.customMenuTheme });
 				}
 
 				eventManager.update();
@@ -3127,18 +3194,24 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 			return { ...link, icon, iconBundled };
 		}
-		function resolveContextualMenuId(menus) {
-			// First menu (in object order) whose patterns match the current URL; else first with empty patterns.
-			const url = location.href;
-			const entries = Object.entries(menus || {});
-			for (const [id, m] of entries) {
-				const pats = m?.patterns || [];
-				if (pats.length && window.FlowMouseSearchUrl.matchesPatterns(url, pats)) return id;
-			}
-			for (const [id, m] of entries) {
-				if (!m?.patterns || m.patterns.length === 0) return id;
-			}
-			return null;
+		// Config-Normalisierung: customMenu ist immer das private Menü der Geste;
+		// siteMenu deckt standard/fork/contextual ab (Default: kontextabhängig).
+		function siteMenuCfg(config) {
+			const cfg = { ...(ACTION_DEFAULTS.siteMenu || {}), ...(config || {}) };
+			if (cfg.mode !== 'standard' && cfg.mode !== 'fork') cfg.mode = 'contextual';
+			return cfg;
+		}
+		function ownMenuCfg(config) {
+			return { mode: 'own', ownMenu: (config || {}).ownMenu || null };
+		}
+		function resolveGestureMenu(cfg) {
+			if (!window.FlowMouseMenuCatalog || !window.FlowMouseMenuModel) return null;
+			return window.FlowMouseMenuModel.resolveMenu(
+				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG,
+				SETTINGS.siteMenus,
+				cfg,
+				{ url: location.href, matchesPatterns: window.FlowMouseSearchUrl.matchesPatterns }
+			);
 		}
 
 		async function executeAction(action, config = {}, cursor = {}, startTarget = null, useActiveTab = false) {
@@ -3419,49 +3492,100 @@ window.ContentContextMenu = ContentContextMenu;
 						}
 						break;
 					}
-					case 'customMenu': {
-						const menuId = mergedConfig.contextual
-							? resolveContextualMenuId(SETTINGS.customMenus)
-							: mergedConfig.menuId;
-						const menuDef = SETTINGS.customMenus?.[menuId];
-						const menuItems = menuDef?.items;
-						if (!menuItems) break;
+					case 'customMenu':
+					case 'siteMenu': {
+						const gestureCfg = action === 'customMenu' ? ownMenuCfg(mergedConfig) : siteMenuCfg(mergedConfig);
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
-						ctxMenu.prepare(cursor.endX, cursor.endY);
-						const items = menuItems
-							.filter(it => it === 'separator' || (it.action && it.action !== 'none'))
+
+						const buildItems = (resolved) => {
+							// Öffnungsverhalten: Menü-Override → globale Einstellung.
+							// 'standard' = Linksklick im selben Tab, Rechts-/Mittelklick in neuem Tab rechts.
+							const behavior = resolved.openBehavior || SETTINGS.menuOpenBehavior || 'standard';
+							const linkPosition = (button) => behavior === 'standard'
+								? (button ? 'right' : 'current')
+								: behavior;
+							return resolved.items
+							.filter(it => it.type === 'separator' || (it.action && it.action !== 'none'))
 							.map(it => {
-								if (it === 'separator') return 'separator';
+								if (it.type === 'separator') return 'separator';
 								let label = it.customName;
+								if (!label && it.labelKey) label = msg(it.labelKey);
 								if (!label && it.action === 'actionChain') {
 									const chain = SETTINGS.actionChains?.[it.chainId];
 									label = chain?.name || msg(ACTION_KEYS[it.action]);
 								}
-								if (it.action === 'searchLink') {
-									const rl = resolveSearchLink({ ...(ACTION_DEFAULTS['searchLink'] || {}), ...it });
-									label = it.customName || rl?.name || msg(ACTION_KEYS['searchLink']);
-									return {
-										label,
-										icon: rl ? rl.icon : '',
-										_faviconUrl: rl && !rl.iconBundled ? rl.url : undefined,
-										onClick: () => {
-											const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
-											itemConfig.__selectionText = menuSelectionText;
-											executeAction(it.action, itemConfig, cursor, startTarget);
-										}
-									};
-								}
-								if (!label) label = msg(ACTION_KEYS[it.action]) || it.action;
-								return {
-									label,
-									onClick: () => {
+								const entry = {
+									onClick: (button) => {
 										const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
+										if (it.action === 'searchLink') itemConfig.__selectionText = menuSelectionText;
+										if (it.action === 'searchLink' || it.action === 'openCustomUrl') {
+											itemConfig.position = linkPosition(button);
+											itemConfig.active = true;
+										}
 										executeAction(it.action, itemConfig, cursor, startTarget);
 									}
 								};
+								if (it.action === 'searchLink') {
+									const rl = resolveSearchLink({ ...(ACTION_DEFAULTS['searchLink'] || {}), ...it });
+									entry.label = label || rl?.name || msg(ACTION_KEYS['searchLink']);
+									entry.icon = rl ? rl.icon : '';
+									if (rl && !rl.iconBundled) entry._faviconUrl = rl.url;
+								} else {
+									entry.label = label || msg(ACTION_KEYS[it.action]) || it.action;
+								}
+								// Icon-Feld: Lucide-Name oder 'favicon' (Ziel-URL-Favicon)
+								if (it.icon && it.icon !== 'favicon') {
+									entry.iconName = it.icon;
+								} else if (it.icon === 'favicon') {
+									const target = it.customUrl || entry._faviconUrl;
+									if (target) {
+										entry.icon = monogramFor(entry.label, target);
+										entry._faviconUrl = target;
+									}
+								}
+								return entry;
 							});
-						ctxMenu.setItems(items);
-						upgradeMenuIcons(items);
+						};
+
+						// Switcher zeigt aktive Standard-Menüs (Forks/eigene Menüs sind privat).
+						const buildSwitcher = (resolved) => {
+							const sw = SETTINGS.customMenuSwitcher;
+							if (!sw?.enabled) return null;
+							const active = window.FlowMouseMenuModel.listActiveMenus(
+								window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SETTINGS.siteMenus);
+							const menus = active
+								.filter(m => m.id !== resolved.menuId
+									&& window.FlowMouseMenuModel.menuFlag(SETTINGS.siteMenus, m.id, m.def, 'showInSwitcher'))
+								.map(m => ({ id: m.id, name: m.def.name || (m.def.nameKey && msg(m.def.nameKey)) || msg('actionCustomMenu') }));
+							if (!menus.length) return null;
+							return {
+								name: resolved.name || (resolved.nameKey && msg(resolved.nameKey)) || msg('actionCustomMenu'),
+								position: sw.position === 'footer' ? 'footer' : 'header',
+								menus,
+							};
+						};
+
+						const buildMenu = (resolved) => {
+							if (!resolved) return null;
+							const appended = window.FlowMouseMenuModel.applyMenuAppend(resolved, SETTINGS.menuAppend);
+							return { items: buildItems(appended), switcher: buildSwitcher(appended) };
+						};
+
+						const initialResolved = resolveGestureMenu(gestureCfg);
+						const initial = buildMenu(initialResolved);
+						if (!initial) break;
+
+						ctxMenu.prepare(cursor.endX, cursor.endY);
+						ctxMenu.setSwitcher((id) => {
+							// Umschalten zeigt immer die Standard-Version des Ziel-Menüs.
+							const resolved = resolveGestureMenu({ mode: 'standard', menuId: id });
+							const rebuilt = buildMenu(resolved);
+							if (!rebuilt) return; // gelöscht → no-op
+							ctxMenu.setItems(rebuilt.items, rebuilt.switcher);
+							upgradeMenuIcons(rebuilt.items);
+						});
+						ctxMenu.setItems(initial.items, initial.switcher);
+						upgradeMenuIcons(initial.items);
 						break;
 					}
 				}

@@ -1,8 +1,10 @@
 // Chrome loads the service worker as a single file and pulls these in via
 // importScripts. Firefox has no importScripts in a background script — there
-// menu-patterns.js and favicon-util.js are listed in manifest background.scripts.
+// these helpers are listed in manifest background.scripts instead.
 if (typeof importScripts === 'function') {
 	importScripts('menu-patterns.js');
+	importScripts('menu-catalog.js');
+	importScripts('menu-model.js');
 	importScripts('favicon-util.js');
 }
 
@@ -65,7 +67,7 @@ const CONTENT_ACTIONS = new Set([
 	'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent',
 	'simulateKey', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 	'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
-	'customMenu',
+	'customMenu', 'siteMenu',
 ]);
 
 async function createTabAtPosition(sender, position, extraOpts = {}) {
@@ -816,9 +818,11 @@ async function handleAction(request, sender) {
 			const menuId = request.menuId;
 			const url = sender.tab?.url;
 			if (!menuId || !url) return { success: false };
-			const cur = await new Promise(res => chrome.storage.sync.get(['customMenus'], items => res(items.customMenus || {})));
-			const { menus, added } = self.FlowMouseMenuPatterns.addSiteToMenuPatterns(cur, menuId, url);
-			if (added) await chrome.storage.sync.set({ customMenus: menus });
+			const pattern = self.FlowMouseMenuPatterns.siteToPattern(url);
+			const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], items => res(items.siteMenus || {})));
+			const { siteMenus, added } = self.FlowMouseMenuModel.addPatternToMenu(
+				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, pattern);
+			if (added) await chrome.storage.sync.set({ siteMenus });
 			return { success: true, added };
 		}
 
@@ -1012,6 +1016,7 @@ async function handleAction(request, sender) {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return { success: false };
 			session.latest = request.items;
+			if ('switcher' in request) session.latestSwitcher = request.switcher;
 			const waiters = session.waiters;
 			session.waiters = [];
 			waiters.forEach((r) => r());
@@ -1020,11 +1025,11 @@ async function handleAction(request, sender) {
 
 		case 'ctxMenuFetch': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session) return { items: [] };
+			if (!session) return { items: [], switcher: null };
 			// Return the latest items; if none have been set yet, wait for the first.
-			if (session.latest !== undefined) return { items: session.latest };
+			if (session.latest !== undefined) return { items: session.latest, switcher: session.latestSwitcher ?? null };
 			await new Promise((r) => { session.waiters.push(r); setTimeout(r, 10000); });
-			return { items: session.latest ?? null };
+			return { items: session.latest ?? null, switcher: session.latestSwitcher ?? null };
 		}
 
 		case 'ctxMenuDimensions': {
@@ -1046,8 +1051,20 @@ async function handleAction(request, sender) {
 				action: 'ctxMenuSelect',
 				menuId: request.menuId,
 				index: request.index,
+				button: request.button || 0,
 			}, { frameId: session.frameId }).catch(() => {});
 			ctxMenuSessions.delete(request.menuId);
+			return { success: true };
+		}
+
+		case 'ctxMenuSwitch': {
+			const session = ctxMenuSessions.get(request.menuId);
+			if (!session) return;
+			chrome.tabs.sendMessage(session.tabId, {
+				action: 'ctxMenuSwitch',
+				menuId: request.menuId,
+				id: request.id,
+			}, { frameId: session.frameId }).catch(() => {});
 			return { success: true };
 		}
 

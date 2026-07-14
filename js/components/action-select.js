@@ -2,7 +2,7 @@ import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon } from '../icons.js';
 import { getChainLabel } from './chain-panel.js';
-import { getMenuLabel } from './menu-panel.js';
+import { getGestureMenuLabel } from './gesture-menu-config.js';
 import { tooltip } from '../tooltip.js';
 import { SettingsStore } from '../settings-store.js';
 import { renderCatalogEngineOptions } from './engine-options.js';
@@ -86,6 +86,7 @@ const ACTION_ICONS = {
 	'menuRecentlyClosed': 'history',
 	'menuShowBookmarks': 'bookOpen',
 	'customMenu': 'layoutGrid',
+	'siteMenu': 'layoutList',
 	'areaSelect': 'squareDashedMousePointer',
 };
 
@@ -103,7 +104,7 @@ const SCROLL_DISTANCE_ACTIONS = ['scrollUp', 'scrollDown'];
 const ACTION_CATEGORIES = [
 	{ key: '', actions: ['none', 'actionChain', 'delay'] },
 	{ key: 'actionCategoryNavigation', icon: 'compass', actions: ['back', 'forward', 'urlLevelUp', 'urlToRoot', 'scrollUp', 'scrollDown', 'scrollToTop', 'scrollToBottom'] },
-	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'customMenu', 'addSiteToMenu'] },
+	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'siteMenu', 'customMenu', 'addSiteToMenu'] },
 	{ key: 'actionCategoryTabs', icon: 'panelTop', actions: ['newTab', 'closeTab', 'refresh', 'refreshAllTabs', 'switchLeftTab', 'switchRightTab', 'switchFirstTab', 'switchLastTab', 'closeOtherTabs', 'closeLeftTabs', 'closeRightTabs', 'closeAllTabs', 'switchLastActiveTab', 'restoreTab', 'duplicateTab', 'togglePinTab', 'moveTabToNewWindow'] },
 	{ key: 'actionCategoryWindow', icon: 'appWindow', actions: ['newWindow', 'newIncognito', 'toggleFullscreen', 'toggleMaximize', 'minimize', 'closeWindow', 'closeBrowser'] },
 	{ key: 'actionCategoryUtilities', icon: 'wrench', actions: ['addToBookmarks', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'openCustomUrl', 'openDownloads', 'openHistory', 'openExtensions', 'zoomIn', 'zoomOut', 'resetZoom', 'toggleMuteTab', 'toggleMuteAllTabs', 'stopLoading', 'stopAllLoading', 'printPage', 'saveAsMhtml', 'viewPageSource', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink', 'pauseGesture', 'simulateKey', 'sendCustomEvent', 'sendExtensionMessage', 'areaSelect'] },
@@ -706,6 +707,14 @@ class ActionSelect extends LitElement {
 		}
 	}
 
+	#getSiteMenuName(menuId) {
+		if (!menuId) return null;
+		const base = window.FlowMouseMenuModel.getBaseMenu(
+			window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SettingsStore.current.siteMenus, menuId);
+		if (!base) return null;
+		return base.name || (base.nameKey && window.i18n.getMessage(base.nameKey)) || null;
+	}
+
 	#getActionLabel(val) {
 		if (this.config?.customName) return this.config.customName;
 		const ACTION_KEYS = window.GestureConstants.ACTION_KEYS;
@@ -728,12 +737,11 @@ class ActionSelect extends LitElement {
 		if (val === 'actionChain') {
 			return getChainLabel(this.config?.chainId);
 		}
-		if (val === 'customMenu') {
-			if (this.config?.contextual) return window.i18n.getMessage('customMenuContextualLabel');
-			return getMenuLabel(this.config?.menuId);
+		if (val === 'customMenu' || val === 'siteMenu') {
+			return getGestureMenuLabel(this.config, val);
 		}
 		if (val === 'addSiteToMenu') {
-			return this.config?.customName || (this.config?.menuId ? getMenuLabel(this.config.menuId) : window.i18n.getMessage('actionAddSiteToMenu'));
+			return this.config?.customName || this.#getSiteMenuName(this.config?.menuId) || window.i18n.getMessage('actionAddSiteToMenu');
 		}
 		if (val === 'searchLink') {
 			return this.config?.customName
@@ -773,7 +781,7 @@ class ActionSelect extends LitElement {
 			for (const action of cat.actions) {
 				if (!ACTION_KEYS[action]) continue;
 				if (action === 'actionChain' && ctx === 'chain-step') continue;
-				if (action === 'customMenu' && (ctx === 'chain-step' || ctx === 'menu-item')) continue;
+				if ((action === 'customMenu' || action === 'siteMenu') && (ctx === 'chain-step' || ctx === 'menu-item')) continue;
 				if (action === 'delay' && ctx !== 'chain-step') continue;
 				const label = window.i18n.getMessage(ACTION_KEYS[action]);
 				if (!search || label.toLowerCase().includes(search) || action.toLowerCase().includes(search)) {
@@ -890,7 +898,7 @@ class ActionSelect extends LitElement {
 		const key = ACTION_KEYS[val];
 		const name = key ? window.i18n.getMessage(key) : val;
 
-		const canReset = showActionConfig && val !== 'actionChain' && val !== 'customMenu' && this.#isConfigModified();
+		const canReset = showActionConfig && val !== 'actionChain' && val !== 'customMenu' && val !== 'siteMenu' && this.#isConfigModified();
 		return html`
 			<div class="detail-header">
 				<div class="detail-header-icon">${unsafeHTML(icon(ACTION_ICONS[val] || 'minus'))}</div>
@@ -1016,13 +1024,6 @@ class ActionSelect extends LitElement {
 		const chainId = e.detail.chainId;
 		if (!chainId) return;
 		this._pendingConfig = { ...this._pendingConfig, chainId };
-		this.requestUpdate();
-	}
-
-	#onMenuSelect(e) {
-		const menuId = e.detail.menuId;
-		if (!menuId) return;
-		this._pendingConfig = { ...this._pendingConfig, menuId };
 		this.requestUpdate();
 	}
 
@@ -1564,33 +1565,28 @@ class ActionSelect extends LitElement {
 				></chain-panel>
 			`;
 		}
-		if (action === 'customMenu') {
-			const contextual = !!this._pendingConfig?.contextual;
+		if (action === 'customMenu' || action === 'siteMenu') {
 			return html`
-				<div class="action-config-info">${window.i18n.getMessage('customMenuDesc')}</div>
-				<div class="action-config-row">
-					<label class="action-config-checkbox">
-						<input type="checkbox"
-							.checked=${contextual}
-							@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, contextual: e.target.checked }; this.requestUpdate(); }}
-						>
-						<span>${window.i18n.getMessage('customMenuContextual')}</span>
-					</label>
-				</div>
-				${contextual ? html`<div class="action-config-info">${window.i18n.getMessage('customMenuContextualHint')}</div>` : ''}
-				<menu-panel
-					.selectedMenuId=${this._pendingConfig?.menuId || ''}
-					@menu-select=${this.#onMenuSelect}
-				></menu-panel>
+				<div class="action-config-info">${window.i18n.getMessage(action === 'siteMenu' ? 'siteMenusDesc' : 'customMenuDesc')}</div>
+				<gesture-menu-config
+					.action=${action}
+					.config=${this._pendingConfig}
+					@menu-config-change=${(e) => { this._pendingConfig = { ...e.detail.config }; this.requestUpdate(); }}
+				></gesture-menu-config>
 			`;
 		}
 		if (action === 'addSiteToMenu') {
+			const menus = window.FlowMouseMenuModel.listActiveMenus(
+				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SettingsStore.current.siteMenus);
+			const cur = this._pendingConfig?.menuId || '';
 			return html`
 				<div class="action-config-info">${window.i18n.getMessage('addSiteToMenuDesc')}</div>
-				<menu-panel
-					.selectedMenuId=${this._pendingConfig?.menuId || ''}
-					@menu-select=${this.#onMenuSelect}
-				></menu-panel>
+				<div class="action-config-row">
+					<select class="action-config-select"
+						@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, menuId: e.target.value }; }}>
+						${menus.map(m => html`<option value=${m.id} ?selected=${m.id === cur}>${m.def.name || (m.def.nameKey && window.i18n.getMessage(m.def.nameKey)) || m.id}</option>`)}
+					</select>
+				</div>
 			`;
 		}
 		if (action === 'searchLink') {
