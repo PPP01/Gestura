@@ -791,6 +791,10 @@
 		"message": "এক্সটেনশনস খুলুন",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "সেটিংস খুলুন",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML হিসেবে সংরক্ষণ করুন",
 		"description": "Save current page as MHTML file"

@@ -791,6 +791,10 @@
 		"message": "פתח תוספים",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "פתח הגדרות",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "שמירה כ-MHTML",
 		"description": "Save current page as MHTML file"

@@ -791,6 +791,10 @@
 		"message": "Otevřít rozšíření",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Otevřít nastavení",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Uložit jako MHTML",
 		"description": "Save current page as MHTML file"

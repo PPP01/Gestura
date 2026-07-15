@@ -791,6 +791,10 @@
 		"message": "فتح الإضافات",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "فتح الإعدادات",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "حفظ بتنسيق MHTML",
 		"description": "Save current page as MHTML file"

@@ -791,6 +791,10 @@
 		"message": "एक्सटेंशन खोलें",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "सेटिंग्स खोलें",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML के रूप में सहेजें",
 		"description": "Save current page as MHTML file"

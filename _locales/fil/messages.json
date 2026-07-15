@@ -791,6 +791,10 @@
 		"message": "Buksan ang Mga Extension",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Buksan ang Mga Setting",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "I-save bilang MHTML",
 		"description": "Save current page as MHTML file"

@@ -791,6 +791,10 @@
 		"message": "Buka Ekstensi",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Buka Pengaturan",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Simpan sebagai MHTML",
 		"description": "Save current page as MHTML file"

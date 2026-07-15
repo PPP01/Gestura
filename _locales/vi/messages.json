@@ -791,6 +791,10 @@
 		"message": "Mở trang Tiện ích mở rộng",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Mở cài đặt",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Lưu dưới dạng MHTML",
 		"description": "Save current page as MHTML file"

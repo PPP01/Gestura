@@ -791,6 +791,10 @@
 		"message": "Eklentileri Aç",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Ayarları aç",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML olarak kaydet",
 		"description": "Save current page as MHTML file"

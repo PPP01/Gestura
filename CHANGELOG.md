@@ -5,6 +5,12 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### v2.3.1 (2026-07-15)
+
+**New Features:**
+
+- **"Open Settings" action:** a new gesture action opens the extension's settings page in a new tab. Assigned by default to the gesture right → down → left → up (`→↓←↑`).
+
 ### v2.3 (2026-07-14)
 
 **New Features:**

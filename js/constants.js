@@ -20,6 +20,7 @@
 		'↓↑': 'scrollToTop',
 		'←→': 'closeTab',
 		'→←': 'restoreTab',
+		'→↓←↑': 'openOptionsPage',
 	};
 
 	const ACTION_KEYS = {
@@ -68,6 +69,7 @@
 			'openExtensions': 'actionOpenExtensions',
 			'saveAsMhtml': 'actionSaveAsMhtml',
 		}),
+		'openOptionsPage': 'actionOpenOptions',
 		'printPage': 'actionPrintPage',
 		'duplicateTab': 'actionDuplicateTab',
 		'toggleMuteTab': 'actionToggleMuteTab',

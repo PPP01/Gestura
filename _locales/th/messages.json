@@ -791,6 +791,10 @@
 		"message": "เปิดส่วนขยาย",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "เปิดการตั้งค่า",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "บันทึกเป็น MHTML",
 		"description": "Save current page as MHTML file"

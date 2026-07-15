@@ -791,6 +791,10 @@
 		"message": "打开扩展管理",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "打开设置",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "保存为 MHTML",
 		"description": "Save current page as MHTML file"

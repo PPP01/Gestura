@@ -791,6 +791,10 @@
 		"message": "Otvori proširenja",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Otvori postavke",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Spremi kao MHTML",
 		"description": "Save current page as MHTML file"

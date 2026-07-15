@@ -791,6 +791,10 @@
 		"message": "Bővítmények megnyitása",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Beállítások megnyitása",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Mentés MHTML-ként",
 		"description": "Save current page as MHTML file"

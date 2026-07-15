@@ -791,6 +791,10 @@
 		"message": "Avaa laajennukset",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Avaa asetukset",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Tallenna MHTML-muodossa",
 		"description": "Save current page as MHTML file"

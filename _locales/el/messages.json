@@ -791,6 +791,10 @@
 		"message": "Άνοιγμα Επεκτάσεων",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Άνοιγμα ρυθμίσεων",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Αποθήκευση ως MHTML",
 		"description": "Save current page as MHTML file"

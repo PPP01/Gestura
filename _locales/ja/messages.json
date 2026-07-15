@@ -791,6 +791,10 @@
 		"message": "拡張機能を開く",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "設定を開く",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "MHTMLとして保存",
 		"description": "Save current page as MHTML file"

@@ -791,6 +791,10 @@
 		"message": "Отвори екстензије",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Отвори подешавања",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Сачувај као MHTML",
 		"description": "Save current page as MHTML file"

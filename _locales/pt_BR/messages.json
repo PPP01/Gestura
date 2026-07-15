@@ -791,6 +791,10 @@
 		"message": "Abrir Extensões",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Abrir configurações",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Salvar como MHTML",
 		"description": "Save current page as MHTML file"

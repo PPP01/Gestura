@@ -791,6 +791,10 @@
 		"message": "확장 프로그램 관리 열기",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "설정 열기",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML로 저장",
 		"description": "Save current page as MHTML file"

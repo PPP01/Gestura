@@ -791,6 +791,10 @@
 		"message": "Отвори разширенията",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Отваряне на настройките",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Запазване като MHTML",
 		"description": "Save current page as MHTML file"

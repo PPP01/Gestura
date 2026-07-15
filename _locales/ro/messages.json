@@ -791,6 +791,10 @@
 		"message": "Deschide Extensii",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Deschide setările",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Salvează ca MHTML",
 		"description": "Save current page as MHTML file"

@@ -791,6 +791,10 @@
 		"message": "باز کردن افزونه‌ها",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "باز کردن تنظیمات",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "ذخیره به عنوان MHTML",
 		"description": "Save current page as MHTML file"
