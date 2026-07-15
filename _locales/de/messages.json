@@ -2708,11 +2708,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Einträge, die FlowMouse zum Rechtsklick-Menü des Browsers hinzufügt",
+		"message": "Einträge, die Gestura zum Rechtsklick-Menü des Browsers hinzufügt",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Das Kontextmenü ist das Menü, das beim Rechtsklick auf eine Seite erscheint. FlowMouse fügt dort die folgenden Einträge hinzu.",
+		"message": "Das Kontextmenü wird bei einem Rechtsklick eingeblendet. Gestura kann dort sein eigenes kleines Untermenü einblenden und weitere Funktionen bereitstellen.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2724,7 +2724,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Rechtsklick-Eintrag, um die aktuelle Seite (oder den angeklickten Link) zu einem Website-Menü hinzuzufügen",
+		"message": "Aktuelle Seite (oder den angeklickten Link) zu einem Website-Menü hinzufügen",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2732,7 +2732,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Rechtsklick-Eintrag, der das Website-Menü-Overlay öffnet – wie die Geste",
+		"message": "Website-Menü-Overlay öffnen – wie die Geste",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2744,7 +2744,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Zeigt einen Eintrag „Optionen“, der die Einstellungsseite öffnet",
+		"message": "Zeigt einen Eintrag „Optionen“, der diese Einstellungsseite öffnet",
 		"description": "Description for context menu options entry setting"
 	},
 	"siteMenuAddAsk": {

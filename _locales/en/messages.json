@@ -2768,11 +2768,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Entries FlowMouse adds to the browser's right-click menu",
+		"message": "Entries Gestura adds to the browser's right-click menu",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "The context menu is the menu that opens when you right-click on a page. FlowMouse adds the entries below to it.",
+		"message": "The context menu appears on right-click. Gestura can show its own small submenu there and provide extra functions.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2784,7 +2784,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Right-click entry to add the current page (or the right-clicked link) to a website menu",
+		"message": "Add the current page (or the right-clicked link) to a website menu",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2792,7 +2792,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Right-click entry that opens the website-menu overlay, like the gesture",
+		"message": "Open the website-menu overlay – like the gesture",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2804,7 +2804,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Show an \"Options\" entry that opens the settings page",
+		"message": "Show an \"Options\" entry that opens this settings page",
 		"description": "Description for context menu options entry setting"
 	},
 	"siteMenuAddAsk": {
