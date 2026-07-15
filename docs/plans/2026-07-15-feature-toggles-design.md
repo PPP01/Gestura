@@ -88,12 +88,21 @@ Element voran.
   mit `enableDragFeatures` UND-verknüpfen.
 - **Area Select:** `isAreaSelectModifierEnabled` (Z. 2561) um
   `SETTINGS.enableAreaSelect &&` erweitern.
-- **Blacklist:** nach dem Setzen von `isBlacklisted` (Z. ~1943, sowie die
-  Re-Checks) erzwingen: bei `!SETTINGS.enableBlacklist` immer `isBlacklisted = false`.
-  Am robustesten in `checkBlacklist()` selbst: `if (!SETTINGS.enableBlacklist) return false;`
-  am Anfang. Das deaktiviert zugleich das „Zur Blacklist hinzufügen"-Kontextmenü
-  (das an `enableBlacklistContextMenu` hängt — zusätzlich mit `enableBlacklist`
-  UND-verknüpfen).
+- **Blacklist (content.js):** in `checkBlacklist()` (Z. ~1924) am Anfang
+  `if (!SETTINGS.enableBlacklist) return false;` — damit werden Gesten etc. auch
+  auf gelisteten Seiten aktiv.
+- **Blacklist (background.js):** Das „Zur Blacklist hinzufügen"/„entfernen"-Menü
+  ist das **native Browser-Kontextmenü**, verwaltet in `background.js`
+  (`createBlacklistMenu`, Z. 1533; Bedingung Z. 1595). Umsetzung:
+  - Z. 1588: `enableBlacklist` zusätzlich aus `chrome.storage.sync.get([...])` laden.
+  - Z. 1595: Bedingung um `items.enableBlacklist &&` erweitern (Menü nur zeigen,
+    wenn Feature an) — sonst `removeBlacklistMenu()`.
+  - Z. 1608: die „Blacklist anwenden"-Kurzschluss-Prüfung (`removeAllMenus()` +
+    Badge) nur ausführen, wenn `items.enableBlacklist` an; sonst überspringen,
+    damit gelistete Seiten normal funktionieren.
+  - Z. 1682: `changes.enableBlacklist` in den Re-Render-Trigger aufnehmen.
+  - `default_settings`-Konsum: `enableBlacklist` fehlt in altem Storage ⇒ als
+    `!== false` behandeln (Default an).
 - **Website menus:** im `customMenu`/`siteMenu`-Case (~Z. 3495 ff.) bei
   `!SETTINGS.enableSiteMenus` das Bauen/Anzeigen der Site-/Custom-Menüs
   überspringen (Aktion wird zum No-op). Ebenso Switcher (`customMenuSwitcher`)

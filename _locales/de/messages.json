@@ -419,6 +419,18 @@
 		"message": "Keine blockierten Seiten. Domain oben eingeben zum Hinzufügen.",
 		"description": "Empty blacklist message"
 	},
+	"featuresSection": {
+		"message": "Funktionen",
+		"description": "Section title for the master feature toggles"
+	},
+	"featureJumpToSettings": {
+		"message": "Zu diesen Einstellungen springen",
+		"description": "Tooltip on feature toggle label linking to its settings section"
+	},
+	"featureGestures": {
+		"message": "Gesten",
+		"description": "Feature toggle label for gestures"
+	},
 	"enableBlacklistContextMenu": {
 		"message": "Gesten-Umschalter im Kontextmenü",
 		"description": "Setting title for blacklist context menu toggle"

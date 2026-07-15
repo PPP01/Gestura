@@ -35,6 +35,17 @@ describe("DEFAULT_SETTINGS", () => {
 	it("menuOpenBehavior defaults to 'standard' (left=same tab, right=new tab)", () => {
 		expect(DEFAULT_SETTINGS.menuOpenBehavior).toBe("standard");
 	});
+	it("master feature toggles default on, except wheel/special which stay off", () => {
+		expect(DEFAULT_SETTINGS.enableDragFeatures).toBe(true);
+		expect(DEFAULT_SETTINGS.enableAreaSelect).toBe(true);
+		expect(DEFAULT_SETTINGS.enableSearchEngines).toBe(true);
+		expect(DEFAULT_SETTINGS.enableSiteMenus).toBe(true);
+		expect(DEFAULT_SETTINGS.enableBlacklist).toBe(true);
+		// existing flags double as master toggles
+		expect(DEFAULT_SETTINGS.enableGesture).toBe(true);
+		expect(DEFAULT_SETTINGS.enableWheelGestures).toBe(false);
+		expect(DEFAULT_SETTINGS.enableSpecialGestures).toBe(false);
+	});
 	it("customMenu is the private own-menu action; siteMenu covers the website menus (contextual default)", () => {
 		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ ownMenu: null });
 		expect(globalThis.GestureConstants.ACTION_DEFAULTS.siteMenu).toEqual({ mode: "contextual", menuId: "", fork: null });

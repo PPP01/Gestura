@@ -207,6 +207,43 @@ class OptionsPage extends LitElement {
 				text-decoration: underline;
 			}
 
+			.feature-jump {
+				display: inline-flex;
+				align-items: center;
+				gap: 4px;
+				border: none;
+				background: transparent;
+				padding: 0;
+				margin: 0;
+				font: inherit;
+				color: inherit;
+				text-align: start;
+				cursor: pointer;
+			}
+
+			.feature-jump:hover {
+				color: var(--accent-color);
+			}
+
+			.feature-jump-icon {
+				display: inline-flex;
+				align-items: center;
+				color: var(--accent-color);
+				opacity: 0;
+				transform: translateX(-3px);
+				transition: opacity 0.18s ease, transform 0.18s ease;
+			}
+
+			.feature-jump:hover .feature-jump-icon,
+			.feature-jump:focus-visible .feature-jump-icon {
+				opacity: 1;
+				transform: translateX(0);
+			}
+
+			:host-context([dir="rtl"]) .feature-jump-icon svg {
+				transform: scaleX(-1);
+			}
+
 			@media (max-width: 1200px) {
 				.section-nav {
 					display: none;
@@ -330,7 +367,21 @@ class OptionsPage extends LitElement {
 					</div>
 				</header>
 
-				<div class="section ${this._activeSection === 'style' ? 'active' : ''} ${(this._settings.sectionAdvanced?.style) ? 'advanced-expanded' : ''}" data-nav="style">
+				<div class="section ${this._activeSection === 'features' ? 'active' : ''}" data-nav="features">
+						<h2><span class="section-icon">${unsafeHTML(icon('power', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('featuresSection')}</span></h2>
+						<div class="section-body">
+							${this.#renderFeatureToggle('enableGesture', 'basic', i18n.getMessage('featureGestures'), true)}
+							${this.#renderFeatureToggle('enableDragFeatures', 'drag', i18n.getMessage('dragFeatures'))}
+							${this.#renderFeatureToggle('enableAreaSelect', 'areaSelect', i18n.getMessage('areaSelectTitle'))}
+							${this.#renderFeatureToggle('enableWheelGestures', 'wheel', i18n.getMessage('wheelGestures'))}
+							${this.#renderFeatureToggle('enableSpecialGestures', 'special', i18n.getMessage('specialGestures'))}
+							${this.#renderFeatureToggle('enableSearchEngines', 'searchEngines', i18n.getMessage('sectionSearchEngines'))}
+							${this.#renderFeatureToggle('enableSiteMenus', 'siteMenus', i18n.getMessage('siteMenusTitle'))}
+							${this.#renderFeatureToggle('enableBlacklist', 'blacklist', i18n.getMessage('blacklist'))}
+						</div>
+					</div>
+
+					<div class="section ${this._activeSection === 'style' ? 'active' : ''} ${(this._settings.sectionAdvanced?.style) ? 'advanced-expanded' : ''}" data-nav="style">
 					<h2><span class="section-icon">${unsafeHTML(icon('palette', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('styleSettings')}</span>${this.#renderAdvancedToggle('style')}</h2>
 					<div class="section-body">
 						<div class="setting-row first-row">
@@ -439,19 +490,9 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'basic' ? 'active' : ''} ${(this._settings.sectionAdvanced?.basic) ? 'advanced-expanded' : ''}" data-nav="basic">
+				<div class="section ${this._activeSection === 'basic' ? 'active' : ''} ${(this._settings.sectionAdvanced?.basic) ? 'advanced-expanded' : ''}" data-nav="basic" style="display:${this._settings.enableGesture !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('mouseRight', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('basicSettings')}</span>${this.#renderAdvancedToggle('basic')}</h2>
 					<div class="section-body">
-						<div class="setting-row first-row">
-							<div class="setting-label">
-								<span>${i18n.getMessage('enableGesture')}</span>
-								<span>${i18n.getMessage('enableGestureDesc')}</span>
-							</div>
-							<label class="toggle">
-								<input type="checkbox" id="enableGesture" .checked=${this._settings.enableGesture} @change=${e => this.#updateSetting('enableGesture', e.target.checked)}>
-								<span class="slider"></span>
-							</label>
-						</div>
 						${showMacLinuxNotice ? html`
 							<div class="setting-warning" id="mac-linux-notice"><span>${i18n.getMessage('macLinuxContextMenuNotice')}</span></div>
 						` : ''}
@@ -460,7 +501,7 @@ class OptionsPage extends LitElement {
 						` : ''}
 
 						<div class="setting-group" style="display:${gestureEnabled ? 'block' : 'none'}">
-							<div class="setting-row advanced-setting">
+							<div class="setting-row advanced-setting ${this._settings.sectionAdvanced?.basic ? 'first-row' : ''}">
 								<div class="setting-label">
 									<span class="setting-title">${i18n.getMessage('gestureTriggerButtons')}${this.#renderInlineReset('gestureTriggerButtons')}</span>
 									<span>${i18n.getMessage('gestureTriggerButtonsDesc')}</span>
@@ -536,7 +577,7 @@ class OptionsPage extends LitElement {
 
 						<div class="setting-group" style="display:${gestureEnabled ? 'block' : 'none'}">
 							<div id="gesture-customization-row">
-								<div class="setting-row">
+								<div class="setting-row ${this._settings.sectionAdvanced?.basic ? '' : 'first-row'}">
 									<div class="setting-label">
 										<span>${i18n.getMessage('enableCustomGestures')}</span>
 										<span>${i18n.getMessage('enableCustomGesturesDesc')}</span>
@@ -566,7 +607,7 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'drag' ? 'active' : ''} ${(this._settings.sectionAdvanced?.drag) ? 'advanced-expanded' : ''}" data-nav="drag">
+				<div class="section ${this._activeSection === 'drag' ? 'active' : ''} ${(this._settings.sectionAdvanced?.drag) ? 'advanced-expanded' : ''}" data-nav="drag" style="display:${this._settings.enableDragFeatures !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('mouseLeft', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('dragFeatures')}</span>${this.#renderAdvancedToggle('drag')}</h2>
 					<div class="section-body">
 						<div class="setting-group">
@@ -676,7 +717,7 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'areaSelect' ? 'active' : ''}" data-nav="areaSelect">
+				<div class="section ${this._activeSection === 'areaSelect' ? 'active' : ''}" data-nav="areaSelect" style="display:${this._settings.enableAreaSelect !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('squareDashedMousePointer', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('areaSelectTitle')}</span></h2>
 					<div class="section-body">
 						<div class="setting-row first-row">
@@ -736,20 +777,10 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'wheel' ? 'active' : ''}" data-nav="wheel">
+				<div class="section ${this._activeSection === 'wheel' ? 'active' : ''}" data-nav="wheel" style="display:${this._settings.enableWheelGestures ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('mouse', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('wheelGestures')}</span></h2>
 					<div class="section-body">
-						<div class="setting-row first-row">
-							<div class="setting-label">
-								<span>${i18n.getMessage('enableWheelGestures')}</span>
-								<span>${i18n.getMessage('enableWheelGesturesDesc')}</span>
-							</div>
-							<label class="toggle">
-								<input type="checkbox" id="enableWheelGestures" .checked=${this._settings.enableWheelGestures} @change=${e => this.#updateSetting('enableWheelGestures', e.target.checked)}>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="sub-settings ${this._settings.enableWheelGestures ? 'show' : ''}">
+						<div class="sub-settings show">
 							<wheel-gesture-manager
 								.wheelGestures=${{ ...(this._settings.wheelGestures || {}) }}
 								?enableWheelGestures=${this._settings.enableWheelGestures}
@@ -760,20 +791,10 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'special' ? 'active' : ''}" data-nav="special">
+				<div class="section ${this._activeSection === 'special' ? 'active' : ''}" data-nav="special" style="display:${this._settings.enableSpecialGestures ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('mousePointerClick', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('specialGestures')}</span></h2>
 					<div class="section-body">
-						<div class="setting-row first-row">
-							<div class="setting-label">
-								<span>${i18n.getMessage('enableSpecialGestures')}</span>
-								<span>${i18n.getMessage('enableSpecialGesturesDesc')}</span>
-							</div>
-							<label class="toggle">
-								<input type="checkbox" id="enableSpecialGestures" .checked=${this._settings.enableSpecialGestures} @change=${e => this.#updateSetting('enableSpecialGestures', e.target.checked)}>
-								<span class="slider"></span>
-							</label>
-						</div>
-						<div class="sub-settings ${this._settings.enableSpecialGestures ? 'show' : ''}">
+						<div class="sub-settings show">
 							<special-gesture-manager
 								.specialGestures=${{ ...(this._settings.specialGestures || {}) }}
 								?enableSpecialGestures=${this._settings.enableSpecialGestures}
@@ -784,7 +805,7 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'searchEngines' ? 'active' : ''}" data-nav="searchEngines">
+				<div class="section ${this._activeSection === 'searchEngines' ? 'active' : ''}" data-nav="searchEngines" style="display:${this._settings.enableSearchEngines !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('search', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('sectionSearchEngines')}</span></h2>
 					<div class="section-body">
 						<div class="setting-row first-row">
@@ -793,14 +814,14 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'siteMenus' ? 'active' : ''} ${(this._settings.sectionAdvanced?.siteMenus) ? 'advanced-expanded' : ''}" data-nav="siteMenus">
+				<div class="section ${this._activeSection === 'siteMenus' ? 'active' : ''} ${(this._settings.sectionAdvanced?.siteMenus) ? 'advanced-expanded' : ''}" data-nav="siteMenus" style="display:${this._settings.enableSiteMenus !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('layoutList', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('siteMenusTitle')}</span>${this.#renderAdvancedToggle('siteMenus')}</h2>
 					<div class="section-body">
 						<site-menu-manager ?advanced-mode=${this._settings.sectionAdvanced?.siteMenus}></site-menu-manager>
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'blacklist' ? 'active' : ''}" data-nav="blacklist">
+				<div class="section ${this._activeSection === 'blacklist' ? 'active' : ''}" data-nav="blacklist" style="display:${this._settings.enableBlacklist !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('mouseOff', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('blacklist')}</span></h2>
 					<div class="section-body">
 						<div class="setting-row first-row blacklist-section">
@@ -975,21 +996,26 @@ class OptionsPage extends LitElement {
 
 
 	#getSections(i18n) {
-		const sections = [
+		const all = [
+			{ id: 'features', label: i18n.getMessage('featuresSection'), icon: icons.power },
 			{ id: 'style', label: i18n.getMessage('styleSettings'), icon: icons.palette },
-			{ id: 'basic', label: i18n.getMessage('basicSettings'), icon: icons.mouseRight },
-			{ id: 'drag', label: i18n.getMessage('dragFeatures'), icon: icons.mouseLeft },
-			{ id: 'areaSelect', label: i18n.getMessage('areaSelectTitle'), icon: icons.squareDashedMousePointer },
-			{ id: 'wheel', label: i18n.getMessage('wheelGestures'), icon: icons.mouse },
-			{ id: 'special', label: i18n.getMessage('specialGestures'), icon: icons.mousePointerClick },
-			{ id: 'searchEngines', label: i18n.getMessage('sectionSearchEngines'), icon: icons.search },
-			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList },
-			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff },
+			{ id: 'basic', label: i18n.getMessage('basicSettings'), icon: icons.mouseRight, flag: 'enableGesture' },
+			{ id: 'drag', label: i18n.getMessage('dragFeatures'), icon: icons.mouseLeft, flag: 'enableDragFeatures' },
+			{ id: 'areaSelect', label: i18n.getMessage('areaSelectTitle'), icon: icons.squareDashedMousePointer, flag: 'enableAreaSelect' },
+			{ id: 'wheel', label: i18n.getMessage('wheelGestures'), icon: icons.mouse, flag: 'enableWheelGestures' },
+			{ id: 'special', label: i18n.getMessage('specialGestures'), icon: icons.mousePointerClick, flag: 'enableSpecialGestures' },
+			{ id: 'searchEngines', label: i18n.getMessage('sectionSearchEngines'), icon: icons.search, flag: 'enableSearchEngines' },
+			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList, flag: 'enableSiteMenus' },
+			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff, flag: 'enableBlacklist' },
 			{ id: 'other', label: i18n.getMessage('otherSettings'), icon: icons.slidersHorizontal },
 			{ id: 'data', label: i18n.getMessage('dataManagement'), icon: icons.hardDrive },
 			{ id: 'support', label: i18n.getMessage('supportAndFeedback'), icon: icons.messageCircleMore },
 		];
-		return sections;
+		return all.filter(s => {
+			if (!s.flag) return true;
+			if (s.flag === 'enableWheelGestures' || s.flag === 'enableSpecialGestures') return !!this._settings[s.flag];
+			return this._settings[s.flag] !== false;
+		});
 	}
 
 	#updateHoveredSection() {
@@ -1106,6 +1132,27 @@ class OptionsPage extends LitElement {
 			...current,
 			[section]: !current[section]
 		});
+	}
+
+	#renderFeatureToggle(key, sectionId, label, first = false) {
+		const enabled = this._settings[key] !== false;
+		const labelContent = enabled
+			? html`<button type="button" class="feature-jump" @click=${() => this.#scrollToSection(sectionId)} .tooltip=${tooltip(window.i18n.getMessage('featureJumpToSettings'))}>
+					<span>${label}</span>
+					<span class="feature-jump-icon">${unsafeHTML(icon('chevronRight', { size: 15, strokeWidth: 2.4 }))}</span>
+				</button>`
+			: html`<span>${label}</span>`;
+		return html`
+			<div class="setting-row ${first ? 'first-row' : ''}">
+				<div class="setting-label">
+					${labelContent}
+				</div>
+				<label class="toggle">
+					<input type="checkbox" .checked=${enabled} @change=${e => this.#updateSetting(key, e.target.checked)}>
+					<span class="slider"></span>
+				</label>
+			</div>
+		`;
 	}
 
 	#renderAdvancedToggle(sectionId) {

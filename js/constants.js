@@ -209,6 +209,11 @@
 	const DEFAULT_SETTINGS = {
 		theme: 'auto',
 		language: 'auto',
+		enableDragFeatures: true,
+		enableAreaSelect: true,
+		enableSearchEngines: true,
+		enableSiteMenus: true,
+		enableBlacklist: true,
 		enableGesture: true,
 		gestureTriggerButtons: { right: true, middle: false, side1: false, side2: false, penRight: false },
 		enableHUD: true,

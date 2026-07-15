@@ -1922,6 +1922,7 @@ window.ContentContextMenu = ContentContextMenu;
 	const currentDomain = location.hostname;
 
 	function checkBlacklist(blacklist) {
+		if (!blacklistFeatureEnabled) return false;
 		if (blacklist.includes(currentDomain)) return true;
 		try {
 			const origins = location.ancestorOrigins;
@@ -1934,13 +1935,17 @@ window.ContentContextMenu = ContentContextMenu;
 
 	let isBlacklisted = false;
 	let initGesturesCalled = false;
+	let blacklistFeatureEnabled = true;
+	let currentBlacklist = [];
 
-	chrome.storage.sync.get({ blacklist: [] }, (items) => {
+	chrome.storage.sync.get({ blacklist: [], enableBlacklist: true }, (items) => {
 		if (chrome.runtime.lastError) {
 			console.error(chrome.runtime.lastError);
 			return;
 		}
-		isBlacklisted = checkBlacklist(items.blacklist);
+		blacklistFeatureEnabled = items.enableBlacklist !== false;
+		currentBlacklist = items.blacklist || [];
+		isBlacklisted = checkBlacklist(currentBlacklist);
 		if (!isBlacklisted) {
 			initGestures();
 		}
@@ -1948,13 +1953,16 @@ window.ContentContextMenu = ContentContextMenu;
 
 	chrome.storage.onChanged.addListener((changes, namespace) => {
 		if (namespace === 'sync') {
-			if (changes.blacklist) {
-				const oldBlacklist = changes.blacklist.oldValue || [];
-				const newBlacklist = changes.blacklist.newValue || [];
-				const wasBlacklisted = checkBlacklist(oldBlacklist);
-				const nowBlacklisted = checkBlacklist(newBlacklist);
+			if (changes.blacklist || changes.enableBlacklist) {
+				if (changes.blacklist) {
+					currentBlacklist = changes.blacklist.newValue || [];
+				}
+				if (changes.enableBlacklist) {
+					blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
+				}
+				const nowBlacklisted = checkBlacklist(currentBlacklist);
 
-				if (wasBlacklisted !== nowBlacklisted) {
+				if (nowBlacklisted !== isBlacklisted) {
 					isBlacklisted = nowBlacklisted;
 					if (nowBlacklisted === false && !initGesturesCalled) {
 						initGestures();
@@ -2186,7 +2194,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 				await window.ContentI18n.loadLanguage(SETTINGS.language);
 
-				SETTINGS.enableDrag = SETTINGS.enableTextDrag || SETTINGS.enableImageDrag || SETTINGS.enableLinkDrag;
+				SETTINGS.enableDrag = SETTINGS.enableDragFeatures !== false && (SETTINGS.enableTextDrag || SETTINGS.enableImageDrag || SETTINGS.enableLinkDrag);
 
 				if (window.GestureRecognizer && recognizer && recognizer.updateConfig) {
 					recognizer.updateConfig({
@@ -2558,7 +2566,7 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		}, true);
 
-		const isAreaSelectModifierEnabled = () => SETTINGS.areaSelectModifierKey && SETTINGS.areaSelectModifierKey !== 'disabled';
+		const isAreaSelectModifierEnabled = () => SETTINGS.enableAreaSelect !== false && SETTINGS.areaSelectModifierKey && SETTINGS.areaSelectModifierKey !== 'disabled';
 
 		let areaSelectPending = null;
 		eventManager.add(isAreaSelectModifierEnabled, window, 'pointerdown', (e) => {
@@ -3494,6 +3502,7 @@ window.ContentContextMenu = ContentContextMenu;
 					}
 					case 'customMenu':
 					case 'siteMenu': {
+						if (SETTINGS.enableSiteMenus === false) break;
 						const gestureCfg = action === 'customMenu' ? ownMenuCfg(mergedConfig) : siteMenuCfg(mergedConfig);
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 

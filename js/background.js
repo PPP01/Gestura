@@ -1585,14 +1585,15 @@ async function updateMenuForTab(tab) {
 		return;
 	}
 
-	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu']);
+	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist']);
+	const blacklistEnabled = items.enableBlacklist !== false;
 	let hostname = null;
 	try {
 		if (url) hostname = new URL(url).hostname;
 	} catch (e) {
 	}
 
-	if (items.enableBlacklistContextMenu && hostname && !isRestrictedUrl(url)) {
+	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !isRestrictedUrl(url)) {
 		const isInBlacklist = items.blacklist && items.blacklist.includes(hostname);
 		createBlacklistMenu(isInBlacklist);
 	} else {
@@ -1605,7 +1606,7 @@ async function updateMenuForTab(tab) {
 		return;
 	}
 
-	if (hostname && items.blacklist && items.blacklist.includes(hostname)) {
+	if (blacklistEnabled && hostname && items.blacklist && items.blacklist.includes(hostname)) {
 		removeAllMenus();
 		updateBadge(tabId, 'normal');
 		return;
@@ -1679,7 +1680,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
 	if (namespace === 'sync') {
-		if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist) {
+		if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist || changes.enableBlacklist) {
 			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 				if (tabs[0]) {
 					updateMenuForTab(tabs[0]);

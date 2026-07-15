@@ -419,6 +419,18 @@
 		"message": "No blacklisted sites. Enter a domain above to add.",
 		"description": "Empty blacklist message"
 	},
+	"featuresSection": {
+		"message": "Features",
+		"description": "Section title for the master feature toggles"
+	},
+	"featureJumpToSettings": {
+		"message": "Jump to these settings",
+		"description": "Tooltip on feature toggle label linking to its settings section"
+	},
+	"featureGestures": {
+		"message": "Gestures",
+		"description": "Feature toggle label for gestures"
+	},
 	"enableBlacklistContextMenu": {
 		"message": "Context Menu Gesture Toggle",
 		"description": "Setting title for blacklist context menu toggle"
