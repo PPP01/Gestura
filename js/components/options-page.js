@@ -882,7 +882,7 @@ class OptionsPage extends LitElement {
 									<div class="inline-settings">
 										<div class="inline-setting-item">
 											<span>${i18n.getMessage('ctxMenuSiteMenuMode')}</span>
-											<select id="ctxMenuSiteMenuMode" @change=${e => this.#updateSetting('ctxMenuSiteMenuMode', e.target.value)}>
+											<select id="ctxMenuSiteMenuMode" @change=${e => this.#onCtxSiteMenuModeChange(e.target.value)}>
 												<option value="contextual" ?selected=${(this._settings.ctxMenuSiteMenuMode || 'contextual') === 'contextual'}>${i18n.getMessage('menuModeContextual')}</option>
 												<option value="standard" ?selected=${this._settings.ctxMenuSiteMenuMode === 'standard'}>${i18n.getMessage('menuModeStandard')}</option>
 											</select>
@@ -1247,6 +1247,16 @@ class OptionsPage extends LitElement {
 
 	async #updateSetting(key, value) {
 		await this.#savePatch({ [key]: this.#coerce(key, value) });
+	}
+
+	#onCtxSiteMenuModeChange(value) {
+		this.#updateSetting('ctxMenuSiteMenuMode', value);
+		if (value === 'standard' && !this._settings.ctxMenuSiteMenuId) {
+			const menus = (window.FlowMouseMenuModel && window.FlowMouseMenuCatalog)
+				? window.FlowMouseMenuModel.listActiveMenus(window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, this._settings.siteMenus)
+				: [];
+			if (menus.length) this.#updateSetting('ctxMenuSiteMenuId', menus[0].id);
+		}
 	}
 
 	async #updateTriggerButton(buttonKey, checked) {

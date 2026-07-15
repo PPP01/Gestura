@@ -2248,7 +2248,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
-				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false) return;
+				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || isBlacklisted) return;
 				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
 				const cursor = { startX: p.x, startY: p.y, endX: p.x, endY: p.y };
 				const target = document.elementFromPoint(p.x, p.y);

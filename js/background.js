@@ -1640,7 +1640,8 @@ async function updateMenuForTab(tab) {
 	removeContextMenuExtras();
 	const ctxOn = items.enableContextMenu !== false;
 	const siteMenusOn = items.enableSiteMenus !== false;
-	const canUseCtx = ctxOn && hostname && !isRestrictedUrl(url);
+	const isBlacklistedHost = blacklistEnabled && hostname && Array.isArray(items.blacklist) && items.blacklist.includes(hostname);
+	const canUseCtx = ctxOn && hostname && !isRestrictedUrl(url) && !isBlacklistedHost;
 
 	if (canUseCtx && siteMenusOn && items.ctxMenuAddSite !== false) {
 		const matches = matchingSiteMenuIds(url);
@@ -1786,8 +1787,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	} else if (info.menuItemId === MENU_ID_SITEMENU) {
 		if (!tab || !tab.id) return;
 		const cfg = await chrome.storage.sync.get(['ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId']);
-		const mode = cfg.ctxMenuSiteMenuMode === 'standard' ? 'standard' : 'contextual';
-		const config = mode === 'standard' ? { mode, menuId: cfg.ctxMenuSiteMenuId || '' } : { mode: 'contextual' };
+		const menuId = cfg.ctxMenuSiteMenuId || '';
+		const config = (cfg.ctxMenuSiteMenuMode === 'standard' && menuId) ? { mode: 'standard', menuId } : { mode: 'contextual' };
 		chrome.tabs.sendMessage(tab.id, { action: 'openSiteMenuOverlay', config }, { frameId: info.frameId || 0 })
 			.catch(() => {});
 	} else if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith(CTX_ADD_PREFIX)) {
