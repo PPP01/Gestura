@@ -2816,7 +2816,7 @@
 		"description": "Prompt title when adding a site to a menu"
 	},
 	"menuAddSiteToNamed": {
-		"message": "Add to menu \"$NAME$\"",
+		"message": "Add to menu \"{NAME}\"",
 		"description": "Menu entry template for adding to a named menu"
 	},
 	"menuOpenSiteMenu": {

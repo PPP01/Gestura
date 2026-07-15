@@ -1653,7 +1653,7 @@ async function updateMenuForTab(tab) {
 			self._ctxAddIds.push(addId);
 			chrome.contextMenus.create({
 				id: addId,
-				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('$NAME$', menuDisplayName(m)),
+				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
 				contexts: ['page', 'link', 'image']
 			}, () => { chrome.runtime.lastError; });
 		} else if (items.siteMenuAddAsk !== false) {
@@ -1682,7 +1682,7 @@ async function updateMenuForTab(tab) {
 				self._ctxAddIds.push(addId);
 				chrome.contextMenus.create({
 					id: addId,
-					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('$NAME$', menuDisplayName(m)),
+					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
 					contexts: ['page', 'link', 'image']
 				}, () => { chrome.runtime.lastError; });
 			}

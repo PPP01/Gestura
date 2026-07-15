@@ -404,7 +404,7 @@ Danach, direkt **nach** dem Blacklist-Block (nach der `if (blacklistEnabled && i
 			const m = active.find(x => x.id === matches[0]);
 			chrome.contextMenus.create({
 				id: CTX_ADD_PREFIX + matches[0],
-				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('$NAME$', menuDisplayName(m)),
+				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
 				contexts: ['page', 'link', 'image']
 			}, () => { chrome.runtime.lastError; });
 		} else if (items.siteMenuAddAsk !== false) {
@@ -429,7 +429,7 @@ Danach, direkt **nach** dem Blacklist-Block (nach der `if (blacklistEnabled && i
 				const m = active.find(x => x.id === dm);
 				chrome.contextMenus.create({
 					id: CTX_ADD_PREFIX + dm,
-					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('$NAME$', menuDisplayName(m)),
+					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
 					contexts: ['page', 'link', 'image']
 				}, () => { chrome.runtime.lastError; });
 			}
@@ -754,7 +754,7 @@ ctxMenuOptionsDesc            = "Show an \"Options\" entry that opens the settin
 siteMenuAddAsk                = "Ask which menu when none matches"
 siteMenuAddAskDesc            = "When adding a site and no menu matches, offer a menu picker; off = add to the default menu silently"
 menuAddSiteToMenu             = "Add this site to menu"
-menuAddSiteToNamed            = "Add to menu “$NAME$”"   (placeholders: { "NAME": { "content": "$1" } })
+menuAddSiteToNamed            = "Add to menu \"{NAME}\""
 menuOpenSiteMenu              = "Website menu"
 menuOptions                   = "Options"
 ctxTitlePromptLabel           = "Title for the menu entry"
@@ -762,22 +762,13 @@ ctxTitlePromptLabel           = "Title for the menu entry"
 
 (Keine weiteren Keys nötig — OK/Abbrechen und die Mode-Labels sind bereits vorhanden, siehe Step 1.)
 
-Für `menuAddSiteToNamed` die Placeholder-Form verwenden:
+**WICHTIG — Platzhalter-Token:** Für `menuAddSiteToNamed` **KEIN** `$…$`-Token verwenden. `chrome.i18n` reserviert `$NAME$` für Message-Placeholders und **verweigert das Laden des Manifests** („Variable $NAME$ used but not defined"), auch wenn der Wert nur per `.replace()` genutzt wird. Verwende stattdessen den neutralen Token `{NAME}`, den Chrome nicht interpretiert:
 
 ```json
-	"menuAddSiteToNamed": {
-		"message": "Add to menu “$NAME$”",
-		"placeholders": { "name": { "content": "$1" } }
-	},
+	"menuAddSiteToNamed": { "message": "Add to menu \"{NAME}\"" }
 ```
 
-Da `chrome.i18n` hier nicht mit `substitutions` aufgerufen wird (der SW ersetzt `$NAME$` per `.replace('$NAME$', …)`), reicht alternativ ein einfacher String mit literalem `$NAME$`:
-
-```json
-	"menuAddSiteToNamed": { "message": "Add to menu “$NAME$”" }
-```
-
-Verwende die **einfache** Variante (literales `$NAME$`), passend zu Task 4 Step 3.
+Der SW ersetzt ihn per `.replace('{NAME}', …)` (Task 4 Step 3). Bei der vollständigen Lokalisierung (Task 7) bleibt `{NAME}` in allen Sprachen unverändert.
 
 - [ ] **Step 3: Dieselben Keys in `de` ergänzen**
 
@@ -795,7 +786,7 @@ ctxMenuOptionsDesc            = "Zeigt einen Eintrag „Optionen“, der die Ein
 siteMenuAddAsk                = "Menü abfragen, wenn keins passt"
 siteMenuAddAskDesc            = "Wenn beim Hinzufügen kein Menü zur Seite passt, eine Menü-Auswahl anbieten; aus = still ins Standard-Menü"
 menuAddSiteToMenu             = "Diese Seite zu Menü hinzufügen"
-menuAddSiteToNamed            = "Zu Menü „$NAME$“ hinzufügen"
+menuAddSiteToNamed            = "Zu Menü „{NAME}“ hinzufügen"
 menuOpenSiteMenu              = "Website-Menü"
 menuOptions                   = "Optionen"
 ctxTitlePromptLabel           = "Titel für den Menüeintrag"
@@ -838,7 +829,7 @@ Erwartung: In jeder Nicht-`en`-Locale fehlen genau die in Task 6 ergänzten Keys
 
 - [ ] **Step 2: Übersetzen & einfügen**
 
-Die neuen Keys (siehe Task 6) in **alle** aufgelisteten Locales maschinell übersetzt einfügen. Platzhalter `$NAME$` in `menuAddSiteToNamed` unverändert lassen. Bestehende Übersetzungskonvention/Tonfall der jeweiligen Datei beibehalten.
+Die neuen Keys (siehe Task 6) in **alle** aufgelisteten Locales maschinell übersetzt einfügen. Platzhalter `{NAME}` in `menuAddSiteToNamed` unverändert lassen. Bestehende Übersetzungskonvention/Tonfall der jeweiligen Datei beibehalten.
 
 - [ ] **Step 3: JSON aller Locales validieren**
 

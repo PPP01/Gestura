@@ -259,7 +259,7 @@ Neue Keys (Auswahl):
 - Modus-Auswahl Website-Menü: Labels für `contextual` / `standard`
   (bestehende Keys der `gesture-menu-config` wiederverwenden, falls vorhanden).
 - Native Einträge: `menuAddSiteToMenu`, `menuAddSiteToNamed`
-  (mit `$NAME$`-Platzhalter), `menuOpenSiteMenu` („Website menu"), `menuOptions`.
+  (mit `{NAME}`-Platzhalter), `menuOpenSiteMenu` („Website menu"), `menuOptions`.
 - Titel-Prompt: Titel/Platzhalter/OK/Abbrechen.
 
 Wiederverwendet: `menuAddToBlacklist`, `menuRemoveFromBlacklist`,
