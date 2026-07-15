@@ -2760,7 +2760,7 @@
 		"description": "Menu entry template for adding to a named menu"
 	},
 	"menuOpenSiteMenu": {
-		"message": "Website-Menü",
+		"message": "Website-Menü öffnen",
 		"description": "Menu entry label for opening website menu"
 	},
 	"menuOptions": {
