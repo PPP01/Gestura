@@ -1498,6 +1498,11 @@ function removeContextMenuExtras() {
 	for (const id of [MENU_ID_OPTIONS, MENU_ID_SITEMENU, MENU_ID_ADD_PARENT]) {
 		chrome.contextMenus.remove(id, () => { chrome.runtime.lastError; });
 	}
+	self._ctxAddIds = self._ctxAddIds || [];
+	for (const id of self._ctxAddIds) {
+		chrome.contextMenus.remove(id, () => { chrome.runtime.lastError; });
+	}
+	self._ctxAddIds = [];
 }
 
 let fileSchemeAllowed = false;
@@ -1640,10 +1645,13 @@ async function updateMenuForTab(tab) {
 	if (canUseCtx && siteMenusOn && items.ctxMenuAddSite !== false) {
 		const matches = matchingSiteMenuIds(url);
 		const active = activeSiteMenus();
+		self._ctxAddIds = self._ctxAddIds || [];
 		if (matches.length === 1) {
 			const m = active.find(x => x.id === matches[0]);
+			const addId = CTX_ADD_PREFIX + matches[0];
+			self._ctxAddIds.push(addId);
 			chrome.contextMenus.create({
-				id: CTX_ADD_PREFIX + matches[0],
+				id: addId,
 				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('$NAME$', menuDisplayName(m)),
 				contexts: ['page', 'link', 'image']
 			}, () => { chrome.runtime.lastError; });
@@ -1654,8 +1662,10 @@ async function updateMenuForTab(tab) {
 				contexts: ['page', 'link', 'image']
 			}, () => { chrome.runtime.lastError; });
 			for (const m of active) {
+				const addId = CTX_ADD_PREFIX + m.id;
+				self._ctxAddIds.push(addId);
 				chrome.contextMenus.create({
-					id: CTX_ADD_PREFIX + m.id,
+					id: addId,
 					parentId: MENU_ID_ADD_PARENT,
 					title: menuDisplayName(m),
 					contexts: ['page', 'link', 'image']
@@ -1667,8 +1677,10 @@ async function updateMenuForTab(tab) {
 			const dmActive = dm && active.some(x => x.id === dm);
 			if (dmActive) {
 				const m = active.find(x => x.id === dm);
+				const addId = CTX_ADD_PREFIX + dm;
+				self._ctxAddIds.push(addId);
 				chrome.contextMenus.create({
-					id: CTX_ADD_PREFIX + dm,
+					id: addId,
 					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('$NAME$', menuDisplayName(m)),
 					contexts: ['page', 'link', 'image']
 				}, () => { chrome.runtime.lastError; });
@@ -1783,6 +1795,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		const menuId = info.menuItemId.slice(CTX_ADD_PREFIX.length);
 		const url = info.linkUrl || tab.url;
 		const isLink = !!info.linkUrl;
+		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
+		self._siteMenusCache = cur;
 		const matches = matchingSiteMenuIds(tab.url);
 		const selectionPath = !(matches.length === 1 && matches[0] === menuId);
 
@@ -1797,8 +1811,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		if (!label) label = isLink ? url : (tab.title || url);
 
 		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
-		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
-		let { siteMenus, added } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url });
+		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url });
 		if (selectionPath) {
 			const pat = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
 			({ siteMenus } = self.FlowMouseMenuModel.addPatternToMenu(catalog, siteMenus, menuId, pat));
