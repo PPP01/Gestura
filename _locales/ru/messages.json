@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "Тёмная",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Спрашивать меню, если ни одно не подходит",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "При добавлении сайта, если ни одно меню не подходит, предлагать выбор меню; выкл. = добавлять в меню по умолчанию без вопросов",
+		"description": "Description for asking which menu to add to"
 	}
 }

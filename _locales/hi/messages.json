@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "गहरा",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "कोई मेल न होने पर मेनू पूछें",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "साइट जोड़ते समय यदि कोई मेनू मेल न खाए, तो मेनू चयनकर्ता दिखाएं; बंद = चुपचाप डिफ़ॉल्ट मेनू में जोड़ें",
+		"description": "Description for asking which menu to add to"
 	}
 }

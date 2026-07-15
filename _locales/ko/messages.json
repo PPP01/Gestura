@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "다크",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "일치하는 메뉴가 없을 때 메뉴 선택 묻기",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "사이트를 추가할 때 일치하는 메뉴가 없으면 메뉴 선택 창을 표시합니다. 끄면 기본 메뉴에 자동으로 추가됩니다",
+		"description": "Description for asking which menu to add to"
 	}
 }

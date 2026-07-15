@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "Tmavý",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Opýtať sa na ponuku, keď žiadna nezodpovedá",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Pri pridávaní webu bez zodpovedajúcej ponuky ponúknuť výber ponuky; vypnuté = tiché pridanie do predvolenej ponuky",
+		"description": "Description for asking which menu to add to"
 	}
 }

@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "Sötét",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Kérdezze meg, melyik menü, ha egyik sem egyezik",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Ha egy oldal hozzáadásakor egyik menü sem egyezik, kínáljon fel menüválasztót; kikapcsolva = néma hozzáadás az alapértelmezett menühöz",
+		"description": "Description for asking which menu to add to"
 	}
 }

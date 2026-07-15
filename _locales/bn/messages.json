@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "গাঢ়",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "কোনোটি না মিললে কোন মেনু জিজ্ঞাসা করুন",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "সাইট যোগ করার সময় কোনো মেনু না মিললে, একটি মেনু নির্বাচক দেখান; বন্ধ = নীরবে ডিফল্ট মেনুতে যোগ করুন",
+		"description": "Description for asking which menu to add to"
 	}
 }

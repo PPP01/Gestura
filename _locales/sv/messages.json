@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "Mörkt",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Fråga vilken meny när ingen matchar",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "När en webbplats läggs till utan en matchande meny, erbjud en menyväljare; av = lägg tyst till i standardmenyn",
+		"description": "Description for asking which menu to add to"
 	}
 }

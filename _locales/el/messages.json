@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "Σκούρο",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Ερώτηση για μενού όταν κανένα δεν ταιριάζει",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Κατά την προσθήκη ενός ιστότοπου χωρίς αντίστοιχο μενού, εμφάνιση επιλογέα μενού· ανενεργό = προσθήκη σιωπηλά στο προεπιλεγμένο μενού",
+		"description": "Description for asking which menu to add to"
 	}
 }

@@ -2688,5 +2688,13 @@
 	"menuThemeDark": {
 		"message": "Donker",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Vragen welk menu als geen enkele past",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Bij het toevoegen van een site zonder passend menu, een menukeuze aanbieden; uit = stil toevoegen aan het standaardmenu",
+		"description": "Description for asking which menu to add to"
 	}
 }
