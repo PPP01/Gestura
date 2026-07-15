@@ -2247,6 +2247,32 @@ window.ContentContextMenu = ContentContextMenu;
 		loadSettings();
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
+				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false) return;
+				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
+				const cursor = { startX: p.x, startY: p.y, endX: p.x, endY: p.y };
+				const target = document.elementFromPoint(p.x, p.y);
+				executeAction('siteMenu', request.config || { mode: 'contextual' }, cursor, target);
+				return;
+			}
+
+			if (request.action === 'ctxCollectMenuLabel') {
+				let def = '';
+				if (request.isLink) {
+					const a = lastCtxMenuTarget && lastCtxMenuTarget.closest ? lastCtxMenuTarget.closest('a') : null;
+					def = (a && (a.textContent || '').trim()) || (a && a.getAttribute('title')) || request.url || '';
+				} else {
+					def = (document.title || '').trim() || request.url || '';
+				}
+				def = def.replace(/\s+/g, ' ').slice(0, 120);
+				if (request.prompt) {
+					promptForTitle(def).then(v => sendResponse(v == null ? { cancelled: true } : { label: v }));
+					return true; // async
+				}
+				sendResponse({ label: def });
+				return;
+			}
+
 			if (request.action === 'ping') {
 				sendResponse({ pong: true });
 				return;
@@ -2434,6 +2460,42 @@ window.ContentContextMenu = ContentContextMenu;
 			return true;
 		}
 
+		function promptForTitle(defaultTitle) {
+			return new Promise((resolve) => {
+				const host = document.createElement('div');
+				host.setAttribute('data-gesture-ignore', '');
+				host.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)';
+				const box = document.createElement('div');
+				box.style.cssText = 'background:#fff;color:#111;min-width:280px;max-width:90vw;padding:16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.3);font:14px system-ui,sans-serif';
+				const label = document.createElement('div');
+				label.textContent = msg('ctxTitlePromptLabel') || 'Title';
+				label.style.cssText = 'margin-bottom:8px;font-weight:600';
+				const input = document.createElement('input');
+				input.type = 'text';
+				input.value = defaultTitle || '';
+				input.style.cssText = 'width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px';
+				const row = document.createElement('div');
+				row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end';
+				const cancel = document.createElement('button');
+				cancel.textContent = msg('buttonCancel') || 'Cancel';
+				const ok = document.createElement('button');
+				ok.textContent = msg('buttonOkay') || 'OK';
+				for (const b of [cancel, ok]) b.style.cssText = 'padding:6px 14px;border-radius:6px;border:1px solid #ccc;cursor:pointer';
+				ok.style.background = '#4285f4'; ok.style.color = '#fff'; ok.style.borderColor = '#4285f4';
+				let done = false;
+				const finish = (val) => { if (done) return; done = true; host.remove(); resolve(val); };
+				cancel.addEventListener('click', () => finish(null));
+				ok.addEventListener('click', () => finish(input.value.trim() || (defaultTitle || '')));
+				input.addEventListener('keydown', (ev) => {
+					if (ev.key === 'Enter') { ev.preventDefault(); ok.click(); }
+					else if (ev.key === 'Escape') { ev.preventDefault(); cancel.click(); }
+				});
+				row.append(cancel, ok); box.append(label, input, row); host.append(box);
+				(document.body || document.documentElement).append(host);
+				input.focus(); input.select();
+			});
+		}
+
 		const isMacOrLinux = /Mac|Linux/i.test(navigator.platform);
 		let lastRightClickTime = 0;
 		const doubleClickDelay = 500;
@@ -2481,8 +2543,14 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		});
 
+		let lastCtxMenuPoint = null;   // {x,y} in Viewport-Koordinaten dieses Frames
+		let lastCtxMenuTarget = null;  // Element unter dem Rechtsklick
+
 		eventManager.add(() => !isBlacklisted, window, 'contextmenu', (e) => {
 			if (!isExtensionContextValid()) return;
+
+			lastCtxMenuPoint = { x: e.clientX, y: e.clientY };
+			lastCtxMenuTarget = e.target;
 
 			if (wheelGestureTriggered) {
 				wheelGestureTriggered = false;
