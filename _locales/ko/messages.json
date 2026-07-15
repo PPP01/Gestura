@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "컨텍스트 메뉴 제스처 토글",
+		"message": "현재 사이트에서 제스처 비활성화/활성화",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "FlowMouse가 브라우저의 마우스 오른쪽 버튼 메뉴에 추가하는 항목",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "컨텍스트 메뉴는 페이지에서 마우스 오른쪽 버튼을 클릭하면 열리는 메뉴입니다. FlowMouse는 아래 항목을 여기에 추가합니다.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "위의 기능 상자에서 컨텍스트 메뉴 추가 항목이 꺼져 있습니다.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "이 사이트를 메뉴에 추가",
+		"message": "웹사이트 메뉴에 추가",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

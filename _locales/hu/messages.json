@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Gesztusok kapcsolója a helyi menüben",
+		"message": "Gesztusok letiltása/engedélyezése az aktuális webhelyen",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Elemek, amelyeket a FlowMouse hozzáad a böngésző jobb kattintásos menüjéhez",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "A helyi menü az a menü, amely akkor nyílik meg, amikor jobb gombbal kattint egy oldalra. A FlowMouse hozzáadja ehhez az alábbi elemeket.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "A helyi menü kiegészítései ki vannak kapcsolva a fenti Funkciók dobozban.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Ez az oldal hozzáadása egy menühöz",
+		"message": "Hozzáadás egy weboldal menühöz",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

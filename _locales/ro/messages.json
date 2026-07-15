@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Comutator gesturi în meniul contextual",
+		"message": "Dezactivați/activați gesturile pe site-ul curent",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Intrări pe care FlowMouse le adaugă în meniul contextual (clic dreapta) al browserului",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Meniul contextual este meniul care se deschide când faceți clic dreapta pe o pagină. FlowMouse adaugă la el intrările de mai jos.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Adăugările la meniul contextual sunt dezactivate în caseta Funcții de mai sus.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Adaugă acest site la un meniu",
+		"message": "Adăugați la un meniu pentru site",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Skift bevægelser i kontekstmenuen",
+		"message": "Deaktiver/aktiver bevægelser på det aktuelle websted",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Elementer FlowMouse tilføjer til browserens højreklik-menu",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Kontekstmenuen er den menu, der åbnes, når du højreklikker på en side. FlowMouse tilføjer nedenstående elementer til den.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Tilføjelserne til genvejsmenuen er slået fra i feltet Funktioner ovenfor.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Tilføj dette websted til en menu",
+		"message": "Tilføj til en webstedsmenu",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

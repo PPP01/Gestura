@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Перемикач жестів у контекстному меню",
+		"message": "Вимкнути/увімкнути жести на поточному сайті",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Пункти, які FlowMouse додає до контекстного меню браузера (права кнопка миші)",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Контекстне меню — це меню, яке відкривається під час клацання правою кнопкою миші на сторінці. FlowMouse додає до нього перелічені нижче пункти.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Додавання пунктів контекстного меню вимкнено в блоці «Функції» вище.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Додати цей сайт до меню",
+		"message": "Додати до меню сайту",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

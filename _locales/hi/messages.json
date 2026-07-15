@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "कंटेक्स्ट मेनू में जेस्चर टॉगल",
+		"message": "वर्तमान साइट पर जेस्चर अक्षम/सक्षम करें",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "वे प्रविष्टियाँ जिन्हें FlowMouse ब्राउज़र के राइट-क्लिक मेनू में जोड़ता है",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "कॉन्टेक्स्ट मेनू वह मेनू है जो किसी पेज पर राइट-क्लिक करने पर खुलता है। FlowMouse इसमें नीचे दी गई प्रविष्टियाँ जोड़ता है।",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "ऊपर दिए गए सुविधाएँ बॉक्स में संदर्भ-मेनू जोड़ बंद हैं।",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "इस साइट को किसी मेनू में जोड़ें",
+		"message": "एक वेबसाइट मेनू में जोड़ें",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Gest-växlare i snabbmenyn",
+		"message": "Inaktivera/aktivera gester på den aktuella webbplatsen",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Poster som FlowMouse lägger till i webbläsarens högerklicksmeny",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Snabbmenyn är den meny som öppnas när du högerklickar på en sida. FlowMouse lägger till posterna nedan i den.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Tilläggen i kontextmenyn är avstängda i rutan Funktioner ovan.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Lägg till denna webbplats i en meny",
+		"message": "Lägg till i en webbplatsmeny",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Nút bật/tắt cử chỉ trong menu chuột phải",
+		"message": "Tắt/bật cử chỉ trên trang web hiện tại",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Các mục mà FlowMouse thêm vào menu chuột phải của trình duyệt",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Menu ngữ cảnh là menu mở ra khi bạn nhấp chuột phải vào một trang. FlowMouse thêm các mục bên dưới vào đó.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Các mục bổ sung vào menu ngữ cảnh đang tắt trong hộp Tính năng ở trên.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Thêm trang web này vào một menu",
+		"message": "Thêm vào menu trang web",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

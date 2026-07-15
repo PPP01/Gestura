@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "কনটেক্সট মেনুতে অঙ্গভঙ্গি টগল",
+		"message": "বর্তমান সাইটে অঙ্গভঙ্গি নিষ্ক্রিয়/সক্রিয় করুন",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "FlowMouse ব্রাউজারের রাইট-ক্লিক মেনুতে যেসব এন্ট্রি যোগ করে",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "কনটেক্সট মেনু হলো সেই মেনু যা কোনো পৃষ্ঠায় রাইট-ক্লিক করলে খোলে। FlowMouse এতে নিচের এন্ট্রিগুলো যোগ করে।",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "উপরের বৈশিষ্ট্য বক্সে প্রসঙ্গ-মেনু সংযোজনগুলি বন্ধ করা আছে।",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "এই সাইটটি একটি মেনুতে যোগ করুন",
+		"message": "একটি ওয়েবসাইট মেনুতে যোগ করুন",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

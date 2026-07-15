@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Прекидач гестова у контекстном менију",
+		"message": "Онемогући/омогући гестове на тренутном сајту",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Ставке које FlowMouse додаје у контекстни мени прегледача (десни клик)",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Контекстни мени је мени који се отвара када кликнете десним тастером миша на страницу. FlowMouse у њега додаје доле наведене ставке.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Додаци контекстног менија су искључени у пољу Функције изнад.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Додај овај сајт у мени",
+		"message": "Додај у мени сајта",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

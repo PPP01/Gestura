@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Eleiden kytkin kontekstivalikossa",
+		"message": "Poista käytöstä / ota käyttöön eleet nykyisellä sivustolla",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Kohdat, jotka FlowMouse lisää selaimen oikean painikkeen valikkoon",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Kontekstivalikko on valikko, joka avautuu, kun napsautat sivua hiiren oikealla painikkeella. FlowMouse lisää siihen alla olevat kohdat.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Kontekstivalikon lisäykset on poistettu käytöstä yllä olevassa Ominaisuudet-ruudussa.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Lisää tämä sivusto valikkoon",
+		"message": "Lisää sivustovalikkoon",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

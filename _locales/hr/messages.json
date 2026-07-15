@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Prekidač gesta u kontekstnom izborniku",
+		"message": "Onemogući/omogući geste na trenutnoj web-lokaciji",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Stavke koje FlowMouse dodaje u kontekstni izbornik preglednika (desni klik)",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Kontekstni izbornik je izbornik koji se otvara kada desnom tipkom miša kliknete na stranicu. FlowMouse mu dodaje stavke navedene u nastavku.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Dodaci kontekstnom izborniku isključeni su u okviru Značajke iznad.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Dodaj ovo web-mjesto u izbornik",
+		"message": "Dodaj u izbornik web-mjesta",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

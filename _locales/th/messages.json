@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "สวิตช์เปิด/ปิดท่าทางในเมนูบริบท",
+		"message": "ปิด/เปิดการใช้งานท่าทางบนเว็บไซต์ปัจจุบัน",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "รายการที่ FlowMouse เพิ่มลงในเมนูคลิกขวาของเบราว์เซอร์",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "เมนูบริบทคือเมนูที่เปิดขึ้นเมื่อคุณคลิกขวาบนหน้าเว็บ FlowMouse จะเพิ่มรายการด้านล่างนี้ลงไป",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "ส่วนเพิ่มเติมของเมนูบริบทถูกปิดอยู่ในกล่องคุณสมบัติด้านบน",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "เพิ่มไซต์นี้ลงในเมนู",
+		"message": "เพิ่มลงในเมนูเว็บไซต์",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

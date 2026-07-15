@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Превключвател на жестовете в контекстното меню",
+		"message": "Деактивиране/активиране на жестовете на текущия сайт",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Елементи, които FlowMouse добавя към контекстното меню на браузъра (десен бутон)",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Контекстното меню е менюто, което се отваря при щракване с десния бутон на мишката върху страница. FlowMouse добавя изброените по-долу елементи към него.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Добавките към контекстното меню са изключени в полето „Функции“ по-горе.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Добавяне на този сайт към меню",
+		"message": "Добавяне към меню на сайт",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

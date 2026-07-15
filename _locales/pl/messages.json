@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Przełącznik gestów w menu kontekstowym",
+		"message": "Wyłącz/włącz gesty na bieżącej stronie",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Pozycje, które FlowMouse dodaje do menu kontekstowego przeglądarki (prawy przycisk myszy)",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Menu kontekstowe to menu, które otwiera się po kliknięciu strony prawym przyciskiem myszy. FlowMouse dodaje do niego poniższe pozycje.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Dodatki do menu kontekstowego są wyłączone w polu Funkcje powyżej.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Dodaj tę witrynę do menu",
+		"message": "Dodaj do menu witryny",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

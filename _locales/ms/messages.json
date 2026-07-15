@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Suis Gerak Isyarat di Menu Konteks",
+		"message": "Lumpuhkan/bolehkan gerak isyarat di tapak semasa",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Entri yang ditambah oleh FlowMouse pada menu klik kanan pelayar",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Menu konteks ialah menu yang dibuka apabila anda klik kanan pada halaman. FlowMouse menambah entri di bawah ke dalamnya.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Tambahan menu konteks dimatikan dalam kotak Ciri di atas.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Tambah laman ini ke menu",
+		"message": "Tambah ke menu laman web",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

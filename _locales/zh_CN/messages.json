@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "右键菜单手势开关",
+		"message": "在当前网站禁用/启用手势",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "FlowMouse 添加到浏览器右键菜单中的条目",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "右键菜单是您在页面上右键单击时打开的菜单。FlowMouse 会将以下条目添加到其中。",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "右键菜单的附加项已在上方的功能框中关闭。",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "将此网站添加到菜单",
+		"message": "添加到网站菜单",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

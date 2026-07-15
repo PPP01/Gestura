@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Toggle ng Gestures sa Context Menu",
+		"message": "I-disable/i-enable ang mga iswat sa kasalukuyang site",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Mga entry na idinaragdag ng FlowMouse sa right-click na menu ng browser",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Ang context menu ay ang menu na bubukas kapag nag-right-click ka sa isang page. Idinaragdag ng FlowMouse ang mga entry sa ibaba rito.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Naka-off ang mga idinagdag sa context menu sa Features box sa itaas.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Idagdag ang site na ito sa isang menu",
+		"message": "Idagdag sa isang menu ng website",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

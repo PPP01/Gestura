@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Εναλλαγή χειρονομιών στο μενού περιβάλλοντος",
+		"message": "Απενεργοποίηση/ενεργοποίηση χειρονομιών στον τρέχοντα ιστότοπο",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Καταχωρίσεις που προσθέτει το FlowMouse στο μενού δεξιού κλικ του προγράμματος περιήγησης",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Το μενού περιβάλλοντος είναι το μενού που ανοίγει όταν κάνετε δεξί κλικ σε μια σελίδα. Το FlowMouse προσθέτει τις παρακάτω καταχωρίσεις σε αυτό.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Οι προσθήκες στο μενού περιβάλλοντος είναι απενεργοποιημένες στο πλαίσιο «Λειτουργίες» παραπάνω.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Προσθήκη αυτού του ιστότοπου σε μενού",
+		"message": "Προσθήκη σε μενού ιστότοπου",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

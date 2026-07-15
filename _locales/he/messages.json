@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "מתג מחוות בתפריט ההקשר",
+		"message": "השבת/הפעל מחוות באתר הנוכחי",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "פריטים ש-FlowMouse מוסיפה לתפריט לחצן העכבר הימני של הדפדפן",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "תפריט ההקשר הוא התפריט שנפתח כשלוחצים לחיצה ימנית על דף. FlowMouse מוסיפה אליו את הפריטים הבאים.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "התוספות לתפריט ההקשר כבויות בתיבת התכונות שלמעלה.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "הוספת האתר הזה לתפריט",
+		"message": "הוספה לתפריט אתר",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

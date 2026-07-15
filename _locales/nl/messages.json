@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Gebarenschakelaar in contextmenu",
+		"message": "Gebaren uit-/inschakelen op de huidige site",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Items die FlowMouse toevoegt aan het rechtermuisknopmenu van de browser",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Het contextmenu is het menu dat wordt geopend wanneer u met de rechtermuisknop op een pagina klikt. FlowMouse voegt de onderstaande items eraan toe.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "De toevoegingen aan het contextmenu zijn uitgeschakeld in het vak Functies hierboven.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Deze site aan een menu toevoegen",
+		"message": "Toevoegen aan een website-menu",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

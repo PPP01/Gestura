@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Prepínač gest v kontextovej ponuke",
+		"message": "Zakázať/povoliť gestá na aktuálnej stránke",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "Položky, ktoré FlowMouse pridáva do kontextového menu prehliadača (pravé tlačidlo myši)",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "Kontextové menu je menu, ktoré sa otvorí po kliknutí pravým tlačidlom myši na stránku. FlowMouse doň pridáva nižšie uvedené položky.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "Doplnky kontextového menu sú vypnuté v poli Funkcie vyššie.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Pridať túto stránku do menu",
+		"message": "Pridať do ponuky webu",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "تبديل الإيماءات من قائمة السياق",
+		"message": "تعطيل/تمكين الإيماءات في الموقع الحالي",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2705,12 +2705,16 @@
 		"message": "عناصر تضيفها FlowMouse إلى قائمة السياق (الزر الأيمن) في المتصفح",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "قائمة السياق هي القائمة التي تظهر عند النقر بزر الماوس الأيمن على الصفحة. تضيف FlowMouse العناصر التالية إليها.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "إضافات قائمة السياق معطّلة في مربع الميزات أعلاه.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "إضافة هذا الموقع إلى قائمة",
+		"message": "إضافة إلى قائمة موقع",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
