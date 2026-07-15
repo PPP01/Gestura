@@ -956,12 +956,6 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'other' ? 'active' : ''}" data-nav="other">
-					<h2><span class="section-icon">${unsafeHTML(icon('slidersHorizontal', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('otherSettings')}</span></h2>
-					<div class="section-body">
-					</div>
-				</div>
-
 				<div class="section ${this._activeSection === 'data' ? 'active' : ''}" data-nav="data">
 					<h2><span class="section-icon">${unsafeHTML(icon('hardDrive', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('dataManagement')}</span></h2>
 					<div class="section-body">
@@ -1084,7 +1078,6 @@ class OptionsPage extends LitElement {
 			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList, flag: 'enableSiteMenus' },
 			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff, flag: 'enableBlacklist' },
 			{ id: 'contextMenu', label: i18n.getMessage('contextMenuSection'), icon: icons.menu },
-			{ id: 'other', label: i18n.getMessage('otherSettings'), icon: icons.slidersHorizontal },
 			{ id: 'data', label: i18n.getMessage('dataManagement'), icon: icons.hardDrive },
 			{ id: 'support', label: i18n.getMessage('supportAndFeedback'), icon: icons.messageCircleMore },
 		];
