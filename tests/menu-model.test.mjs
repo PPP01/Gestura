@@ -324,3 +324,38 @@ describe('settings helpers', () => {
 		expect(M.addPatternToMenu(CATALOG, EMPTY, 'nope', '*x*').added).toBeNull();
 	});
 });
+
+describe('addLinkToMenu', () => {
+	it('creates edited copy for catalog menu and appends a link item', () => {
+		const { siteMenus, added } = M.addLinkToMenu(CATALOG, EMPTY, 'gh',
+			{ label: 'My Repo', url: 'https://github.com/me/repo', id: 'item_test1' });
+		expect(added).toEqual({ id: 'item_test1', action: 'openCustomUrl', customUrl: 'https://github.com/me/repo', customName: 'My Repo', icon: 'link' });
+		const items = siteMenus.edited.gh.items;
+		expect(items[items.length - 1]).toEqual(added);
+		expect(CATALOG[0].items).toHaveLength(3); // Katalog unangetastet
+	});
+
+	it('appends to an existing edited/custom menu without touching the catalog copy path', () => {
+		const start = { ...EMPTY, custom: { menu_1: { name: 'Eigenes', patterns: [], items: [] } } };
+		const { siteMenus, added } = M.addLinkToMenu(CATALOG, start, 'menu_1',
+			{ label: 'X', url: 'https://x.example', id: 'item_x' });
+		expect(added.id).toBe('item_x');
+		expect(siteMenus.custom.menu_1.items).toHaveLength(1);
+	});
+
+	it('dedupes by url and returns added:null', () => {
+		const first = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'A', url: 'https://github.com/a', id: 'item_a' });
+		// gh-Katalog hat bereits customUrl https://github.com/a (Eintrag "a")
+		expect(first.added).toBeNull();
+	});
+
+	it('returns added:null for unknown menu or missing url', () => {
+		expect(M.addLinkToMenu(CATALOG, EMPTY, 'nope', { label: 'A', url: 'u' }).added).toBeNull();
+		expect(M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'A', url: '' }).added).toBeNull();
+	});
+
+	it('generates an item_ id when none is given', () => {
+		const { added } = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'B', url: 'https://github.com/new' });
+		expect(added.id).toMatch(/^item_[0-9a-f]{10}$/);
+	});
+});

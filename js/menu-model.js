@@ -280,6 +280,34 @@
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: pattern };
 	}
 
+	function newItemId() {
+		try {
+			return 'item_' + crypto.randomUUID().replace(/-/g, '').slice(0, 10);
+		} catch (e) {
+			// Fallback für Umgebungen ohne crypto.randomUUID
+			return 'item_' + Math.abs(Date.now() % 0xffffffffff).toString(16).padStart(10, '0');
+		}
+	}
+
+	function addLinkToMenu(catalog, siteMenus, menuId, opts) {
+		const o = opts || {};
+		if (!o.url) return { siteMenus, added: null };
+		const base = getBaseMenu(catalog, siteMenus, menuId);
+		if (!base) return { siteMenus, added: null };
+		const items = base.items || [];
+		const dup = items.some(it => it && it.customUrl === o.url);
+		if (dup) return { siteMenus, added: null };
+		const item = {
+			id: o.id || newItemId(),
+			action: 'openCustomUrl',
+			customUrl: o.url,
+			customName: o.label || o.url,
+			icon: o.icon || 'link',
+		};
+		const def = { ...base, items: [...items, item] };
+		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: item };
+	}
+
 	const api = {
 		getBaseMenu, listMenus, listActiveMenus,
 		emptyFork, resolveFork,
@@ -287,7 +315,7 @@
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
 		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu,
-		addPatternToMenu,
+		addPatternToMenu, addLinkToMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuModel = api;
