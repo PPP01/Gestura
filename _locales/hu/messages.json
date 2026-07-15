@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Ha egy oldal hozzáadásakor egyik menü sem egyezik, kínáljon fel menüválasztót; kikapcsolva = néma hozzáadás az alapértelmezett menühöz",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Helyi menü",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Elemek, amelyeket a FlowMouse hozzáad a böngésző jobb kattintásos menüjéhez",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "A helyi menü kiegészítései ki vannak kapcsolva a fenti Funkciók dobozban.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Ez az oldal hozzáadása egy menühöz",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Jobb kattintásos menüelem az aktuális oldal (vagy a jobb gombbal kattintott hivatkozás) hozzáadásához egy weboldal menühöz",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Weboldal menü megnyitása",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Jobb kattintásos menüelem, amely megnyitja a weboldal menü átfedést, a gesztushoz hasonlóan",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menü",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Beállítások elem",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "„Beállítások” elem megjelenítése, amely megnyitja a beállítások oldalt",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Ez az oldal hozzáadása a menühöz",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Hozzáadás a(z) „{NAME}” menühöz",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Weboldal menü megnyitása",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Beállítások",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "A menüelem címe",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

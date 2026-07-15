@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Bir site eklenirken eşleşen menü yoksa menü seçici sun; kapalı = sessizce varsayılan menüye ekle",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Bağlam menüsü",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "FlowMouse'un tarayıcının sağ tık menüsüne eklediği girdiler",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Bağlam menüsü eklentileri yukarıdaki Özellikler kutusunda kapalı.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Bu siteyi bir menüye ekle",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Geçerli sayfayı (veya sağ tıklanan bağlantıyı) bir web sitesi menüsüne eklemek için sağ tık girdisi",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Web sitesi menüsünü aç",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Hareket gibi web sitesi menüsü katmanını açan sağ tık girdisi",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menü",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Seçenekler girdisi",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Ayarlar sayfasını açan bir \"Seçenekler\" girdisi göster",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Bu siteyi menüye ekle",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "\"{NAME}\" menüsüne ekle",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Web sitesi menüsünü aç",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Seçenekler",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Menü girdisi için başlık",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

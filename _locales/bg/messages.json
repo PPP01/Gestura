@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "При добавяне на сайт, ако никое меню не съвпада, се предлага избор на меню; изключено = добавяне в менюто по подразбиране без питане",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Контекстно меню",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Елементи, които FlowMouse добавя към контекстното меню на браузъра (десен бутон)",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Добавките към контекстното меню са изключени в полето „Функции“ по-горе.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Добавяне на този сайт към меню",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Елемент от контекстното меню за добавяне на текущата страница (или на връзката, върху която е кликнато с десния бутон) към меню на сайт",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Отваряне на менюто на сайта",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Елемент от контекстното меню, който отваря наслагването на менюто на сайта — както жестът",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Меню",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Елемент „Опции“",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Показва елемент „Опции“, който отваря страницата с настройки",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Добавяне на този сайт към меню",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Добавяне към меню „{NAME}“",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Отваряне на менюто на сайта",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Опции",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Заглавие за елемента от менюто",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

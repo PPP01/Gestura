@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Kun sivustolle lisätään eikä mikään valikko täsmää, näytä valikon valitsin; pois päältä = lisää hiljaa oletusvalikkoon",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Kontekstivalikko",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Kohdat, jotka FlowMouse lisää selaimen oikean painikkeen valikkoon",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Kontekstivalikon lisäykset on poistettu käytöstä yllä olevassa Ominaisuudet-ruudussa.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Lisää tämä sivusto valikkoon",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Oikean painikkeen valikon kohta, jolla nykyinen sivu (tai oikealla painikkeella napsautettu linkki) lisätään sivustovalikkoon",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Avaa sivustovalikko",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Oikean painikkeen valikon kohta, joka avaa sivustovalikon peittokuvan, aivan kuten ele",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Valikko",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Asetukset-kohta",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Näytä \"Asetukset\"-kohta, joka avaa asetussivun",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Lisää tämä sivusto valikkoon",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Lisää valikkoon \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Avaa sivustovalikko",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Asetukset",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Valikkokohdan otsikko",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

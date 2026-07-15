@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "साइट जोड़ते समय यदि कोई मेनू मेल न खाए, तो मेनू चयनकर्ता दिखाएं; बंद = चुपचाप डिफ़ॉल्ट मेनू में जोड़ें",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "संदर्भ मेनू",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "वे प्रविष्टियाँ जिन्हें FlowMouse ब्राउज़र के राइट-क्लिक मेनू में जोड़ता है",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "ऊपर दिए गए सुविधाएँ बॉक्स में संदर्भ-मेनू जोड़ बंद हैं।",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "इस साइट को किसी मेनू में जोड़ें",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "वर्तमान पृष्ठ (या राइट-क्लिक किए गए लिंक) को वेबसाइट मेनू में जोड़ने के लिए राइट-क्लिक प्रविष्टि",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "वेबसाइट मेनू खोलें",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "राइट-क्लिक प्रविष्टि जो जेस्चर की तरह वेबसाइट-मेनू ओवरले खोलती है",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "मेनू",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "विकल्प प्रविष्टि",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "एक \"विकल्प\" प्रविष्टि दिखाएँ जो सेटिंग्स पृष्ठ खोलती है",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "इस साइट को मेनू में जोड़ें",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "मेनू \"{NAME}\" में जोड़ें",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "वेबसाइट मेनू खोलें",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "विकल्प",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "मेनू प्रविष्टि के लिए शीर्षक",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

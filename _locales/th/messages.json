@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "เมื่อเพิ่มเว็บไซต์และไม่มีเมนูที่ตรงกัน ให้แสดงตัวเลือกเมนู; ปิด = เพิ่มลงในเมนูเริ่มต้นโดยไม่ถาม",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "เมนูบริบท",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "รายการที่ FlowMouse เพิ่มลงในเมนูคลิกขวาของเบราว์เซอร์",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "ส่วนเพิ่มเติมของเมนูบริบทถูกปิดอยู่ในกล่องคุณสมบัติด้านบน",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "เพิ่มไซต์นี้ลงในเมนู",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "รายการเมนูคลิกขวาสำหรับเพิ่มหน้าปัจจุบัน (หรือลิงก์ที่คลิกขวา) ลงในเมนูเว็บไซต์",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "เปิดเมนูเว็บไซต์",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "รายการเมนูคลิกขวาที่เปิดโอเวอร์เลย์เมนูเว็บไซต์ เหมือนกับท่าทางสัมผัส",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "เมนู",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "รายการตัวเลือก",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "แสดงรายการ \"ตัวเลือก\" ที่เปิดหน้าการตั้งค่า",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "เพิ่มไซต์นี้ลงในเมนู",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "เพิ่มลงในเมนู \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "เปิดเมนูเว็บไซต์",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "ตัวเลือก",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "ชื่อสำหรับรายการเมนู",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

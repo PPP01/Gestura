@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "La adăugarea unui site fără un meniu potrivit, oferă un selector de meniu; dezactivat = adaugă silențios în meniul implicit",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Meniu contextual",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Intrări pe care FlowMouse le adaugă în meniul contextual (clic dreapta) al browserului",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Adăugările la meniul contextual sunt dezactivate în caseta Funcții de mai sus.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Adaugă acest site la un meniu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Intrare în meniul contextual pentru a adăuga pagina curentă (sau linkul pe care s-a făcut clic dreapta) la un meniu de site",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Deschide meniul site-ului",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Intrare în meniul contextual care deschide suprapunerea meniului site-ului, la fel ca gestul",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Meniu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Intrare Opțiuni",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Afișează o intrare „Opțiuni” care deschide pagina de setări",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Adaugă acest site la meniu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Adaugă la meniul „{NAME}”",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Deschide meniul site-ului",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opțiuni",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titlu pentru intrarea de meniu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

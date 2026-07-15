@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "عند إضافة موقع ولا توجد قائمة مطابقة، تُعرض قائمة للاختيار؛ الإيقاف = الإضافة إلى القائمة الافتراضية بصمت",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "قائمة السياق",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "عناصر تضيفها FlowMouse إلى قائمة السياق (الزر الأيمن) في المتصفح",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "إضافات قائمة السياق معطّلة في مربع الميزات أعلاه.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "إضافة هذا الموقع إلى قائمة",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "عنصر في قائمة السياق لإضافة الصفحة الحالية (أو الرابط الذي تم النقر عليه بزر الماوس الأيمن) إلى قائمة موقع",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "فتح قائمة الموقع",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "عنصر في قائمة السياق يفتح تراكب قائمة الموقع، تمامًا مثل الإيماءة",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "قائمة",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "عنصر الخيارات",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "إظهار عنصر \"خيارات\" يفتح صفحة الإعدادات",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "إضافة هذا الموقع إلى قائمة",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "إضافة إلى قائمة \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "فتح قائمة الموقع",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "خيارات",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "العنوان لعنصر القائمة",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Quando si aggiunge un sito senza un menu corrispondente, offri un selettore di menu; disattivato = aggiungi silenziosamente al menu predefinito",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Menu contestuale",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Voci che FlowMouse aggiunge al menu contestuale (clic destro) del browser",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Le aggiunte al menu contestuale sono disattivate nel riquadro Funzionalità sopra.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Aggiungi questo sito a un menu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Voce del menu contestuale per aggiungere la pagina corrente (o il link su cui si è fatto clic destro) a un menu del sito web",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Apri menu del sito web",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Voce del menu contestuale che apre la sovrapposizione del menu del sito web, come il gesto",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Voce Opzioni",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Mostra una voce \"Opzioni\" che apre la pagina delle impostazioni",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Aggiungi questo sito al menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Aggiungi al menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Apri menu del sito web",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opzioni",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titolo della voce di menu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

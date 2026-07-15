@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Khi thêm trang web mà không có menu phù hợp, hiển thị bộ chọn menu; tắt = thêm âm thầm vào menu mặc định",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Menu ngữ cảnh",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Các mục mà FlowMouse thêm vào menu chuột phải của trình duyệt",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Các mục bổ sung vào menu ngữ cảnh đang tắt trong hộp Tính năng ở trên.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Thêm trang web này vào một menu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Mục menu chuột phải để thêm trang hiện tại (hoặc liên kết vừa nhấp chuột phải) vào một menu trang web",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Mở menu trang web",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Mục menu chuột phải mở lớp phủ menu trang web, giống như cử chỉ",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Mục Tùy chọn",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Hiển thị mục \"Tùy chọn\" để mở trang cài đặt",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Thêm trang web này vào menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Thêm vào menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Mở menu trang web",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Tùy chọn",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Tiêu đề cho mục menu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "সাইট যোগ করার সময় কোনো মেনু না মিললে, একটি মেনু নির্বাচক দেখান; বন্ধ = নীরবে ডিফল্ট মেনুতে যোগ করুন",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "প্রসঙ্গ মেনু",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "FlowMouse ব্রাউজারের রাইট-ক্লিক মেনুতে যেসব এন্ট্রি যোগ করে",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "উপরের বৈশিষ্ট্য বক্সে প্রসঙ্গ-মেনু সংযোজনগুলি বন্ধ করা আছে।",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "এই সাইটটি একটি মেনুতে যোগ করুন",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "বর্তমান পৃষ্ঠা (বা রাইট-ক্লিক করা লিংক) একটি ওয়েবসাইট মেনুতে যোগ করার জন্য রাইট-ক্লিক এন্ট্রি",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "ওয়েবসাইট মেনু খুলুন",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "রাইট-ক্লিক এন্ট্রি যা জেসচারের মতো ওয়েবসাইট-মেনু ওভারলে খোলে",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "মেনু",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "অপশন এন্ট্রি",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "সেটিংস পৃষ্ঠা খোলার জন্য একটি \"অপশন\" এন্ট্রি দেখান",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "এই সাইটটি মেনুতে যোগ করুন",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "\"{NAME}\" মেনুতে যোগ করুন",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "ওয়েবসাইট মেনু খুলুন",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "অপশন",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "মেনু এন্ট্রির জন্য শিরোনাম",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

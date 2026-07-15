@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Při přidání webu, pokud neodpovídá žádná nabídka, nabídnout výběr nabídky; vypnuto = přidat tiše do výchozí nabídky",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Kontextová nabídka",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Položky, které FlowMouse přidává do kontextové nabídky prohlížeče (pravé tlačítko myši)",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Doplňky kontextové nabídky jsou vypnuté v poli Funkce výše.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Přidat tento web do nabídky",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Položka kontextové nabídky pro přidání aktuální stránky (nebo odkazu, na který bylo kliknuto pravým tlačítkem) do nabídky webu",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Otevřít nabídku webu",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Položka kontextové nabídky, která otevře překryvnou nabídku webu — stejně jako gesto",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Nabídka",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Položka Možnosti",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Zobrazit položku „Možnosti“, která otevře stránku nastavení",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Přidat tento web do nabídky",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Přidat do nabídky „{NAME}“",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Otevřít nabídku webu",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Možnosti",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Název položky nabídky",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

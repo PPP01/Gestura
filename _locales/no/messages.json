@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Når et nettsted legges til uten en samsvarende meny, vis en menyvelger; av = legg stille til i standardmenyen",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Hurtigmeny",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Elementer FlowMouse legger til i nettleserens høyreklikkmeny",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Tilleggene i hurtigmenyen er slått av i Funksjoner-boksen ovenfor.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Legg til dette nettstedet i en meny",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Høyreklikk-element for å legge til den gjeldende siden (eller lenken det ble høyreklikket på) i en nettstedmeny",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Åpne nettstedmeny",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Høyreklikk-element som åpner nettstedmeny-overlegget, akkurat som bevegelsen",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Meny",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Element for Alternativer",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Vis et «Alternativer»-element som åpner innstillingssiden",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Legg til dette nettstedet i meny",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Legg til i menyen «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Åpne nettstedmeny",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Alternativer",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Tittel for menyelementet",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

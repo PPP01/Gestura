@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "При добавлении сайта, если ни одно меню не подходит, предлагать выбор меню; выкл. = добавлять в меню по умолчанию без вопросов",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Контекстное меню",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Пункты, которые FlowMouse добавляет в контекстное меню браузера (правая кнопка мыши)",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Дополнения контекстного меню отключены в блоке «Функции» выше.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Добавить этот сайт в меню",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Пункт контекстного меню для добавления текущей страницы (или ссылки, по которой был клик правой кнопкой) в меню сайта",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Открыть меню сайта",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Пункт контекстного меню, открывающий оверлей меню сайта — так же, как жест",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Меню",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Пункт «Настройки»",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Показывать пункт «Настройки», открывающий страницу настроек",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Добавить этот сайт в меню",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Добавить в меню «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Открыть меню сайта",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Настройки",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Название пункта меню",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

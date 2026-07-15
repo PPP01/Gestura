@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "サイトを追加する際に一致するメニューがない場合、メニュー選択を表示します。オフの場合はデフォルトメニューに自動的に追加されます",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "コンテキストメニュー",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "FlowMouseがブラウザの右クリックメニューに追加する項目",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "上の「機能」ボックスでコンテキストメニューの追加項目がオフになっています。",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "このサイトをメニューに追加",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "現在のページ（または右クリックしたリンク）をウェブサイトメニューに追加するための右クリックメニュー項目",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "ウェブサイトメニューを開く",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "ジェスチャーと同様にウェブサイトメニューのオーバーレイを開く右クリックメニュー項目",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "メニュー",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "オプション項目",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "設定ページを開く「オプション」項目を表示する",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "このサイトをメニューに追加",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "メニュー「{NAME}」に追加",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "ウェブサイトメニューを開く",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "オプション",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "メニュー項目のタイトル",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

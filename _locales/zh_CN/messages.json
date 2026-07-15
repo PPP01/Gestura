@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "添加网站且没有匹配的菜单时，显示菜单选择器；关闭 = 静默添加到默认菜单",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "右键菜单",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "FlowMouse 添加到浏览器右键菜单中的条目",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "右键菜单的附加项已在上方的功能框中关闭。",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "将此网站添加到菜单",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "右键菜单项，用于将当前页面（或右键点击的链接）添加到网站菜单",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "打开网站菜单",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "右键菜单项，像手势一样打开网站菜单浮层",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "菜单",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "选项条目",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "显示一个打开设置页面的“选项”条目",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "将此网站添加到菜单",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "添加到菜单“{NAME}”",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "打开网站菜单",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "选项",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "菜单条目的标题",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

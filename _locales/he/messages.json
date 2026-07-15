@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "בעת הוספת אתר ללא תפריט מתאים, הצע בחירת תפריט; כבוי = הוספה שקטה לתפריט ברירת המחדל",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "תפריט ההקשר",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "פריטים ש-FlowMouse מוסיפה לתפריט לחצן העכבר הימני של הדפדפן",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "התוספות לתפריט ההקשר כבויות בתיבת התכונות שלמעלה.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "הוספת האתר הזה לתפריט",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "פריט בתפריט ההקשר להוספת הדף הנוכחי (או הקישור שנלחץ עליו בלחצן ימני) לתפריט אתר",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "פתיחת תפריט האתר",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "פריט בתפריט ההקשר שפותח את שכבת-העל של תפריט האתר, בדיוק כמו המחווה",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "תפריט",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "פריט אפשרויות",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "הצגת פריט \"אפשרויות\" שפותח את דף ההגדרות",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "הוספת האתר הזה לתפריט",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "הוספה לתפריט \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "פתיחת תפריט האתר",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "אפשרויות",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "כותרת לפריט התפריט",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

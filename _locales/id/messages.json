@@ -2696,5 +2696,65 @@
 	"siteMenuAddAskDesc": {
 		"message": "Saat menambahkan situs dan tidak ada menu yang cocok, tawarkan pemilih menu; nonaktif = tambahkan diam-diam ke menu default",
 		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Menu konteks",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Entri yang ditambahkan FlowMouse ke menu klik kanan browser",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Penambahan menu konteks dinonaktifkan di kotak Fitur di atas.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Tambahkan situs ini ke menu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Entri menu klik kanan untuk menambahkan halaman saat ini (atau tautan yang diklik kanan) ke menu situs web",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Buka menu situs web",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Entri menu klik kanan yang membuka overlay menu situs web, seperti gestur",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Entri Opsi",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Tampilkan entri \"Opsi\" yang membuka halaman pengaturan",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Tambahkan situs ini ke menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Tambahkan ke menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Buka menu situs web",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opsi",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Judul untuk entri menu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }
