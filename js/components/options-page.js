@@ -378,6 +378,7 @@ class OptionsPage extends LitElement {
 							${this.#renderFeatureToggle('enableSearchEngines', 'searchEngines', i18n.getMessage('sectionSearchEngines'))}
 							${this.#renderFeatureToggle('enableSiteMenus', 'siteMenus', i18n.getMessage('siteMenusTitle'))}
 							${this.#renderFeatureToggle('enableBlacklist', 'blacklist', i18n.getMessage('blacklist'))}
+							${this.#renderFeatureToggle('enableContextMenu', 'contextMenu', i18n.getMessage('contextMenuSection'))}
 						</div>
 					</div>
 
@@ -817,6 +818,16 @@ class OptionsPage extends LitElement {
 				<div class="section ${this._activeSection === 'siteMenus' ? 'active' : ''} ${(this._settings.sectionAdvanced?.siteMenus) ? 'advanced-expanded' : ''}" data-nav="siteMenus" style="display:${this._settings.enableSiteMenus !== false ? '' : 'none'}">
 					<h2><span class="section-icon">${unsafeHTML(icon('layoutList', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('siteMenusTitle')}</span>${this.#renderAdvancedToggle('siteMenus')}</h2>
 					<div class="section-body">
+						<div class="setting-row first-row">
+							<div class="setting-label">
+								<span>${i18n.getMessage('siteMenuAddAsk')}</span>
+								<span>${i18n.getMessage('siteMenuAddAskDesc')}</span>
+							</div>
+							<label class="toggle">
+								<input type="checkbox" id="siteMenuAddAsk" .checked=${this._settings.siteMenuAddAsk !== false} @change=${e => this.#updateSetting('siteMenuAddAsk', e.target.checked)}>
+								<span class="slider"></span>
+							</label>
+						</div>
 						<site-menu-manager ?advanced-mode=${this._settings.sectionAdvanced?.siteMenus}></site-menu-manager>
 					</div>
 				</div>
@@ -831,7 +842,72 @@ class OptionsPage extends LitElement {
 								@error=${this.#onBlacklistError}
 							></blacklist-manager>
 						</div>
-						<div class="setting-row">
+					</div>
+				</div>
+
+				<div class="section ${this._activeSection === 'contextMenu' ? 'active' : ''}" data-nav="contextMenu">
+					<h2><span class="section-icon">${unsafeHTML(icon('menu', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('contextMenuSection')}</span></h2>
+					<div class="section-body">
+						${(() => {
+							const ctxOn = this._settings.enableContextMenu !== false;
+							const siteOn = this._settings.enableSiteMenus !== false;
+							const newFeaturesOn = ctxOn && siteOn;
+							const menus = (window.FlowMouseMenuModel && window.FlowMouseMenuCatalog)
+								? window.FlowMouseMenuModel.listActiveMenus(window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, this._settings.siteMenus)
+								: [];
+							const menuName = (m) => m.def.name || (m.def.nameKey && i18n.getMessage(m.def.nameKey)) || m.id;
+							return html`
+								${!ctxOn ? html`<div class="setting-row first-row"><div class="setting-label"><span>${i18n.getMessage('contextMenuDisabledHint')}</span></div></div>` : ''}
+								<div class="setting-row first-row" style="display:${newFeaturesOn ? '' : 'none'}">
+									<div class="setting-label">
+										<span>${i18n.getMessage('ctxMenuAddSite')}</span>
+										<span>${i18n.getMessage('ctxMenuAddSiteDesc')}</span>
+									</div>
+									<label class="toggle">
+										<input type="checkbox" id="ctxMenuAddSite" .checked=${this._settings.ctxMenuAddSite !== false} @change=${e => this.#updateSetting('ctxMenuAddSite', e.target.checked)}>
+										<span class="slider"></span>
+									</label>
+								</div>
+								<div class="setting-row" style="display:${newFeaturesOn ? '' : 'none'}">
+									<div class="setting-label">
+										<span>${i18n.getMessage('ctxMenuSiteMenu')}</span>
+										<span>${i18n.getMessage('ctxMenuSiteMenuDesc')}</span>
+									</div>
+									<label class="toggle">
+										<input type="checkbox" id="ctxMenuSiteMenu" .checked=${this._settings.ctxMenuSiteMenu !== false} @change=${e => this.#updateSetting('ctxMenuSiteMenu', e.target.checked)}>
+										<span class="slider"></span>
+									</label>
+								</div>
+								<div class="sub-settings ${newFeaturesOn && this._settings.ctxMenuSiteMenu !== false ? 'show' : ''}">
+									<div class="inline-settings">
+										<div class="inline-setting-item">
+											<span>${i18n.getMessage('ctxMenuSiteMenuMode')}</span>
+											<select id="ctxMenuSiteMenuMode" @change=${e => this.#updateSetting('ctxMenuSiteMenuMode', e.target.value)}>
+												<option value="contextual" ?selected=${(this._settings.ctxMenuSiteMenuMode || 'contextual') === 'contextual'}>${i18n.getMessage('menuModeContextual')}</option>
+												<option value="standard" ?selected=${this._settings.ctxMenuSiteMenuMode === 'standard'}>${i18n.getMessage('menuModeStandard')}</option>
+											</select>
+										</div>
+										<div class="inline-setting-item" style="display:${this._settings.ctxMenuSiteMenuMode === 'standard' ? '' : 'none'}">
+											<span>${i18n.getMessage('siteMenusTitle')}</span>
+											<select id="ctxMenuSiteMenuId" @change=${e => this.#updateSetting('ctxMenuSiteMenuId', e.target.value)}>
+												${menus.map(m => html`<option value=${m.id} ?selected=${this._settings.ctxMenuSiteMenuId === m.id}>${menuName(m)}</option>`)}
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="setting-row" style="display:${ctxOn ? '' : 'none'}">
+									<div class="setting-label">
+										<span>${i18n.getMessage('ctxMenuOptions')}</span>
+										<span>${i18n.getMessage('ctxMenuOptionsDesc')}</span>
+									</div>
+									<label class="toggle">
+										<input type="checkbox" id="ctxMenuOptions" .checked=${this._settings.ctxMenuOptions !== false} @change=${e => this.#updateSetting('ctxMenuOptions', e.target.checked)}>
+										<span class="slider"></span>
+									</label>
+								</div>
+							`;
+						})()}
+						<div class="setting-row" style="display:${this._settings.enableBlacklist !== false ? '' : 'none'}">
 							<div class="setting-label">
 								<span>${i18n.getMessage('enableBlacklistContextMenu')}</span>
 								<span>${i18n.getMessage('enableBlacklistContextMenuDesc')}</span>
@@ -841,13 +917,7 @@ class OptionsPage extends LitElement {
 								<span class="slider"></span>
 							</label>
 						</div>
-					</div>
-				</div>
-
-				<div class="section ${this._activeSection === 'other' ? 'active' : ''}" data-nav="other">
-					<h2><span class="section-icon">${unsafeHTML(icon('slidersHorizontal', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('otherSettings')}</span></h2>
-					<div class="section-body">
-						<div id="restricted-notice" class="setting-row first-row">
+						<div id="restricted-notice" class="setting-row">
 							<div class="setting-label">
 								<span>${i18n.getMessage('showRestrictedNotice')}</span>
 								<span>${i18n.getMessage('showRestrictedNoticeDesc')}</span>
@@ -883,6 +953,12 @@ class OptionsPage extends LitElement {
 								<p style="margin-top: 12px; font-style: italic;">${i18n.getMessage('restrictedOther')}</p>
 							</div>
 						</details>
+					</div>
+				</div>
+
+				<div class="section ${this._activeSection === 'other' ? 'active' : ''}" data-nav="other">
+					<h2><span class="section-icon">${unsafeHTML(icon('slidersHorizontal', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('otherSettings')}</span></h2>
+					<div class="section-body">
 					</div>
 				</div>
 
@@ -1007,6 +1083,7 @@ class OptionsPage extends LitElement {
 			{ id: 'searchEngines', label: i18n.getMessage('sectionSearchEngines'), icon: icons.search, flag: 'enableSearchEngines' },
 			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList, flag: 'enableSiteMenus' },
 			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff, flag: 'enableBlacklist' },
+			{ id: 'contextMenu', label: i18n.getMessage('contextMenuSection'), icon: icons.menu },
 			{ id: 'other', label: i18n.getMessage('otherSettings'), icon: icons.slidersHorizontal },
 			{ id: 'data', label: i18n.getMessage('dataManagement'), icon: icons.hardDrive },
 			{ id: 'support', label: i18n.getMessage('supportAndFeedback'), icon: icons.messageCircleMore },
