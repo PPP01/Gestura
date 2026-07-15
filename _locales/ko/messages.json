@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "FlowMouse가 브라우저의 마우스 오른쪽 버튼 메뉴에 추가하는 항목",
+		"message": "Gestura가 브라우저의 마우스 오른쪽 버튼 메뉴에 추가하는 항목",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "컨텍스트 메뉴는 페이지에서 마우스 오른쪽 버튼을 클릭하면 열리는 메뉴입니다. FlowMouse는 아래 항목을 여기에 추가합니다.",
+		"message": "컨텍스트 메뉴는 마우스 오른쪽 버튼을 클릭하면 나타납니다. Gestura는 그곳에 자체 작은 하위 메뉴를 표시하고 추가 기능을 제공할 수 있습니다.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "현재 페이지(또는 오른쪽 클릭한 링크)를 웹사이트 메뉴에 추가하는 우클릭 메뉴 항목",
+		"message": "현재 페이지(또는 오른쪽 클릭한 링크)를 웹사이트 메뉴에 추가",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "제스처와 마찬가지로 웹사이트 메뉴 오버레이를 여는 우클릭 메뉴 항목",
+		"message": "웹사이트 메뉴 오버레이 열기 – 제스처와 동일",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "설정 페이지를 여는 \"옵션\" 항목 표시",
+		"message": "이 설정 페이지를 여는 \"옵션\" 항목 표시",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

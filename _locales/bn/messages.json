@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "FlowMouse ব্রাউজারের রাইট-ক্লিক মেনুতে যেসব এন্ট্রি যোগ করে",
+		"message": "Gestura ব্রাউজারের রাইট-ক্লিক মেনুতে যেসব এন্ট্রি যোগ করে",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "কনটেক্সট মেনু হলো সেই মেনু যা কোনো পৃষ্ঠায় রাইট-ক্লিক করলে খোলে। FlowMouse এতে নিচের এন্ট্রিগুলো যোগ করে।",
+		"message": "কনটেক্সট মেনু রাইট-ক্লিক করলে দেখা যায়। Gestura সেখানে নিজস্ব একটি ছোট সাবমেনু দেখাতে এবং অতিরিক্ত ফিচার প্রদান করতে পারে।",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "বর্তমান পৃষ্ঠা (বা রাইট-ক্লিক করা লিংক) একটি ওয়েবসাইট মেনুতে যোগ করার জন্য রাইট-ক্লিক এন্ট্রি",
+		"message": "বর্তমান পৃষ্ঠা (বা রাইট-ক্লিক করা লিংক) একটি ওয়েবসাইট মেনুতে যোগ করুন",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "রাইট-ক্লিক এন্ট্রি যা জেসচারের মতো ওয়েবসাইট-মেনু ওভারলে খোলে",
+		"message": "ওয়েবসাইট-মেনু ওভারলে খুলুন – জেসচারের মতো",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "সেটিংস পৃষ্ঠা খোলার জন্য একটি \"অপশন\" এন্ট্রি দেখান",
+		"message": "একটি \"অপশন\" এন্ট্রি দেখান যা এই সেটিংস পৃষ্ঠাটি খোলে",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

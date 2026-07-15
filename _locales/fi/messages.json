@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Kohdat, jotka FlowMouse lisää selaimen oikean painikkeen valikkoon",
+		"message": "Kohdat, jotka Gestura lisää selaimen oikean painikkeen valikkoon",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Kontekstivalikko on valikko, joka avautuu, kun napsautat sivua hiiren oikealla painikkeella. FlowMouse lisää siihen alla olevat kohdat.",
+		"message": "Kontekstivalikko avautuu oikealla napsautuksella. Gestura voi näyttää siinä oman pienen alivalikkonsa ja tarjota lisätoimintoja.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Oikean painikkeen valikon kohta, jolla nykyinen sivu (tai oikealla painikkeella napsautettu linkki) lisätään sivustovalikkoon",
+		"message": "Lisää nykyinen sivu (tai oikealla painikkeella napsautettu linkki) sivustovalikkoon",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Oikean painikkeen valikon kohta, joka avaa sivustovalikon peittokuvan, aivan kuten ele",
+		"message": "Avaa sivustovalikon peittokuva – aivan kuten ele",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Näytä \"Asetukset\"-kohta, joka avaa asetussivun",
+		"message": "Näytä \"Asetukset\"-kohta, joka avaa tämän asetussivun",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

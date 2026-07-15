@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Пункты, которые FlowMouse добавляет в контекстное меню браузера (правая кнопка мыши)",
+		"message": "Пункты, которые Gestura добавляет в меню правой кнопки мыши браузера",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Контекстное меню — это меню, которое открывается при щелчке правой кнопкой мыши по странице. FlowMouse добавляет в него перечисленные ниже пункты.",
+		"message": "Контекстное меню появляется по щелчку правой кнопкой мыши. Gestura может показать там своё небольшое подменю и предоставить дополнительные функции.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Пункт контекстного меню для добавления текущей страницы (или ссылки, по которой был клик правой кнопкой) в меню сайта",
+		"message": "Добавить текущую страницу (или ссылку, по которой был клик правой кнопкой) в меню сайта",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Пункт контекстного меню, открывающий оверлей меню сайта — так же, как жест",
+		"message": "Открыть оверлей меню сайта — так же, как жест",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Показывать пункт «Настройки», открывающий страницу настроек",
+		"message": "Показывать пункт «Настройки», открывающий эту страницу настроек",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Entradas que o FlowMouse adiciona ao menu de contexto (botão direito) do navegador",
+		"message": "Entradas que o Gestura adiciona ao menu do botão direito do navegador",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "O menu de contexto é o menu que abre quando clica com o botão direito numa página. O FlowMouse adiciona-lhe as entradas abaixo.",
+		"message": "O menu de contexto aparece ao clicar com o botão direito. O Gestura pode mostrar aí o seu próprio pequeno submenu e disponibilizar funções extra.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Entrada do menu de contexto para adicionar a página atual (ou a ligação em que se clicou com o botão direito) a um menu de site",
+		"message": "Adicionar a página atual (ou a ligação em que se clicou com o botão direito) a um menu de site",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Entrada do menu de contexto que abre a sobreposição do menu do site, tal como o gesto",
+		"message": "Abrir a sobreposição do menu do site – tal como o gesto",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Mostrar uma entrada \"Opções\" que abre a página de definições",
+		"message": "Mostrar uma entrada \"Opções\" que abre esta página de definições",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

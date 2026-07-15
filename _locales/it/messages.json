@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Voci che FlowMouse aggiunge al menu contestuale (clic destro) del browser",
+		"message": "Voci che Gestura aggiunge al menu del clic destro del browser",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Il menu contestuale è il menu che si apre quando fai clic con il pulsante destro del mouse su una pagina. FlowMouse vi aggiunge le voci elencate di seguito.",
+		"message": "Il menu contestuale appare con il clic destro. Gestura può mostrare lì il proprio piccolo sottomenu e fornire funzioni aggiuntive.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Voce del menu contestuale per aggiungere la pagina corrente (o il link su cui si è fatto clic destro) a un menu del sito web",
+		"message": "Aggiungere la pagina corrente (o il link su cui si è fatto clic destro) a un menu del sito web",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Voce del menu contestuale che apre la sovrapposizione del menu del sito web, come il gesto",
+		"message": "Aprire la sovrapposizione del menu del sito web – come il gesto",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Mostra una voce \"Opzioni\" che apre la pagina delle impostazioni",
+		"message": "Mostra una voce \"Opzioni\" che apre questa pagina delle impostazioni",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

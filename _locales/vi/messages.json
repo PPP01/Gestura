@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Các mục mà FlowMouse thêm vào menu chuột phải của trình duyệt",
+		"message": "Các mục mà Gestura thêm vào menu chuột phải của trình duyệt",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Menu ngữ cảnh là menu mở ra khi bạn nhấp chuột phải vào một trang. FlowMouse thêm các mục bên dưới vào đó.",
+		"message": "Menu ngữ cảnh xuất hiện khi nhấp chuột phải. Gestura có thể hiển thị menu con nhỏ của riêng mình ở đó và cung cấp các chức năng bổ sung.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Mục menu chuột phải để thêm trang hiện tại (hoặc liên kết vừa nhấp chuột phải) vào một menu trang web",
+		"message": "Thêm trang hiện tại (hoặc liên kết vừa nhấp chuột phải) vào một menu trang web",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Mục menu chuột phải mở lớp phủ menu trang web, giống như cử chỉ",
+		"message": "Mở lớp phủ menu trang web – giống như cử chỉ",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Hiển thị mục \"Tùy chọn\" để mở trang cài đặt",
+		"message": "Hiển thị mục \"Tùy chọn\" để mở trang cài đặt này",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

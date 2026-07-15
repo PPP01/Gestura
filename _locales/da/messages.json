@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Elementer FlowMouse tilføjer til browserens højreklik-menu",
+		"message": "Elementer Gestura tilføjer til browserens højreklik-menu",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Kontekstmenuen er den menu, der åbnes, når du højreklikker på en side. FlowMouse tilføjer nedenstående elementer til den.",
+		"message": "Kontekstmenuen vises ved højreklik. Gestura kan vise sin egen lille undermenu der og tilbyde ekstra funktioner.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Højreklik-element til at tilføje den aktuelle side (eller det link, der blev højreklikket på) til en webstedsmenu",
+		"message": "Tilføj den aktuelle side (eller det link, der blev højreklikket på) til en webstedsmenu",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Højreklik-element, der åbner webstedsmenu-overlayet, ligesom bevægelsen",
+		"message": "Åbn webstedsmenu-overlayet – ligesom bevægelsen",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Vis et \"Indstillinger\"-element, der åbner indstillingssiden",
+		"message": "Vis et \"Indstillinger\"-element, der åbner denne indstillingsside",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

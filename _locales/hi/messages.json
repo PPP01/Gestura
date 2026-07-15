@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "वे प्रविष्टियाँ जिन्हें FlowMouse ब्राउज़र के राइट-क्लिक मेनू में जोड़ता है",
+		"message": "वे प्रविष्टियाँ जिन्हें Gestura ब्राउज़र के राइट-क्लिक मेनू में जोड़ता है",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "कॉन्टेक्स्ट मेनू वह मेनू है जो किसी पेज पर राइट-क्लिक करने पर खुलता है। FlowMouse इसमें नीचे दी गई प्रविष्टियाँ जोड़ता है।",
+		"message": "कॉन्टेक्स्ट मेनू राइट-क्लिक करने पर दिखाई देता है। Gestura वहाँ अपना खुद का छोटा सबमेनू दिखा सकता है और अतिरिक्त सुविधाएँ प्रदान कर सकता है।",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "वर्तमान पृष्ठ (या राइट-क्लिक किए गए लिंक) को वेबसाइट मेनू में जोड़ने के लिए राइट-क्लिक प्रविष्टि",
+		"message": "वर्तमान पृष्ठ (या राइट-क्लिक किए गए लिंक) को वेबसाइट मेनू में जोड़ें",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "राइट-क्लिक प्रविष्टि जो जेस्चर की तरह वेबसाइट-मेनू ओवरले खोलती है",
+		"message": "वेबसाइट-मेनू ओवरले खोलें – जेस्चर की तरह",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "एक \"विकल्प\" प्रविष्टि दिखाएँ जो सेटिंग्स पृष्ठ खोलती है",
+		"message": "एक \"विकल्प\" प्रविष्टि दिखाएँ जो इस सेटिंग्स पृष्ठ को खोलती है",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

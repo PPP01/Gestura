@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Пункти, які FlowMouse додає до контекстного меню браузера (права кнопка миші)",
+		"message": "Пункти, які Gestura додає до меню правої кнопки миші браузера",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Контекстне меню — це меню, яке відкривається під час клацання правою кнопкою миші на сторінці. FlowMouse додає до нього перелічені нижче пункти.",
+		"message": "Контекстне меню з'являється при клацанні правою кнопкою миші. Gestura може показати там своє невелике підменю і надати додаткові функції.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Пункт контекстного меню для додавання поточної сторінки (або посилання, на яке клікнули правою кнопкою) до меню сайту",
+		"message": "Додати поточну сторінку (або посилання, на яке клікнули правою кнопкою) до меню сайту",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Пункт контекстного меню, який відкриває накладку меню сайту — так само, як жест",
+		"message": "Відкрити накладку меню сайту — так само, як жест",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Показувати пункт «Налаштування», який відкриває сторінку налаштувань",
+		"message": "Показувати пункт «Налаштування», який відкриває цю сторінку налаштувань",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

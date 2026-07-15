@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "مواردی که FlowMouse به منوی راست‌کلیک مرورگر اضافه می‌کند",
+		"message": "مواردی که Gestura به منوی راست‌کلیک مرورگر اضافه می‌کند",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "منوی زمینه منویی است که با کلیک راست روی یک صفحه باز می‌شود. FlowMouse موارد زیر را به آن اضافه می‌کند.",
+		"message": "منوی زمینه با راست‌کلیک نمایش داده می‌شود. Gestura می‌تواند زیرمنوی کوچک خودش را در آنجا نشان دهد و امکانات اضافی ارائه دهد.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "مورد منوی راست‌کلیک برای افزودن صفحهٔ فعلی (یا پیوندی که روی آن راست‌کلیک شده) به یک منوی وب‌سایت",
+		"message": "افزودن صفحهٔ فعلی (یا پیوندی که روی آن راست‌کلیک شده) به یک منوی وب‌سایت",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "مورد منوی راست‌کلیک که همانند ژست، روکش منوی وب‌سایت را باز می‌کند",
+		"message": "باز کردن روکش منوی وب‌سایت – مانند ژست",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "نمایش موردی به نام «گزینه‌ها» که صفحهٔ تنظیمات را باز می‌کند",
+		"message": "نمایش موردی به نام «گزینه‌ها» که این صفحهٔ تنظیمات را باز می‌کند",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

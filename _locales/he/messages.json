@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "פריטים ש-FlowMouse מוסיפה לתפריט לחצן העכבר הימני של הדפדפן",
+		"message": "פריטים ש-Gestura מוסיפה לתפריט הלחצן הימני של הדפדפן",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "תפריט ההקשר הוא התפריט שנפתח כשלוחצים לחיצה ימנית על דף. FlowMouse מוסיפה אליו את הפריטים הבאים.",
+		"message": "תפריט ההקשר מופיע בלחיצה ימנית. Gestura יכולה להציג שם תת-תפריט קטן משלה ולספק פונקציות נוספות.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "פריט בתפריט ההקשר להוספת הדף הנוכחי (או הקישור שנלחץ עליו בלחצן ימני) לתפריט אתר",
+		"message": "הוספת הדף הנוכחי (או הקישור שנלחץ עליו בלחצן ימני) לתפריט אתר",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "פריט בתפריט ההקשר שפותח את שכבת-העל של תפריט האתר, בדיוק כמו המחווה",
+		"message": "פתיחת שכבת-העל של תפריט האתר – בדיוק כמו המחווה",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "הצגת פריט \"אפשרויות\" שפותח את דף ההגדרות",
+		"message": "הצגת פריט \"אפשרויות\" שפותח את דף ההגדרות הזה",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

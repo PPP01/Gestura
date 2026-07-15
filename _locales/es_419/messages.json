@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Entradas que FlowMouse agrega al menú contextual (clic derecho) del navegador",
+		"message": "Entradas que Gestura agrega al menú del clic derecho del navegador",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "El menú contextual es el menú que se abre al hacer clic derecho en una página. FlowMouse agrega las siguientes entradas a él.",
+		"message": "El menú contextual aparece al hacer clic derecho. Gestura puede mostrar ahí su propio submenú pequeño y ofrecer funciones adicionales.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Entrada del menú contextual para agregar la página actual (o el enlace en el que se hizo clic derecho) a un menú de sitio web",
+		"message": "Agregar la página actual (o el enlace en el que se hizo clic derecho) a un menú de sitio web",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Entrada del menú contextual que abre la superposición del menú del sitio web, igual que el gesto",
+		"message": "Abrir la superposición del menú del sitio web – igual que el gesto",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Mostrar una entrada \"Opciones\" que abre la página de configuración",
+		"message": "Mostrar una entrada \"Opciones\" que abre esta página de configuración",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

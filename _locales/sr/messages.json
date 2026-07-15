@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Ставке које FlowMouse додаје у контекстни мени прегледача (десни клик)",
+		"message": "Ставке које Gestura додаје у мени десног клика прегледача",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Контекстни мени је мени који се отвара када кликнете десним тастером миша на страницу. FlowMouse у њега додаје доле наведене ставке.",
+		"message": "Контекстни мени се приказује на десни клик. Gestura ту може да прикаже сопствени мали подмени и понуди додатне функције.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Ставка контекстног менија за додавање тренутне странице (или линка на који је кликнуто десним тастером) у мени сајта",
+		"message": "Додај тренутну страницу (или линк на који је кликнуто десним тастером) у мени сајта",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Ставка контекстног менија која отвара преклоп менија сајта, исто као гест",
+		"message": "Отвори преклоп менија сајта – исто као гест",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Прикажи ставку „Опције” која отвара страницу подешавања",
+		"message": "Прикажи ставку „Опције” која отвара ову страницу подешавања",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Καταχωρίσεις που προσθέτει το FlowMouse στο μενού δεξιού κλικ του προγράμματος περιήγησης",
+		"message": "Καταχωρίσεις που προσθέτει το Gestura στο μενού δεξιού κλικ του προγράμματος περιήγησης",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Το μενού περιβάλλοντος είναι το μενού που ανοίγει όταν κάνετε δεξί κλικ σε μια σελίδα. Το FlowMouse προσθέτει τις παρακάτω καταχωρίσεις σε αυτό.",
+		"message": "Το μενού περιβάλλοντος εμφανίζεται με δεξί κλικ. Το Gestura μπορεί να εμφανίσει εκεί το δικό του μικρό υπομενού και να παρέχει επιπλέον λειτουργίες.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Καταχώριση στο μενού δεξιού κλικ για προσθήκη της τρέχουσας σελίδας (ή του συνδέσμου στον οποίο έγινε δεξί κλικ) σε ένα μενού ιστότοπου",
+		"message": "Προσθήκη της τρέχουσας σελίδας (ή του συνδέσμου στον οποίο έγινε δεξί κλικ) σε ένα μενού ιστότοπου",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Καταχώριση στο μενού δεξιού κλικ που ανοίγει την επικάλυψη μενού ιστότοπου, όπως η χειρονομία",
+		"message": "Άνοιγμα της επικάλυψης μενού ιστότοπου – όπως η χειρονομία",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Εμφάνιση καταχώρισης «Επιλογές» που ανοίγει τη σελίδα ρυθμίσεων",
+		"message": "Εμφάνιση καταχώρισης «Επιλογές» που ανοίγει αυτή τη σελίδα ρυθμίσεων",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

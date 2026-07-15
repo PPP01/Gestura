@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Entri yang ditambah oleh FlowMouse pada menu klik kanan pelayar",
+		"message": "Entri yang ditambah oleh Gestura pada menu klik kanan pelayar",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Menu konteks ialah menu yang dibuka apabila anda klik kanan pada halaman. FlowMouse menambah entri di bawah ke dalamnya.",
+		"message": "Menu konteks dipaparkan apabila klik kanan. Gestura boleh memaparkan submenu kecilnya sendiri di situ dan menyediakan fungsi tambahan.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Entri menu klik kanan untuk menambah halaman semasa (atau pautan yang diklik kanan) ke menu laman web",
+		"message": "Tambah halaman semasa (atau pautan yang diklik kanan) ke menu laman web",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Entri menu klik kanan yang membuka overlay menu laman web, seperti gerak isyarat",
+		"message": "Buka overlay menu laman web – seperti gerak isyarat",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Papar entri \"Pilihan\" yang membuka halaman tetapan",
+		"message": "Papar entri \"Pilihan\" yang membuka halaman tetapan ini",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

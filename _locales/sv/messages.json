@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Poster som FlowMouse lägger till i webbläsarens högerklicksmeny",
+		"message": "Poster som Gestura lägger till i webbläsarens högerklicksmeny",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Snabbmenyn är den meny som öppnas när du högerklickar på en sida. FlowMouse lägger till posterna nedan i den.",
+		"message": "Snabbmenyn visas vid högerklick. Gestura kan visa sin egen lilla undermeny där och erbjuda extra funktioner.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Högerklicksalternativ för att lägga till den aktuella sidan (eller länken som högerklickades) i en webbplatsmeny",
+		"message": "Lägg till den aktuella sidan (eller länken som högerklickades) i en webbplatsmeny",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Högerklicksalternativ som öppnar webbplatsmenyns overlay, precis som gesten",
+		"message": "Öppna webbplatsmenyns overlay – precis som gesten",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Visa en post \"Alternativ\" som öppnar inställningssidan",
+		"message": "Visa en post \"Alternativ\" som öppnar denna inställningssida",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "รายการที่ FlowMouse เพิ่มลงในเมนูคลิกขวาของเบราว์เซอร์",
+		"message": "รายการที่ Gestura เพิ่มลงในเมนูคลิกขวาของเบราว์เซอร์",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "เมนูบริบทคือเมนูที่เปิดขึ้นเมื่อคุณคลิกขวาบนหน้าเว็บ FlowMouse จะเพิ่มรายการด้านล่างนี้ลงไป",
+		"message": "เมนูบริบทจะปรากฏขึ้นเมื่อคลิกขวา Gestura สามารถแสดงเมนูย่อยขนาดเล็กของตัวเองที่นั่นและมอบฟังก์ชันเพิ่มเติมได้",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "รายการเมนูคลิกขวาสำหรับเพิ่มหน้าปัจจุบัน (หรือลิงก์ที่คลิกขวา) ลงในเมนูเว็บไซต์",
+		"message": "เพิ่มหน้าปัจจุบัน (หรือลิงก์ที่คลิกขวา) ลงในเมนูเว็บไซต์",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "รายการเมนูคลิกขวาที่เปิดโอเวอร์เลย์เมนูเว็บไซต์ เหมือนกับท่าทางสัมผัส",
+		"message": "เปิดโอเวอร์เลย์เมนูเว็บไซต์ – เหมือนกับท่าทางสัมผัส",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "แสดงรายการ \"ตัวเลือก\" ที่เปิดหน้าการตั้งค่า",
+		"message": "แสดงรายการ \"ตัวเลือก\" ที่เปิดหน้าการตั้งค่านี้",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Items die FlowMouse toevoegt aan het rechtermuisknopmenu van de browser",
+		"message": "Items die Gestura toevoegt aan het rechtermuisknopmenu van de browser",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Het contextmenu is het menu dat wordt geopend wanneer u met de rechtermuisknop op een pagina klikt. FlowMouse voegt de onderstaande items eraan toe.",
+		"message": "Het contextmenu verschijnt bij een rechtermuisklik. Gestura kan daar zijn eigen kleine submenu tonen en extra functies bieden.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Rechtsklik-item om de huidige pagina (of de link waarop rechts is geklikt) aan een website-menu toe te voegen",
+		"message": "De huidige pagina (of de link waarop rechts is geklikt) toevoegen aan een website-menu",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Rechtsklik-item dat de website-menu-overlay opent, net als het gebaar",
+		"message": "De website-menu-overlay openen – net als het gebaar",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Toon een item \"Opties\" dat de instellingenpagina opent",
+		"message": "Toon een item \"Opties\" dat deze instellingenpagina opent",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "FlowMouse 加入瀏覽器右鍵選單的項目",
+		"message": "Gestura 加入瀏覽器右鍵選單的項目",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "右鍵選單是您在頁面上按右鍵時開啟的選單。FlowMouse 會將下列項目加入其中。",
+		"message": "右鍵選單會在按右鍵時顯示。Gestura 可以在其中顯示自己的小型子選單並提供額外功能。",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "右鍵選單項目，用於將目前頁面（或按右鍵點選的連結）加入網站選單",
+		"message": "將目前頁面（或按右鍵點選的連結）加入網站選單",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "右鍵選單項目，會像手勢一樣開啟網站選單疊層",
+		"message": "開啟網站選單疊層 – 與手勢相同",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "顯示一個開啟設定頁面的「選項」項目",
+		"message": "顯示一個開啟此設定頁面的「選項」項目",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

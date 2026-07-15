@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Položky, které FlowMouse přidává do kontextové nabídky prohlížeče (pravé tlačítko myši)",
+		"message": "Položky, které Gestura přidává do nabídky pravého tlačítka myši v prohlížeči",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Kontextová nabídka je nabídka, která se otevře po kliknutí pravým tlačítkem myši na stránku. FlowMouse do ní přidává níže uvedené položky.",
+		"message": "Kontextová nabídka se zobrazí po kliknutí pravým tlačítkem. Gestura v ní může zobrazit vlastní malou podnabídku a poskytnout další funkce.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Položka kontextové nabídky pro přidání aktuální stránky (nebo odkazu, na který bylo kliknuto pravým tlačítkem) do nabídky webu",
+		"message": "Přidat aktuální stránku (nebo odkaz, na který bylo kliknuto pravým tlačítkem) do nabídky webu",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Položka kontextové nabídky, která otevře překryvnou nabídku webu — stejně jako gesto",
+		"message": "Otevřít překryvnou nabídku webu – stejně jako gesto",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Zobrazit položku „Možnosti“, která otevře stránku nastavení",
+		"message": "Zobrazit položku „Možnosti“, která otevře tuto stránku nastavení",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

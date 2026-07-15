@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Елементи, които FlowMouse добавя към контекстното меню на браузъра (десен бутон)",
+		"message": "Елементи, които Gestura добавя към менюто с десен клик на браузъра",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Контекстното меню е менюто, което се отваря при щракване с десния бутон на мишката върху страница. FlowMouse добавя изброените по-долу елементи към него.",
+		"message": "Контекстното меню се показва при десен клик. Gestura може да покаже там собствено малко подменю и да предостави допълнителни функции.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Елемент от контекстното меню за добавяне на текущата страница (или на връзката, върху която е кликнато с десния бутон) към меню на сайт",
+		"message": "Добавяне на текущата страница (или връзката, върху която е кликнато с десния бутон) към меню на сайт",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Елемент от контекстното меню, който отваря наслагването на менюто на сайта — както жестът",
+		"message": "Отваряне на наслагването на менюто на сайта – както жестът",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Показва елемент „Опции“, който отваря страницата с настройки",
+		"message": "Показва елемент „Опции“, който отваря тази страница с настройки",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

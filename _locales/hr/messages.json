@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Stavke koje FlowMouse dodaje u kontekstni izbornik preglednika (desni klik)",
+		"message": "Stavke koje Gestura dodaje u izbornik desnog klika preglednika",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Kontekstni izbornik je izbornik koji se otvara kada desnom tipkom miša kliknete na stranicu. FlowMouse mu dodaje stavke navedene u nastavku.",
+		"message": "Kontekstni izbornik prikazuje se desnim klikom. Gestura ondje može prikazati vlastiti mali podizbornik i ponuditi dodatne funkcije.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Stavka kontekstnog izbornika za dodavanje trenutačne stranice (ili poveznice na koju je kliknuto desnom tipkom) u izbornik web-mjesta",
+		"message": "Dodaj trenutačnu stranicu (ili poveznicu na koju je kliknuto desnom tipkom) u izbornik web-mjesta",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Stavka kontekstnog izbornika koja otvara preklop izbornika web-mjesta, baš kao gesta",
+		"message": "Otvori preklop izbornika web-mjesta – baš kao gesta",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Prikaži stavku „Opcije” koja otvara stranicu s postavkama",
+		"message": "Prikaži stavku „Opcije” koja otvara ovu stranicu s postavkama",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

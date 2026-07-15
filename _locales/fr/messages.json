@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Entrées que FlowMouse ajoute au menu contextuel (clic droit) du navigateur",
+		"message": "Entrées que Gestura ajoute au menu du clic droit du navigateur",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Le menu contextuel est le menu qui s'ouvre lorsque vous faites un clic droit sur une page. FlowMouse y ajoute les entrées ci-dessous.",
+		"message": "Le menu contextuel s'affiche lors d'un clic droit. Gestura peut y afficher son propre petit sous-menu et proposer des fonctions supplémentaires.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Entrée du menu contextuel permettant d'ajouter la page actuelle (ou le lien sur lequel un clic droit a été effectué) à un menu de site web",
+		"message": "Ajouter la page actuelle (ou le lien sur lequel un clic droit a été effectué) à un menu de site web",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Entrée du menu contextuel qui ouvre la superposition du menu du site web, comme le geste",
+		"message": "Ouvrir la superposition du menu du site web – comme le geste",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Afficher une entrée « Options » qui ouvre la page des paramètres",
+		"message": "Afficher une entrée « Options » qui ouvre cette page des paramètres",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

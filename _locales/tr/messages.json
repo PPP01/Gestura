@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "FlowMouse'un tarayıcının sağ tık menüsüne eklediği girdiler",
+		"message": "Gestura'nın tarayıcının sağ tık menüsüne eklediği girdiler",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Bağlam menüsü, bir sayfada sağ tıkladığınızda açılan menüdür. FlowMouse aşağıdaki girdileri buna ekler.",
+		"message": "Bağlam menüsü sağ tıklamada görünür. Gestura orada kendi küçük alt menüsünü gösterebilir ve ek işlevler sunabilir.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Geçerli sayfayı (veya sağ tıklanan bağlantıyı) bir web sitesi menüsüne eklemek için sağ tık girdisi",
+		"message": "Geçerli sayfayı (veya sağ tıklanan bağlantıyı) bir web sitesi menüsüne ekle",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Hareket gibi web sitesi menüsü katmanını açan sağ tık girdisi",
+		"message": "Web sitesi menüsü katmanını aç – hareket gibi",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Ayarlar sayfasını açan bir \"Seçenekler\" girdisi göster",
+		"message": "Bu ayarlar sayfasını açan bir \"Seçenekler\" girdisi göster",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

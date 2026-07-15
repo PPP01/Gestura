@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "FlowMouseがブラウザの右クリックメニューに追加する項目",
+		"message": "Gesturaがブラウザの右クリックメニューに追加する項目",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "コンテキストメニューとは、ページを右クリックしたときに開くメニューです。FlowMouseは以下の項目をそこに追加します。",
+		"message": "コンテキストメニューは右クリックで表示されます。Gesturaはそこに独自の小さなサブメニューを表示し、追加の機能を提供できます。",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "現在のページ（または右クリックしたリンク）をウェブサイトメニューに追加するための右クリックメニュー項目",
+		"message": "現在のページ（または右クリックしたリンク）をウェブサイトメニューに追加する",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "ジェスチャーと同様にウェブサイトメニューのオーバーレイを開く右クリックメニュー項目",
+		"message": "ウェブサイトメニューのオーバーレイを開く – ジェスチャーと同様",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "設定ページを開く「オプション」項目を表示する",
+		"message": "この設定ページを開く「オプション」項目を表示する",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

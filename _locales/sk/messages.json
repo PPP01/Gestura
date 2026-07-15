@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Položky, ktoré FlowMouse pridáva do kontextového menu prehliadača (pravé tlačidlo myši)",
+		"message": "Položky, ktoré Gestura pridáva do menu pravého tlačidla myši v prehliadači",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Kontextové menu je menu, ktoré sa otvorí po kliknutí pravým tlačidlom myši na stránku. FlowMouse doň pridáva nižšie uvedené položky.",
+		"message": "Kontextové menu sa zobrazí po kliknutí pravým tlačidlom. Gestura v ňom môže zobraziť vlastné malé podmenu a poskytnúť ďalšie funkcie.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Položka kontextového menu na pridanie aktuálnej stránky (alebo odkazu, na ktorý sa kliklo pravým tlačidlom) do menu webu",
+		"message": "Pridať aktuálnu stránku (alebo odkaz, na ktorý sa kliklo pravým tlačidlom) do menu webu",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Položka kontextového menu, ktorá otvorí prekryvné menu webu, rovnako ako gesto",
+		"message": "Otvoriť prekryvné menu webu – rovnako ako gesto",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Zobraziť položku „Možnosti“, ktorá otvorí stránku nastavení",
+		"message": "Zobraziť položku „Možnosti“, ktorá otvorí túto stránku nastavení",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

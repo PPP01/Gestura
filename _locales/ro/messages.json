@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "Intrări pe care FlowMouse le adaugă în meniul contextual (clic dreapta) al browserului",
+		"message": "Intrări pe care Gestura le adaugă în meniul de clic dreapta al browserului",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "Meniul contextual este meniul care se deschide când faceți clic dreapta pe o pagină. FlowMouse adaugă la el intrările de mai jos.",
+		"message": "Meniul contextual apare la clic dreapta. Gestura poate afișa acolo propriul submeniu mic și poate oferi funcții suplimentare.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "Intrare în meniul contextual pentru a adăuga pagina curentă (sau linkul pe care s-a făcut clic dreapta) la un meniu de site",
+		"message": "Adaugă pagina curentă (sau linkul pe care s-a făcut clic dreapta) la un meniu de site",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "Intrare în meniul contextual care deschide suprapunerea meniului site-ului, la fel ca gestul",
+		"message": "Deschide suprapunerea meniului site-ului – la fel ca gestul",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "Afișează o intrare „Opțiuni” care deschide pagina de setări",
+		"message": "Afișează o intrare „Opțiuni” care deschide această pagină de setări",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {

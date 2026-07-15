@@ -2702,11 +2702,11 @@
 		"description": "Section title for context menu settings"
 	},
 	"contextMenuSectionDesc": {
-		"message": "عناصر تضيفها FlowMouse إلى قائمة السياق (الزر الأيمن) في المتصفح",
+		"message": "عناصر يضيفها Gestura إلى قائمة النقر بزر الماوس الأيمن في المتصفح",
 		"description": "Description for context menu section"
 	},
 	"contextMenuInfo": {
-		"message": "قائمة السياق هي القائمة التي تظهر عند النقر بزر الماوس الأيمن على الصفحة. تضيف FlowMouse العناصر التالية إليها.",
+		"message": "تظهر قائمة السياق عند النقر بزر الماوس الأيمن. يمكن لـ Gestura إظهار قائمته الفرعية الصغيرة الخاصة به هناك وتوفير وظائف إضافية.",
 		"description": "Explanatory info shown at the top of the context menu settings section"
 	},
 	"contextMenuDisabledHint": {
@@ -2718,7 +2718,7 @@
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {
-		"message": "عنصر في قائمة السياق لإضافة الصفحة الحالية (أو الرابط الذي تم النقر عليه بزر الماوس الأيمن) إلى قائمة موقع",
+		"message": "إضافة الصفحة الحالية (أو الرابط الذي تم النقر عليه بزر الماوس الأيمن) إلى قائمة موقع",
 		"description": "Description for add site context menu entry"
 	},
 	"ctxMenuSiteMenu": {
@@ -2726,7 +2726,7 @@
 		"description": "Label for context menu entry to open website menu"
 	},
 	"ctxMenuSiteMenuDesc": {
-		"message": "عنصر في قائمة السياق يفتح تراكب قائمة الموقع، تمامًا مثل الإيماءة",
+		"message": "فتح تراكب قائمة الموقع – مثل الإيماءة",
 		"description": "Description for open website menu context menu entry"
 	},
 	"ctxMenuSiteMenuMode": {
@@ -2738,7 +2738,7 @@
 		"description": "Label for context menu options entry setting"
 	},
 	"ctxMenuOptionsDesc": {
-		"message": "إظهار عنصر \"خيارات\" يفتح صفحة الإعدادات",
+		"message": "إظهار عنصر \"خيارات\" يفتح صفحة الإعدادات هذه",
 		"description": "Description for context menu options entry setting"
 	},
 	"menuAddSiteToMenu": {
