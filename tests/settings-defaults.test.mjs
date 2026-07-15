@@ -52,4 +52,13 @@ describe("DEFAULT_SETTINGS", () => {
 		expect(globalThis.GestureConstants.ACTION_KEYS.siteMenu).toBe("siteMenusTitle");
 		expect(globalThis.GestureConstants.LOCAL_ACTIONS.has("siteMenu")).toBe(true);
 	});
+	it("context-menu feature flags default on with contextual site-menu mode", () => {
+		expect(DEFAULT_SETTINGS.enableContextMenu).toBe(true);
+		expect(DEFAULT_SETTINGS.ctxMenuAddSite).toBe(true);
+		expect(DEFAULT_SETTINGS.ctxMenuSiteMenu).toBe(true);
+		expect(DEFAULT_SETTINGS.ctxMenuSiteMenuMode).toBe("contextual");
+		expect(DEFAULT_SETTINGS.ctxMenuSiteMenuId).toBe("");
+		expect(DEFAULT_SETTINGS.ctxMenuOptions).toBe(true);
+		expect(DEFAULT_SETTINGS.siteMenuAddAsk).toBe(true);
+	});
 });
