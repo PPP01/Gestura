@@ -36,10 +36,11 @@ Includes everything FlowMouse does
 • Clean settings UI with an interactive tutorial
 
 Plus what Gestura adds — headlined by Website Menus
-• Website menus — ready-made, fully editable popup menus for the sites you use daily: GitHub, YouTube, Amazon (with country selection), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia and more, every entry with a fitting icon
+• Website menus — ready-made, fully editable popup menus for the sites you use daily, every entry with a fitting icon
 • Your own menus in seconds — creating a menu for any other website is quick: add entries with icons, set URL patterns (or register the current site with a gesture), done
 • One contextual gesture, always the right menu — on GitHub you get Issues & Pull Requests, on YouTube your subscriptions, on Amazon your orders; everywhere else a default Search menu (Google, Brave, Perplexity, DuckDuckGo …), plus a Shopping menu that searches your selection on Amazon & eBay
 • Menus that stay yours — customize a predefined menu globally, or load it into a single gesture as a customized copy that keeps inheriting future improvements for untouched entries; private per-gesture menus included
+• Right-click context menu — an optional, fully configurable native context menu: add the current page or a right-clicked link to a website menu, open a menu right where you clicked, or jump straight to settings
 • Quick-search bar — optionally append your favorite searches (Brave, Google, Perplexity …) to the bottom of every menu; the current selection is passed along
 • Configurable link opening — same tab, or a new tab left/right/first/last, globally and per menu
 • Configurable search engines — add your own text AND image engines, reorder and hide them, with per-locale defaults
@@ -89,10 +90,11 @@ Enthält alles, was FlowMouse kann
 • Aufgeräumte Einstellungen mit interaktivem Tutorial
 
 Dazu kommt bei Gestura — allen voran die Website-Menüs
-• Website-Menüs — fertige, voll editierbare Popup-Menüs für deine täglichen Websites: GitHub, YouTube, Amazon (mit Länderauswahl), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia u. v. m., jeder Eintrag mit passendem Icon
+• Website-Menüs — fertige, voll editierbare Popup-Menüs für deine täglichen Websites, jeder Eintrag mit passendem Icon
 • Eigene Menüs in Sekunden — für jede weitere Website ist ein eigenes Menü schnell erstellt: Einträge mit Icons anlegen, URL-Muster setzen (oder die aktuelle Site per Geste registrieren), fertig
 • Eine Kontext-Geste, immer das richtige Menü — auf GitHub Issues & Pull Requests, auf YouTube deine Abos, auf Amazon deine Bestellungen; überall sonst ein Standard-Suchmenü (Google, Brave, Perplexity, DuckDuckGo …), dazu ein Shopping-Menü, das die Auswahl direkt bei Amazon & eBay sucht
 • Menüs, die deine bleiben — vordefinierte Menüs global anpassen oder als angepasste Kopie in eine einzelne Geste laden, die für unveränderte Einträge weiterhin Verbesserungen erbt; private Gesten-Menüs inklusive
+• Rechtsklick-Kontextmenü — ein optionales, voll konfigurierbares natives Kontextmenü: die aktuelle Seite oder einen rechtsgeklickten Link zu einem Website-Menü hinzufügen, ein Menü direkt an der Klickposition öffnen oder direkt zu den Einstellungen springen
 • Mini-Suchleiste — auf Wunsch deine Lieblingssuchen (Brave, Google, Perplexity …) unten an jedes Menü angehängt; die aktuelle Auswahl wird übergeben
 • Konfigurierbares Link-Öffnen — im selben Tab oder in neuem Tab links/rechts/am Anfang/am Ende, global und pro Menü
 • Konfigurierbare Suchmaschinen — eigene Text- UND Bild-Suchmaschinen hinzufügen, sortieren und ausblenden, mit sinnvollen Voreinstellungen je Sprache
@@ -138,7 +140,7 @@ Gestura يجعل التصفح أسرع بفضل إيماءات فأرة سلسة
 • واجهة إعدادات أنيقة مع برنامج تعليمي تفاعلي
 
 بالإضافة إلى ما يضيفه Gestura — وأبرزه قوائم المواقع
-• قوائم المواقع — قوائم منبثقة جاهزة وقابلة للتعديل الكامل للمواقع التي تستخدمها يوميًا: GitHub وYouTube وAmazon (مع اختيار الدولة) وGmail وGoogle Maps وMicrosoft 365 وFacebook وReddit وWikipedia والمزيد، وكل عنصر بأيقونة مناسبة
+• قوائم المواقع — قوائم منبثقة جاهزة وقابلة للتعديل الكامل للمواقع التي تستخدمها يوميًا، وكل عنصر بأيقونة مناسبة
 • قوائمك الخاصة خلال ثوانٍ — إنشاء قائمة لأي موقع آخر سريع: أضف عناصر بأيقونات، حدد أنماط الروابط (أو سجّل الموقع الحالي بإيماءة)، وانتهى الأمر
 • إيماءة سياقية واحدة، دائمًا القائمة الصحيحة — على GitHub تحصل على Issues وPull Requests، وعلى YouTube اشتراكاتك، وعلى Amazon طلباتك؛ وفي كل مكان آخر قائمة بحث افتراضية (Google وBrave وPerplexity وDuckDuckGo …)، بالإضافة إلى قائمة تسوق تبحث عن اختيارك في Amazon وeBay
 • قوائم تبقى ملكك — خصّص قائمة معدة مسبقًا بشكل عام، أو حمّلها في إيماءة واحدة كنسخة مخصصة تستمر في وراثة التحسينات المستقبلية للعناصر غير المعدّلة؛ وتشمل أيضًا قوائم خاصة لكل إيماءة
@@ -182,7 +184,7 @@ Gestura прави сърфирането по-бързо благодарени
 • Прегледен интерфейс за настройки с интерактивен урок
 
 Плюс това, което добавя Gestura — водено от менютата за сайтове
-• Менюта за сайтове — готови, напълно редактируеми изскачащи менюта за сайтовете, които използвате всеки ден: GitHub, YouTube, Amazon (с избор на държава), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia и още, всеки елемент със съответна икона
+• Менюта за сайтове — готови, напълно редактируеми изскачащи менюта за сайтовете, които използвате всеки ден, всеки елемент със съответна икона
 • Собствени менюта за секунди — създаването на меню за друг сайт е бързо: добавете елементи с икони, задайте URL шаблони (или регистрирайте текущия сайт с жест), готово
 • Един контекстуален жест, винаги правилното меню — в GitHub получавате Issues и Pull Requests, в YouTube — вашите абонаменти, в Amazon — вашите поръчки; навсякъде другаде — стандартно меню за търсене (Google, Brave, Perplexity, DuckDuckGo …), плюс меню за пазаруване, което търси избраното в Amazon и eBay
 • Менюта, които остават ваши — персонализирайте предварително зададено меню глобално или го заредете в отделен жест като персонализирано копие, което продължава да наследява бъдещи подобрения за непроменените елементи; включени са и лични менюта за отделни жестове
@@ -226,7 +228,7 @@ FlowMouse যা কিছু করে তার সবকিছু এতে �
 • ইন্টারঅ্যাকটিভ টিউটোরিয়ালসহ পরিচ্ছন্ন সেটিংস UI
 
 এছাড়াও Gestura যা যোগ করে — যার শীর্ষে রয়েছে ওয়েবসাইট মেনু
-• ওয়েবসাইট মেনু — আপনার প্রতিদিনের ব্যবহৃত সাইটগুলোর জন্য তৈরি, সম্পূর্ণ সম্পাদনাযোগ্য পপআপ মেনু: GitHub, YouTube, Amazon (দেশ নির্বাচনসহ), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia এবং আরও অনেক কিছু, প্রতিটি এন্ট্রিতে উপযুক্ত আইকনসহ
+• ওয়েবসাইট মেনু — আপনার প্রতিদিনের ব্যবহৃত সাইটগুলোর জন্য তৈরি, সম্পূর্ণ সম্পাদনাযোগ্য পপআপ মেনু, প্রতিটি এন্ট্রিতে উপযুক্ত আইকনসহ
 • মাত্র সেকেন্ডে নিজের মেনু — যেকোনো অন্য ওয়েবসাইটের জন্য মেনু তৈরি করা দ্রুত: আইকনসহ এন্ট্রি যোগ করুন, URL প্যাটার্ন সেট করুন (অথবা একটি জেসচার দিয়ে বর্তমান সাইট নিবন্ধন করুন), ব্যস, হয়ে গেল
 • একটি প্রাসঙ্গিক জেসচার, সবসময় সঠিক মেনু — GitHub-এ Issues ও Pull Requests, YouTube-এ আপনার সাবস্ক্রিপশন, Amazon-এ আপনার অর্ডার পাবেন; অন্য সব জায়গায় একটি ডিফল্ট সার্চ মেনু (Google, Brave, Perplexity, DuckDuckGo …), সেইসাথে একটি শপিং মেনু যা আপনার নির্বাচন Amazon ও eBay-তে খোঁজে
 • মেনু যা আপনারই থাকে — একটি পূর্বনির্ধারিত মেনু গ্লোবালি কাস্টমাইজ করুন, অথবা একটি নির্দিষ্ট জেসচারে কাস্টমাইজড কপি হিসেবে লোড করুন, যা অপরিবর্তিত এন্ট্রির জন্য ভবিষ্যৎ উন্নতিগুলো গ্রহণ করতে থাকে; প্রতিটি জেসচারের জন্য প্রাইভেট মেনুও অন্তর্ভুক্ত
@@ -270,7 +272,7 @@ Obsahuje vše, co umí FlowMouse
 • Přehledné rozhraní nastavení s interaktivním tutoriálem
 
 Navíc to, co přidává Gestura — v čele s menu webů
-• Menu webů — hotová, plně upravitelná vyskakovací menu pro weby, které používáte denně: GitHub, YouTube, Amazon (s výběrem země), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia a další, každá položka s vhodnou ikonou
+• Menu webů — hotová, plně upravitelná vyskakovací menu pro weby, které používáte denně, každá položka s vhodnou ikonou
 • Vlastní menu za pár vteřin — vytvoření menu pro jakýkoli jiný web je rychlé: přidejte položky s ikonami, nastavte vzory URL (nebo zaregistrujte aktuální web gestem), hotovo
 • Jedno kontextové gesto, vždy správné menu — na GitHubu dostanete Issues a Pull Requests, na YouTube svá odběraná videa, na Amazonu své objednávky; jinde výchozí vyhledávací menu (Google, Brave, Perplexity, DuckDuckGo …), plus nákupní menu, které vyhledá váš výběr na Amazonu a eBay
 • Menu, která zůstávají vaše — přizpůsobte předdefinované menu globálně, nebo je načtěte do jednotlivého gesta jako upravenou kopii, která u nezměněných položek dál dědí budoucí vylepšení; součástí jsou i soukromá menu pro jednotlivá gesta
@@ -314,7 +316,7 @@ Indeholder alt, hvad FlowMouse kan
 • Overskuelig indstillings-UI med interaktiv vejledning
 
 Plus det, Gestura tilføjer — med webstedsmenuer i front
-• Webstedsmenuer — færdige, fuldt redigerbare popup-menuer til de sider, du bruger dagligt: GitHub, YouTube, Amazon (med landevalg), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia med mere, hver post med et passende ikon
+• Webstedsmenuer — færdige, fuldt redigerbare popup-menuer til de sider, du bruger dagligt, hver post med et passende ikon
 • Dine egne menuer på få sekunder — det går hurtigt at oprette en menu til enhver anden webside: tilføj poster med ikoner, angiv URL-mønstre (eller registrer det aktuelle websted med en bevægelse), og du er færdig
 • Én kontekstuel bevægelse, altid den rette menu — på GitHub får du Issues & Pull Requests, på YouTube dine abonnementer, på Amazon dine ordrer; alle andre steder en standard søgemenu (Google, Brave, Perplexity, DuckDuckGo …), plus en shoppingmenu, der søger dit udvalg på Amazon & eBay
 • Menuer, der forbliver dine — tilpas en foruddefineret menu globalt, eller indlæs den i én enkelt bevægelse som en tilpasset kopi, der fortsat arver fremtidige forbedringer for uændrede poster; private per-bevægelse-menuer er også inkluderet
@@ -358,7 +360,7 @@ Gestura – Χειρονομίες Ποντικιού
 • Καθαρό περιβάλλον ρυθμίσεων με διαδραστικό tutorial
 
 Επιπλέον όσα προσθέτει το Gestura — με πρωταγωνιστές τα μενού ιστοτόπων
-• Μενού ιστοτόπων — έτοιμα, πλήρως επεξεργάσιμα αναδυόμενα μενού για τους ιστότοπους που χρησιμοποιείτε καθημερινά: GitHub, YouTube, Amazon (με επιλογή χώρας), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia και άλλα, κάθε καταχώριση με κατάλληλο εικονίδιο
+• Μενού ιστοτόπων — έτοιμα, πλήρως επεξεργάσιμα αναδυόμενα μενού για τους ιστότοπους που χρησιμοποιείτε καθημερινά, κάθε καταχώριση με κατάλληλο εικονίδιο
 • Τα δικά σας μενού μέσα σε δευτερόλεπτα — η δημιουργία μενού για οποιονδήποτε άλλο ιστότοπο είναι γρήγορη: προσθέστε καταχωρίσεις με εικονίδια, ορίστε μοτίβα URL (ή καταχωρίστε τον τρέχοντα ιστότοπο με μια χειρονομία), τέλος
 • Μία χειρονομία ανάλογα με το περιεχόμενο, πάντα το σωστό μενού — στο GitHub παίρνετε Issues & Pull Requests, στο YouTube τις συνδρομές σας, στο Amazon τις παραγγελίες σας· παντού αλλού ένα προεπιλεγμένο μενού αναζήτησης (Google, Brave, Perplexity, DuckDuckGo …), συν ένα μενού αγορών που αναζητά την επιλογή σας στο Amazon & στο eBay
 • Μενού που παραμένουν δικά σας — προσαρμόστε ένα προκαθορισμένο μενού καθολικά, ή φορτώστε το σε μία μεμονωμένη χειρονομία ως προσαρμοσμένο αντίγραφο που συνεχίζει να κληρονομεί μελλοντικές βελτιώσεις για τις αναλλοίωτες καταχωρίσεις· περιλαμβάνονται και ιδιωτικά μενού ανά χειρονομία
@@ -402,7 +404,7 @@ Incluye todo lo que hace FlowMouse
 • Interfaz de ajustes clara con tutorial interactivo
 
 Además, lo que Gestura añade — con los menús de sitios web como protagonistas
-• Menús de sitios web — menús emergentes ya listos y totalmente editables para las webs que usas a diario: GitHub, YouTube, Amazon (con selección de país), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia y más, cada entrada con su icono correspondiente
+• Menús de sitios web — menús emergentes ya listos y totalmente editables para las webs que usas a diario, cada entrada con su icono correspondiente
 • Tus propios menús en segundos — crear un menú para cualquier otra web es rápido: añade entradas con iconos, define patrones de URL (o registra el sitio actual con un gesto) y listo
 • Un gesto contextual, siempre el menú adecuado — en GitHub obtienes Issues y Pull Requests, en YouTube tus suscripciones, en Amazon tus pedidos; en el resto, un menú de búsqueda predeterminado (Google, Brave, Perplexity, DuckDuckGo…), además de un menú de compras que busca tu selección en Amazon y eBay
 • Menús que siguen siendo tuyos — personaliza un menú predefinido de forma global, o cárgalo en un solo gesto como copia personalizada que sigue heredando futuras mejoras en las entradas que no hayas tocado; incluye menús privados por gesto
@@ -446,7 +448,7 @@ Incluye todo lo que hace FlowMouse
 • Interfaz de configuración clara con tutorial interactivo
 
 Además, lo que Gestura suma — con los menús de sitios web como protagonistas
-• Menús de sitios web — menús emergentes ya listos y totalmente editables para los sitios que usas a diario: GitHub, YouTube, Amazon (con selección de país), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia y más, cada entrada con su ícono correspondiente
+• Menús de sitios web — menús emergentes ya listos y totalmente editables para los sitios que usas a diario, cada entrada con su ícono correspondiente
 • Tus propios menús en segundos — crear un menú para cualquier otro sitio web es rápido: agrega entradas con íconos, define patrones de URL (o registra el sitio actual con un gesto) y listo
 • Un gesto contextual, siempre el menú correcto — en GitHub obtienes Issues y Pull Requests, en YouTube tus suscripciones, en Amazon tus pedidos; en todos los demás sitios, un menú de búsqueda predeterminado (Google, Brave, Perplexity, DuckDuckGo…), más un menú de compras que busca tu selección en Amazon y eBay
 • Menús que siguen siendo tuyos — personaliza un menú predefinido de forma global, o cárgalo en un solo gesto como copia personalizada que sigue heredando futuras mejoras en las entradas que no modificaste; incluye menús privados por gesto
@@ -490,7 +492,7 @@ Gestura مرور وب را سریع‌تر می‌کند، با ژست‌های 
 • رابط تنظیمات تمیز همراه با آموزش تعاملی
 
 به‌علاوه‌ی آنچه Gestura اضافه می‌کند — با محوریت منوهای وب‌سایت
-• منوهای وب‌سایت — منوهای بازشوی آماده و کاملاً قابل‌ویرایش برای سایت‌هایی که هر روز استفاده می‌کنید: GitHub، YouTube، Amazon (با انتخاب کشور)، Gmail، Google Maps، Microsoft 365، Facebook، Reddit، Wikipedia و بیشتر، هر ورودی با آیکون مناسب خودش
+• منوهای وب‌سایت — منوهای بازشوی آماده و کاملاً قابل‌ویرایش برای سایت‌هایی که هر روز استفاده می‌کنید، هر ورودی با آیکون مناسب خودش
 • ساخت منوی اختصاصی در چند ثانیه — ساختن منو برای هر وب‌سایت دیگری سریع است: ورودی‌ها را با آیکون اضافه کنید، الگوهای URL را تنظیم کنید (یا سایت فعلی را با یک ژست ثبت کنید)، تمام
 • یک ژست وابسته به زمینه، همیشه منوی درست — در GitHub به Issues و Pull Requests دسترسی دارید، در YouTube به اشتراک‌های خود، در Amazon به سفارش‌های خود؛ در بقیه جاها یک منوی جست‌وجوی پیش‌فرض (Google، Brave، Perplexity، DuckDuckGo…)، به‌علاوه یک منوی خرید که انتخاب شما را در Amazon و eBay جست‌وجو می‌کند
 • منوهایی که همچنان مال شما می‌مانند — یک منوی از پیش تعریف‌شده را به‌صورت سراسری سفارشی کنید، یا آن را به‌عنوان کپی سفارشی‌شده در یک ژست بارگذاری کنید که همچنان بهبودهای آینده را برای ورودی‌های دست‌نخورده به ارث می‌برد؛ منوهای خصوصی برای هر ژست هم گنجانده شده‌اند
@@ -534,7 +536,7 @@ Sisältää kaiken, mitä FlowMouse osaa
 • Selkeä asetusnäkymä interaktiivisella oppaalla
 
 Sen lisäksi mitä Gestura tuo mukanaan — kärjessä verkkosivustovalikot
-• Verkkosivustovalikot — valmiit, täysin muokattavat ponnahdusvalikot päivittäin käyttämillesi sivustoille: GitHub, YouTube, Amazon (maavalinnalla), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia ja muut, jokainen kohta sopivalla kuvakkeella
+• Verkkosivustovalikot — valmiit, täysin muokattavat ponnahdusvalikot päivittäin käyttämillesi sivustoille, jokainen kohta sopivalla kuvakkeella
 • Omat valikot sekunneissa — minkä tahansa muun sivuston valikko syntyy nopeasti: lisää kohtia kuvakkeineen, aseta URL-kaavat (tai rekisteröi nykyinen sivusto eleellä), valmista tuli
 • Yksi kontekstuaalinen ele, aina oikea valikko — GitHubissa saat Issues- ja Pull Request -kohdat, YouTubessa tilauksesi, Amazonissa tilauksesi; muualla oletushakuvalikon (Google, Brave, Perplexity, DuckDuckGo…) sekä ostosvalikon, joka hakee valintasi Amazonista ja eBaysta
 • Valikot pysyvät sinun näköisinäsi — muokkaa valmista valikkoa yleisesti, tai lataa se yksittäiseen eleeseen muokattuna kopiona, joka perii jatkossakin parannukset koskemattomiin kohtiin; myös yksityiset ele-kohtaiset valikot sisältyvät
@@ -578,7 +580,7 @@ Kasama ang lahat ng kaya ng FlowMouse
 • Malinis na settings UI na may interactive na tutorial
 
 Dagdag na dala ng Gestura — pinapangunahan ng Website Menus
-• Website Menus — handa na at lubos na na-customize na popup menus para sa mga site na ginagamit mo araw-araw: GitHub, YouTube, Amazon (may pagpili ng bansa), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia at marami pa, bawat entry may angkop na icon
+• Website Menus — handa na at lubos na na-customize na popup menus para sa mga site na ginagamit mo araw-araw, bawat entry may angkop na icon
 • Sariling menu sa ilang segundo lang — mabilis lang gumawa ng menu para sa kahit anong ibang website: magdagdag ng mga entry na may icon, itakda ang mga URL pattern (o irehistro ang kasalukuyang site gamit ang isang gesture), tapos na
 • Isang contextual na gesture, laging ang tamang menu — sa GitHub makukuha mo ang Issues at Pull Requests, sa YouTube ang iyong mga subscription, sa Amazon ang iyong mga order; sa lahat ng iba pa, isang default na Search menu (Google, Brave, Perplexity, DuckDuckGo…), kasama ang isang Shopping menu na naghahanap ng napili mo sa Amazon at eBay
 • Mga menu na mananatiling sa'yo — i-customize ang isang predefined na menu nang global, o i-load ito sa iisang gesture bilang customized na kopya na patuloy na nagmamana ng mga pagpapabuti sa hinaharap para sa mga entry na hindi mo ginalaw; kasama rin ang pribadong menu kada gesture
@@ -622,7 +624,7 @@ Comprend tout ce que fait FlowMouse
 • Interface de réglages claire avec tutoriel interactif
 
 En plus, ce qu'apporte Gestura — avec en tête d'affiche les menus de sites web
-• Menus de sites web — des menus contextuels prêts à l'emploi et entièrement modifiables pour les sites que vous utilisez au quotidien : GitHub, YouTube, Amazon (avec sélection du pays), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia et bien d'autres, chaque entrée avec une icône adaptée
+• Menus de sites web — des menus contextuels prêts à l'emploi et entièrement modifiables pour les sites que vous utilisez au quotidien, chaque entrée avec une icône adaptée
 • Vos propres menus en quelques secondes — créer un menu pour n'importe quel autre site web est rapide : ajoutez des entrées avec des icônes, définissez des motifs d'URL (ou enregistrez le site actuel avec un geste), et c'est fait
 • Un geste contextuel, toujours le bon menu — sur GitHub vous obtenez Issues et Pull Requests, sur YouTube vos abonnements, sur Amazon vos commandes ; partout ailleurs un menu de recherche par défaut (Google, Brave, Perplexity, DuckDuckGo…), ainsi qu'un menu Shopping qui recherche votre sélection sur Amazon et eBay
 • Des menus qui restent les vôtres — personnalisez un menu prédéfini globalement, ou chargez-le dans un seul geste sous forme de copie personnalisée qui continue d'hériter des futures améliorations pour les entrées non modifiées ; des menus privés par geste sont également inclus
@@ -666,7 +668,7 @@ Gestura הופך את הגלישה למהירה יותר עם מחוות עכב�
 • ממשק הגדרות נקי עם מדריך אינטראקטיבי
 
 ובנוסף מה ש-Gestura מוסיף — ובראשם תפריטי אתרים
-• תפריטי אתרים — תפריטים קופצים מוכנים מראש וניתנים לעריכה מלאה לאתרים שבהם אתה משתמש מדי יום: GitHub, YouTube, Amazon (עם בחירת מדינה), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia ועוד, כל פריט עם אייקון מתאים
+• תפריטי אתרים — תפריטים קופצים מוכנים מראש וניתנים לעריכה מלאה לאתרים שבהם אתה משתמש מדי יום, כל פריט עם אייקון מתאים
 • תפריטים משלך תוך שניות — יצירת תפריט לכל אתר אחר היא מהירה: הוסף פריטים עם אייקונים, קבע תבניות כתובת URL (או רשום את האתר הנוכחי בעזרת מחווה), וזהו
 • מחווה הקשרית אחת, תמיד התפריט הנכון — ב-GitHub תקבל Issues ו-Pull Requests, ב-YouTube את המנויים שלך, ב-Amazon את ההזמנות שלך; בכל מקום אחר תפריט חיפוש ברירת מחדל (Google, Brave, Perplexity, DuckDuckGo…), ובנוסף תפריט קניות שמחפש את הבחירה שלך ב-Amazon וב-eBay
 • תפריטים שנשארים שלך — התאם תפריט מוגדר מראש באופן גלובלי, או טען אותו למחווה בודדת כעותק מותאם אישית שממשיך לרשת שיפורים עתידיים עבור פריטים שלא שונו; כולל תפריטים פרטיים לכל מחווה
@@ -715,7 +717,7 @@ Gestura स्मूद, कस्टमाइज़ेबल माउस ज�
 • इंटरैक्टिव ट्यूटोरियल के साथ साफ-सुथरा सेटिंग्स UI
 
 साथ ही Gestura जो जोड़ता है — जिसकी खासियत है वेबसाइट मेनू
-• वेबसाइट मेनू — आपकी रोज़मर्रा की वेबसाइटों के लिए तैयार, पूरी तरह संपादन योग्य पॉपअप मेनू: GitHub, YouTube, Amazon (देश चयन के साथ), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia और भी बहुत कुछ, हर एंट्री एक उपयुक्त आइकन के साथ
+• वेबसाइट मेनू — आपकी रोज़मर्रा की वेबसाइटों के लिए तैयार, पूरी तरह संपादन योग्य पॉपअप मेनू, हर एंट्री एक उपयुक्त आइकन के साथ
 • सेकंडों में अपने खुद के मेनू — किसी भी अन्य वेबसाइट के लिए मेनू बनाना बहुत आसान है: आइकन के साथ एंट्री जोड़ें, URL पैटर्न सेट करें (या किसी जेस्चर से मौजूदा साइट रजिस्टर करें), बस हो गया
 • एक कॉन्टेक्स्चुअल जेस्चर, हमेशा सही मेनू — GitHub पर आपको Issues और Pull Requests मिलते हैं, YouTube पर आपकी सब्सक्रिप्शन, Amazon पर आपके ऑर्डर; बाकी हर जगह एक डिफ़ॉल्ट सर्च मेनू (Google, Brave, Perplexity, DuckDuckGo …), साथ ही एक शॉपिंग मेनू जो आपकी सिलेक्शन को Amazon और eBay पर सर्च करता है
 • मेनू जो आपके ही रहते हैं — किसी पहले से बने मेनू को ग्लोबली कस्टमाइज़ करें, या उसे किसी एक जेस्चर में कस्टमाइज़्ड कॉपी के रूप में लोड करें जो अनछुई एंट्री के लिए भविष्य के सुधार लेती रहे; प्राइवेट पर-जेस्चर मेनू भी शामिल
@@ -764,7 +766,7 @@ Uključuje sve što nudi FlowMouse
 • Pregledno sučelje postavki s interaktivnim vodičem
 
 Uz to, Gestura donosi — a najviše ističu izbornici web-mjesta
-• Izbornici web-mjesta — gotovi, potpuno uredivi skočni izbornici za web-mjesta koja svakodnevno koristite: GitHub, YouTube, Amazon (s odabirom države), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia i drugi, svaka stavka s prikladnom ikonom
+• Izbornici web-mjesta — gotovi, potpuno uredivi skočni izbornici za web-mjesta koja svakodnevno koristite, svaka stavka s prikladnom ikonom
 • Vlastiti izbornici za nekoliko sekundi — izradite izbornik za bilo koje drugo web-mjesto brzo: dodajte stavke s ikonama, postavite URL uzorke (ili registrirajte trenutačno web-mjesto gestom), gotovo
 • Jedna kontekstualna gesta, uvijek pravi izbornik — na GitHubu dobivate Issues i Pull Requests, na YouTubeu svoje pretplate, na Amazonu svoje narudžbe; svugdje drugdje zadani izbornik za pretraživanje (Google, Brave, Perplexity, DuckDuckGo …), plus izbornik za kupovinu koji pretražuje vaš odabir na Amazonu i eBayu
 • Izbornici koji ostaju vaši — prilagodite unaprijed definirani izbornik globalno, ili ga učitajte u pojedinu gestu kao prilagođenu kopiju koja i dalje nasljeđuje buduća poboljšanja za nepromijenjene stavke; uključeni su i privatni izbornici po gesti
@@ -813,7 +815,7 @@ Mindent tartalmaz, amit a FlowMouse tud
 • Áttekinthető beállítások interaktív oktatóprogrammal
 
 Ezen felül, amit a Gestura hozzáad — a listát a webhelymenük vezetik
-• Webhelymenük — kész, teljesen szerkeszthető felugró menük a naponta használt oldalakhoz: GitHub, YouTube, Amazon (országválasztással), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia és még sok más, minden bejegyzés hozzáillő ikonnal
+• Webhelymenük — kész, teljesen szerkeszthető felugró menük a naponta használt oldalakhoz, minden bejegyzés hozzáillő ikonnal
 • Saját menük másodpercek alatt — bármely más weboldalhoz gyorsan létrehozhatsz menüt: adj hozzá bejegyzéseket ikonokkal, állíts be URL-mintákat (vagy regisztráld az aktuális oldalt egy gesztussal), és kész
 • Egy kontextuális gesztus, mindig a megfelelő menü — a GitHubon Issues és Pull Requests jelenik meg, a YouTube-on a feliratkozásaid, az Amazonon a rendeléseid; mindenhol máshol egy alapértelmezett keresőmenü (Google, Brave, Perplexity, DuckDuckGo …), valamint egy vásárlási menü, amely a kijelölésedet keresi az Amazonon és az eBayen
 • Menük, amelyek a tieid maradnak — testre szabhatsz egy előre definiált menüt globálisan, vagy betöltheted egyetlen gesztusba testre szabott másolatként, amely a nem módosított bejegyzésekhez továbbra is örökli a jövőbeli fejlesztéseket; privát, gesztusonkénti menük is elérhetők
@@ -862,7 +864,7 @@ Mencakup semua yang dimiliki FlowMouse
 • UI pengaturan yang rapi dengan tutorial interaktif
 
 Ditambah apa yang Gestura tawarkan — dipimpin oleh Menu Situs Web
-• Menu situs web — menu popup siap pakai dan sepenuhnya dapat diedit untuk situs yang Anda gunakan sehari-hari: GitHub, YouTube, Amazon (dengan pemilihan negara), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia, dan lainnya, setiap entri dengan ikon yang sesuai
+• Menu situs web — menu popup siap pakai dan sepenuhnya dapat diedit untuk situs yang Anda gunakan sehari-hari, setiap entri dengan ikon yang sesuai
 • Menu Anda sendiri dalam hitungan detik — membuat menu untuk situs web lain sangat cepat: tambahkan entri dengan ikon, atur pola URL (atau daftarkan situs saat ini dengan sebuah gestur), selesai
 • Satu gestur kontekstual, selalu menu yang tepat — di GitHub Anda mendapatkan Issues & Pull Requests, di YouTube langganan Anda, di Amazon pesanan Anda; di tempat lain menu Pencarian default (Google, Brave, Perplexity, DuckDuckGo …), plus menu Belanja yang mencari pilihan Anda di Amazon & eBay
 • Menu yang tetap menjadi milik Anda — sesuaikan menu bawaan secara global, atau muat ke satu gestur sebagai salinan yang disesuaikan yang tetap mewarisi perbaikan di masa depan untuk entri yang tidak diubah; termasuk menu privat per gestur
@@ -911,7 +913,7 @@ Include tutto ciò che fa FlowMouse
 • Interfaccia impostazioni pulita con tutorial interattivo
 
 In più ciò che aggiunge Gestura — con i Menu dei siti in primo piano
-• Menu dei siti — menu popup già pronti e completamente modificabili per i siti che usi ogni giorno: GitHub, YouTube, Amazon (con selezione del paese), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia e altri, ogni voce con un'icona adatta
+• Menu dei siti — menu popup già pronti e completamente modificabili per i siti che usi ogni giorno, ogni voce con un'icona adatta
 • I tuoi menu in pochi secondi — creare un menu per qualsiasi altro sito è rapido: aggiungi voci con icone, imposta pattern URL (oppure registra il sito corrente con un gesto), fatto
 • Un solo gesto contestuale, sempre il menu giusto — su GitHub ottieni Issues e Pull Requests, su YouTube i tuoi iscritti, su Amazon i tuoi ordini; ovunque altrove un menu di ricerca predefinito (Google, Brave, Perplexity, DuckDuckGo …), più un menu Shopping che cerca la tua selezione su Amazon ed eBay
 • Menu che restano tuoi — personalizza un menu predefinito globalmente, oppure caricalo in un singolo gesto come copia personalizzata che continua a ereditare i miglioramenti futuri per le voci non modificate; inclusi menu privati per singolo gesto
@@ -960,7 +962,7 @@ FlowMouse のすべての機能を搭載
 • 見やすい設定画面とインタラクティブなチュートリアル
 
 さらに Gestura が追加する機能 — その目玉が「ウェブサイトメニュー」
-• ウェブサイトメニュー — 毎日使うサイト向けに用意された、自由に編集できるポップアップメニュー：GitHub、YouTube、Amazon（国選択付き）、Gmail、Google Maps、Microsoft 365、Facebook、Reddit、Wikipediaなど。各項目には専用アイコン付き
+• ウェブサイトメニュー — 毎日使うサイト向けに用意された、自由に編集できるポップアップメニュー。各項目には専用アイコン付き
 • 自分だけのメニューを数秒で — 他のどんなサイト向けのメニューもすぐ作成可能：アイコン付きの項目を追加し、URLパターンを設定（またはジェスチャーで現在のサイトを登録）するだけ
 • 1つのコンテキストジェスチャーで、常に最適なメニューを — GitHubではIssueとPull Requests、YouTubeでは登録チャンネル、Amazonでは注文履歴を表示。それ以外のサイトではデフォルトの検索メニュー（Google、Brave、Perplexity、DuckDuckGo…）に加え、選択したテキストをAmazon＆eBayで検索するショッピングメニューも
 • メニューはずっとあなたのもの — 定義済みメニューをグローバルにカスタマイズするか、1つのジェスチャー専用にカスタマイズしたコピーとして読み込むことも可能。未変更の項目は今後の改善を引き続き受け継ぎます。ジェスチャーごとの非公開メニューにも対応
@@ -1004,7 +1006,7 @@ FlowMouse의 모든 기능 포함
 • 깔끔한 설정 UI와 인터랙티브 튜토리얼
 
 여기에 Gestura만의 기능 추가 — 대표 기능은 웹사이트 메뉴
-• 웹사이트 메뉴 — 자주 쓰는 사이트를 위한 완성형, 완전 편집 가능한 팝업 메뉴: GitHub, YouTube, Amazon(국가 선택 포함), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia 등, 모든 항목에 어울리는 아이콘 제공
+• 웹사이트 메뉴 — 자주 쓰는 사이트를 위한 완성형, 완전 편집 가능한 팝업 메뉴, 모든 항목에 어울리는 아이콘 제공
 • 몇 초 만에 나만의 메뉴 만들기 — 다른 어떤 웹사이트라도 빠르게 메뉴 생성: 아이콘과 함께 항목 추가, URL 패턴 설정(또는 제스처로 현재 사이트 등록)하면 끝
 • 하나의 상황별 제스처로 항상 알맞은 메뉴 — GitHub에서는 Issues 및 Pull Requests, YouTube에서는 구독 채널, Amazon에서는 주문 내역이 표시됩니다. 그 외 사이트에서는 기본 검색 메뉴(Google, Brave, Perplexity, DuckDuckGo…)와 함께, 선택한 내용을 Amazon 및 eBay에서 검색하는 쇼핑 메뉴도 제공
 • 언제나 내 것으로 남는 메뉴 — 미리 정의된 메뉴를 전역으로 커스터마이징하거나, 특정 제스처 전용으로 커스터마이징한 복사본을 불러올 수 있으며, 변경하지 않은 항목은 계속해서 향후 개선 사항을 상속받습니다. 제스처별 비공개 메뉴도 지원
@@ -1048,7 +1050,7 @@ Merangkumi semua yang FlowMouse boleh lakukan
 • UI tetapan yang kemas dengan tutorial interaktif
 
 Ditambah dengan ciri istimewa Gestura — diketuai oleh Menu Laman Web
-• Menu laman web — menu pop timbul sedia dibuat dan boleh diedit sepenuhnya untuk laman yang anda gunakan setiap hari: GitHub, YouTube, Amazon (dengan pilihan negara), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia dan banyak lagi, setiap entri dengan ikon yang sesuai
+• Menu laman web — menu pop timbul sedia dibuat dan boleh diedit sepenuhnya untuk laman yang anda gunakan setiap hari, setiap entri dengan ikon yang sesuai
 • Menu anda sendiri dalam beberapa saat — mencipta menu untuk mana-mana laman web lain adalah pantas: tambah entri dengan ikon, tetapkan corak URL (atau daftarkan laman semasa dengan gerak isyarat), selesai
 • Satu gerak isyarat kontekstual, sentiasa menu yang betul — di GitHub anda dapat Issues & Pull Requests, di YouTube langganan anda, di Amazon pesanan anda; di tempat lain menu Carian lalai (Google, Brave, Perplexity, DuckDuckGo…), ditambah menu Membeli-belah yang mencari pilihan anda di Amazon & eBay
 • Menu yang kekal milik anda — sesuaikan menu pratentu secara global, atau muatkan ke dalam satu gerak isyarat sebagai salinan tersuai yang terus mewarisi penambahbaikan akan datang untuk entri yang tidak diubah; menu peribadi setiap gerak isyarat turut disertakan
@@ -1092,7 +1094,7 @@ Bevat alles wat FlowMouse kan
 • Overzichtelijke instellingen-UI met interactieve tutorial
 
 Daarbovenop wat Gestura toevoegt — met als uithangbord de website-menu's
-• Website-menu's — kant-en-klare, volledig aanpasbare pop-upmenu's voor de sites die je dagelijks gebruikt: GitHub, YouTube, Amazon (met landkeuze), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia en meer, elk item met een passend icoon
+• Website-menu's — kant-en-klare, volledig aanpasbare pop-upmenu's voor de sites die je dagelijks gebruikt, elk item met een passend icoon
 • Je eigen menu's in enkele seconden — een menu maken voor elke andere website gaat snel: voeg items met iconen toe, stel URL-patronen in (of registreer de huidige site met een gebaar), klaar
 • Eén contextueel gebaar, altijd het juiste menu — op GitHub krijg je Issues & Pull Requests, op YouTube je abonnementen, op Amazon je bestellingen; overal elders een standaard zoekmenu (Google, Brave, Perplexity, DuckDuckGo …), plus een winkelmenu dat je selectie op Amazon & eBay opzoekt
 • Menu's die van jou blijven — pas een vooraf gedefinieerd menu globaal aan, of laad het als aangepaste kopie in één specifiek gebaar dat voor onaangeraakte items toekomstige verbeteringen blijft overnemen; privémenu's per gebaar inbegrepen
@@ -1136,7 +1138,7 @@ Inneholder alt FlowMouse kan
 • Ryddig innstillings-UI med interaktiv veiledning
 
 I tillegg det Gestura legger til — med nettstedsmenyer i førersetet
-• Nettstedsmenyer — ferdiglagde, fullt redigerbare hurtigmenyer for sidene du bruker daglig: GitHub, YouTube, Amazon (med landvalg), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia og flere, hvert element med et passende ikon
+• Nettstedsmenyer — ferdiglagde, fullt redigerbare hurtigmenyer for sidene du bruker daglig, hvert element med et passende ikon
 • Dine egne menyer på sekunder — det går raskt å lage en meny for et hvilket som helst annet nettsted: legg til elementer med ikoner, angi URL-mønstre (eller registrer gjeldende side med en bevegelse), ferdig
 • Én kontekstuell bevegelse, alltid riktig meny — på GitHub får du Issues & Pull Requests, på YouTube abonnementene dine, på Amazon bestillingene dine; ellers en standard søkemeny (Google, Brave, Perplexity, DuckDuckGo …), pluss en handlemeny som søker etter utvalget ditt på Amazon & eBay
 • Menyer som forblir dine — tilpass en forhåndsdefinert meny globalt, eller last den inn i én enkelt bevegelse som en tilpasset kopi som fortsetter å arve fremtidige forbedringer for uendrede elementer; private menyer per bevegelse er også inkludert
@@ -1180,7 +1182,7 @@ Zawiera wszystko, co potrafi FlowMouse
 • Przejrzysty interfejs ustawień z interaktywnym samouczkiem
 
 Do tego to, co dodaje Gestura — na czele z menu stron internetowych
-• Menu stron internetowych — gotowe, w pełni edytowalne menu podręczne dla stron używanych na co dzień: GitHub, YouTube, Amazon (z wyborem kraju), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia i inne, każda pozycja z pasującą ikoną
+• Menu stron internetowych — gotowe, w pełni edytowalne menu podręczne dla stron używanych na co dzień, każda pozycja z pasującą ikoną
 • Własne menu w kilka sekund — utworzenie menu dla dowolnej innej strony jest szybkie: dodaj pozycje z ikonami, ustaw wzorce adresów URL (lub zarejestruj bieżącą stronę za pomocą gestu) i gotowe
 • Jeden gest kontekstowy, zawsze właściwe menu — na GitHubie zobaczysz Issues i Pull Requests, na YouTube swoje subskrypcje, na Amazonie swoje zamówienia; wszędzie indziej domyślne menu wyszukiwania (Google, Brave, Perplexity, DuckDuckGo…), a do tego menu zakupowe, które wyszukuje zaznaczenie w Amazon i eBay
 • Menu, które zawsze pozostaje Twoje — dostosuj predefiniowane menu globalnie albo wczytaj je do pojedynczego gestu jako dostosowaną kopię, która nadal dziedziczy przyszłe ulepszenia dla nietkniętych pozycji; prywatne menu przypisane do gestów również są dostępne
@@ -1224,7 +1226,7 @@ Inclui tudo o que o FlowMouse já faz
 • Interface de configurações limpa, com tutorial interativo
 
 Além disso, o que o Gestura acrescenta — com destaque para os Menus de Site
-• Menus de site — menus pop-up prontos e totalmente editáveis para os sites que você usa todo dia: GitHub, YouTube, Amazon (com seleção de país), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia e mais, cada item com um ícone adequado
+• Menus de site — menus pop-up prontos e totalmente editáveis para os sites que você usa todo dia, cada item com um ícone adequado
 • Seus próprios menus em segundos — criar um menu para qualquer outro site é rápido: adicione itens com ícones, defina padrões de URL (ou registre o site atual com um gesto) e pronto
 • Um gesto contextual, sempre o menu certo — no GitHub você vê Issues e Pull Requests, no YouTube suas inscrições, na Amazon seus pedidos; em qualquer outro lugar, um menu de busca padrão (Google, Brave, Perplexity, DuckDuckGo …), além de um menu de Compras que busca sua seleção na Amazon e no eBay
 • Menus que continuam seus — personalize um menu predefinido globalmente, ou carregue-o em um único gesto como cópia personalizada, que continua herdando futuras melhorias nos itens não alterados; inclui menus privados por gesto
@@ -1268,7 +1270,7 @@ Inclui tudo o que o FlowMouse já faz
 • Interface de definições simples, com tutorial interativo
 
 E o que o Gestura acrescenta — com destaque para os Menus de Sites
-• Menus de sites — menus pop-up prontos e totalmente editáveis para os sites que usa todos os dias: GitHub, YouTube, Amazon (com seleção de país), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia e muito mais, cada entrada com um ícone adequado
+• Menus de sites — menus pop-up prontos e totalmente editáveis para os sites que usa todos os dias, cada entrada com um ícone adequado
 • Os seus próprios menus em segundos — criar um menu para qualquer outro site é rápido: adicione entradas com ícones, defina padrões de URL (ou registe o site atual com um gesto) e pronto
 • Um gesto contextual, sempre o menu certo — no GitHub obtém Issues e Pull Requests, no YouTube as suas subscrições, na Amazon as suas encomendas; em todo o lado um menu de pesquisa predefinido (Google, Brave, Perplexity, DuckDuckGo …), mais um menu de Compras que pesquisa a sua seleção na Amazon e no eBay
 • Menus que continuam seus — personalize um menu predefinido globalmente, ou carregue-o num único gesto como cópia personalizada, que continua a herdar melhorias futuras nas entradas não alteradas; inclui menus privados por gesto
@@ -1312,7 +1314,7 @@ Include tot ce poate FlowMouse
 • Interfață de setări clară, cu tutorial interactiv
 
 Plus ce adaugă Gestura — cu Meniurile pentru site-uri în prim-plan
-• Meniuri pentru site-uri — meniuri pop-up gata făcute și complet editabile pentru site-urile pe care le folosești zilnic: GitHub, YouTube, Amazon (cu selectarea țării), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia și altele, fiecare intrare cu o pictogramă potrivită
+• Meniuri pentru site-uri — meniuri pop-up gata făcute și complet editabile pentru site-urile pe care le folosești zilnic, fiecare intrare cu o pictogramă potrivită
 • Propriile tale meniuri în câteva secunde — crearea unui meniu pentru orice alt site este rapidă: adaugi intrări cu pictograme, setezi tipare de URL (sau înregistrezi site-ul curent printr-un gest) și gata
 • Un gest contextual, mereu meniul potrivit — pe GitHub primești Issues și Pull Requests, pe YouTube abonamentele tale, pe Amazon comenzile tale; oriunde altundeva un meniu de căutare implicit (Google, Brave, Perplexity, DuckDuckGo …), plus un meniu Shopping care caută selecția ta pe Amazon și eBay
 • Meniuri care rămân ale tale — personalizează un meniu predefinit la nivel global, sau încarcă-l într-un singur gest ca o copie personalizată, care continuă să preia îmbunătățirile viitoare pentru intrările neschimbate; incluse meniuri private per gest
@@ -1356,7 +1358,7 @@ Gestura делает просмотр веб-страниц быстрее бл�
 • Понятный интерфейс настроек с интерактивным обучением
 
 А ещё то, что добавляет Gestura — прежде всего меню для сайтов
-• Меню для сайтов — готовые, полностью редактируемые всплывающие меню для сайтов, которыми вы пользуетесь каждый день: GitHub, YouTube, Amazon (с выбором страны), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia и другие, у каждого пункта — подходящая иконка
+• Меню для сайтов — готовые, полностью редактируемые всплывающие меню для сайтов, которыми вы пользуетесь каждый день, у каждого пункта — подходящая иконка
 • Собственные меню за считаные секунды — создать меню для любого другого сайта просто: добавьте пункты с иконками, задайте шаблоны URL (или зарегистрируйте текущий сайт жестом) — и готово
 • Один контекстный жест — всегда нужное меню — на GitHub вы получаете Issues и Pull Requests, на YouTube — свои подписки, на Amazon — свои заказы; везде остальные — меню поиска по умолчанию (Google, Brave, Perplexity, DuckDuckGo …), плюс меню покупок, которое ищет ваш выбор на Amazon и eBay
 • Меню остаются вашими — настраивайте готовое меню глобально или загружайте его в отдельный жест как изменённую копию, которая продолжает наследовать будущие улучшения для нетронутых пунктов; включены приватные меню для отдельных жестов
@@ -1400,7 +1402,7 @@ Obsahuje všetko, čo vie FlowMouse
 • Prehľadné rozhranie nastavení s interaktívnym tutoriálom
 
 Navyše to, čo pridáva Gestura — v hlavnej úlohe ponuky webových stránok
-• Ponuky webových stránok — hotové, plne upraviteľné vyskakovacie ponuky pre stránky, ktoré používate denne: GitHub, YouTube, Amazon (s výberom krajiny), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia a ďalšie, každá položka s vhodnou ikonou
+• Ponuky webových stránok — hotové, plne upraviteľné vyskakovacie ponuky pre stránky, ktoré používate denne, každá položka s vhodnou ikonou
 • Vlastné ponuky za pár sekúnd — vytvorenie ponuky pre akúkoľvek inú stránku je rýchle: pridajte položky s ikonami, nastavte vzory URL adries (alebo zaregistrujte aktuálnu stránku gestom) a je hotovo
 • Jedno kontextové gesto, vždy tá správna ponuka — na GitHube dostanete Issues a Pull Requests, na YouTube svoje odbery, na Amazone svoje objednávky; všade inde predvolenú vyhľadávaciu ponuku (Google, Brave, Perplexity, DuckDuckGo …), plus nákupnú ponuku, ktorá vyhľadá váš výber na Amazone a eBay
 • Ponuky, ktoré zostávajú vaše — prispôsobte si preddefinovanú ponuku globálne, alebo ju načítajte do jedného gesta ako upravenú kópiu, ktorá naďalej dedí budúce vylepšenia pre nezmenené položky; súkromné ponuky pre jednotlivé gestá sú súčasťou
@@ -1444,7 +1446,7 @@ Gestura убрзава прегледање захваљујући глатки�
 • Прегледан интерфејс подешавања са интерактивним туторијалом
 
 Уз то што Gestura додаје — на челу са менијима за сајтове
-• Менији за сајтове — готови, потпуно измењиви искачући менији за сајтове које користите свакодневно: GitHub, YouTube, Amazon (са избором државе), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia и други, свака ставка са одговарајућом иконицом
+• Менији за сајтове — готови, потпуно измењиви искачући менији за сајтове које користите свакодневно, свака ставка са одговарајућом иконицом
 • Сопствени менији за неколико секунди — прављење менија за било који други сајт је брзо: додајте ставке са иконицама, поставите URL обрасце (или региструјте тренутни сајт гестом) и готово
 • Један контекстуални гест, увек прави мени — на GitHub-у добијате Issues и Pull Requests, на YouTube-у своје претплате, на Amazon-у своје поруџбине; свуда другде подразумевани мени за претрагу (Google, Brave, Perplexity, DuckDuckGo …), плус мени за куповину који претражује ваш избор на Amazon-у и eBay-у
 • Менији који остају ваши — прилагодите унапред дефинисани мени глобално, или га учитајте у један гест као прилагођену копију која и даље наслеђује будућа побољшања за неизмењене ставке; укључени су и приватни менији по гесту
@@ -1488,7 +1490,7 @@ Innehåller allt FlowMouse kan
 • Ren inställnings-UI med interaktiv genomgång
 
 Dessutom lägger Gestura till — med webbplatsmenyer i centrum
-• Webbplatsmenyer — färdiga, helt redigerbara popup-menyer för sidorna du använder varje dag: GitHub, YouTube, Amazon (med landval), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia med flera, varje post med passande ikon
+• Webbplatsmenyer — färdiga, helt redigerbara popup-menyer för sidorna du använder varje dag, varje post med passande ikon
 • Egna menyer på sekunder — att skapa en meny för valfri annan webbplats går snabbt: lägg till poster med ikoner, ange URL-mönster (eller registrera aktuell sida med en gest), klart
 • En kontextgest, alltid rätt meny — på GitHub får du Issues & Pull Requests, på YouTube dina prenumerationer, på Amazon dina beställningar; överallt annars en standard-sökmeny (Google, Brave, Perplexity, DuckDuckGo …), plus en shoppingmeny som söker din markering på Amazon & eBay
 • Menyer som förblir dina — anpassa en fördefinierad meny globalt, eller ladda in den i en enskild gest som en anpassad kopia som fortsätter ärva framtida förbättringar för oförändrade poster; privata gest-specifika menyer ingår
@@ -1532,7 +1534,7 @@ Gestura ทำให้การท่องเว็บเร็วขึ้น
 • หน้าตั้งค่าที่เรียบง่าย พร้อมบทเรียนแบบอินเทอร์แอกทีฟ
 
 และสิ่งที่ Gestura เพิ่มเข้ามา — นำโดยเมนูเว็บไซต์
-• เมนูเว็บไซต์ — เมนูป๊อปอัปสำเร็จรูปที่แก้ไขได้เต็มที่สำหรับเว็บไซต์ที่คุณใช้ทุกวัน: GitHub, YouTube, Amazon (เลือกประเทศได้), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia และอื่น ๆ ทุกรายการมีไอคอนที่เหมาะสม
+• เมนูเว็บไซต์ — เมนูป๊อปอัปสำเร็จรูปที่แก้ไขได้เต็มที่สำหรับเว็บไซต์ที่คุณใช้ทุกวัน ทุกรายการมีไอคอนที่เหมาะสม
 • สร้างเมนูของคุณเองได้ในไม่กี่วินาที — สร้างเมนูสำหรับเว็บไซต์อื่นได้อย่างรวดเร็ว: เพิ่มรายการพร้อมไอคอน ตั้งรูปแบบ URL (หรือลงทะเบียนเว็บไซต์ปัจจุบันด้วยเจสเจอร์) เสร็จเรียบร้อย
 • เจสเจอร์เดียวตามบริบท ได้เมนูที่ถูกต้องเสมอ — บน GitHub จะได้ Issues & Pull Requests บน YouTube จะได้รายการติดตามของคุณ บน Amazon จะได้คำสั่งซื้อของคุณ ส่วนที่อื่น ๆ จะได้เมนูค้นหาเริ่มต้น (Google, Brave, Perplexity, DuckDuckGo …) พร้อมเมนูช้อปปิ้งที่ค้นหาสิ่งที่เลือกบน Amazon & eBay
 • เมนูที่ยังคงเป็นของคุณ — ปรับแต่งเมนูที่กำหนดไว้ล่วงหน้าแบบทั่วทั้งระบบ หรือโหลดเป็นสำเนาที่ปรับแต่งเฉพาะเจสเจอร์เดียว ซึ่งยังคงรับการปรับปรุงในอนาคตสำหรับรายการที่ไม่ได้แก้ไข รวมถึงเมนูส่วนตัวเฉพาะเจสเจอร์ด้วย
@@ -1576,7 +1578,7 @@ FlowMouse'un yaptığı her şeyi içerir
 • Etkileşimli öğreticiye sahip sade bir ayarlar arayüzü
 
 Gestura'nın eklediği ekstralar — başrolde Web Sitesi Menüleri
-• Web sitesi menüleri — her gün kullandığınız siteler için hazır, tamamen düzenlenebilir açılır menüler: GitHub, YouTube, Amazon (ülke seçimiyle), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia ve daha fazlası; her girdi uygun bir simgeyle birlikte
+• Web sitesi menüleri — her gün kullandığınız siteler için hazır, tamamen düzenlenebilir açılır menüler; her girdi uygun bir simgeyle birlikte
 • Saniyeler içinde kendi menünüz — başka herhangi bir web sitesi için menü oluşturmak çok hızlı: simgeli girdiler ekleyin, URL kalıpları belirleyin (veya geçerli siteyi bir hareketle kaydedin), hepsi bu
 • Tek bir bağlamsal hareket, her zaman doğru menü — GitHub'da Issues & Pull Requests, YouTube'da abonelikleriniz, Amazon'da siparişleriniz karşınıza çıkar; diğer her yerde varsayılan bir Arama menüsü (Google, Brave, Perplexity, DuckDuckGo …) ve seçiminizi Amazon & eBay'de arayan bir Alışveriş menüsü
 • Sizin kalan menüler — önceden tanımlı bir menüyü genel olarak özelleştirin veya tek bir harekete, değiştirilmemiş girdiler için gelecekteki iyileştirmeleri almaya devam eden özelleştirilmiş bir kopya olarak yükleyin; harekete özel gizli menüler de dahildir
@@ -1620,7 +1622,7 @@ Gestura прискорює перегляд сторінок завдяки пл
 • Охайний інтерфейс налаштувань з інтерактивним посібником
 
 А також те, що додає Gestura — головне — меню для сайтів
-• Меню для сайтів — готові, повністю редаговані спливаючі меню для сайтів, якими ви користуєтесь щодня: GitHub, YouTube, Amazon (з вибором країни), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia та інші, кожен пункт із відповідною іконкою
+• Меню для сайтів — готові, повністю редаговані спливаючі меню для сайтів, якими ви користуєтесь щодня, кожен пункт із відповідною іконкою
 • Власні меню за лічені секунди — створити меню для будь-якого іншого сайту дуже швидко: додайте пункти з іконками, задайте шаблони URL (або зареєструйте поточний сайт жестом) — готово
 • Один контекстний жест — завжди потрібне меню — на GitHub ви отримаєте Issues & Pull Requests, на YouTube — свої підписки, на Amazon — свої замовлення; всюди інде — стандартне меню пошуку (Google, Brave, Perplexity, DuckDuckGo …), а також меню покупок, яке шукає ваш вибір на Amazon і eBay
 • Меню, що залишаються вашими — налаштуйте попередньо визначене меню глобально, або завантажте його в окремий жест як налаштовану копію, яка продовжує успадковувати майбутні покращення для незмінених пунктів; приватні меню для окремих жестів також включені
@@ -1664,7 +1666,7 @@ Bao gồm mọi tính năng của FlowMouse
 • Giao diện cài đặt gọn gàng kèm hướng dẫn tương tác
 
 Cùng những gì Gestura bổ sung — nổi bật nhất là Menu website
-• Menu website — menu bật lên dựng sẵn, có thể chỉnh sửa hoàn toàn cho các trang web bạn dùng hằng ngày: GitHub, YouTube, Amazon (có chọn quốc gia), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia và nhiều hơn nữa, mỗi mục đều có biểu tượng phù hợp
+• Menu website — menu bật lên dựng sẵn, có thể chỉnh sửa hoàn toàn cho các trang web bạn dùng hằng ngày, mỗi mục đều có biểu tượng phù hợp
 • Tạo menu riêng chỉ trong vài giây — tạo menu cho bất kỳ trang web nào khác rất nhanh chóng: thêm các mục kèm biểu tượng, đặt mẫu URL (hoặc đăng ký trang hiện tại bằng một cử chỉ), xong
 • Một cử chỉ theo ngữ cảnh, luôn đúng menu — trên GitHub bạn nhận được Issues & Pull Requests, trên YouTube là các kênh đã đăng ký, trên Amazon là đơn hàng của bạn; ở mọi nơi khác là menu Tìm kiếm mặc định (Google, Brave, Perplexity, DuckDuckGo …), cùng menu Mua sắm tìm kiếm lựa chọn của bạn trên Amazon & eBay
 • Menu vẫn luôn là của bạn — tùy chỉnh một menu dựng sẵn trên toàn hệ thống, hoặc nạp nó vào một cử chỉ riêng dưới dạng bản sao đã tùy chỉnh, bản sao này vẫn tiếp tục kế thừa các cải tiến trong tương lai cho những mục chưa thay đổi; đã bao gồm cả menu riêng tư cho từng cử chỉ
@@ -1708,7 +1710,7 @@ Gestura 让浏览更流畅——支持流畅、可自定义的鼠标手势，不
 • 简洁的设置界面，配有交互式教程
 
 Gestura 新增的功能——以网站菜单为核心亮点
-• 网站菜单 — 为你每天使用的网站提供现成、可完全编辑的弹出菜单：GitHub、YouTube、Amazon（可选择国家/地区）、Gmail、Google Maps、Microsoft 365、Facebook、Reddit、Wikipedia 等，每个条目都配有相应图标
+• 网站菜单 — 为你每天使用的网站提供现成、可完全编辑的弹出菜单，每个条目都配有相应图标
 • 几秒钟创建专属菜单 — 为任何其他网站创建菜单同样简单：添加带图标的条目，设置 URL 匹配规则（或用手势直接注册当前网站），即可完成
 • 一个情境手势，始终匹配正确的菜单 — 在 GitHub 上显示 Issues 和 Pull Requests，在 YouTube 上显示你的订阅，在 Amazon 上显示你的订单；其他网站则显示默认的搜索菜单（Google、Brave、Perplexity、DuckDuckGo 等），另有购物菜单，可直接在 Amazon 和 eBay 搜索你选中的内容
 • 菜单始终由你掌控 — 可全局自定义预设菜单，也可将其作为自定义副本载入单个手势，未修改的条目仍会持续继承后续更新；还支持私有的按手势菜单
@@ -1752,7 +1754,7 @@ Gestura 讓瀏覽更流暢——透過流暢、可自訂的滑鼠手勢，不收
 • 簡潔的設定介面，並附互動式教學
 
 Gestura 新增的功能——以網站選單為核心亮點
-• 網站選單 — 為你每天造訪的網站提供現成、可完全編輯的彈出選單：GitHub、YouTube、Amazon（可選擇國家/地區）、Gmail、Google Maps、Microsoft 365、Facebook、Reddit、Wikipedia 等，每個項目都配有對應圖示
+• 網站選單 — 為你每天造訪的網站提供現成、可完全編輯的彈出選單，每個項目都配有對應圖示
 • 幾秒鐘建立專屬選單 — 為任何其他網站建立選單同樣簡單：新增帶圖示的項目，設定 URL 比對規則（或用手勢直接註冊目前網站），即可完成
 • 一個情境手勢，永遠對應正確的選單 — 在 GitHub 顯示 Issues 與 Pull Requests，在 YouTube 顯示你的訂閱，在 Amazon 顯示你的訂單；其他網站則顯示預設的搜尋選單（Google、Brave、Perplexity、DuckDuckGo 等），另有購物選單，可直接在 Amazon 與 eBay 搜尋你選取的內容
 • 選單永遠由你掌控 — 可全域自訂預設選單，也可將其作為自訂副本載入單一手勢，未變動的項目仍會持續繼承後續更新；也支援私人的按手勢選單
