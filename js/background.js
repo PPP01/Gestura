@@ -1623,27 +1623,75 @@ async function updateMenuForTab(tab) {
 
 	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist', 'enableSiteMenus', 'enableContextMenu', 'ctxMenuAddSite', 'ctxMenuSiteMenu', 'ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId', 'ctxMenuOptions', 'siteMenuAddAsk', 'siteMenus']);
 	self._siteMenusCache = items.siteMenus || {};
+
+	// Immer zuerst alles wegräumen; unten in fester Reihenfolge neu aufbauen.
+	removeAllMenus();
+	removeBlacklistMenu();
+	removeContextMenuExtras();
+
+	// Kontextmenü-Feature aus → gar kein FlowMouse-Eintrag im Rechtsklick-Menü.
+	if (items.enableContextMenu === false) {
+		updateBadge(tabId, 'normal');
+		return;
+	}
+
 	const blacklistEnabled = items.enableBlacklist !== false;
+	const siteMenusOn = items.enableSiteMenus !== false;
+	const showNotice = items.showRestrictedNotice !== false;
 	let hostname = null;
 	try {
 		if (url) hostname = new URL(url).hostname;
 	} catch (e) {
 	}
+	const restricted = isRestrictedUrl(url);
+	const isBlacklistedHost = blacklistEnabled && hostname && Array.isArray(items.blacklist) && items.blacklist.includes(hostname);
+	const pageOk = !!hostname && !restricted && !isBlacklistedHost;
 
-	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !isRestrictedUrl(url)) {
-		const isInBlacklist = items.blacklist && items.blacklist.includes(hostname);
-		createBlacklistMenu(isInBlacklist);
-	} else {
-		removeBlacklistMenu();
+	// Reihenfolge im Rechtsklick-Menü:
+	// 1) Optionen  2) Gesten-Toggle  3) Hinweis  4) Website-Menü öffnen  5) Zu Menü hinzufügen
+
+	// 1) Optionen
+	if (items.ctxMenuOptions !== false) {
+		chrome.contextMenus.create({
+			id: MENU_ID_OPTIONS,
+			title: getMsg('menuOptions', 'Options'),
+			contexts: ['all']
+		}, () => { chrome.runtime.lastError; });
 	}
 
-	removeContextMenuExtras();
-	const ctxOn = items.enableContextMenu !== false;
-	const siteMenusOn = items.enableSiteMenus !== false;
-	const isBlacklistedHost = blacklistEnabled && hostname && Array.isArray(items.blacklist) && items.blacklist.includes(hostname);
-	const canUseCtx = ctxOn && hostname && !isRestrictedUrl(url) && !isBlacklistedHost;
+	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren
+	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !restricted) {
+		createBlacklistMenu(isBlacklistedHost);
+	}
 
-	if (canUseCtx && siteMenusOn && items.ctxMenuAddSite !== false) {
+	// 3) Hinweis bei eingeschränkten / nicht geladenen Seiten (+ Badge)
+	let badge = 'normal';
+	if (isBlacklistedHost) {
+		badge = 'normal';
+	} else if (restricted) {
+		if (showNotice) {
+			createRestrictedMenu();
+			badge = 'restricted';
+		}
+	} else if (hostname) {
+		const loaded = await isContentScriptLoaded(tabId);
+		if (!loaded && showNotice) {
+			createRefreshMenu();
+			badge = 'needRefresh';
+		}
+	}
+
+	// 4) Website-Menü öffnen
+	if (pageOk && siteMenusOn && items.ctxMenuSiteMenu !== false) {
+		chrome.contextMenus.create({
+			id: MENU_ID_SITEMENU,
+			title: getMsg('menuOpenSiteMenu', 'Website menu'),
+			contexts: ['all']
+		}, () => { chrome.runtime.lastError; });
+	}
+
+	// 5) Zu einem Website-Menü hinzufügen
+	if (pageOk && siteMenusOn && items.ctxMenuAddSite !== false) {
 		const matches = matchingSiteMenuIds(url);
 		const active = activeSiteMenus();
 		self._ctxAddIds = self._ctxAddIds || [];
@@ -1689,47 +1737,7 @@ async function updateMenuForTab(tab) {
 		}
 	}
 
-	if (canUseCtx && siteMenusOn && items.ctxMenuSiteMenu !== false) {
-		chrome.contextMenus.create({
-			id: MENU_ID_SITEMENU,
-			title: getMsg('menuOpenSiteMenu', 'Website menu'),
-			contexts: ['all']
-		}, () => { chrome.runtime.lastError; });
-	}
-
-	if (canUseCtx && items.ctxMenuOptions !== false) {
-		chrome.contextMenus.create({
-			id: MENU_ID_OPTIONS,
-			title: getMsg('menuOptions', 'Options'),
-			contexts: ['all']
-		}, () => { chrome.runtime.lastError; });
-	}
-
-	if (items.showRestrictedNotice === false) {
-		removeAllMenus();
-		updateBadge(tabId, 'normal');
-		return;
-	}
-
-	if (blacklistEnabled && hostname && items.blacklist && items.blacklist.includes(hostname)) {
-		removeAllMenus();
-		updateBadge(tabId, 'normal');
-		return;
-	}
-
-	if (isRestrictedUrl(url)) {
-		createRestrictedMenu();
-		updateBadge(tabId, 'restricted');
-	} else {
-		const loaded = await isContentScriptLoaded(tabId);
-		if (loaded) {
-			removeAllMenus();
-			updateBadge(tabId, 'normal');
-		} else {
-			createRefreshMenu();
-			updateBadge(tabId, 'needRefresh');
-		}
-	}
+	updateBadge(tabId, badge);
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {

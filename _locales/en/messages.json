@@ -432,7 +432,7 @@
 		"description": "Feature toggle label for gestures"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Context Menu Gesture Toggle",
+		"message": "Disable/enable gestures for the current site",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -2771,12 +2771,16 @@
 		"message": "Entries FlowMouse adds to the browser's right-click menu",
 		"description": "Description for context menu section"
 	},
+	"contextMenuInfo": {
+		"message": "The context menu is the menu that opens when you right-click on a page. FlowMouse adds the entries below to it.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
 	"contextMenuDisabledHint": {
 		"message": "The context-menu additions are turned off in the Features box above.",
 		"description": "Hint when context menu feature is disabled"
 	},
 	"ctxMenuAddSite": {
-		"message": "Add this site to a menu",
+		"message": "Add to a website menu",
 		"description": "Label for context menu entry to add site to menu"
 	},
 	"ctxMenuAddSiteDesc": {

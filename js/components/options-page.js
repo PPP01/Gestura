@@ -857,7 +857,15 @@ class OptionsPage extends LitElement {
 								: [];
 							const menuName = (m) => m.def.name || (m.def.nameKey && i18n.getMessage(m.def.nameKey)) || m.id;
 							return html`
-								${!ctxOn ? html`<div class="setting-row first-row"><div class="setting-label"><span>${i18n.getMessage('contextMenuDisabledHint')}</span></div></div>` : ''}
+								<div class="setting-row first-row">
+									<div class="setting-label">
+										<span style="display:flex;align-items:flex-start;gap:6px">
+											<span style="flex:0 0 auto;display:inline-flex;margin-top:1px;opacity:.7">${unsafeHTML(icon('info', { size: 15 }))}</span>
+											<span>${i18n.getMessage('contextMenuInfo')}</span>
+										</span>
+									</div>
+								</div>
+								${!ctxOn ? html`<div class="setting-row"><div class="setting-label"><span>${i18n.getMessage('contextMenuDisabledHint')}</span></div></div>` : ''}
 								<div class="setting-row first-row" style="display:${newFeaturesOn ? '' : 'none'}">
 									<div class="setting-label">
 										<span>${i18n.getMessage('ctxMenuAddSite')}</span>
