@@ -866,7 +866,7 @@ class OptionsPage extends LitElement {
 									</div>
 								</div>
 								${!ctxOn ? html`<div class="setting-row"><div class="setting-label"><span>${i18n.getMessage('contextMenuDisabledHint')}</span></div></div>` : ''}
-								<div class="setting-row first-row" style="display:${newFeaturesOn ? '' : 'none'}">
+								<div class="setting-row" style="display:${newFeaturesOn ? '' : 'none'}">
 									<div class="setting-label">
 										<span>${i18n.getMessage('ctxMenuAddSite')}</span>
 										<span>${i18n.getMessage('ctxMenuAddSiteDesc')}</span>
