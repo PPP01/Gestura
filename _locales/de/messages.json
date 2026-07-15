@@ -2702,5 +2702,73 @@
 	"menuShowInSwitcher": {
 		"message": "In der Menü-Auswahl anzeigen",
 		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"contextMenuSection": {
+		"message": "Kontextmenü",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Einträge, die FlowMouse zum Rechtsklick-Menü des Browsers hinzufügt",
+		"description": "Description for context menu section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Die Kontextmenü-Erweiterungen sind im Funktionen-Kasten oben ausgeschaltet.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Diese Seite zu einem Menü hinzufügen",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Rechtsklick-Eintrag, um die aktuelle Seite (oder den angeklickten Link) zu einem Website-Menü hinzuzufügen",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Website-Menü öffnen",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Rechtsklick-Eintrag, der das Website-Menü-Overlay öffnet – wie die Geste",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menü",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Optionen-Eintrag",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Zeigt einen Eintrag „Optionen“, der die Einstellungsseite öffnet",
+		"description": "Description for context menu options entry setting"
+	},
+	"siteMenuAddAsk": {
+		"message": "Menü abfragen, wenn keins passt",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Wenn beim Hinzufügen kein Menü zur Seite passt, eine Menü-Auswahl anbieten; aus = still ins Standard-Menü",
+		"description": "Description for asking which menu to add to"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Diese Seite zu Menü hinzufügen",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Zu Menü „$NAME$“ hinzufügen",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Website-Menü",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Optionen",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titel für den Menüeintrag",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }
