@@ -402,4 +402,16 @@ describe('itemOpenConfig — Präzedenz Link → Menü → global', () => {
 		expect(M.itemOpenConfig(item({ left: {} }), '', 'standard', 0)).toEqual({ position: 'last', active: true });
 		expect(M.itemOpenConfig(null, '', 'standard', 0)).toEqual({ position: 'current', active: true });
 	});
+
+	it('standardReverse: links + Mausrad → neuer Tab rechts, rechts → selber Tab', () => {
+		expect(M.itemOpenConfig(item(undefined), '', 'standardReverse', 0)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standardReverse', 1)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standardReverse', 2)).toEqual({ position: 'current', active: true });
+	});
+
+	it('standardReverse als Menü-Override schlägt global; ownOpen schlägt standardReverse', () => {
+		expect(M.itemOpenConfig(item(undefined), 'standardReverse', 'standard', 0).position).toBe('right');
+		const it_ = item({ left: { position: 'current' } });
+		expect(M.itemOpenConfig(it_, '', 'standardReverse', 0)).toEqual({ position: 'current', active: true });
+	});
 });

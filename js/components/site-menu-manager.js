@@ -178,6 +178,7 @@ class SiteMenuManager extends LitElement {
 		const opts = withInherit ? [['', i18n.getMessage('siteMenuOpenBehaviorInherit')]] : [];
 		return opts.concat([
 			['standard', i18n.getMessage('siteMenuOpenBehaviorStandard')],
+			['standardReverse', i18n.getMessage('openBehaviorStandardReverse')],
 			['right', i18n.getMessage('siteMenuOpenBehaviorRight')],
 			['left', i18n.getMessage('siteMenuOpenBehaviorLeft')],
 			['last', i18n.getMessage('siteMenuOpenBehaviorLast')],

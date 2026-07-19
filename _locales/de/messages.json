@@ -2679,6 +2679,10 @@
 		"message": "Standard: Linksklick im selben Tab, Rechtsklick in neuem Tab",
 		"description": "Open behavior: left click same tab, right click new tab"
 	},
+	"openBehaviorStandardReverse": {
+		"message": "Umgekehrt: Linksklick in neuem Tab, Rechtsklick im selben Tab",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
 	"siteMenuOpenBehaviorRight": {
 		"message": "Immer in neuem Tab, direkt rechts",
 		"description": "Open behavior: always new tab directly right"

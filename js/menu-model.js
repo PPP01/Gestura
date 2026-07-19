@@ -218,6 +218,10 @@
 		if (behavior === 'standard') {
 			return { position: button ? 'right' : 'current', active: true };
 		}
+		if (behavior === 'standardReverse') {
+			// Umkehrung: Linksklick + Mausrad → neuer Tab rechts; Rechtsklick → selber Tab.
+			return { position: button === 2 ? 'current' : 'right', active: true };
+		}
 		return { position: behavior, active: true };
 	}
 
