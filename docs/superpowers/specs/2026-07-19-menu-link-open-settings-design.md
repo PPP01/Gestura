@@ -1,6 +1,6 @@
 # Design: Öffnungsverhalten von Menü-Links — individuelle Einstellung schlägt global
 
-- **Datum:** 2026-07-19
+- **Datum:** 2026-07-19 (überarbeitet nach Nutzer-Feedback: Klick-Arten pro Link)
 - **Status:** Entwurf — wartet auf Freigabe durch den Nutzer
 
 ## Problem
@@ -33,47 +33,69 @@ dritte Ebene ganz oben.
 
 1. Individuelle Einstellungen pro Link setzen sich gegen Menü-Override und
    globale Einstellung durch.
-2. Der Link-Editor erhält eine Option **„Globale Menü-Einstellungen
-   verwenden"** — als Default.
-3. **Alle Bestandslinks** verhalten sich nach dem Update wie „Globale
+2. Der Link-Editor erhält als Default die Option **„Globale
+   Menü-Einstellungen verwenden"**.
+3. Individuell heißt: **pro Klick-Art eine eigene Position** —
+   Linksklick, Rechtsklick, Mausradklick. Die Linksklick-Zeile ist immer
+   vorhanden, weitere Klick-Arten können hinzugefügt/entfernt werden.
+4. **Alle Bestandslinks** verhalten sich nach dem Update wie „Globale
    Menü-Einstellungen verwenden" (egal, welche alten Positionswerte noch
    gespeichert sind).
-4. Betrifft `openCustomUrl` **und** `searchLink`-Einträge in Menüs;
+5. Betrifft `openCustomUrl` **und** `searchLink`-Einträge in Menüs;
    ebenso Menü-Forks, eigene Gesten-Menüs und den Mini-Menü-Anhang
    (gleicher Codepfad).
-5. So einfach wie möglich: eine Regel, keine Migration.
+6. So einfach wie möglich: eine Regel, keine Migration.
 
 ### Getroffene Entscheidungen (Nutzer, 2026-07-19)
 
-- **Individuelle Position gilt für alle Maustasten.** Kein Sonderfall
-  „Rechtsklick öffnet trotzdem neuen Tab" — hat der Link eine eigene
-  Einstellung, gewinnt sie. Punkt.
-- **Opt-in-Feld statt Migration.** Bestandsdaten werden nicht angefasst.
+- **Opt-in statt Migration.** Bestandsdaten werden nicht angefasst; ohne
+  explizite Individual-Einstellung erbt der Link.
+- **Klick-Arten einzeln belegbar** (statt einer Position für alle Tasten).
+  Nicht belegte Klick-Arten erben weiterhin vom Menü bzw. global.
+
+### Geprüft und verworfen: Zurück-/Vorwärts-Maustasten (Buttons 3/4)
+
+Das Menü-Overlay nimmt nur `e.button <= 2` an (`js/context-menu.js`,
+mouseup-Handler). Bei den X-Tasten löst Chrome die Browser-Navigation
+(Zurück/Vorwärts) der Seite aus, die per JavaScript nicht unterdrückbar ist —
+die Seite würde beim Klick wegnavigieren und das Menü mitreißen. Daher
+bleiben es drei Klick-Arten: **links, Mausrad, rechts**.
 
 ## Lösung
 
-### Präzedenz (neu, dreistufig)
+### Präzedenz (neu, dreistufig, pro Klick-Art)
 
 ```
-Link-individuell (ownPosition) → Menü-Override (openBehavior) → global (menuOpenBehavior)
+Link-individuell (ownOpen[klickArt]) → Menü-Override (openBehavior) → global (menuOpenBehavior)
 ```
 
 ### 1. Datenmodell
 
-Menü-Items bekommen ein optionales Feld **`ownPosition: true`**.
+Menü-Items bekommen ein optionales Feld **`ownOpen`** — eine Map von
+Klick-Art auf Öffnungs-Config:
 
-- **Gesetzt:** `position` (`right|left|first|last|current|newWindow`,
-  Default `last`) und `active` (Default `true`) des Items gelten —
-  für alle Maustasten.
-- **Nicht gesetzt (Default, alle Bestandslinks):** Verhalten wie heute —
-  Menü-Override bzw. global; „standard" = Linksklick selber Tab,
+```js
+ownOpen: {
+	left:   { position: 'last',      active: true  },   // immer vorhanden, wenn ownOpen existiert
+	right:  { position: 'newWindow', active: true  },   // optional
+	middle: { position: 'first',     active: false },   // optional
+}
+```
+
+- `position`: `right | left | first | last | current | newWindow`
+  (Default `last`), `active`: Default `true`.
+- **Klick-Art konfiguriert** → diese Config gilt für diese Taste.
+- **Klick-Art nicht konfiguriert** (oder `ownOpen` fehlt ganz) → Vererbung
+  wie heute: Menü-Override bzw. global; „standard" = Linksklick selber Tab,
   Rechts-/Mittelklick neuer Tab rechts.
-- `incognito` pro Link wirkt unverändert **immer** (wird heute schon nicht
-  überschrieben).
-
-Damit ist Anforderung 3 per Konstruktion erfüllt: alte `position`-Werte ohne
-`ownPosition` sind wirkungslos — in `siteMenus.custom/edited`, Forks,
-eigenen Menüs und `menuAppend.items` gleichermaßen. Kein Migrationscode.
+- `incognito` bleibt **item-weit** (eine Checkbox wie bisher) und wirkt
+  unverändert immer.
+- Das alte flache `position`/`active` am Item wird von der Menü-Auflösung
+  **ignoriert** (nur `ownOpen` zählt). Damit ist Anforderung 4 per
+  Konstruktion erfüllt — in `siteMenus.custom/edited`, Forks, eigenen
+  Menüs und `menuAppend.items` gleichermaßen. Kein Migrationscode.
+  (Im Gesten-/Chain-Kontext behalten `position`/`active` ihre bisherige
+  Bedeutung; dort gibt es kein `ownOpen`.)
 
 ### 2. Auflösung als pure Funktion (`js/menu-model.js`)
 
@@ -81,11 +103,11 @@ Neue Funktion, exportiert im `FlowMouseMenuModel`-API:
 
 ```js
 // Liefert { position, active } für einen Link-/Such-Eintrag im Menü.
-// button: 0 = Linksklick, sonst Rechts-/Mittelklick.
+// button: 0 = links (auch Tastatur/Enter), 1 = Mausrad, 2 = rechts.
 function itemOpenConfig(item, menuBehavior, globalBehavior, button) {
-	if (item && item.ownPosition) {
-		return { position: item.position || 'last', active: item.active !== false };
-	}
+	const key = button === 1 ? 'middle' : button === 2 ? 'right' : 'left';
+	const own = item && item.ownOpen && item.ownOpen[key];
+	if (own) return { position: own.position || 'last', active: own.active !== false };
 	const behavior = menuBehavior || globalBehavior || 'standard';
 	if (behavior === 'standard') {
 		return { position: button ? 'right' : 'current', active: true };
@@ -99,38 +121,52 @@ function itemOpenConfig(item, menuBehavior, globalBehavior, button) {
 
 ### 3. Editor (`js/components/action-select.js`)
 
-Nur im Kontext `menu-item`, nur für `openCustomUrl` und `searchLink`:
+Nur im Kontext `menu-item`, nur für `openCustomUrl` und `searchLink`.
+Die bisherige Position-Zeile wird ersetzt durch:
 
-- Das Position-Dropdown erhält als **erste Option**
-  „Globale Menü-Einstellungen verwenden" (Wert `''`).
-- Angezeigt wird sie, wenn `ownPosition` fehlt — der Default für neue wie
-  bestehende Einträge.
-- Auswahl der Global-Option → `ownPosition`, `position`, `active` werden aus
-  der Config **entfernt**; die Checkbox „Im Vordergrund öffnen" wird
-  ausgeblendet.
-- Auswahl einer konkreten Position → `ownPosition: true` + `position` werden
-  gesetzt; Checkbox erscheint (außer bei `current`, wie bisher).
+- **Modus-Auswahl** (Dropdown): „Globale Menü-Einstellungen verwenden"
+  (Default, `ownOpen` fehlt) | „Individuell pro Klick".
+- Bei **Individuell**: Liste von Klick-Zeilen, je Zeile
+  `[Klick-Art] [Position-Dropdown] [☑ Im Vordergrund]`:
+  - Die Zeile **Linksklick** ist immer vorhanden (nicht entfernbar);
+    beim Umschalten auf Individuell wird sie mit `position: 'last'`
+    vorbelegt.
+  - Buttons **„+ Rechtsklick"** / **„+ Mausradklick"** fügen die jeweilige
+    Zeile hinzu (nur sichtbar, solange die Klick-Art fehlt); hinzugefügte
+    Zeilen haben ein Entfernen-Icon.
+  - „Im Vordergrund" wird pro Zeile ausgeblendet, wenn deren Position
+    `current` ist (wie bisher).
+- Wechsel zurück auf „Global" entfernt `ownOpen` komplett.
+- Die **Inkognito-Checkbox** bleibt unverändert item-weit darunter.
 
 Gesten-, Wheel-, Rocker- und Aktionsketten-Kontext: **unverändert** — dort
-gibt es keine Global-Option, die Position wirkt wie bisher direkt.
+gibt es weiterhin die einfache Position-Zeile ohne Global-Option.
 
 ### 4. i18n
 
-Neuer Key `tabPositionInheritMenu` („Globale Menü-Einstellungen verwenden" /
-"Use global menu settings") in `_locales/en` und `_locales/de`; übrige
-Locales fallen per `default_locale` auf Englisch zurück.
+Neue Keys in `_locales/en` und `_locales/de` (übrige Locales fallen per
+`default_locale` auf Englisch zurück):
+
+- „Globale Menü-Einstellungen verwenden" / "Use global menu settings"
+- „Individuell pro Klick" / "Custom per click"
+- „Linksklick" / "Left click", „Rechtsklick" / "Right click",
+  „Mausradklick" / "Middle click"
+- „Klick-Art hinzufügen" (Tooltip/Buttons) / "Add click type"
 
 ### 5. Tests (`tests/menu-model.test.mjs`)
 
 Vitest-Fälle für `itemOpenConfig`:
 
-- ohne `ownPosition`, Verhalten „standard": Linksklick → `current`,
-  Rechts-/Mittelklick → `right`, `active: true`.
-- ohne `ownPosition`, Menü-Override `first` schlägt global `last`.
-- ohne `ownPosition`, kein Override: global gilt.
-- mit `ownPosition`: Item-Position/-active gilt, Maustaste egal;
-  alter `position`-Wert **ohne** `ownPosition` wird ignoriert.
-- Defaults: `ownPosition` ohne `position` → `last`; `active`-Default `true`.
+- ohne `ownOpen`, Verhalten „standard": Linksklick → `current`,
+  Rechts-/Mausradklick → `right`, `active: true`.
+- ohne `ownOpen`: Menü-Override `first` schlägt global `last`;
+  ohne Override gilt global.
+- `ownOpen.left` gesetzt, Rechtsklick nicht konfiguriert → Linksklick nutzt
+  Item-Config, Rechtsklick erbt weiter vom Global-Verhalten.
+- alle drei Klick-Arten konfiguriert → jede Taste liefert ihre eigene
+  Position/active.
+- altes flaches `position` am Item **ohne** `ownOpen` wird ignoriert.
+- Defaults: Eintrag ohne `position` → `last`; `active`-Default `true`.
 
 ### 6. Doku
 
@@ -145,4 +181,5 @@ Vitest-Fälle für `itemOpenConfig`:
 - Gesten-Aktion `openCustomUrl`/`searchLink` außerhalb von Menüs.
 - Natives Kontextmenü: öffnet nur das Overlay → läuft automatisch durch den
   korrigierten Pfad.
+- Zurück-/Vorwärts-Maustasten (siehe oben — technisch nicht sauber möglich).
 - Drag-Aktionen und deren Öffnungsverhalten.
