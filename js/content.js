@@ -3575,12 +3575,6 @@ window.ContentContextMenu = ContentContextMenu;
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
 						const buildItems = (resolved) => {
-							// Öffnungsverhalten: Menü-Override → globale Einstellung.
-							// 'standard' = Linksklick im selben Tab, Rechts-/Mittelklick in neuem Tab rechts.
-							const behavior = resolved.openBehavior || SETTINGS.menuOpenBehavior || 'standard';
-							const linkPosition = (button) => behavior === 'standard'
-								? (button ? 'right' : 'current')
-								: behavior;
 							return resolved.items
 							.filter(it => it.type === 'separator' || (it.action && it.action !== 'none'))
 							.map(it => {
@@ -3596,8 +3590,11 @@ window.ContentContextMenu = ContentContextMenu;
 										const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
 										if (it.action === 'searchLink') itemConfig.__selectionText = menuSelectionText;
 										if (it.action === 'searchLink' || it.action === 'openCustomUrl') {
-											itemConfig.position = linkPosition(button);
-											itemConfig.active = true;
+											// Öffnungsverhalten: Link-individuell → Menü-Override → global.
+											const oc = window.FlowMouseMenuModel.itemOpenConfig(
+												it, resolved.openBehavior, SETTINGS.menuOpenBehavior, button);
+											itemConfig.position = oc.position;
+											itemConfig.active = oc.active;
 										}
 										executeAction(it.action, itemConfig, cursor, startTarget);
 									}
