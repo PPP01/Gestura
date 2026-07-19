@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Toggle ng Gestures sa Context Menu",
+		"message": "I-disable/i-enable ang mga iswat sa kasalukuyang site",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Buksan ang Mga Extension",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Buksan ang Mga Setting",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "I-save bilang MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Madilim",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Magtanong kung aling menu kapag walang tumugma",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Kapag nagdaragdag ng site at walang tumutugmang menu, mag-alok ng pagpili ng menu; naka-off = idagdag nang tahimik sa default na menu",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Context menu",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Mga entry na idinaragdag ng Gestura sa right-click na menu ng browser",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Lumalabas ang context menu kapag nag-right-click ka. Maaaring ipakita ng Gestura ang sarili nitong maliit na submenu doon at magbigay ng karagdagang mga function.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Naka-off ang mga idinagdag sa context menu sa Features box sa itaas.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Idagdag sa isang menu ng website",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Idagdag ang kasalukuyang page (o ang na-right-click na link) sa isang menu ng website",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Buksan ang menu ng website",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Buksan ang overlay ng menu ng website – tulad ng gesture",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Entry ng Mga Opsyon",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Ipakita ang entry na \"Mga Opsyon\" na nagbubukas ng settings page na ito",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Idagdag ang site na ito sa menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Idagdag sa menu na \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Buksan ang menu ng website",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Mga Opsyon",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Pamagat para sa menu entry",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

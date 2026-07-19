@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "コンテキストメニューでのジェスチャー切り替え",
+		"message": "現在のサイトでジェスチャーを無効/有効にする",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "拡張機能を開く",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "設定を開く",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "MHTMLとして保存",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "ダーク",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "一致するメニューがない場合に確認する",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "サイトを追加する際に一致するメニューがない場合、メニュー選択を表示します。オフの場合はデフォルトメニューに自動的に追加されます",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "コンテキストメニュー",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Gesturaがブラウザの右クリックメニューに追加する項目",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "コンテキストメニューは右クリックで表示されます。Gesturaはそこに独自の小さなサブメニューを表示し、追加の機能を提供できます。",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "上の「機能」ボックスでコンテキストメニューの追加項目がオフになっています。",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "ウェブサイトメニューに追加",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "現在のページ（または右クリックしたリンク）をウェブサイトメニューに追加する",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "ウェブサイトメニューを開く",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "ウェブサイトメニューのオーバーレイを開く – ジェスチャーと同様",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "メニュー",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "オプション項目",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "この設定ページを開く「オプション」項目を表示する",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "このサイトをメニューに追加",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "メニュー「{NAME}」に追加",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "ウェブサイトメニューを開く",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "オプション",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "メニュー項目のタイトル",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

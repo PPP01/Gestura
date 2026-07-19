@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "سوییچ حرکات در منوی زمینه",
+		"message": "غیرفعال/فعال کردن حرکات در سایت فعلی",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "باز کردن افزونه‌ها",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "باز کردن تنظیمات",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "ذخیره به عنوان MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "تیره",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "پرسیدن منو هنگامی که هیچ‌کدام مطابقت ندارد",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "هنگام افزودن سایت، اگر هیچ منویی مطابقت نداشته باشد، انتخاب‌گر منو نمایش داده می‌شود؛ خاموش = افزودن بی‌صدا به منوی پیش‌فرض",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "منوی راست‌کلیک",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "مواردی که Gestura به منوی راست‌کلیک مرورگر اضافه می‌کند",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "منوی زمینه با راست‌کلیک نمایش داده می‌شود. Gestura می‌تواند زیرمنوی کوچک خودش را در آنجا نشان دهد و امکانات اضافی ارائه دهد.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "افزوده‌های منوی راست‌کلیک در کادر «ویژگی‌ها» در بالا خاموش هستند.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "افزودن به یک منوی وب‌سایت",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "افزودن صفحهٔ فعلی (یا پیوندی که روی آن راست‌کلیک شده) به یک منوی وب‌سایت",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "باز کردن منوی وب‌سایت",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "باز کردن روکش منوی وب‌سایت – مانند ژست",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "منو",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "مورد گزینه‌ها",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "نمایش موردی به نام «گزینه‌ها» که این صفحهٔ تنظیمات را باز می‌کند",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "افزودن این سایت به منو",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "افزودن به منوی «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "باز کردن منوی وب‌سایت",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "گزینه‌ها",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "عنوان برای مورد منو",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

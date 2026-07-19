@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Prekidač gesta u kontekstnom izborniku",
+		"message": "Onemogući/omogući geste na trenutnoj web-lokaciji",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Otvori proširenja",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Otvori postavke",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Spremi kao MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Tamno",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Pitaj koji izbornik kad nijedan ne odgovara",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Kod dodavanja web-mjesta bez odgovarajućeg izbornika, ponudi odabir izbornika; isključeno = tiho dodaj u zadani izbornik",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Kontekstni izbornik",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Stavke koje Gestura dodaje u izbornik desnog klika preglednika",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Kontekstni izbornik prikazuje se desnim klikom. Gestura ondje može prikazati vlastiti mali podizbornik i ponuditi dodatne funkcije.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Dodaci kontekstnom izborniku isključeni su u okviru Značajke iznad.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Dodaj u izbornik web-mjesta",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Dodaj trenutačnu stranicu (ili poveznicu na koju je kliknuto desnom tipkom) u izbornik web-mjesta",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Otvori izbornik web-mjesta",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Otvori preklop izbornika web-mjesta – baš kao gesta",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Izbornik",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Stavka Opcije",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Prikaži stavku „Opcije” koja otvara ovu stranicu s postavkama",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Dodaj ovo web-mjesto u izbornik",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Dodaj u izbornik „{NAME}”",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Otvori izbornik web-mjesta",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opcije",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Naslov za stavku izbornika",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

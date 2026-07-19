@@ -5,6 +5,7 @@ if (typeof importScripts === 'function') {
 	importScripts('menu-patterns.js');
 	importScripts('menu-catalog.js');
 	importScripts('menu-model.js');
+	importScripts('search-url.js');
 	importScripts('favicon-util.js');
 }
 
@@ -1474,6 +1475,40 @@ chrome.runtime.onInstalled.addListener((details) => {
 const MENU_ID_REFRESH = 'flowmouse-need-refresh';
 const MENU_ID_RESTRICTED = 'flowmouse-restricted';
 const MENU_ID_BLACKLIST = 'flowmouse-blacklist-toggle';
+const MENU_ID_OPTIONS = 'flowmouse-open-options';
+const MENU_ID_SITEMENU = 'flowmouse-open-sitemenu';
+const MENU_ID_ADD_PARENT = 'flowmouse-add-site-parent';
+const CTX_ADD_PREFIX = 'flowmouse-add-site::';   // + menuId
+
+function menuDisplayName(m) {
+	// m = Eintrag aus listActiveMenus (hat .id, .def)
+	const def = m.def || {};
+	return def.name || getMsg(def.nameKey, '') || m.id;
+}
+
+function activeSiteMenus() {
+	const sm = self._siteMenusCache || {};
+	return self.FlowMouseMenuModel.listActiveMenus(self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, sm);
+}
+
+function matchingSiteMenuIds(url) {
+	if (!url) return [];
+	const mp = self.FlowMouseSearchUrl.matchesPatterns;
+	return activeSiteMenus()
+		.filter(m => (m.def.patterns || []).length && mp(url, m.def.patterns))
+		.map(m => m.id);
+}
+
+function removeContextMenuExtras() {
+	for (const id of [MENU_ID_OPTIONS, MENU_ID_SITEMENU, MENU_ID_ADD_PARENT]) {
+		chrome.contextMenus.remove(id, () => { chrome.runtime.lastError; });
+	}
+	self._ctxAddIds = self._ctxAddIds || [];
+	for (const id of self._ctxAddIds) {
+		chrome.contextMenus.remove(id, () => { chrome.runtime.lastError; });
+	}
+	self._ctxAddIds = [];
+}
 
 let fileSchemeAllowed = false;
 chrome.extension.isAllowedFileSchemeAccess().then(v => { fileSchemeAllowed = v; });
@@ -1586,49 +1621,128 @@ async function updateMenuForTab(tab) {
 
 	if (status === 'loading') {
 		removeAllMenus();
+		removeContextMenuExtras();
 		updateBadge(tabId, 'normal');
 		return;
 	}
 
-	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu']);
+	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist', 'enableSiteMenus', 'enableContextMenu', 'ctxMenuAddSite', 'ctxMenuSiteMenu', 'ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId', 'ctxMenuOptions', 'siteMenuAddAsk', 'siteMenus']);
+	self._siteMenusCache = items.siteMenus || {};
+
+	// Immer zuerst alles wegräumen; unten in fester Reihenfolge neu aufbauen.
+	removeAllMenus();
+	removeBlacklistMenu();
+	removeContextMenuExtras();
+
+	// Kontextmenü-Feature aus → gar kein FlowMouse-Eintrag im Rechtsklick-Menü.
+	if (items.enableContextMenu === false) {
+		updateBadge(tabId, 'normal');
+		return;
+	}
+
+	const blacklistEnabled = items.enableBlacklist !== false;
+	const siteMenusOn = items.enableSiteMenus !== false;
+	const showNotice = items.showRestrictedNotice !== false;
 	let hostname = null;
 	try {
 		if (url) hostname = new URL(url).hostname;
 	} catch (e) {
 	}
+	const restricted = isRestrictedUrl(url);
+	const isBlacklistedHost = blacklistEnabled && hostname && Array.isArray(items.blacklist) && items.blacklist.includes(hostname);
+	const pageOk = !!hostname && !restricted && !isBlacklistedHost;
 
-	if (items.enableBlacklistContextMenu && hostname && !isRestrictedUrl(url)) {
-		const isInBlacklist = items.blacklist && items.blacklist.includes(hostname);
-		createBlacklistMenu(isInBlacklist);
-	} else {
-		removeBlacklistMenu();
+	// Reihenfolge im Rechtsklick-Menü:
+	// 1) Optionen  2) Gesten-Toggle  3) Hinweis  4) Website-Menü öffnen  5) Zu Menü hinzufügen
+
+	// 1) Optionen
+	if (items.ctxMenuOptions !== false) {
+		chrome.contextMenus.create({
+			id: MENU_ID_OPTIONS,
+			title: getMsg('menuOptions', 'Options'),
+			contexts: ['all']
+		}, () => { chrome.runtime.lastError; });
 	}
 
-	if (items.showRestrictedNotice === false) {
-		removeAllMenus();
-		updateBadge(tabId, 'normal');
-		return;
+	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren
+	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !restricted) {
+		createBlacklistMenu(isBlacklistedHost);
 	}
 
-	if (hostname && items.blacklist && items.blacklist.includes(hostname)) {
-		removeAllMenus();
-		updateBadge(tabId, 'normal');
-		return;
-	}
-
-	if (isRestrictedUrl(url)) {
-		createRestrictedMenu();
-		updateBadge(tabId, 'restricted');
-	} else {
+	// 3) Hinweis bei eingeschränkten / nicht geladenen Seiten (+ Badge)
+	let badge = 'normal';
+	if (isBlacklistedHost) {
+		badge = 'normal';
+	} else if (restricted) {
+		if (showNotice) {
+			createRestrictedMenu();
+			badge = 'restricted';
+		}
+	} else if (hostname) {
 		const loaded = await isContentScriptLoaded(tabId);
-		if (loaded) {
-			removeAllMenus();
-			updateBadge(tabId, 'normal');
-		} else {
+		if (!loaded && showNotice) {
 			createRefreshMenu();
-			updateBadge(tabId, 'needRefresh');
+			badge = 'needRefresh';
 		}
 	}
+
+	// 4) Website-Menü öffnen
+	if (pageOk && siteMenusOn && items.ctxMenuSiteMenu !== false) {
+		chrome.contextMenus.create({
+			id: MENU_ID_SITEMENU,
+			title: getMsg('menuOpenSiteMenu', 'Website menu'),
+			contexts: ['all']
+		}, () => { chrome.runtime.lastError; });
+	}
+
+	// 5) Zu einem Website-Menü hinzufügen
+	if (pageOk && siteMenusOn && items.ctxMenuAddSite !== false) {
+		const matches = matchingSiteMenuIds(url);
+		const active = activeSiteMenus();
+		self._ctxAddIds = self._ctxAddIds || [];
+		if (matches.length === 1) {
+			const m = active.find(x => x.id === matches[0]);
+			const addId = CTX_ADD_PREFIX + matches[0];
+			self._ctxAddIds.push(addId);
+			chrome.contextMenus.create({
+				id: addId,
+				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
+				contexts: ['page', 'link', 'image']
+			}, () => { chrome.runtime.lastError; });
+		} else if (items.siteMenuAddAsk !== false) {
+			chrome.contextMenus.create({
+				id: MENU_ID_ADD_PARENT,
+				title: getMsg('menuAddSiteToMenu', 'Add this site to menu'),
+				contexts: ['page', 'link', 'image']
+			}, () => { chrome.runtime.lastError; });
+			for (const m of active) {
+				const addId = CTX_ADD_PREFIX + m.id;
+				self._ctxAddIds.push(addId);
+				chrome.contextMenus.create({
+					id: addId,
+					parentId: MENU_ID_ADD_PARENT,
+					title: menuDisplayName(m),
+					contexts: ['page', 'link', 'image']
+				}, () => { chrome.runtime.lastError; });
+			}
+		} else {
+			// Nicht fragen: still ins exklusive Standard-Menü (falls aktiv)
+			const dm = self._siteMenusCache.defaultMenuId || '';
+			const dmActive = dm && active.some(x => x.id === dm);
+			if (dmActive) {
+				const m = active.find(x => x.id === dm);
+				const addId = CTX_ADD_PREFIX + dm;
+				self._ctxAddIds.push(addId);
+				chrome.contextMenus.create({
+					id: addId,
+					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
+					contexts: ['page', 'link', 'image']
+				}, () => { chrome.runtime.lastError; });
+			}
+		}
+	}
+
+	updateBadge(tabId, badge);
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -1644,6 +1758,19 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 	} catch (e) {
 	}
 });
+
+async function openOptionsPage(hash) {
+	const optionsUrl = chrome.runtime.getURL('pages/options.html');
+	const targetUrl = optionsUrl + (hash || '');
+	const tabs = await chrome.tabs.query({});
+	const existingTab = tabs.find(t => t.url && t.url.startsWith(optionsUrl));
+	if (existingTab) {
+		await chrome.tabs.update(existingTab.id, { url: targetUrl, active: true });
+		await chrome.windows.update(existingTab.windowId, { focused: true });
+	} else {
+		chrome.tabs.create({ url: targetUrl });
+	}
+}
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	if (info.menuItemId === MENU_ID_REFRESH) {
@@ -1667,24 +1794,51 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 			}
 		}
 	} else if (info.menuItemId === MENU_ID_RESTRICTED) {
-		const optionsUrl = chrome.runtime.getURL('pages/options.html');
-		const targetUrl = optionsUrl + '#restricted-notice';
+		await openOptionsPage('#restricted-notice');
+	} else if (info.menuItemId === MENU_ID_OPTIONS) {
+		await openOptionsPage('');
+	} else if (info.menuItemId === MENU_ID_SITEMENU) {
+		if (!tab || !tab.id) return;
+		const cfg = await chrome.storage.sync.get(['ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId']);
+		const menuId = cfg.ctxMenuSiteMenuId || '';
+		const config = (cfg.ctxMenuSiteMenuMode === 'standard' && menuId) ? { mode: 'standard', menuId } : { mode: 'contextual' };
+		chrome.tabs.sendMessage(tab.id, { action: 'openSiteMenuOverlay', config }, { frameId: info.frameId || 0 })
+			.catch(() => {});
+	} else if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith(CTX_ADD_PREFIX)) {
+		if (!tab || !tab.url) return;
+		const menuId = info.menuItemId.slice(CTX_ADD_PREFIX.length);
+		const url = info.linkUrl || tab.url;
+		const isLink = !!info.linkUrl;
+		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
+		self._siteMenusCache = cur;
+		const matches = matchingSiteMenuIds(tab.url);
+		const selectionPath = !(matches.length === 1 && matches[0] === menuId);
 
-		const tabs = await chrome.tabs.query({});
-		const existingTab = tabs.find(t => t.url && t.url.startsWith(optionsUrl));
+		let label = null;
+		try {
+			const resp = await chrome.tabs.sendMessage(tab.id,
+				{ action: 'ctxCollectMenuLabel', url, isLink, prompt: selectionPath },
+				{ frameId: info.frameId || 0 });
+			if (resp && resp.cancelled) return;
+			if (resp && resp.label) label = resp.label;
+		} catch (e) { /* Content nicht verfügbar → Fallback */ }
+		if (!label) label = isLink ? url : (tab.title || url);
 
-		if (existingTab) {
-			await chrome.tabs.update(existingTab.id, { url: targetUrl, active: true });
-			await chrome.windows.update(existingTab.windowId, { focused: true });
-		} else {
-			chrome.tabs.create({ url: targetUrl });
+		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
+		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url });
+		if (selectionPath) {
+			const pat = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
+			({ siteMenus } = self.FlowMouseMenuModel.addPatternToMenu(catalog, siteMenus, menuId, pat));
 		}
+		await chrome.storage.sync.set({ siteMenus });
 	}
 });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
 	if (namespace === 'sync') {
-		if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist) {
+		if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist || changes.enableBlacklist ||
+			changes.enableSiteMenus || changes.enableContextMenu || changes.ctxMenuAddSite || changes.ctxMenuSiteMenu ||
+			changes.ctxMenuSiteMenuMode || changes.ctxMenuSiteMenuId || changes.ctxMenuOptions || changes.siteMenuAddAsk || changes.siteMenus) {
 			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 				if (tabs[0]) {
 					updateMenuForTab(tabs[0]);

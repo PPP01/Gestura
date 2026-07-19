@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Alternador de gestos no menu de contexto",
+		"message": "Desativar/ativar gestos no site atual",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Abrir Extensões",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Abrir configurações",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Salvar como MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Escuro",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Perguntar qual menu quando nenhum corresponder",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Ao adicionar um site sem um menu correspondente, oferecer um seletor de menu; desativado = adicionar silenciosamente ao menu padrão",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Menu de contexto",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Itens que o Gestura adiciona ao menu de clique com o botão direito do navegador",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "O menu de contexto aparece ao clicar com o botão direito. O Gestura pode mostrar ali seu próprio submenu pequeno e oferecer funções extras.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "As adições ao menu de contexto estão desativadas na caixa Recursos acima.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Adicionar a um menu de site",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Adicionar a página atual (ou o link em que se clicou com o botão direito) a um menu de site",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Abrir menu do site",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Abrir a sobreposição do menu do site – assim como o gesto",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Item Opções",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Mostrar um item \"Opções\" que abre esta página de configurações",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Adicionar este site ao menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Adicionar ao menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Abrir menu do site",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opções",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Título do item do menu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

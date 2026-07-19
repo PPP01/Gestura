@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "מתג מחוות בתפריט ההקשר",
+		"message": "השבת/הפעל מחוות באתר הנוכחי",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "פתח תוספים",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "פתח הגדרות",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "שמירה כ-MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "כהה",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "לשאול איזה תפריט כשאין התאמה",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "בעת הוספת אתר ללא תפריט מתאים, הצע בחירת תפריט; כבוי = הוספה שקטה לתפריט ברירת המחדל",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "תפריט ההקשר",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "פריטים ש-Gestura מוסיפה לתפריט הלחצן הימני של הדפדפן",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "תפריט ההקשר מופיע בלחיצה ימנית. Gestura יכולה להציג שם תת-תפריט קטן משלה ולספק פונקציות נוספות.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "התוספות לתפריט ההקשר כבויות בתיבת התכונות שלמעלה.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "הוספה לתפריט אתר",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "הוספת הדף הנוכחי (או הקישור שנלחץ עליו בלחצן ימני) לתפריט אתר",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "פתיחת תפריט האתר",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "פתיחת שכבת-העל של תפריט האתר – בדיוק כמו המחווה",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "תפריט",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "פריט אפשרויות",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "הצגת פריט \"אפשרויות\" שפותח את דף ההגדרות הזה",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "הוספת האתר הזה לתפריט",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "הוספה לתפריט \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "פתיחת תפריט האתר",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "אפשרויות",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "כותרת לפריט התפריט",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

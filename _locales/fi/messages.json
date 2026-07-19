@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Eleiden kytkin kontekstivalikossa",
+		"message": "Poista käytöstä / ota käyttöön eleet nykyisellä sivustolla",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Avaa laajennukset",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Avaa asetukset",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Tallenna MHTML-muodossa",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Tumma",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Kysy valikkoa, kun mikään ei täsmää",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Kun sivustolle lisätään eikä mikään valikko täsmää, näytä valikon valitsin; pois päältä = lisää hiljaa oletusvalikkoon",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Kontekstivalikko",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Kohdat, jotka Gestura lisää selaimen oikean painikkeen valikkoon",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Kontekstivalikko avautuu oikealla napsautuksella. Gestura voi näyttää siinä oman pienen alivalikkonsa ja tarjota lisätoimintoja.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Kontekstivalikon lisäykset on poistettu käytöstä yllä olevassa Ominaisuudet-ruudussa.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Lisää sivustovalikkoon",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Lisää nykyinen sivu (tai oikealla painikkeella napsautettu linkki) sivustovalikkoon",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Avaa sivustovalikko",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Avaa sivustovalikon peittokuva – aivan kuten ele",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Valikko",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Asetukset-kohta",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Näytä \"Asetukset\"-kohta, joka avaa tämän asetussivun",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Lisää tämä sivusto valikkoon",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Lisää valikkoon \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Avaa sivustovalikko",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Asetukset",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Valikkokohdan otsikko",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

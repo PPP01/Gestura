@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Εναλλαγή χειρονομιών στο μενού περιβάλλοντος",
+		"message": "Απενεργοποίηση/ενεργοποίηση χειρονομιών στον τρέχοντα ιστότοπο",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Άνοιγμα Επεκτάσεων",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Άνοιγμα ρυθμίσεων",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Αποθήκευση ως MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Σκούρο",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Ερώτηση για μενού όταν κανένα δεν ταιριάζει",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Κατά την προσθήκη ενός ιστότοπου χωρίς αντίστοιχο μενού, εμφάνιση επιλογέα μενού· ανενεργό = προσθήκη σιωπηλά στο προεπιλεγμένο μενού",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Μενού περιβάλλοντος",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Καταχωρίσεις που προσθέτει το Gestura στο μενού δεξιού κλικ του προγράμματος περιήγησης",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Το μενού περιβάλλοντος εμφανίζεται με δεξί κλικ. Το Gestura μπορεί να εμφανίσει εκεί το δικό του μικρό υπομενού και να παρέχει επιπλέον λειτουργίες.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Οι προσθήκες στο μενού περιβάλλοντος είναι απενεργοποιημένες στο πλαίσιο «Λειτουργίες» παραπάνω.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Προσθήκη σε μενού ιστότοπου",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Προσθήκη της τρέχουσας σελίδας (ή του συνδέσμου στον οποίο έγινε δεξί κλικ) σε ένα μενού ιστότοπου",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Άνοιγμα μενού ιστότοπου",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Άνοιγμα της επικάλυψης μενού ιστότοπου – όπως η χειρονομία",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Μενού",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Καταχώριση Επιλογών",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Εμφάνιση καταχώρισης «Επιλογές» που ανοίγει αυτή τη σελίδα ρυθμίσεων",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Προσθήκη αυτού του ιστότοπου σε μενού",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Προσθήκη στο μενού «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Άνοιγμα μενού ιστότοπου",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Επιλογές",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Τίτλος για την καταχώριση μενού",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

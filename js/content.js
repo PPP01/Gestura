@@ -1922,6 +1922,7 @@ window.ContentContextMenu = ContentContextMenu;
 	const currentDomain = location.hostname;
 
 	function checkBlacklist(blacklist) {
+		if (!blacklistFeatureEnabled) return false;
 		if (blacklist.includes(currentDomain)) return true;
 		try {
 			const origins = location.ancestorOrigins;
@@ -1934,13 +1935,17 @@ window.ContentContextMenu = ContentContextMenu;
 
 	let isBlacklisted = false;
 	let initGesturesCalled = false;
+	let blacklistFeatureEnabled = true;
+	let currentBlacklist = [];
 
-	chrome.storage.sync.get({ blacklist: [] }, (items) => {
+	chrome.storage.sync.get({ blacklist: [], enableBlacklist: true }, (items) => {
 		if (chrome.runtime.lastError) {
 			console.error(chrome.runtime.lastError);
 			return;
 		}
-		isBlacklisted = checkBlacklist(items.blacklist);
+		blacklistFeatureEnabled = items.enableBlacklist !== false;
+		currentBlacklist = items.blacklist || [];
+		isBlacklisted = checkBlacklist(currentBlacklist);
 		if (!isBlacklisted) {
 			initGestures();
 		}
@@ -1948,13 +1953,16 @@ window.ContentContextMenu = ContentContextMenu;
 
 	chrome.storage.onChanged.addListener((changes, namespace) => {
 		if (namespace === 'sync') {
-			if (changes.blacklist) {
-				const oldBlacklist = changes.blacklist.oldValue || [];
-				const newBlacklist = changes.blacklist.newValue || [];
-				const wasBlacklisted = checkBlacklist(oldBlacklist);
-				const nowBlacklisted = checkBlacklist(newBlacklist);
+			if (changes.blacklist || changes.enableBlacklist) {
+				if (changes.blacklist) {
+					currentBlacklist = changes.blacklist.newValue || [];
+				}
+				if (changes.enableBlacklist) {
+					blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
+				}
+				const nowBlacklisted = checkBlacklist(currentBlacklist);
 
-				if (wasBlacklisted !== nowBlacklisted) {
+				if (nowBlacklisted !== isBlacklisted) {
 					isBlacklisted = nowBlacklisted;
 					if (nowBlacklisted === false && !initGesturesCalled) {
 						initGestures();
@@ -2186,7 +2194,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 				await window.ContentI18n.loadLanguage(SETTINGS.language);
 
-				SETTINGS.enableDrag = SETTINGS.enableTextDrag || SETTINGS.enableImageDrag || SETTINGS.enableLinkDrag;
+				SETTINGS.enableDrag = SETTINGS.enableDragFeatures !== false && (SETTINGS.enableTextDrag || SETTINGS.enableImageDrag || SETTINGS.enableLinkDrag);
 
 				if (window.GestureRecognizer && recognizer && recognizer.updateConfig) {
 					recognizer.updateConfig({
@@ -2239,6 +2247,32 @@ window.ContentContextMenu = ContentContextMenu;
 		loadSettings();
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
+				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || isBlacklisted) return;
+				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
+				const cursor = { startX: p.x, startY: p.y, endX: p.x, endY: p.y };
+				const target = document.elementFromPoint(p.x, p.y);
+				executeAction('siteMenu', request.config || { mode: 'contextual' }, cursor, target);
+				return;
+			}
+
+			if (request.action === 'ctxCollectMenuLabel') {
+				let def = '';
+				if (request.isLink) {
+					const a = lastCtxMenuTarget && lastCtxMenuTarget.closest ? lastCtxMenuTarget.closest('a') : null;
+					def = (a && (a.textContent || '').trim()) || (a && a.getAttribute('title')) || request.url || '';
+				} else {
+					def = (document.title || '').trim() || request.url || '';
+				}
+				def = def.replace(/\s+/g, ' ').slice(0, 120);
+				if (request.prompt) {
+					promptForTitle(def).then(v => sendResponse(v == null ? { cancelled: true } : { label: v }));
+					return true; // async
+				}
+				sendResponse({ label: def });
+				return;
+			}
+
 			if (request.action === 'ping') {
 				sendResponse({ pong: true });
 				return;
@@ -2426,6 +2460,42 @@ window.ContentContextMenu = ContentContextMenu;
 			return true;
 		}
 
+		function promptForTitle(defaultTitle) {
+			return new Promise((resolve) => {
+				const host = document.createElement('div');
+				host.setAttribute('data-gesture-ignore', '');
+				host.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)';
+				const box = document.createElement('div');
+				box.style.cssText = 'background:#fff;color:#111;min-width:280px;max-width:90vw;padding:16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.3);font:14px system-ui,sans-serif';
+				const label = document.createElement('div');
+				label.textContent = msg('ctxTitlePromptLabel') || 'Title';
+				label.style.cssText = 'margin-bottom:8px;font-weight:600';
+				const input = document.createElement('input');
+				input.type = 'text';
+				input.value = defaultTitle || '';
+				input.style.cssText = 'width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px';
+				const row = document.createElement('div');
+				row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end';
+				const cancel = document.createElement('button');
+				cancel.textContent = msg('buttonCancel') || 'Cancel';
+				const ok = document.createElement('button');
+				ok.textContent = msg('buttonOkay') || 'OK';
+				for (const b of [cancel, ok]) b.style.cssText = 'padding:6px 14px;border-radius:6px;border:1px solid #ccc;cursor:pointer';
+				ok.style.background = '#4285f4'; ok.style.color = '#fff'; ok.style.borderColor = '#4285f4';
+				let done = false;
+				const finish = (val) => { if (done) return; done = true; host.remove(); resolve(val); };
+				cancel.addEventListener('click', () => finish(null));
+				ok.addEventListener('click', () => finish(input.value.trim() || (defaultTitle || '')));
+				input.addEventListener('keydown', (ev) => {
+					if (ev.key === 'Enter') { ev.preventDefault(); ok.click(); }
+					else if (ev.key === 'Escape') { ev.preventDefault(); cancel.click(); }
+				});
+				row.append(cancel, ok); box.append(label, input, row); host.append(box);
+				(document.body || document.documentElement).append(host);
+				input.focus(); input.select();
+			});
+		}
+
 		const isMacOrLinux = /Mac|Linux/i.test(navigator.platform);
 		let lastRightClickTime = 0;
 		const doubleClickDelay = 500;
@@ -2473,8 +2543,14 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		});
 
+		let lastCtxMenuPoint = null;   // {x,y} in Viewport-Koordinaten dieses Frames
+		let lastCtxMenuTarget = null;  // Element unter dem Rechtsklick
+
 		eventManager.add(() => !isBlacklisted, window, 'contextmenu', (e) => {
 			if (!isExtensionContextValid()) return;
+
+			lastCtxMenuPoint = { x: e.clientX, y: e.clientY };
+			lastCtxMenuTarget = e.target;
 
 			if (wheelGestureTriggered) {
 				wheelGestureTriggered = false;
@@ -2558,7 +2634,7 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		}, true);
 
-		const isAreaSelectModifierEnabled = () => SETTINGS.areaSelectModifierKey && SETTINGS.areaSelectModifierKey !== 'disabled';
+		const isAreaSelectModifierEnabled = () => SETTINGS.enableAreaSelect !== false && SETTINGS.areaSelectModifierKey && SETTINGS.areaSelectModifierKey !== 'disabled';
 
 		let areaSelectPending = null;
 		eventManager.add(isAreaSelectModifierEnabled, window, 'pointerdown', (e) => {
@@ -3494,16 +3570,11 @@ window.ContentContextMenu = ContentContextMenu;
 					}
 					case 'customMenu':
 					case 'siteMenu': {
+						if (SETTINGS.enableSiteMenus === false) break;
 						const gestureCfg = action === 'customMenu' ? ownMenuCfg(mergedConfig) : siteMenuCfg(mergedConfig);
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
 						const buildItems = (resolved) => {
-							// Öffnungsverhalten: Menü-Override → globale Einstellung.
-							// 'standard' = Linksklick im selben Tab, Rechts-/Mittelklick in neuem Tab rechts.
-							const behavior = resolved.openBehavior || SETTINGS.menuOpenBehavior || 'standard';
-							const linkPosition = (button) => behavior === 'standard'
-								? (button ? 'right' : 'current')
-								: behavior;
 							return resolved.items
 							.filter(it => it.type === 'separator' || (it.action && it.action !== 'none'))
 							.map(it => {
@@ -3519,8 +3590,11 @@ window.ContentContextMenu = ContentContextMenu;
 										const itemConfig = { ...(ACTION_DEFAULTS[it.action] || {}), ...it };
 										if (it.action === 'searchLink') itemConfig.__selectionText = menuSelectionText;
 										if (it.action === 'searchLink' || it.action === 'openCustomUrl') {
-											itemConfig.position = linkPosition(button);
-											itemConfig.active = true;
+											// Öffnungsverhalten: Link-individuell → Menü-Override → global.
+											const oc = window.FlowMouseMenuModel.itemOpenConfig(
+												it, resolved.openBehavior, SETTINGS.menuOpenBehavior, button);
+											itemConfig.position = oc.position;
+											itemConfig.active = oc.active;
 										}
 										executeAction(it.action, itemConfig, cursor, startTarget);
 									}

@@ -61,6 +61,7 @@ const ACTION_ICONS = {
 	'openDownloads': 'download',
 	'openHistory': 'history',
 	'openExtensions': 'puzzle',
+	'openOptionsPage': 'settings',
 	'saveAsMhtml': 'fileDown',
 	'printPage': 'printer',
 	'duplicateTab': 'layers2',
@@ -107,7 +108,7 @@ const ACTION_CATEGORIES = [
 	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'siteMenu', 'customMenu', 'addSiteToMenu'] },
 	{ key: 'actionCategoryTabs', icon: 'panelTop', actions: ['newTab', 'closeTab', 'refresh', 'refreshAllTabs', 'switchLeftTab', 'switchRightTab', 'switchFirstTab', 'switchLastTab', 'closeOtherTabs', 'closeLeftTabs', 'closeRightTabs', 'closeAllTabs', 'switchLastActiveTab', 'restoreTab', 'duplicateTab', 'togglePinTab', 'moveTabToNewWindow'] },
 	{ key: 'actionCategoryWindow', icon: 'appWindow', actions: ['newWindow', 'newIncognito', 'toggleFullscreen', 'toggleMaximize', 'minimize', 'closeWindow', 'closeBrowser'] },
-	{ key: 'actionCategoryUtilities', icon: 'wrench', actions: ['addToBookmarks', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'openCustomUrl', 'openDownloads', 'openHistory', 'openExtensions', 'zoomIn', 'zoomOut', 'resetZoom', 'toggleMuteTab', 'toggleMuteAllTabs', 'stopLoading', 'stopAllLoading', 'printPage', 'saveAsMhtml', 'viewPageSource', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink', 'pauseGesture', 'simulateKey', 'sendCustomEvent', 'sendExtensionMessage', 'areaSelect'] },
+	{ key: 'actionCategoryUtilities', icon: 'wrench', actions: ['addToBookmarks', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'openCustomUrl', 'openDownloads', 'openHistory', 'openExtensions', 'openOptionsPage', 'zoomIn', 'zoomOut', 'resetZoom', 'toggleMuteTab', 'toggleMuteAllTabs', 'stopLoading', 'stopAllLoading', 'printPage', 'saveAsMhtml', 'viewPageSource', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink', 'pauseGesture', 'simulateKey', 'sendCustomEvent', 'sendExtensionMessage', 'areaSelect'] },
 ];
 
 class ActionSelect extends LitElement {
@@ -1257,7 +1258,7 @@ class ActionSelect extends LitElement {
 						@field-change=${(e) => { setInlineField(e.detail); this.requestUpdate(); }}
 					></engine-fields>
 				</div>
-				${this.#renderPositionSelect(true, true, true)}
+				${this.context === 'menu-item' ? this.#renderMenuItemOpenRows(true) : this.#renderPositionSelect(true, true, true)}
 			`;
 		}
 
@@ -1296,7 +1297,7 @@ class ActionSelect extends LitElement {
 			</div>
 			${panel === 'new' ? this.#renderSearchLinkNewPanel() : ''}
 			${panel === 'edit' ? this.#renderSearchLinkEditPanel() : ''}
-			${this.#renderPositionSelect(true, true, true)}
+			${this.context === 'menu-item' ? this.#renderMenuItemOpenRows(true) : this.#renderPositionSelect(true, true, true)}
 		`;
 	}
 
@@ -1461,6 +1462,102 @@ class ActionSelect extends LitElement {
 		`;
 	}
 
+	// Öffnungsverhalten für Menü-Einträge (Kontext 'menu-item'):
+	// Global erben (ownOpen fehlt) oder pro Klick-Art eigene Position.
+	// Datenformat siehe FlowMouseMenuModel.itemOpenConfig.
+	#renderMenuItemOpenRows(showIncognito) {
+		const i18n = window.i18n;
+		const defaults = window.GestureConstants.ACTION_DEFAULTS[this._pendingValue] || {};
+		const raw = this._pendingConfig.ownOpen;
+		const ownOpen = (raw && Object.keys(raw).length) ? raw : null;
+		const incognito = this._pendingConfig.incognito ?? defaults.incognito;
+		const setOwnOpen = (next) => {
+			const cfg = { ...this._pendingConfig };
+			if (next) cfg.ownOpen = next; else delete cfg.ownOpen;
+			this._pendingConfig = cfg;
+			this.requestUpdate();
+		};
+		const CLICK_LABELS = {
+			left: i18n.getMessage('clickTypeLeft'),
+			right: i18n.getMessage('clickTypeRight'),
+			middle: i18n.getMessage('clickTypeMiddle'),
+		};
+		const positionOptions = (position) => html`
+			<option value="right" ?selected=${position === 'right'}>${i18n.getMessage('tabPositionRight')}</option>
+			<option value="left" ?selected=${position === 'left'}>${i18n.getMessage('tabPositionLeft')}</option>
+			<option value="first" ?selected=${position === 'first'}>${i18n.getMessage('tabPositionFirst')}</option>
+			<option value="last" ?selected=${position === 'last'}>${i18n.getMessage('tabPositionLast')}</option>
+			<option value="current" ?selected=${position === 'current'}>${i18n.getMessage('tabPositionCurrent')}</option>
+			<option value="newWindow" ?selected=${position === 'newWindow'}>${i18n.getMessage('tabPositionNewWindow')}</option>
+		`;
+		const clickRow = (key) => {
+			const cfg = ownOpen[key];
+			const position = cfg.position || 'last';
+			const active = cfg.active !== false;
+			const set = (patch) => setOwnOpen({ ...ownOpen, [key]: { ...cfg, ...patch } });
+			const remove = () => {
+				const next = { ...ownOpen };
+				delete next[key];
+				setOwnOpen(next);
+			};
+			return html`
+				<div class="action-config-row">
+					<span class="action-config-label">${CLICK_LABELS[key]}</span>
+					<select .value=${position}
+						@change=${(e) => set({ position: e.target.value })}>
+						${positionOptions(position)}
+					</select>
+					${position !== 'current' ? html`
+						<label class="action-config-checkbox">
+							<input type="checkbox" .checked=${active}
+								@change=${(e) => set({ active: e.target.checked })}>
+							<span>${i18n.getMessage('newTabActive')}</span>
+						</label>
+					` : ''}
+					${key !== 'left' ? html`
+						<button class="btn btn-ghost" type="button" @click=${remove}>
+							${unsafeHTML(icon('x', { size: 13, strokeWidth: 2.5 }))}
+						</button>
+					` : ''}
+				</div>
+			`;
+		};
+		const addButtons = ownOpen ? ['right', 'middle'].filter(k => !ownOpen[k]) : [];
+		return html`
+			<div class="action-config-row">
+				<span class="action-config-label">${i18n.getMessage('siteMenuOpenBehaviorLabel')}</span>
+				<select .value=${ownOpen ? 'own' : ''}
+					@change=${(e) => {
+						if (e.target.value === 'own') setOwnOpen({ left: { position: 'last', active: true } });
+						else setOwnOpen(null);
+					}}>
+					<option value="" ?selected=${!ownOpen}>${i18n.getMessage('menuItemOpenGlobal')}</option>
+					<option value="own" ?selected=${!!ownOpen}>${i18n.getMessage('menuItemOpenCustom')}</option>
+				</select>
+			</div>
+			${ownOpen ? html`
+				${['left', 'right', 'middle'].filter(k => ownOpen[k]).map(clickRow)}
+				<div class="action-config-row">
+					${addButtons.map(k => html`
+						<button class="btn btn-ghost" type="button"
+							@click=${() => setOwnOpen({ ...ownOpen, [k]: { position: 'last', active: true } })}>
+							${unsafeHTML(icon('plus', { size: 13, strokeWidth: 2.5 }))}
+							<span>${CLICK_LABELS[k]}</span>
+						</button>
+					`)}
+				</div>
+			` : ''}
+			${showIncognito ? html`
+				<div class="action-config-row">
+					<label class="action-config-checkbox">
+						<input type="checkbox" .checked=${incognito}
+							@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, incognito: e.target.checked }; this.requestUpdate(); }}>
+						<span>${i18n.getMessage('openInIncognito')}</span>
+					</label>
+				</div>
+			` : ''}
+		`;
+	}
 
 	#renderMenuConfigRow() {
 		const action = this._pendingValue;
@@ -1607,7 +1704,7 @@ class ActionSelect extends LitElement {
 					>
 					<div class="action-config-hint">${unsafeHTML(window.i18n.getMessage('customUrlPlaceholderHint').replace('%placeholders%', '<code>{tabUrl}</code> <code>{tabTitle}</code> <code>{tabDomain}</code>').replace('%example%', '<code>{tabUrl:raw}</code>'))}</div>
 				</div>
-				${this.#renderPositionSelect(true, true, true)}
+				${this.context === 'menu-item' ? this.#renderMenuItemOpenRows(true) : this.#renderPositionSelect(true, true, true)}
 			`;
 		}
 		if (action === 'closeTab') {

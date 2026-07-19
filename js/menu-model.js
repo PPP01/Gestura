@@ -206,6 +206,25 @@
 		return sm;
 	}
 
+	// Öffnungs-Config eines Link-/Such-Eintrags im Menü, pro Maustaste.
+	// Präzedenz: item.ownOpen[taste] → Menü-Override → globale Einstellung.
+	// button: 0 = links (auch Tastatur), 1 = Mausrad, 2 = rechts.
+	// 'standard' = Linksklick im selben Tab, Rechts-/Mausradklick neuer Tab rechts.
+	function itemOpenConfig(item, menuBehavior, globalBehavior, button) {
+		const key = button === 1 ? 'middle' : button === 2 ? 'right' : 'left';
+		const own = item && item.ownOpen && item.ownOpen[key];
+		if (own) return { position: own.position || 'last', active: own.active !== false };
+		const behavior = menuBehavior || globalBehavior || 'standard';
+		if (behavior === 'standard') {
+			return { position: button ? 'right' : 'current', active: true };
+		}
+		if (behavior === 'standardReverse') {
+			// Umkehrung: Linksklick + Mausrad → neuer Tab rechts; Rechtsklick → selber Tab.
+			return { position: button === 2 ? 'current' : 'right', active: true };
+		}
+		return { position: behavior, active: true };
+	}
+
 	// Hängt das globale Mini-Menü (menuAppend-Setting) unten an ein aufgelöstes
 	// Menü an — nach einem Trenner, sofern das Menü eigene Einträge hat.
 	function applyMenuAppend(resolved, appendCfg) {
@@ -280,14 +299,42 @@
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: pattern };
 	}
 
+	function newItemId() {
+		try {
+			return 'item_' + crypto.randomUUID().replace(/-/g, '').slice(0, 10);
+		} catch (e) {
+			// Fallback für Umgebungen ohne crypto.randomUUID
+			return 'item_' + Math.abs(Date.now() % 0xffffffffff).toString(16).padStart(10, '0');
+		}
+	}
+
+	function addLinkToMenu(catalog, siteMenus, menuId, opts) {
+		const o = opts || {};
+		if (!o.url) return { siteMenus, added: null };
+		const base = getBaseMenu(catalog, siteMenus, menuId);
+		if (!base) return { siteMenus, added: null };
+		const items = base.items || [];
+		const dup = items.some(it => it && it.customUrl === o.url);
+		if (dup) return { siteMenus, added: null };
+		const item = {
+			id: o.id || newItemId(),
+			action: 'openCustomUrl',
+			customUrl: o.url,
+			customName: o.label || o.url,
+			icon: o.icon || 'link',
+		};
+		const def = { ...base, items: [...items, item] };
+		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: item };
+	}
+
 	const api = {
 		getBaseMenu, listMenus, listActiveMenus,
 		emptyFork, resolveFork,
 		forkOverrideItem, forkDeleteItem, forkRestoreItem, forkAddItem, forkReorder,
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
-		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu,
-		addPatternToMenu,
+		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu, itemOpenConfig,
+		addPatternToMenu, addLinkToMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuModel = api;

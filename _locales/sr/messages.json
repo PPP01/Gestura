@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Прекидач гестова у контекстном менију",
+		"message": "Онемогући/омогући гестове на тренутном сајту",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Отвори екстензије",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Отвори подешавања",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Сачувај као MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Тамно",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Питај који мени када ниједан не одговара",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Приликом додавања сајта без одговарајућег менија, понуди избор менија; искључено = тихо додавање у подразумевани мени",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Контекстни мени",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Ставке које Gestura додаје у мени десног клика прегледача",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Контекстни мени се приказује на десни клик. Gestura ту може да прикаже сопствени мали подмени и понуди додатне функције.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Додаци контекстног менија су искључени у пољу Функције изнад.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Додај у мени сајта",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Додај тренутну страницу (или линк на који је кликнуто десним тастером) у мени сајта",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Отвори мени сајта",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Отвори преклоп менија сајта – исто као гест",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Мени",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Ставка Опције",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Прикажи ставку „Опције” која отвара ову страницу подешавања",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Додај овај сајт у мени",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Додај у мени „{NAME}”",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Отвори мени сајта",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Опције",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Наслов за ставку менија",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

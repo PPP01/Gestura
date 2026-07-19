@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Comutator gesturi în meniul contextual",
+		"message": "Dezactivați/activați gesturile pe site-ul curent",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Deschide Extensii",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Deschide setările",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Salvează ca MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Întunecat",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Întreabă ce meniu atunci când niciunul nu se potrivește",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "La adăugarea unui site fără un meniu potrivit, oferă un selector de meniu; dezactivat = adaugă silențios în meniul implicit",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Meniu contextual",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Intrări pe care Gestura le adaugă în meniul de clic dreapta al browserului",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Meniul contextual apare la clic dreapta. Gestura poate afișa acolo propriul submeniu mic și poate oferi funcții suplimentare.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Adăugările la meniul contextual sunt dezactivate în caseta Funcții de mai sus.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Adăugați la un meniu pentru site",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Adaugă pagina curentă (sau linkul pe care s-a făcut clic dreapta) la un meniu de site",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Deschide meniul site-ului",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Deschide suprapunerea meniului site-ului – la fel ca gestul",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Meniu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Intrare Opțiuni",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Afișează o intrare „Opțiuni” care deschide această pagină de setări",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Adaugă acest site la meniu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Adaugă la meniul „{NAME}”",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Deschide meniul site-ului",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opțiuni",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titlu pentru intrarea de meniu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

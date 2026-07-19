@@ -324,3 +324,94 @@ describe('settings helpers', () => {
 		expect(M.addPatternToMenu(CATALOG, EMPTY, 'nope', '*x*').added).toBeNull();
 	});
 });
+
+describe('addLinkToMenu', () => {
+	it('creates edited copy for catalog menu and appends a link item', () => {
+		const { siteMenus, added } = M.addLinkToMenu(CATALOG, EMPTY, 'gh',
+			{ label: 'My Repo', url: 'https://github.com/me/repo', id: 'item_test1' });
+		expect(added).toEqual({ id: 'item_test1', action: 'openCustomUrl', customUrl: 'https://github.com/me/repo', customName: 'My Repo', icon: 'link' });
+		const items = siteMenus.edited.gh.items;
+		expect(items[items.length - 1]).toEqual(added);
+		expect(CATALOG[0].items).toHaveLength(3); // Katalog unangetastet
+	});
+
+	it('appends to an existing edited/custom menu without touching the catalog copy path', () => {
+		const start = { ...EMPTY, custom: { menu_1: { name: 'Eigenes', patterns: [], items: [] } } };
+		const { siteMenus, added } = M.addLinkToMenu(CATALOG, start, 'menu_1',
+			{ label: 'X', url: 'https://x.example', id: 'item_x' });
+		expect(added.id).toBe('item_x');
+		expect(siteMenus.custom.menu_1.items).toHaveLength(1);
+	});
+
+	it('dedupes by url and returns added:null', () => {
+		const first = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'A', url: 'https://github.com/a', id: 'item_a' });
+		// gh-Katalog hat bereits customUrl https://github.com/a (Eintrag "a")
+		expect(first.added).toBeNull();
+	});
+
+	it('returns added:null for unknown menu or missing url', () => {
+		expect(M.addLinkToMenu(CATALOG, EMPTY, 'nope', { label: 'A', url: 'u' }).added).toBeNull();
+		expect(M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'A', url: '' }).added).toBeNull();
+	});
+
+	it('generates an item_ id when none is given', () => {
+		const { added } = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'B', url: 'https://github.com/new' });
+		expect(added.id).toMatch(/^item_[0-9a-f]{10}$/);
+	});
+});
+
+describe('itemOpenConfig — Präzedenz Link → Menü → global', () => {
+	const item = (ownOpen) => ({ id: 'x', action: 'openCustomUrl', customUrl: 'u', ownOpen });
+
+	it('ohne ownOpen, standard: links → current, Mausrad/rechts → right, active true', () => {
+		expect(M.itemOpenConfig(item(undefined), '', 'standard', 0)).toEqual({ position: 'current', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standard', 1)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standard', 2)).toEqual({ position: 'right', active: true });
+	});
+
+	it('ohne ownOpen: Menü-Override schlägt global; ohne Override gilt global; leer → standard', () => {
+		expect(M.itemOpenConfig(item(undefined), 'first', 'last', 0).position).toBe('first');
+		expect(M.itemOpenConfig(item(undefined), '', 'last', 2).position).toBe('last');
+		expect(M.itemOpenConfig(item(undefined), '', '', 0).position).toBe('current'); // Fallback standard
+	});
+
+	it('ownOpen.left gilt nur für links; unkonfigurierte Tasten erben weiter', () => {
+		const it_ = item({ left: { position: 'newWindow', active: false } });
+		expect(M.itemOpenConfig(it_, '', 'standard', 0)).toEqual({ position: 'newWindow', active: false });
+		expect(M.itemOpenConfig(it_, '', 'standard', 2)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(it_, 'first', 'last', 1)).toEqual({ position: 'first', active: true });
+	});
+
+	it('alle drei Klick-Arten konfiguriert → jede Taste eigene Config', () => {
+		const it_ = item({
+			left: { position: 'current' },
+			middle: { position: 'first', active: false },
+			right: { position: 'last' },
+		});
+		expect(M.itemOpenConfig(it_, '', 'standard', 0)).toEqual({ position: 'current', active: true });
+		expect(M.itemOpenConfig(it_, '', 'standard', 1)).toEqual({ position: 'first', active: false });
+		expect(M.itemOpenConfig(it_, '', 'standard', 2)).toEqual({ position: 'last', active: true });
+	});
+
+	it('altes flaches position/active am Item ohne ownOpen wird ignoriert', () => {
+		const legacy = { id: 'x', action: 'openCustomUrl', customUrl: 'u', position: 'first', active: false };
+		expect(M.itemOpenConfig(legacy, '', 'standard', 0)).toEqual({ position: 'current', active: true });
+	});
+
+	it('Defaults im ownOpen-Eintrag: position → last, active → true; null-Item sicher', () => {
+		expect(M.itemOpenConfig(item({ left: {} }), '', 'standard', 0)).toEqual({ position: 'last', active: true });
+		expect(M.itemOpenConfig(null, '', 'standard', 0)).toEqual({ position: 'current', active: true });
+	});
+
+	it('standardReverse: links + Mausrad → neuer Tab rechts, rechts → selber Tab', () => {
+		expect(M.itemOpenConfig(item(undefined), '', 'standardReverse', 0)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standardReverse', 1)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standardReverse', 2)).toEqual({ position: 'current', active: true });
+	});
+
+	it('standardReverse als Menü-Override schlägt global; ownOpen schlägt standardReverse', () => {
+		expect(M.itemOpenConfig(item(undefined), 'standardReverse', 'standard', 0).position).toBe('right');
+		const it_ = item({ left: { position: 'current' } });
+		expect(M.itemOpenConfig(it_, '', 'standardReverse', 0)).toEqual({ position: 'current', active: true });
+	});
+});

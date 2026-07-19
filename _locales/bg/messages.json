@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Превключвател на жестовете в контекстното меню",
+		"message": "Деактивиране/активиране на жестовете на текущия сайт",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Отвори разширенията",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Отваряне на настройките",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Запазване като MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Тъмно",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Питане кое меню, когато никое не съвпада",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "При добавяне на сайт, ако никое меню не съвпада, се предлага избор на меню; изключено = добавяне в менюто по подразбиране без питане",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Контекстно меню",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Елементи, които Gestura добавя към менюто с десен клик на браузъра",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Контекстното меню се показва при десен клик. Gestura може да покаже там собствено малко подменю и да предостави допълнителни функции.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Добавките към контекстното меню са изключени в полето „Функции“ по-горе.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Добавяне към меню на сайт",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Добавяне на текущата страница (или връзката, върху която е кликнато с десния бутон) към меню на сайт",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Отваряне на менюто на сайта",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Отваряне на наслагването на менюто на сайта – както жестът",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Меню",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Елемент „Опции“",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Показва елемент „Опции“, който отваря тази страница с настройки",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Добавяне на този сайт към меню",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Добавяне към меню „{NAME}“",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Отваряне на менюто на сайта",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Опции",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Заглавие за елемента от менюто",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

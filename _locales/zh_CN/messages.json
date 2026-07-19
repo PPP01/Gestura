@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "右键菜单手势开关",
+		"message": "在当前网站禁用/启用手势",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "打开扩展管理",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "打开设置",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "保存为 MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "深色",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "没有匹配菜单时询问使用哪个菜单",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "添加网站且没有匹配的菜单时，显示菜单选择器；关闭 = 静默添加到默认菜单",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "右键菜单",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Gestura 添加到浏览器右键菜单中的条目",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "右键单击时会出现右键菜单。Gestura 可以在其中显示自己的小型子菜单并提供额外功能。",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "右键菜单的附加项已在上方的功能框中关闭。",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "添加到网站菜单",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "将当前页面（或右键点击的链接）添加到网站菜单",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "打开网站菜单",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "打开网站菜单浮层 – 与手势相同",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "菜单",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "选项条目",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "显示一个打开此设置页面的“选项”条目",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "将此网站添加到菜单",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "添加到菜单“{NAME}”",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "打开网站菜单",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "选项",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "菜单条目的标题",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

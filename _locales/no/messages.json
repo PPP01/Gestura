@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Bevegelsesbryter i kontekstmenyen",
+		"message": "Deaktiver/aktiver bevegelser på gjeldende nettsted",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Åpne utvidelser",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Åpne innstillinger",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Lagre som MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Mørk",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Spør hvilken meny når ingen samsvarer",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Når et nettsted legges til uten en samsvarende meny, vis en menyvelger; av = legg stille til i standardmenyen",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Hurtigmeny",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Elementer Gestura legger til i nettleserens høyreklikkmeny",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Kontekstmenyen vises ved høyreklikk. Gestura kan vise sin egen lille undermeny der og tilby ekstra funksjoner.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Tilleggene i hurtigmenyen er slått av i Funksjoner-boksen ovenfor.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Legg til i en nettstedmeny",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Legg til gjeldende side (eller lenken det ble høyreklikket på) i en nettstedmeny",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Åpne nettstedmeny",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Åpne nettstedmeny-overlegget – akkurat som bevegelsen",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Meny",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Element for Alternativer",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Vis et «Alternativer»-element som åpner denne innstillingssiden",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Legg til dette nettstedet i meny",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Legg til i menyen «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Åpne nettstedmeny",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Alternativer",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Tittel for menyelementet",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Gebarenschakelaar in contextmenu",
+		"message": "Gebaren uit-/inschakelen op de huidige site",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Extensies Openen",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Instellingen openen",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Opslaan als MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Donker",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Vragen welk menu als geen enkele past",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Bij het toevoegen van een site zonder passend menu, een menukeuze aanbieden; uit = stil toevoegen aan het standaardmenu",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Contextmenu",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Items die Gestura toevoegt aan het rechtermuisknopmenu van de browser",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Het contextmenu verschijnt bij een rechtermuisklik. Gestura kan daar zijn eigen kleine submenu tonen en extra functies bieden.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "De toevoegingen aan het contextmenu zijn uitgeschakeld in het vak Functies hierboven.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Toevoegen aan een website-menu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "De huidige pagina (of de link waarop rechts is geklikt) toevoegen aan een website-menu",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Website-menu openen",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "De website-menu-overlay openen – net als het gebaar",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Item Opties",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Toon een item \"Opties\" dat deze instellingenpagina opent",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Deze site aan menu toevoegen",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Toevoegen aan menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Website-menu openen",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Opties",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titel voor het menu-item",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

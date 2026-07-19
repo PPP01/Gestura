@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "تبديل الإيماءات من قائمة السياق",
+		"message": "تعطيل/تمكين الإيماءات في الموقع الحالي",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "فتح الإضافات",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "فتح الإعدادات",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "حفظ بتنسيق MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "داكن",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "طلب اختيار القائمة عند عدم وجود تطابق",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "عند إضافة موقع ولا توجد قائمة مطابقة، تُعرض قائمة للاختيار؛ الإيقاف = الإضافة إلى القائمة الافتراضية بصمت",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "قائمة السياق",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "عناصر يضيفها Gestura إلى قائمة النقر بزر الماوس الأيمن في المتصفح",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "تظهر قائمة السياق عند النقر بزر الماوس الأيمن. يمكن لـ Gestura إظهار قائمته الفرعية الصغيرة الخاصة به هناك وتوفير وظائف إضافية.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "إضافات قائمة السياق معطّلة في مربع الميزات أعلاه.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "إضافة إلى قائمة موقع",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "إضافة الصفحة الحالية (أو الرابط الذي تم النقر عليه بزر الماوس الأيمن) إلى قائمة موقع",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "فتح قائمة الموقع",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "فتح تراكب قائمة الموقع – مثل الإيماءة",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "قائمة",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "عنصر الخيارات",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "إظهار عنصر \"خيارات\" يفتح صفحة الإعدادات هذه",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "إضافة هذا الموقع إلى قائمة",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "إضافة إلى قائمة \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "فتح قائمة الموقع",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "خيارات",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "العنوان لعنصر القائمة",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

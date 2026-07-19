@@ -5,6 +5,31 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### Unreleased
+
+**Fixes & Improvements:**
+
+- **Per-link open settings work again — now per click type:** menu link entries (custom URLs and search entries) can opt into individual open positions per mouse button (left / middle / right), overriding the per-menu and global "Open links" behavior. The default for every link is "Use global menu settings"; existing links keep inheriting automatically. Unconfigured click types still follow the menu/global setting.
+- **New "Open links" behavior:** added a reverse standard — left-click (and middle-click) opens a new tab to the right, right-click opens in the same tab — alongside the existing behaviors in the global and per-menu "Open links" dropdown.
+
+### v2.4 (2026-07-15)
+
+**New Features:**
+
+- **Native context menu:** a new, fully configurable feature in the browser's right-click menu. Add the current page — or a right-clicked link — to a website menu; open a website menu (contextual by site, or a fixed one) as the in-page overlay right where you clicked; or jump straight to the Options page. Every entry is individually toggleable via a master switch, with a dedicated **"Context menu"** settings section.
+- **Add-to-menu flow:** "Add this site to menu" appends the page/link as a link entry to the matching website menu (and registers the site's URL pattern if needed); when no menu matches it offers a menu picker (optional) plus an in-page title prompt.
+- **Feature toggles:** a master feature-toggle box at the top of the options page to enable or disable major features at a glance.
+
+**Interface & General Improvements:**
+
+- The "Disable gestures on this site" and restricted-page notice toggles moved into the new "Context menu" section.
+
+### v2.3.1 (2026-07-15)
+
+**New Features:**
+
+- **"Open Settings" action:** a new gesture action opens the extension's settings page in a new tab. Assigned by default to the gesture right → down → left → up (`→↓←↑`).
+
 ### v2.3 (2026-07-14)
 
 **New Features:**

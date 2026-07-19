@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Bağlam Menüsü Jest Geçişi",
+		"message": "Geçerli sitede jestleri devre dışı bırak/etkinleştir",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Eklentileri Aç",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Ayarları aç",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML olarak kaydet",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Koyu",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Hiçbiri eşleşmediğinde hangi menü sorulsun",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Bir site eklenirken eşleşen menü yoksa menü seçici sun; kapalı = sessizce varsayılan menüye ekle",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Bağlam menüsü",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Gestura'nın tarayıcının sağ tık menüsüne eklediği girdiler",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Bağlam menüsü sağ tıklamada görünür. Gestura orada kendi küçük alt menüsünü gösterebilir ve ek işlevler sunabilir.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Bağlam menüsü eklentileri yukarıdaki Özellikler kutusunda kapalı.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Bir web sitesi menüsüne ekle",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Geçerli sayfayı (veya sağ tıklanan bağlantıyı) bir web sitesi menüsüne ekle",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Web sitesi menüsünü aç",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Web sitesi menüsü katmanını aç – hareket gibi",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menü",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Seçenekler girdisi",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Bu ayarlar sayfasını açan bir \"Seçenekler\" girdisi göster",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Bu siteyi menüye ekle",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "\"{NAME}\" menüsüne ekle",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Web sitesi menüsünü aç",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Seçenekler",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Menü girdisi için başlık",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

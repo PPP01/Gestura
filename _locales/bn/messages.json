@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "কনটেক্সট মেনুতে অঙ্গভঙ্গি টগল",
+		"message": "বর্তমান সাইটে অঙ্গভঙ্গি নিষ্ক্রিয়/সক্রিয় করুন",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "এক্সটেনশনস খুলুন",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "সেটিংস খুলুন",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML হিসেবে সংরক্ষণ করুন",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "গাঢ়",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "কোনোটি না মিললে কোন মেনু জিজ্ঞাসা করুন",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "সাইট যোগ করার সময় কোনো মেনু না মিললে, একটি মেনু নির্বাচক দেখান; বন্ধ = নীরবে ডিফল্ট মেনুতে যোগ করুন",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "প্রসঙ্গ মেনু",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Gestura ব্রাউজারের রাইট-ক্লিক মেনুতে যেসব এন্ট্রি যোগ করে",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "কনটেক্সট মেনু রাইট-ক্লিক করলে দেখা যায়। Gestura সেখানে নিজস্ব একটি ছোট সাবমেনু দেখাতে এবং অতিরিক্ত ফিচার প্রদান করতে পারে।",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "উপরের বৈশিষ্ট্য বক্সে প্রসঙ্গ-মেনু সংযোজনগুলি বন্ধ করা আছে।",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "একটি ওয়েবসাইট মেনুতে যোগ করুন",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "বর্তমান পৃষ্ঠা (বা রাইট-ক্লিক করা লিংক) একটি ওয়েবসাইট মেনুতে যোগ করুন",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "ওয়েবসাইট মেনু খুলুন",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "ওয়েবসাইট-মেনু ওভারলে খুলুন – জেসচারের মতো",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "মেনু",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "অপশন এন্ট্রি",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "একটি \"অপশন\" এন্ট্রি দেখান যা এই সেটিংস পৃষ্ঠাটি খোলে",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "এই সাইটটি মেনুতে যোগ করুন",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "\"{NAME}\" মেনুতে যোগ করুন",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "ওয়েবসাইট মেনু খুলুন",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "অপশন",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "মেনু এন্ট্রির জন্য শিরোনাম",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

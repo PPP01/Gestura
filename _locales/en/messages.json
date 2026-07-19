@@ -419,8 +419,20 @@
 		"message": "No blacklisted sites. Enter a domain above to add.",
 		"description": "Empty blacklist message"
 	},
+	"featuresSection": {
+		"message": "Features",
+		"description": "Section title for the master feature toggles"
+	},
+	"featureJumpToSettings": {
+		"message": "Jump to these settings",
+		"description": "Tooltip on feature toggle label linking to its settings section"
+	},
+	"featureGestures": {
+		"message": "Gestures",
+		"description": "Feature toggle label for gestures"
+	},
 	"enableBlacklistContextMenu": {
-		"message": "Context Menu Gesture Toggle",
+		"message": "Disable/enable gestures for the current site",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -795,6 +807,10 @@
 		"message": "Open Extensions",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Open Settings",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Save as MHTML",
 		"description": "Save current page as MHTML file"
@@ -1166,6 +1182,26 @@
 	"tabPositionNewWindow": {
 		"message": "New window",
 		"description": "Open in a new browser window"
+	},
+	"menuItemOpenGlobal": {
+		"message": "Use global menu settings",
+		"description": "Menu link editor: inherit open behavior from menu/global settings"
+	},
+	"menuItemOpenCustom": {
+		"message": "Custom per click",
+		"description": "Menu link editor: per-click-type open positions"
+	},
+	"clickTypeLeft": {
+		"message": "Left click",
+		"description": "Mouse button label"
+	},
+	"clickTypeRight": {
+		"message": "Right click",
+		"description": "Mouse button label"
+	},
+	"clickTypeMiddle": {
+		"message": "Middle click",
+		"description": "Mouse button label"
 	},
 	"newTabActive": {
 		"message": "Open in foreground",
@@ -2723,6 +2759,10 @@
 		"message": "Standard: left-click in same tab, right-click in new tab",
 		"description": "Open behavior: left click same tab, right click new tab"
 	},
+	"openBehaviorStandardReverse": {
+		"message": "Reverse: left-click in new tab, right-click in same tab",
+		"description": "Open behavior: left/middle click new tab right, right click same tab"
+	},
 	"siteMenuOpenBehaviorRight": {
 		"message": "Always in a new tab, directly right",
 		"description": "Open behavior: always new tab directly right"
@@ -2746,5 +2786,77 @@
 	"aboutFeature7": {
 		"message": "Website menus: the right menu on every site",
 		"description": "About-page feature bullet: per-site website menus"
+	},
+	"contextMenuSection": {
+		"message": "Context menu",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Entries Gestura adds to the browser's right-click menu",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "The context menu appears on right-click. Gestura can show its own small submenu there and provide extra functions.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "The context-menu additions are turned off in the Features box above.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Add to a website menu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Add the current page (or the right-clicked link) to a website menu",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Open website menu",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Open the website-menu overlay – like the gesture",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Options entry",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Show an \"Options\" entry that opens this settings page",
+		"description": "Description for context menu options entry setting"
+	},
+	"siteMenuAddAsk": {
+		"message": "Ask which menu when none matches",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "When adding a site and no menu matches, offer a menu picker; off = add to the default menu silently",
+		"description": "Description for asking which menu to add to"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Add this site to menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Add to menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Open Website menu",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Options",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Title for the menu entry",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

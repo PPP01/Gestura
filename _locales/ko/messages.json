@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "컨텍스트 메뉴 제스처 토글",
+		"message": "현재 사이트에서 제스처 비활성화/활성화",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "확장 프로그램 관리 열기",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "설정 열기",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "MHTML로 저장",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "다크",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "일치하는 메뉴가 없을 때 메뉴 선택 묻기",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "사이트를 추가할 때 일치하는 메뉴가 없으면 메뉴 선택 창을 표시합니다. 끄면 기본 메뉴에 자동으로 추가됩니다",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "컨텍스트 메뉴",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Gestura가 브라우저의 마우스 오른쪽 버튼 메뉴에 추가하는 항목",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "컨텍스트 메뉴는 마우스 오른쪽 버튼을 클릭하면 나타납니다. Gestura는 그곳에 자체 작은 하위 메뉴를 표시하고 추가 기능을 제공할 수 있습니다.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "위의 기능 상자에서 컨텍스트 메뉴 추가 항목이 꺼져 있습니다.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "웹사이트 메뉴에 추가",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "현재 페이지(또는 오른쪽 클릭한 링크)를 웹사이트 메뉴에 추가",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "웹사이트 메뉴 열기",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "웹사이트 메뉴 오버레이 열기 – 제스처와 동일",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "메뉴",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "옵션 항목",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "이 설정 페이지를 여는 \"옵션\" 항목 표시",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "이 사이트를 메뉴에 추가",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "\"{NAME}\" 메뉴에 추가",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "웹사이트 메뉴 열기",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "옵션",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "메뉴 항목 제목",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

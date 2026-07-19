@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Перемикач жестів у контекстному меню",
+		"message": "Вимкнути/увімкнути жести на поточному сайті",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Відкрити розширення",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Відкрити налаштування",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Зберегти як MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Темна",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Запитувати меню, якщо жодне не підходить",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "При додаванні сайту, якщо жодне меню не підходить, пропонувати вибір меню; вимкнено = додавати до меню за замовчуванням без запитання",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Контекстне меню",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Пункти, які Gestura додає до меню правої кнопки миші браузера",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Контекстне меню з'являється при клацанні правою кнопкою миші. Gestura може показати там своє невелике підменю і надати додаткові функції.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Додавання пунктів контекстного меню вимкнено в блоці «Функції» вище.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Додати до меню сайту",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Додати поточну сторінку (або посилання, на яке клікнули правою кнопкою) до меню сайту",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Відкрити меню сайту",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Відкрити накладку меню сайту — так само, як жест",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Меню",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Пункт «Налаштування»",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Показувати пункт «Налаштування», який відкриває цю сторінку налаштувань",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Додати цей сайт до меню",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Додати до меню «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Відкрити меню сайту",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Налаштування",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Назва пункту меню",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

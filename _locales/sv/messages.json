@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Gest-växlare i snabbmenyn",
+		"message": "Inaktivera/aktivera gester på den aktuella webbplatsen",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Öppna tillägg",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Öppna inställningar",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Spara som MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Mörkt",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Fråga vilken meny när ingen matchar",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "När en webbplats läggs till utan en matchande meny, erbjud en menyväljare; av = lägg tyst till i standardmenyn",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Kontextmeny",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Poster som Gestura lägger till i webbläsarens högerklicksmeny",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Snabbmenyn visas vid högerklick. Gestura kan visa sin egen lilla undermeny där och erbjuda extra funktioner.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Tilläggen i kontextmenyn är avstängda i rutan Funktioner ovan.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Lägg till i en webbplatsmeny",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Lägg till den aktuella sidan (eller länken som högerklickades) i en webbplatsmeny",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Öppna webbplatsmeny",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Öppna webbplatsmenyns overlay – precis som gesten",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Meny",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Alternativ-post",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Visa en post \"Alternativ\" som öppnar denna inställningssida",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Lägg till denna webbplats i meny",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Lägg till i menyn \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Öppna webbplatsmeny",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Alternativ",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titel för menyposten",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

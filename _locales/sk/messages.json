@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Prepínač gest v kontextovej ponuke",
+		"message": "Zakázať/povoliť gestá na aktuálnej stránke",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Otvoriť rozšírenia",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Otvoriť nastavenia",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Uložiť ako MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Tmavý",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Opýtať sa na ponuku, keď žiadna nezodpovedá",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Pri pridávaní webu bez zodpovedajúcej ponuky ponúknuť výber ponuky; vypnuté = tiché pridanie do predvolenej ponuky",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Kontextové menu",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Položky, ktoré Gestura pridáva do menu pravého tlačidla myši v prehliadači",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Kontextové menu sa zobrazí po kliknutí pravým tlačidlom. Gestura v ňom môže zobraziť vlastné malé podmenu a poskytnúť ďalšie funkcie.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Doplnky kontextového menu sú vypnuté v poli Funkcie vyššie.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Pridať do ponuky webu",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Pridať aktuálnu stránku (alebo odkaz, na ktorý sa kliklo pravým tlačidlom) do menu webu",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Otvoriť menu webu",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Otvoriť prekryvné menu webu – rovnako ako gesto",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Položka Možnosti",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Zobraziť položku „Možnosti“, ktorá otvorí túto stránku nastavení",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Pridať túto stránku do menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Pridať do menu „{NAME}“",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Otvoriť menu webu",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Možnosti",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Názov položky menu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

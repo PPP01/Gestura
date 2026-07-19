@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "สวิตช์เปิด/ปิดท่าทางในเมนูบริบท",
+		"message": "ปิด/เปิดการใช้งานท่าทางบนเว็บไซต์ปัจจุบัน",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "เปิดส่วนขยาย",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "เปิดการตั้งค่า",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "บันทึกเป็น MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "มืด",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "ถามว่าจะใช้เมนูใดเมื่อไม่มีเมนูที่ตรงกัน",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "เมื่อเพิ่มเว็บไซต์และไม่มีเมนูที่ตรงกัน ให้แสดงตัวเลือกเมนู; ปิด = เพิ่มลงในเมนูเริ่มต้นโดยไม่ถาม",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "เมนูบริบท",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "รายการที่ Gestura เพิ่มลงในเมนูคลิกขวาของเบราว์เซอร์",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "เมนูบริบทจะปรากฏขึ้นเมื่อคลิกขวา Gestura สามารถแสดงเมนูย่อยขนาดเล็กของตัวเองที่นั่นและมอบฟังก์ชันเพิ่มเติมได้",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "ส่วนเพิ่มเติมของเมนูบริบทถูกปิดอยู่ในกล่องคุณสมบัติด้านบน",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "เพิ่มลงในเมนูเว็บไซต์",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "เพิ่มหน้าปัจจุบัน (หรือลิงก์ที่คลิกขวา) ลงในเมนูเว็บไซต์",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "เปิดเมนูเว็บไซต์",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "เปิดโอเวอร์เลย์เมนูเว็บไซต์ – เหมือนกับท่าทางสัมผัส",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "เมนู",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "รายการตัวเลือก",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "แสดงรายการ \"ตัวเลือก\" ที่เปิดหน้าการตั้งค่านี้",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "เพิ่มไซต์นี้ลงในเมนู",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "เพิ่มลงในเมนู \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "เปิดเมนูเว็บไซต์",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "ตัวเลือก",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "ชื่อสำหรับรายการเมนู",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

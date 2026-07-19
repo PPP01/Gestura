@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Переключатель жестов в контекстном меню",
+		"message": "Отключить/включить жесты на текущем сайте",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Открыть расширения",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Открыть настройки",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Сохранить как MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Тёмная",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Спрашивать меню, если ни одно не подходит",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "При добавлении сайта, если ни одно меню не подходит, предлагать выбор меню; выкл. = добавлять в меню по умолчанию без вопросов",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Контекстное меню",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Пункты, которые Gestura добавляет в меню правой кнопки мыши браузера",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Контекстное меню появляется по щелчку правой кнопкой мыши. Gestura может показать там своё небольшое подменю и предоставить дополнительные функции.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Дополнения контекстного меню отключены в блоке «Функции» выше.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Добавить в меню сайта",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Добавить текущую страницу (или ссылку, по которой был клик правой кнопкой) в меню сайта",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Открыть меню сайта",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Открыть оверлей меню сайта — так же, как жест",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Меню",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Пункт «Настройки»",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Показывать пункт «Настройки», открывающий эту страницу настроек",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Добавить этот сайт в меню",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Добавить в меню «{NAME}»",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Открыть меню сайта",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Настройки",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Название пункта меню",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

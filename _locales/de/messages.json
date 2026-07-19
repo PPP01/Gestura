@@ -419,8 +419,20 @@
 		"message": "Keine blockierten Seiten. Domain oben eingeben zum Hinzufügen.",
 		"description": "Empty blacklist message"
 	},
+	"featuresSection": {
+		"message": "Funktionen",
+		"description": "Section title for the master feature toggles"
+	},
+	"featureJumpToSettings": {
+		"message": "Zu diesen Einstellungen springen",
+		"description": "Tooltip on feature toggle label linking to its settings section"
+	},
+	"featureGestures": {
+		"message": "Gesten",
+		"description": "Feature toggle label for gestures"
+	},
 	"enableBlacklistContextMenu": {
-		"message": "Gesten-Umschalter im Kontextmenü",
+		"message": "Gesten für aktuelle Seite deaktivieren/aktivieren",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -795,6 +807,10 @@
 		"message": "Erweiterungen öffnen",
 		"description": "Open extensions page"
 	},
+	"actionOpenOptions": {
+		"message": "Einstellungen öffnen",
+		"description": "Open extension settings page"
+	},
 	"actionSaveAsMhtml": {
 		"message": "Als MHTML speichern",
 		"description": "Save current page as MHTML file"
@@ -1166,6 +1182,26 @@
 	"tabPositionNewWindow": {
 		"message": "Neues Fenster",
 		"description": "Open in a new browser window"
+	},
+	"menuItemOpenGlobal": {
+		"message": "Globale Menü-Einstellungen verwenden",
+		"description": "Menu link editor: inherit open behavior from menu/global settings"
+	},
+	"menuItemOpenCustom": {
+		"message": "Individuell pro Klick",
+		"description": "Menu link editor: per-click-type open positions"
+	},
+	"clickTypeLeft": {
+		"message": "Linksklick",
+		"description": "Mouse button label"
+	},
+	"clickTypeRight": {
+		"message": "Rechtsklick",
+		"description": "Mouse button label"
+	},
+	"clickTypeMiddle": {
+		"message": "Mausradklick",
+		"description": "Mouse button label"
 	},
 	"newTabActive": {
 		"message": "Im Vordergrund öffnen",
@@ -2643,6 +2679,10 @@
 		"message": "Standard: Linksklick im selben Tab, Rechtsklick in neuem Tab",
 		"description": "Open behavior: left click same tab, right click new tab"
 	},
+	"openBehaviorStandardReverse": {
+		"message": "Umgekehrt: Linksklick in neuem Tab, Rechtsklick im selben Tab",
+		"description": "Open behavior: left click same tab, right click new tab"
+	},
 	"siteMenuOpenBehaviorRight": {
 		"message": "Immer in neuem Tab, direkt rechts",
 		"description": "Open behavior: always new tab directly right"
@@ -2686,5 +2726,77 @@
 	"menuShowInSwitcher": {
 		"message": "In der Menü-Auswahl anzeigen",
 		"description": "Per-sub-menu checkbox — whether this menu appears in the switcher's selection list"
+	},
+	"contextMenuSection": {
+		"message": "Kontextmenü",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Einträge, die Gestura zum Rechtsklick-Menü des Browsers hinzufügt",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Das Kontextmenü wird bei einem Rechtsklick eingeblendet. Gestura kann dort sein eigenes kleines Untermenü einblenden und weitere Funktionen bereitstellen.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Die Kontextmenü-Erweiterungen sind im Funktionen-Kasten oben ausgeschaltet.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Zu einem Website-Menü hinzufügen",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Aktuelle Seite (oder den angeklickten Link) zu einem Website-Menü hinzufügen",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Website-Menü öffnen",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Website-Menü-Overlay öffnen – wie die Geste",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menü",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Optionen-Eintrag",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Zeigt einen Eintrag „Optionen“, der diese Einstellungsseite öffnet",
+		"description": "Description for context menu options entry setting"
+	},
+	"siteMenuAddAsk": {
+		"message": "Menü abfragen, wenn keins passt",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Wenn beim Hinzufügen kein Menü zur Seite passt, eine Menü-Auswahl anbieten; aus = still ins Standard-Menü",
+		"description": "Description for asking which menu to add to"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Diese Seite zu Menü hinzufügen",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Zu Menü „{NAME}“ hinzufügen",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Website-Menü öffnen",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Optionen",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Titel für den Menüeintrag",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }

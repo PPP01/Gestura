@@ -420,7 +420,7 @@
 		"description": "Empty blacklist message"
 	},
 	"enableBlacklistContextMenu": {
-		"message": "Suis Gerak Isyarat di Menu Konteks",
+		"message": "Lumpuhkan/bolehkan gerak isyarat di tapak semasa",
 		"description": "Setting title for blacklist context menu toggle"
 	},
 	"enableBlacklistContextMenuDesc": {
@@ -790,6 +790,10 @@
 	"actionOpenExtensions": {
 		"message": "Buka Sambungan",
 		"description": "Open extensions page"
+	},
+	"actionOpenOptions": {
+		"message": "Buka Tetapan",
+		"description": "Open extension settings page"
 	},
 	"actionSaveAsMhtml": {
 		"message": "Simpan sebagai MHTML",
@@ -2684,5 +2688,77 @@
 	"menuThemeDark": {
 		"message": "Gelap",
 		"description": "Appearance option — always show the menu in dark mode"
+	},
+	"siteMenuAddAsk": {
+		"message": "Tanya menu mana apabila tiada yang sepadan",
+		"description": "Label for asking which menu to add to"
+	},
+	"siteMenuAddAskDesc": {
+		"message": "Apabila menambah laman dan tiada menu sepadan, tawarkan pemilih menu; dimatikan = tambah senyap ke menu lalai",
+		"description": "Description for asking which menu to add to"
+	},
+	"contextMenuSection": {
+		"message": "Menu konteks",
+		"description": "Section title for context menu settings"
+	},
+	"contextMenuSectionDesc": {
+		"message": "Entri yang ditambah oleh Gestura pada menu klik kanan pelayar",
+		"description": "Description for context menu section"
+	},
+	"contextMenuInfo": {
+		"message": "Menu konteks dipaparkan apabila klik kanan. Gestura boleh memaparkan submenu kecilnya sendiri di situ dan menyediakan fungsi tambahan.",
+		"description": "Explanatory info shown at the top of the context menu settings section"
+	},
+	"contextMenuDisabledHint": {
+		"message": "Tambahan menu konteks dimatikan dalam kotak Ciri di atas.",
+		"description": "Hint when context menu feature is disabled"
+	},
+	"ctxMenuAddSite": {
+		"message": "Tambah ke menu laman web",
+		"description": "Label for context menu entry to add site to menu"
+	},
+	"ctxMenuAddSiteDesc": {
+		"message": "Tambah halaman semasa (atau pautan yang diklik kanan) ke menu laman web",
+		"description": "Description for add site context menu entry"
+	},
+	"ctxMenuSiteMenu": {
+		"message": "Buka menu laman web",
+		"description": "Label for context menu entry to open website menu"
+	},
+	"ctxMenuSiteMenuDesc": {
+		"message": "Buka overlay menu laman web – seperti gerak isyarat",
+		"description": "Description for open website menu context menu entry"
+	},
+	"ctxMenuSiteMenuMode": {
+		"message": "Menu",
+		"description": "Label for menu mode in context menu"
+	},
+	"ctxMenuOptions": {
+		"message": "Entri Pilihan",
+		"description": "Label for context menu options entry setting"
+	},
+	"ctxMenuOptionsDesc": {
+		"message": "Papar entri \"Pilihan\" yang membuka halaman tetapan ini",
+		"description": "Description for context menu options entry setting"
+	},
+	"menuAddSiteToMenu": {
+		"message": "Tambah laman ini ke menu",
+		"description": "Prompt title when adding a site to a menu"
+	},
+	"menuAddSiteToNamed": {
+		"message": "Tambah ke menu \"{NAME}\"",
+		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuOpenSiteMenu": {
+		"message": "Buka menu laman web",
+		"description": "Menu entry label for opening website menu"
+	},
+	"menuOptions": {
+		"message": "Pilihan",
+		"description": "Menu entry label for opening options"
+	},
+	"ctxTitlePromptLabel": {
+		"message": "Tajuk untuk entri menu",
+		"description": "Label for the title input when adding a custom menu entry"
 	}
 }
