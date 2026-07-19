@@ -1,7 +1,7 @@
 # Design: Öffnungsverhalten von Menü-Links — individuelle Einstellung schlägt global
 
 - **Datum:** 2026-07-19 (überarbeitet nach Nutzer-Feedback: Klick-Arten pro Link)
-- **Status:** Entwurf — wartet auf Freigabe durch den Nutzer
+- **Status:** umgesetzt (siehe docs/superpowers/plans/2026-07-19-menu-link-open-settings.md)
 
 ## Problem
 

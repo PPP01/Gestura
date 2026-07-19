@@ -5,6 +5,12 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### Unreleased
+
+**Fixes & Improvements:**
+
+- **Per-link open settings work again — now per click type:** menu link entries (custom URLs and search entries) can opt into individual open positions per mouse button (left / middle / right), overriding the per-menu and global "Open links" behavior. The default for every link is "Use global menu settings"; existing links keep inheriting automatically. Unconfigured click types still follow the menu/global setting.
+
 ### v2.4 (2026-07-15)
 
 **New Features:**
