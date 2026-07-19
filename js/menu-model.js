@@ -206,6 +206,21 @@
 		return sm;
 	}
 
+	// Öffnungs-Config eines Link-/Such-Eintrags im Menü, pro Maustaste.
+	// Präzedenz: item.ownOpen[taste] → Menü-Override → globale Einstellung.
+	// button: 0 = links (auch Tastatur), 1 = Mausrad, 2 = rechts.
+	// 'standard' = Linksklick im selben Tab, Rechts-/Mausradklick neuer Tab rechts.
+	function itemOpenConfig(item, menuBehavior, globalBehavior, button) {
+		const key = button === 1 ? 'middle' : button === 2 ? 'right' : 'left';
+		const own = item && item.ownOpen && item.ownOpen[key];
+		if (own) return { position: own.position || 'last', active: own.active !== false };
+		const behavior = menuBehavior || globalBehavior || 'standard';
+		if (behavior === 'standard') {
+			return { position: button ? 'right' : 'current', active: true };
+		}
+		return { position: behavior, active: true };
+	}
+
 	// Hängt das globale Mini-Menü (menuAppend-Setting) unten an ein aufgelöstes
 	// Menü an — nach einem Trenner, sofern das Menü eigene Einträge hat.
 	function applyMenuAppend(resolved, appendCfg) {
@@ -314,7 +329,7 @@
 		forkOverrideItem, forkDeleteItem, forkRestoreItem, forkAddItem, forkReorder,
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
-		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu,
+		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu, itemOpenConfig,
 		addPatternToMenu, addLinkToMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -359,3 +359,47 @@ describe('addLinkToMenu', () => {
 		expect(added.id).toMatch(/^item_[0-9a-f]{10}$/);
 	});
 });
+
+describe('itemOpenConfig — Präzedenz Link → Menü → global', () => {
+	const item = (ownOpen) => ({ id: 'x', action: 'openCustomUrl', customUrl: 'u', ownOpen });
+
+	it('ohne ownOpen, standard: links → current, Mausrad/rechts → right, active true', () => {
+		expect(M.itemOpenConfig(item(undefined), '', 'standard', 0)).toEqual({ position: 'current', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standard', 1)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(item(undefined), '', 'standard', 2)).toEqual({ position: 'right', active: true });
+	});
+
+	it('ohne ownOpen: Menü-Override schlägt global; ohne Override gilt global; leer → standard', () => {
+		expect(M.itemOpenConfig(item(undefined), 'first', 'last', 0).position).toBe('first');
+		expect(M.itemOpenConfig(item(undefined), '', 'last', 2).position).toBe('last');
+		expect(M.itemOpenConfig(item(undefined), '', '', 0).position).toBe('current'); // Fallback standard
+	});
+
+	it('ownOpen.left gilt nur für links; unkonfigurierte Tasten erben weiter', () => {
+		const it_ = item({ left: { position: 'newWindow', active: false } });
+		expect(M.itemOpenConfig(it_, '', 'standard', 0)).toEqual({ position: 'newWindow', active: false });
+		expect(M.itemOpenConfig(it_, '', 'standard', 2)).toEqual({ position: 'right', active: true });
+		expect(M.itemOpenConfig(it_, 'first', 'last', 1)).toEqual({ position: 'first', active: true });
+	});
+
+	it('alle drei Klick-Arten konfiguriert → jede Taste eigene Config', () => {
+		const it_ = item({
+			left: { position: 'current' },
+			middle: { position: 'first', active: false },
+			right: { position: 'last' },
+		});
+		expect(M.itemOpenConfig(it_, '', 'standard', 0)).toEqual({ position: 'current', active: true });
+		expect(M.itemOpenConfig(it_, '', 'standard', 1)).toEqual({ position: 'first', active: false });
+		expect(M.itemOpenConfig(it_, '', 'standard', 2)).toEqual({ position: 'last', active: true });
+	});
+
+	it('altes flaches position/active am Item ohne ownOpen wird ignoriert', () => {
+		const legacy = { id: 'x', action: 'openCustomUrl', customUrl: 'u', position: 'first', active: false };
+		expect(M.itemOpenConfig(legacy, '', 'standard', 0)).toEqual({ position: 'current', active: true });
+	});
+
+	it('Defaults im ownOpen-Eintrag: position → last, active → true; null-Item sicher', () => {
+		expect(M.itemOpenConfig(item({ left: {} }), '', 'standard', 0)).toEqual({ position: 'last', active: true });
+		expect(M.itemOpenConfig(null, '', 'standard', 0)).toEqual({ position: 'current', active: true });
+	});
+});
