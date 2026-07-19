@@ -1183,6 +1183,26 @@
 		"message": "Neues Fenster",
 		"description": "Open in a new browser window"
 	},
+	"menuItemOpenGlobal": {
+		"message": "Globale Menü-Einstellungen verwenden",
+		"description": "Menu link editor: inherit open behavior from menu/global settings"
+	},
+	"menuItemOpenCustom": {
+		"message": "Individuell pro Klick",
+		"description": "Menu link editor: per-click-type open positions"
+	},
+	"clickTypeLeft": {
+		"message": "Linksklick",
+		"description": "Mouse button label"
+	},
+	"clickTypeRight": {
+		"message": "Rechtsklick",
+		"description": "Mouse button label"
+	},
+	"clickTypeMiddle": {
+		"message": "Mausradklick",
+		"description": "Mouse button label"
+	},
 	"newTabActive": {
 		"message": "Im Vordergrund öffnen",
 		"description": "Open tab in foreground"
