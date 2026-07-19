@@ -1468,7 +1468,8 @@ class ActionSelect extends LitElement {
 	#renderMenuItemOpenRows(showIncognito) {
 		const i18n = window.i18n;
 		const defaults = window.GestureConstants.ACTION_DEFAULTS[this._pendingValue] || {};
-		const ownOpen = this._pendingConfig.ownOpen || null;
+		const raw = this._pendingConfig.ownOpen;
+		const ownOpen = (raw && Object.keys(raw).length) ? raw : null;
 		const incognito = this._pendingConfig.incognito ?? defaults.incognito;
 		const setOwnOpen = (next) => {
 			const cfg = { ...this._pendingConfig };
@@ -1557,7 +1558,6 @@ class ActionSelect extends LitElement {
 			` : ''}
 		`;
 	}
-
 
 	#renderMenuConfigRow() {
 		const action = this._pendingValue;
