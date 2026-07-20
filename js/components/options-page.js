@@ -282,6 +282,7 @@ class OptionsPage extends LitElement {
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
 		this.addEventListener('navigate-section', this._boundNavigateSection);
 		this.#init();
+		this.#checkPendingImport();
 	}
 
 	disconnectedCallback() {
@@ -329,6 +330,39 @@ class OptionsPage extends LitElement {
 			this.#handleHashNavigation();
 			window.addEventListener('hashchange', () => this.#handleHashNavigation());
 		});
+	}
+
+	// Operator-button import hand-off (see js/content.js + js/background.js
+	// 'importFromSite'): the background service worker stashes the fetched JSON in
+	// chrome.storage.session under 'pendingImport' and opens/focuses this page. Pick it
+	// up once, consume it (remove from session storage so a reload doesn't re-show it),
+	// and hand it to <menu-import-dialog> for validation + preview. Not gated on
+	// #ready/#init — this can run in parallel with settings load.
+	async #checkPendingImport() {
+		let stored;
+		try {
+			stored = await chrome.storage.session.get('pendingImport');
+		} catch {
+			return;
+		}
+		const pending = stored && stored.pendingImport;
+		if (!pending || !pending.json) return;
+
+		try {
+			await chrome.storage.session.remove('pendingImport');
+		} catch { }
+
+		await this._store.load();
+		this._settings = { ...this._store.current };
+
+		await customElements.whenDefined('menu-import-dialog');
+		let dialog = this.shadowRoot.querySelector('menu-import-dialog');
+		if (!dialog) {
+			dialog = document.createElement('menu-import-dialog');
+			dialog.addEventListener('import-done', () => this.requestUpdate());
+			this.shadowRoot.appendChild(dialog);
+		}
+		dialog.openWith(pending.json, { type: 'site', url: pending.url });
 	}
 
 
