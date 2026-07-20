@@ -2823,5 +2823,14 @@
 	},
 	"exchangeFromSite": {
 		"message": "This website offers a Gestura menu."
+	},
+	"exchangeImportAs": {
+		"message": "Import as"
+	},
+	"exchangeReplaceStandard": {
+		"message": "Replace the standard «{name}»"
+	},
+	"exchangeAddAsNew": {
+		"message": "Add as a new entry"
 	}
 }

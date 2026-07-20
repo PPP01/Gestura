@@ -11,6 +11,7 @@ const EXCHANGE_KEYS = [
 	'exchangeScriptWarnTitle', 'exchangeScriptWarnBody', 'exchangeScriptChromeOnly',
 	'exchangeScriptChromeOnlyRequired', 'exchangeScriptConfirm',
 	'exchangeImportedMenu', 'exchangeImportedEngine', 'exchangeFromSite',
+	'exchangeImportAs', 'exchangeReplaceStandard', 'exchangeAddAsNew',
 ];
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '_locales');

@@ -2861,5 +2861,14 @@
 	},
 	"exchangeFromSite": {
 		"message": "Diese Website bietet ein Gestura-Menü an."
+	},
+	"exchangeImportAs": {
+		"message": "Importieren als"
+	},
+	"exchangeReplaceStandard": {
+		"message": "Standard «{name}» ersetzen"
+	},
+	"exchangeAddAsNew": {
+		"message": "Als neuen Eintrag hinzufügen"
 	}
 }

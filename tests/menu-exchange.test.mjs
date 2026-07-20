@@ -239,3 +239,36 @@ describe('export round-trip', () => {
 		expect(eng2.name).toBe('My Engine');
 	});
 });
+
+describe('replace-standard mappers', () => {
+	it('toStandardMenu keeps file item ids and resolves labels to customName', () => {
+		const v = X.validate({
+			gesturaMenu: 1, id: 'github', version: '2.0.0', name: { en: 'GitHub' }, icon: 'github',
+			patterns: ['*github.com*'],
+			items: [
+				{ id: 'gh-home', action: 'openCustomUrl', customUrl: 'https://github.com/dashboard', label: { en: 'Home' } },
+				{ id: 'gh-sep', type: 'separator' },
+			],
+		}).value;
+		const def = X.toStandardMenu(v, 'en');
+		expect(def.name).toBe('GitHub');
+		expect(def.items[0].id).toBe('gh-home');           // file id kept, not regenerated
+		expect(def.items[0].customName).toBe('Home');
+		expect(def.items[1]).toEqual({ id: 'gh-sep', type: 'separator' });
+		expect(def).not.toHaveProperty('source');
+	});
+	it('toEngineOverride yields a builtin-less, id-less override with string name', () => {
+		const v = X.validate({
+			gesturaEngine: 1, id: 'google', version: '2.0.0', name: { en: 'My Google' },
+			url: 'https://google.com/search?q=%s', type: 'text',
+			transformEnabled: true, transformCode: 'return selection;',
+		}).value;
+		const ov = X.toEngineOverride(v, 'en');
+		expect(ov.name).toBe('My Google');
+		expect(ov.url).toBe('https://google.com/search?q=%s');
+		expect(ov.transformEnabled).toBe(true);
+		expect(ov).not.toHaveProperty('id');
+		expect(ov).not.toHaveProperty('builtin');
+		expect(ov).not.toHaveProperty('source');
+	});
+});

@@ -140,22 +140,27 @@
 		return `${prefix}_${uuid.slice(0, 12)}`;
 	}
 
+	// Map one format item to a runtime menu item. idFn(it) decides the item id
+	// (fresh for a new custom menu, or the file's own id when replacing a
+	// standard menu). Labels collapse to the runtime `customName` string.
+	function mapImportItem(it, idFn, lg) {
+		if (it.type === 'separator') return { id: idFn(it), type: 'separator' };
+		const out = { id: idFn(it), action: it.action };
+		const nm = pickLabel(it.label, lg); if (nm) out.customName = nm;
+		if (it.icon != null) out.icon = it.icon;
+		if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
+		if (it.action === 'searchLink') {
+			if (it.engineId) out.engineId = it.engineId;
+			if (it.url) out.url = it.url;
+		}
+		return out;
+	}
+
 	function toCustomMenu(menuValue, source, genId, lang) {
 		const lg = lang || 'en';
 		const g = genId || newId;
-		const menuId = g('menu');
-		const items = (menuValue.items || []).map(it => {
-			if (it.type === 'separator') return { id: g('item'), type: 'separator' };
-			const out = { id: g('item'), action: it.action };
-			const nm = pickLabel(it.label, lg); if (nm) out.customName = nm;
-			if (it.icon != null) out.icon = it.icon;
-			if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
-			if (it.action === 'searchLink') {
-				if (it.engineId) out.engineId = it.engineId;
-				if (it.url) out.url = it.url;
-			}
-			return out;
-		});
+		const menuId = g('menu');   // generate the menu id before item ids (stable order)
+		const items = (menuValue.items || []).map(it => mapImportItem(it, () => g('item'), lg));
 		const def = {
 			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',
@@ -164,6 +169,20 @@
 			source: source ? JSON.parse(JSON.stringify(source)) : null,
 		};
 		return { id: menuId, def };
+	}
+
+	// Build the "edited copy" def used to REPLACE a standard (catalog) menu.
+	// Keeps the file's own item ids so the result aligns with the catalog entry
+	// it overrides (stored at siteMenus.edited[catalogId]).
+	function toStandardMenu(menuValue, lang) {
+		const lg = lang || 'en';
+		const items = (menuValue.items || []).map(it => mapImportItem(it, (x) => x.id, lg));
+		return {
+			name: pickLabel(menuValue.name, lg),
+			icon: menuValue.icon || 'menu',
+			patterns: Array.isArray(menuValue.patterns) ? menuValue.patterns.slice() : [],
+			items,
+		};
 	}
 
 	function toCustomEngine(engineValue, source, genId, lang) {
@@ -184,6 +203,26 @@
 			builtin: false,
 			type: engineValue.type === 'image' ? 'image' : 'text',
 			source: source ? JSON.parse(JSON.stringify(source)) : null,
+		};
+	}
+
+	// Build an override object used to REPLACE a standard (built-in) engine.
+	// Full field set, no id/builtin/source — the engine registry merges this
+	// over the built-in (stored at searchEngines.overrides[builtinId]).
+	function toEngineOverride(engineValue, lang) {
+		return {
+			name: pickLabel(engineValue.name, lang || 'en'),
+			url: engineValue.url || '',
+			plus: !!engineValue.plus,
+			slug: !!engineValue.slug,
+			suffix: engineValue.suffix || '',
+			clipboardMode: !!engineValue.clipboardMode,
+			transformEnabled: !!engineValue.transformEnabled,
+			transformCode: engineValue.transformCode || '',
+			transformClipboard: !!engineValue.transformClipboard,
+			transformRawResult: !!engineValue.transformRawResult,
+			rawResult: !!engineValue.rawResult,
+			type: engineValue.type === 'image' ? 'image' : 'text',
 		};
 	}
 
@@ -240,7 +279,8 @@
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
 		detectType, isHttpsUrl, pickLabel, validate, hasTransform,
-		newId, toCustomMenu, toCustomEngine, menuToExchange, engineToExchange,
+		newId, toCustomMenu, toCustomEngine, toStandardMenu, toEngineOverride,
+		menuToExchange, engineToExchange,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;

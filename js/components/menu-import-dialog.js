@@ -14,6 +14,8 @@ class MenuImportDialog extends LitElement {
 		_result: { state: true },   // { ok, type, errors, value }
 		_source: { state: true },
 		_scriptAck: { state: true },
+		_catalogMatch: { state: true },   // matching catalog menu / built-in engine, or null
+		_importMode: { state: true },     // 'replace' | 'new'
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -38,6 +40,10 @@ class MenuImportDialog extends LitElement {
 			overflow: auto; }
 		.ack { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0; font-size: 13px; }
 		.err { color: var(--danger-color, #d33); font-size: 13px; }
+		.mode { display: flex; flex-direction: column; gap: 6px; margin: 10px 0;
+			padding: 10px; border-radius: 8px; background: var(--bg-secondary, rgba(128,128,128,.08)); }
+		.mode-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+		.mode-opt { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; cursor: pointer; }
 		.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 	`];
 
@@ -47,16 +53,57 @@ class MenuImportDialog extends LitElement {
 		this._result = null;
 		this._source = null;
 		this._scriptAck = false;
+		this._catalogMatch = null;
+		this._importMode = 'new';
 	}
 
 	openWith(rawObject, source) {
 		this._source = source || { type: 'file' };
 		this._result = X().validate(rawObject);
 		this._scriptAck = false;
+		this._catalogMatch = this._result.ok
+			? (this._result.type === 'menu' ? this.#catalogMenuMatch(this._result.value) : this.#catalogEngineMatch(this._result.value))
+			: null;
+		this._importMode = this._catalogMatch ? 'replace' : 'new';
 		this._open = true;
 	}
 
-	#close() { this._open = false; this._result = null; }
+	#close() { this._open = false; this._result = null; this._catalogMatch = null; }
+
+	#catalogMenuMatch(v) {
+		const cat = (window.FlowMouseMenuCatalog && window.FlowMouseMenuCatalog.SITE_MENU_CATALOG) || [];
+		return cat.find(m => m.id === v.id) || null;
+	}
+
+	#catalogEngineMatch(v) {
+		const cat = (window.FlowMouseEngineCatalogApi && window.FlowMouseEngineCatalogApi.ENGINE_CATALOG) || [];
+		return cat.find(e => e.id === v.id) || null;
+	}
+
+	#matchName(match, type, i18n) {
+		if (!match) return '';
+		if (type === 'menu') return match.name || (match.nameKey ? i18n.getMessage(match.nameKey) : '') || match.id;
+		return match.name || match.id;
+	}
+
+	#renderModeChoice(i18n) {
+		if (!this._catalogMatch) return '';
+		const name = this.#matchName(this._catalogMatch, this._result.type, i18n);
+		return html`
+			<div class="mode">
+				<div class="mode-label">${i18n.getMessage('exchangeImportAs')}</div>
+				<label class="mode-opt">
+					<input type="radio" name="importmode" .checked=${this._importMode === 'replace'}
+						@change=${() => { this._importMode = 'replace'; }}>
+					<span>${i18n.getMessage('exchangeReplaceStandard').replace('{name}', name)}</span>
+				</label>
+				<label class="mode-opt">
+					<input type="radio" name="importmode" .checked=${this._importMode === 'new'}
+						@change=${() => { this._importMode = 'new'; }}>
+					<span>${i18n.getMessage('exchangeAddAsNew')}</span>
+				</label>
+			</div>`;
+	}
 
 	#lang() { try { return (window.i18n.getCurrentLanguage() || 'en').split('_')[0]; } catch { return 'en'; } }
 
@@ -70,17 +117,34 @@ class MenuImportDialog extends LitElement {
 		if (!r || !r.ok) return;
 		const version = r.value.version || '1.0.0';
 		const source = { ...this._source, version };
+		const lang = this.#lang();
+		const replace = !!this._catalogMatch && this._importMode === 'replace';
 		let ok;
 		if (r.type === 'menu') {
-			const { id, def } = X().toCustomMenu(r.value, source, undefined, this.#lang());
 			const cur = SettingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
-			const next = { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
+			let next;
+			if (replace) {
+				// Replace the standard menu → behaves like an edited catalog menu.
+				const def = X().toStandardMenu(r.value, lang);
+				next = { ...cur, edited: { ...cur.edited, [this._catalogMatch.id]: def } };
+			} else {
+				const { id, def } = X().toCustomMenu(r.value, source, undefined, lang);
+				next = { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
+			}
 			ok = await SettingsStore.save({ siteMenus: next });
 		} else {
-			const engine = X().toCustomEngine(r.value, source, undefined, this.#lang());
-			if (isFirefox && !r.value.transformRequired) { engine.transformEnabled = false; engine.transformCode = ''; }
 			const cur = SettingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
-			const next = { ...cur, custom: [...(cur.custom || []), engine] };
+			let next;
+			if (replace) {
+				// Replace the built-in engine → behaves like an overridden built-in.
+				const ov = X().toEngineOverride(r.value, lang);
+				if (isFirefox && !r.value.transformRequired) { ov.transformEnabled = false; ov.transformCode = ''; }
+				next = { ...cur, overrides: { ...cur.overrides, [this._catalogMatch.id]: ov } };
+			} else {
+				const engine = X().toCustomEngine(r.value, source, undefined, lang);
+				if (isFirefox && !r.value.transformRequired) { engine.transformEnabled = false; engine.transformCode = ''; }
+				next = { ...cur, custom: [...(cur.custom || []), engine] };
+			}
 			ok = await SettingsStore.save({ searchEngines: next });
 		}
 		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
@@ -122,6 +186,7 @@ class MenuImportDialog extends LitElement {
 						<span class="url">${it.customUrl || it.url || it.engineId || ''}</span>
 					</div>`)}
 			</div>
+			${this.#renderModeChoice(i18n)}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
@@ -146,6 +211,7 @@ class MenuImportDialog extends LitElement {
 						<span>${i18n.getMessage('exchangeScriptConfirm')}</span>
 					</label>
 				</div>` : ''}
+			${this.#renderModeChoice(i18n)}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${script && !this._scriptAck} @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
