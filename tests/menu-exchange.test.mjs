@@ -91,4 +91,14 @@ describe('validate(menu)', () => {
 		m.description = { en: 'x'.repeat(200000) };
 		expect(X.validate(m).ok).toBe(false);
 	});
+	it('rejects an over-long homepage', () => {
+		const m = validMenu();
+		m.homepage = 'https://example.com/' + 'x'.repeat(3000);
+		expect(X.validate(m).ok).toBe(false);
+	});
+	it('rejects an item id with an unsafe charset', () => {
+		const m = validMenu();
+		m.items[0].id = '__pro to__';
+		expect(X.validate(m).ok).toBe(false);
+	});
 });

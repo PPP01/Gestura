@@ -61,7 +61,7 @@
 	}
 
 	function byteLength(obj) {
-		try { return JSON.stringify(obj).length; } catch { return Infinity; }
+		try { return new TextEncoder().encode(JSON.stringify(obj)).length; } catch { return Infinity; }
 	}
 
 	function validateMenu(obj, errors) {
@@ -71,7 +71,7 @@
 		if (obj.name == null || !isLabelField(obj.name, LIMITS.nameMax)) errors.push('name');
 		if (!isLabelField(obj.description, LIMITS.descMax)) errors.push('description');
 		if (obj.icon != null && (typeof obj.icon !== 'string' || obj.icon.length > LIMITS.iconMax)) errors.push('icon');
-		if (obj.homepage != null && !isHttpsUrl(obj.homepage)) errors.push('homepage');
+		if (obj.homepage != null && (!isHttpsUrl(obj.homepage) || obj.homepage.length > LIMITS.urlMax)) errors.push('homepage');
 		if (obj.patterns != null) {
 			if (!Array.isArray(obj.patterns) || obj.patterns.length > LIMITS.patternsMax
 				|| !obj.patterns.every(p => typeof p === 'string' && p.length <= LIMITS.patternMax)) errors.push('patterns');
@@ -81,7 +81,7 @@
 		} else {
 			const seen = new Set();
 			for (const it of obj.items) {
-				if (!it || typeof it !== 'object' || typeof it.id !== 'string' || it.id.length > LIMITS.idMax) { errors.push('itemId'); continue; }
+				if (!it || typeof it !== 'object' || typeof it.id !== 'string' || it.id.length > LIMITS.idMax || !ID_RE.test(it.id)) { errors.push('itemId'); continue; }
 				if (seen.has(it.id)) { errors.push('duplicateItemId'); continue; }
 				seen.add(it.id);
 				if (it.type === 'separator') continue;
