@@ -108,10 +108,15 @@ class SiteMenuManager extends LitElement {
 		this._expandedId = '';
 		this.advancedMode = false;
 		this._unsubscribe = null;
+		// Local SettingsStore.save() does not fire onChange, so imports/edits from
+		// elsewhere (the import dialog, the native context menu) announce via this
+		// window event — mirror engine-manager and refresh on it.
+		this._onCatalogChanged = () => this.requestUpdate();
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
+		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = SettingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed) this.requestUpdate();
 		});
@@ -119,6 +124,7 @@ class SiteMenuManager extends LitElement {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe?.();
 		this._unsubscribe = null;
 	}
