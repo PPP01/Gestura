@@ -436,7 +436,7 @@ git commit -m "feat(exchange): validate gesturaEngine format + transform detecti
 **Interfaces:**
 - Consumes: `validate` (Task 1/2)
 - Produces:
-  - `toCustomMenu(menuValue, source, genId)` → `{ id: string, def: object }` — `def` = `{ name, icon, patterns, items, appendMini?, source }`, alle Item-IDs neu vergeben (`genId('item')`), Menü-ID neu (`genId('menu')`). Labels werden **nicht** aufgelöst (bleiben als String/Objekt; das UI löst per `pickLabel`). `source` wird unverändert übernommen.
+  - `toCustomMenu(menuValue, source, genId)` → `{ id: string, def: object }` — `def` = `{ name, icon, patterns, items, source }`, alle Item-IDs neu vergeben (`genId('item')`), Menü-ID neu (`genId('menu')`). Labels werden **nicht** aufgelöst (bleiben als String/Objekt; das UI löst per `pickLabel`). `source` wird unverändert übernommen. (`appendMini` ist **nicht** Teil des Phase-1-Formats — der Flag lebt in `siteMenus.flags`; ein importiertes Menü ohne Flag erbt den Default über `menuFlag`. Kann später als optionales Formatfeld ergänzt werden, ohne Bruch.)
   - `toCustomEngine(engineValue, source, genId)` → engine-Objekt für `searchEngines.custom` (Felder wie in engine-registry `toEngine`), neue `id` (`genId('eng')`), `builtin: false`, plus `source`.
   - `newId(prefix)` → `"<prefix>_<hex>"` (Default-Generator; nutzt `crypto.randomUUID`)
 
