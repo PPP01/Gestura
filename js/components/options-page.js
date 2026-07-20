@@ -352,9 +352,6 @@ class OptionsPage extends LitElement {
 			await chrome.storage.session.remove('pendingImport');
 		} catch { }
 
-		await this._store.load();
-		this._settings = { ...this._store.current };
-
 		await customElements.whenDefined('menu-import-dialog');
 		let dialog = this.shadowRoot.querySelector('menu-import-dialog');
 		if (!dialog) {
