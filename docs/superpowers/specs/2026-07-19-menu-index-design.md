@@ -46,7 +46,7 @@ Gestura-Nutzer können Menüs und Custom-Engines heute nur lokal anlegen. Es feh
 | Taxonomie | Feste **Kategorien** + freie **Tags** + **Domain-Gruppierung** (aus den URL-Mustern: „github.com → alle Varianten"). |
 | Engines im Index | Ja — Custom-Engines (Suchmaschinen **und** reine Links) sind zweiter Inhaltstyp; JS-Transformationen mit Warnpflicht (s. Abschnitt 6). |
 | Admin-Auth | **Zwei-Faktor-Pflicht** für Admins (s. Abschnitt 2). |
-| Sprachen | **Start mit en/de.** Betrifft: neue Extension-UI-Strings (i18n-Keys in `en` + `de`), Index-Website und Admin-Panel (en/de). Das Austauschformat erlaubt beliebige Sprachen (Sprach-Objekte, `en`-Fallback); weitere UI-Sprachen später. |
+| Sprachen | **Index-Frontend + Admin starten mit en/de** (weitere später). **Die Extension behält ihre Sprachen** (~40 Locales): neue Extension-UI-Strings kommen als i18n-Keys in alle vorhandenen `_locales/*` (Muster wie Site-Menüs, maschinell übersetzt, `en` = Fallback). Das Austauschformat erlaubt beliebige Sprachen (Sprach-Objekte, `en`-Fallback). |
 | Phasierung | **Format → Index → Konten** (drei Sub-Projekte, je eigener Plan). |
 
 ## Nicht-Ziele (YAGNI / bewusst verworfen)
