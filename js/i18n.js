@@ -208,6 +208,7 @@
 			name: 'Chrome',
 			storeLink: 'https://chromewebstore.google.com/',
 			storeNameKey: 'storeNameChrome',
+			gesturaStoreLink: 'https://chromewebstore.google.com/detail/gestura-mausgesten/ddcendiamegpalekoneonjkenhcamjnj',
 			flowmouseStoreLink: 'https://chromewebstore.google.com/detail/fnldhkfidchnjiokpoemdhoejmaojkgp/reviews/my-review?utm_source=item-share-cb',
 			protocol: 'chrome://',
 		},
@@ -215,6 +216,7 @@
 			name: 'Edge',
 			storeLink: 'https://microsoftedge.microsoft.com/addons/',
 			storeNameKey: 'storeNameEdge',
+			gesturaStoreLink: null,
 			flowmouseStoreLink: 'https://microsoftedge.microsoft.com/addons/detail/obaiedbdkdciaknhnmpcpodkndadhncc',
 			protocol: 'edge://'
 		},
@@ -222,6 +224,7 @@
 			name: 'Firefox',
 			storeLink: 'https://addons.mozilla.org/',
 			storeNameKey: 'storeNameFirefox',
+			gesturaStoreLink: 'https://addons.mozilla.org/firefox/addon/gestura-mouse-gestures/',
 			flowmouseStoreLink: 'https://addons.mozilla.org/firefox/addon/flowmouse/',
 			protocol: 'about:'
 		}
@@ -238,11 +241,23 @@
 		const browserType = getBrowserType();
 		const browserConfig = browsers[browserType];
 
+		// Gestura store links for the *other* browsers (for cross-browser promotion).
+		// Skips the current browser and any browser without a live store listing (e.g. Edge).
+		const crossBrowserStores = Object.keys(browsers)
+			.filter(type => type !== browserType && browsers[type].gesturaStoreLink)
+			.map(type => ({
+				browserType: type,
+				name: browsers[type].name,
+				link: browsers[type].gesturaStoreLink,
+			}));
+
 		return {
 			browserType,
 			name: browserConfig.name,
 			storeLink: browserConfig.storeLink,
+			gesturaStoreLink: browserConfig.gesturaStoreLink,
 			flowmouseStoreLink: browserConfig.flowmouseStoreLink,
+			crossBrowserStores,
 			storeName: getMessage(browserConfig.storeNameKey),
 			protocol: browserConfig.protocol,
 		};

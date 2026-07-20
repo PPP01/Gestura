@@ -51,6 +51,30 @@
 		"message": "Gefällt Ihnen Gestura? Bitte geben Sie uns eine 5-Sterne-Bewertung im %appStoreInfo%, um uns zu unterstützen!",
 		"description": "Rating text"
 	},
+	"supportGesturaTitle": {
+		"message": "Unterstützen Sie uns",
+		"description": "Gestura rating row title"
+	},
+	"supportGesturaText": {
+		"message": "Gefällt Ihnen Gestura? Bitte geben Sie uns eine 5-Sterne-Bewertung im %appStoreInfo%, um uns zu unterstützen!",
+		"description": "Gestura rating text"
+	},
+	"supportFlowmouseTitle": {
+		"message": "Unterstützen Sie FlowMouse",
+		"description": "FlowMouse (upstream) support row title"
+	},
+	"supportFlowmouseText": {
+		"message": "Gestura ist ein Fork von FlowMouse. Wenn es Ihnen gefällt, unterstützen Sie bitte auch das Original mit einer Bewertung im %appStoreInfo%.",
+		"description": "FlowMouse (upstream) support text"
+	},
+	"crossBrowserTitle": {
+		"message": "Auch für andere Browser",
+		"description": "Cross-browser availability row title"
+	},
+	"crossBrowserText": {
+		"message": "Gestura gibt es auch für %browserStores% — sagen Sie es weiter!",
+		"description": "Cross-browser availability text; %browserStores% is a list of store links"
+	},
 	"storeNameChrome": {
 		"message": "Chrome Web Store",
 		"description": "Chrome Web Store name"

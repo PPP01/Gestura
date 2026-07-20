@@ -51,6 +51,30 @@
 		"message": "Enjoying Gestura? Please give us a 5-star rating on the %appStoreInfo% to support us!",
 		"description": "Rating text"
 	},
+	"supportGesturaTitle": {
+		"message": "Support Us",
+		"description": "Gestura rating row title"
+	},
+	"supportGesturaText": {
+		"message": "Enjoying Gestura? Please give us a 5-star rating on the %appStoreInfo% to support us!",
+		"description": "Gestura rating text"
+	},
+	"supportFlowmouseTitle": {
+		"message": "Support FlowMouse",
+		"description": "FlowMouse (upstream) support row title"
+	},
+	"supportFlowmouseText": {
+		"message": "Gestura is a fork of FlowMouse. If you like it, please also support the original project with a rating on the %appStoreInfo%.",
+		"description": "FlowMouse (upstream) support text"
+	},
+	"crossBrowserTitle": {
+		"message": "Also on other browsers",
+		"description": "Cross-browser availability row title"
+	},
+	"crossBrowserText": {
+		"message": "Gestura is also available for %browserStores% — spread the word!",
+		"description": "Cross-browser availability text; %browserStores% is a list of store links"
+	},
 	"storeNameChrome": {
 		"message": "Chrome Web Store",
 		"description": "Chrome Web Store name"
