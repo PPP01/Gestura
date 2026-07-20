@@ -21,7 +21,7 @@
 	const LIMITS = {
 		idMax: 128, nameMax: 200, descMax: 2000, iconMax: 64,
 		urlMax: 2000, patternMax: 200, patternsMax: 50,
-		itemsMax: 100, blobMax: 100 * 1024,
+		itemsMax: 100, blobMax: 100 * 1024, transformCodeMax: 10 * 1024,
 	};
 
 	const SEMVER_RE = /^\d{1,5}\.\d{1,5}\.\d{1,5}$/;
@@ -62,6 +62,28 @@
 
 	function byteLength(obj) {
 		try { return new TextEncoder().encode(JSON.stringify(obj)).length; } catch { return Infinity; }
+	}
+
+	function hasTransform(engine) {
+		return !!(engine && engine.transformEnabled
+			&& typeof engine.transformCode === 'string' && engine.transformCode.trim().length > 0);
+	}
+
+	function validateEngine(obj, errors) {
+		if (obj[FORMAT_TYPES.engine] !== CURRENT_FORMAT_VERSION) errors.push('unsupportedFormatVersion');
+		if (typeof obj.id !== 'string' || !ID_RE.test(obj.id) || obj.id.length > LIMITS.idMax) errors.push('id');
+		if (typeof obj.version !== 'string' || !SEMVER_RE.test(obj.version)) errors.push('version');
+		if (obj.name == null || !isLabelField(obj.name, LIMITS.nameMax)) errors.push('name');
+		if (!isHttpsUrl(obj.url) || obj.url.length > LIMITS.urlMax) errors.push('url');
+		if (obj.icon != null && (typeof obj.icon !== 'string' || obj.icon.length > LIMITS.iconMax)) errors.push('icon');
+		if (obj.type != null && obj.type !== 'text' && obj.type !== 'image') errors.push('type');
+		for (const b of ['plus', 'slug', 'clipboardMode', 'rawResult', 'transformEnabled', 'transformClipboard', 'transformRawResult', 'transformRequired']) {
+			if (obj[b] != null && typeof obj[b] !== 'boolean') errors.push(b);
+		}
+		if (obj.suffix != null && (typeof obj.suffix !== 'string' || obj.suffix.length > LIMITS.nameMax)) errors.push('suffix');
+		if (obj.transformCode != null) {
+			if (typeof obj.transformCode !== 'string' || obj.transformCode.length > LIMITS.transformCodeMax) errors.push('transformCode');
+		}
 	}
 
 	function validateMenu(obj, errors) {
@@ -106,14 +128,14 @@
 		if (!type) return { ok: false, type: null, errors: ['notGesturaFormat'], value: null };
 		if (byteLength(obj) > LIMITS.blobMax) errors.push('tooLarge');
 		if (type === 'menu') validateMenu(obj, errors);
-		// engine: siehe Task 2
+		if (type === 'engine') validateEngine(obj, errors);
 		const ok = errors.length === 0;
 		return { ok, type, errors, value: ok ? JSON.parse(JSON.stringify(obj)) : null };
 	}
 
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
-		detectType, isHttpsUrl, pickLabel, validate,
+		detectType, isHttpsUrl, pickLabel, validate, hasTransform,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;

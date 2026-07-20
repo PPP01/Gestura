@@ -102,3 +102,40 @@ describe('validate(menu)', () => {
 		expect(X.validate(m).ok).toBe(false);
 	});
 });
+
+const validEngine = () => ({
+	gesturaEngine: 1,
+	id: 'example-search',
+	version: '1.0.0',
+	name: { en: 'Example Search' },
+	url: 'https://example.com/s?q=%s',
+	type: 'text',
+});
+
+describe('validate(engine)', () => {
+	it('accepts a well-formed engine without transform', () => {
+		const r = X.validate(validEngine());
+		expect(r.ok).toBe(true);
+		expect(r.type).toBe('engine');
+		expect(X.hasTransform(r.value)).toBe(false);
+	});
+	it('accepts an engine with transform and reports hasTransform', () => {
+		const e = { ...validEngine(), transformEnabled: true, transformCode: 'return selection.trim();' };
+		const r = X.validate(e);
+		expect(r.ok).toBe(true);
+		expect(X.hasTransform(r.value)).toBe(true);
+	});
+	it('reports hasTransform false for enabled-but-empty code', () => {
+		expect(X.hasTransform({ transformEnabled: true, transformCode: '   ' })).toBe(false);
+	});
+	it('rejects non-https engine url', () => {
+		expect(X.validate({ ...validEngine(), url: 'http://example.com/s?q=%s' }).ok).toBe(false);
+	});
+	it('rejects oversized transform code', () => {
+		const e = { ...validEngine(), transformEnabled: true, transformCode: 'x'.repeat(11000) };
+		expect(X.validate(e).ok).toBe(false);
+	});
+	it('rejects bad type value', () => {
+		expect(X.validate({ ...validEngine(), type: 'video' }).ok).toBe(false);
+	});
+});
