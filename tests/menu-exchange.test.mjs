@@ -172,3 +172,28 @@ describe('toCustomEngine', () => {
 		expect(e.source.type).toBe('file');
 	});
 });
+
+describe('export round-trip', () => {
+	it('menuToExchange produces a valid menu that re-validates', () => {
+		const def = {
+			name: { en: 'My Menu' }, icon: 'star', patterns: ['*x.example*'],
+			items: [
+				{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', label: { en: 'A' } },
+				{ id: 's', type: 'separator' },
+			],
+		};
+		const out = X.menuToExchange(def, { id: 'com.me.mymenu', version: '2.1.0' });
+		expect(out.gesturaMenu).toBe(1);
+		expect(out.id).toBe('com.me.mymenu');
+		expect(out.version).toBe('2.1.0');
+		expect(out.items[0].id).toBe('a'); // stabile IDs erhalten
+		expect(X.validate(out).ok).toBe(true);
+	});
+	it('engineToExchange produces a valid engine that re-validates', () => {
+		const engine = { name: { en: 'E' }, url: 'https://e.example/?q=%s', type: 'text', transformEnabled: true, transformCode: 'return selection;' };
+		const out = X.engineToExchange(engine, { id: 'my-engine', version: '1.2.3' });
+		expect(out.gesturaEngine).toBe(1);
+		expect(out.transformCode).toBe('return selection;');
+		expect(X.validate(out).ok).toBe(true);
+	});
+});

@@ -186,10 +186,60 @@
 		};
 	}
 
+	function menuToExchange(menuDef, meta) {
+		const m = meta || {};
+		const items = (menuDef.items || []).map(it => {
+			if (it.type === 'separator') return { id: it.id, type: 'separator' };
+			const out = { id: it.id, action: it.action };
+			if (it.label != null) out.label = JSON.parse(JSON.stringify(it.label));
+			if (it.icon != null) out.icon = it.icon;
+			if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
+			if (it.action === 'searchLink') {
+				if (it.engineId) out.engineId = it.engineId;
+				if (it.url) out.url = it.url;
+			}
+			return out;
+		});
+		const out = {
+			gesturaMenu: CURRENT_FORMAT_VERSION,
+			id: m.id || '',
+			version: m.version || '1.0.0',
+			name: JSON.parse(JSON.stringify(menuDef.name || { en: '' })),
+			items,
+		};
+		if (menuDef.icon) out.icon = menuDef.icon;
+		if (Array.isArray(menuDef.patterns) && menuDef.patterns.length) out.patterns = menuDef.patterns.slice();
+		if (m.description != null) out.description = JSON.parse(JSON.stringify(m.description));
+		return out;
+	}
+
+	function engineToExchange(engine, meta) {
+		const m = meta || {};
+		const out = {
+			gesturaEngine: CURRENT_FORMAT_VERSION,
+			id: m.id || '',
+			version: m.version || '1.0.0',
+			name: typeof engine.name === 'string' ? { en: engine.name } : JSON.parse(JSON.stringify(engine.name || { en: '' })),
+			url: engine.url || '',
+			type: engine.type === 'image' ? 'image' : 'text',
+		};
+		for (const b of ['plus', 'slug', 'clipboardMode', 'rawResult']) if (engine[b]) out[b] = true;
+		if (engine.suffix) out.suffix = engine.suffix;
+		if (hasTransform(engine)) {
+			out.transformEnabled = true;
+			out.transformCode = engine.transformCode;
+			if (engine.transformClipboard) out.transformClipboard = true;
+			if (engine.transformRawResult) out.transformRawResult = true;
+			if (engine.transformRequired) out.transformRequired = true;
+		}
+		if (m.description != null) out.description = JSON.parse(JSON.stringify(m.description));
+		return out;
+	}
+
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
 		detectType, isHttpsUrl, pickLabel, validate, hasTransform,
-		newId, toCustomMenu, toCustomEngine,
+		newId, toCustomMenu, toCustomEngine, menuToExchange, engineToExchange,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;
