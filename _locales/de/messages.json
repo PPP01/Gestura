@@ -2798,5 +2798,68 @@
 	"ctxTitlePromptLabel": {
 		"message": "Titel für den Menüeintrag",
 		"description": "Label for the title input when adding a custom menu entry"
+	},
+	"exchangeImportTitle": {
+		"message": "Menü oder Engine importieren"
+	},
+	"exchangeImportFromFile": {
+		"message": "Aus Datei importieren…"
+	},
+	"exchangeImportFromUrl": {
+		"message": "Aus URL importieren…"
+	},
+	"exchangeImportUrlPlaceholder": {
+		"message": "https://example.com/menu.json"
+	},
+	"exchangeExport": {
+		"message": "Exportieren"
+	},
+	"exchangePreviewTitle": {
+		"message": "Import-Vorschau"
+	},
+	"exchangePreviewMenu": {
+		"message": "Menü"
+	},
+	"exchangePreviewEngine": {
+		"message": "Suchmaschine"
+	},
+	"exchangePreviewItems": {
+		"message": "Einträge"
+	},
+	"exchangeConfirmImport": {
+		"message": "Zu Gestura hinzufügen"
+	},
+	"exchangeCancel": {
+		"message": "Abbrechen"
+	},
+	"exchangeInvalid": {
+		"message": "Diese Datei ist kein gültiges Gestura-Menü und keine gültige Engine."
+	},
+	"exchangeInvalidDetail": {
+		"message": "Der Import wurde aus Sicherheitsgründen abgelehnt: $DETAIL$"
+	},
+	"exchangeScriptWarnTitle": {
+		"message": "Diese Engine führt JavaScript aus"
+	},
+	"exchangeScriptWarnBody": {
+		"message": "Sie führt ein Skript aus, um deine Eingabe umzuwandeln. Importiere sie nur, wenn du der Quelle vertraust. Prüfe den Code unten."
+	},
+	"exchangeScriptChromeOnly": {
+		"message": "Skripte laufen nur in Chrome/Chromium. In Firefox wird diese Engine ohne ihr Skript importiert."
+	},
+	"exchangeScriptChromeOnlyRequired": {
+		"message": "Diese Engine benötigt ihr Skript und funktioniert nur in Chrome/Chromium."
+	},
+	"exchangeScriptConfirm": {
+		"message": "Mir ist bewusst, dass dies ein Skript ausführt, und ich vertraue der Quelle"
+	},
+	"exchangeImportedMenu": {
+		"message": "Menü importiert."
+	},
+	"exchangeImportedEngine": {
+		"message": "Engine importiert."
+	},
+	"exchangeFromSite": {
+		"message": "Diese Website bietet ein Gestura-Menü an."
 	}
 }
