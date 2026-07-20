@@ -7,6 +7,7 @@ export default {
 		'tests', 'tests/**',
 		'docs', 'docs/**',
 		'scripts', 'scripts/**',
+		'.superpowers', '.superpowers/**',
 		'node_modules', 'node_modules/**',
 		'web-ext-artifacts', 'web-ext-artifacts/**',
 		'package.json', 'package-lock.json',
