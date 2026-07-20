@@ -85,10 +85,32 @@ Gestura-Nutzer können Menüs und Custom-Engines heute nur lokal anlegen. Es feh
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Backend **und** Svelte-Index-Frontend leben in einem **eigenen Repo** mit
-eigenem Deploy-Zyklus, getrennt von der Extension. Geteilte Vertragsdatei ist
-das **JSON-Schema des Austauschformats** (liegt im Gestura-Repo, wird ins
-Backend übernommen).
+Backend **und** Svelte-Index-Frontend leben in einem **eigenen, öffentlichen
+GitHub-Repo** (`gestura-index`) mit eigenem Deploy-Zyklus, getrennt von der
+Extension. Es ist ein **Monorepo** (Backend + Frontend als Unterordner), kein
+Aufsplitten in mehrere Repos:
+
+```text
+gestura-index/            ← eigenes, öffentliches GitHub-Repo (Geschwister-Ordner zu Gestura, NICHT darin)
+├── backend/              ← Symfony JSON-API
+├── frontend/             ← SvelteKit (öffentliche Website + Admin)
+├── schema/               ← JSON-Schema des Austauschformats (Vertrag, aus Gestura übernommen)
+└── deploy/               ← Deploy-Skripte, CI-Config
+```
+
+Begründung:
+
+- **Getrennt von der Extension:** Der Gestura-Repo-Ordner *ist* die entpackte
+  Extension — Build-Artefakte (`node_modules`, SvelteKit-Output,
+  Composer-`vendor/`) würden Store-Reviewbarkeit und „Load unpacked"
+  verschmutzen; zudem völlig andere Toolchain und anderer Deploy-Zyklus.
+- **Backend + Frontend zusammen in einem Repo:** deployen auf denselben
+  Server, werden gemeinsam versioniert, API-/UI-Änderungen gehören in einen
+  atomaren Commit; eine CI-Pipeline statt zwei.
+
+Geteilte Vertragsdatei ist das **JSON-Schema des Austauschformats** (liegt im
+Gestura-Repo, wird nach `gestura-index/schema/` übernommen — Kopie oder
+Submodule, in der Umsetzung festzulegen).
 
 ### Constraint: Svelte nur im Index-Frontend, Extension bleibt Lit/plain JS
 
@@ -402,6 +424,11 @@ fügt der Extension nur weitere plain-JS-/Lit-Dateien hinzu.
 Der **neue Build-Schritt betrifft ausschließlich das Index-Repo**, nicht die
 Extension.
 
+- **Repo-Einrichtung (Teil von Phase 2):** öffentliches GitHub-Repo
+  `gestura-index` anlegen (Monorepo `backend/`, `frontend/`, `schema/`,
+  `deploy/`), Lizenz + README, `.gitignore` (Composer-`vendor/`,
+  `node_modules/`, Build-Output), Symfony-Skeleton und SvelteKit-Grundgerüst
+  scaffolden, `schema/` initial aus dem Gestura-Repo befüllen.
 - **Index-Frontend (Svelte 5):** SvelteKit mit `adapter-static` (Prerender der
   öffentlichen Seiten für SEO, Admin als client-only SPA) → reine statische
   Dateien, kein Node auf dem Server nötig. `vite build` / `svelte-kit build` →
@@ -455,5 +482,5 @@ Extension.
 | Phase | Inhalt | Abhängigkeit |
 | --- | --- | --- |
 | 1 | (Extension, Lit/plain JS) Austauschformat + Validator + JSON-Schema (Pure-Funktionen), Betreiber-Button, Import (Datei/URL), Export, Import-Vorschau | keine (rein clientseitig) |
-| 2 | (Index-Repo) Symfony-JSON-API (Index, Moderation, Admin), Svelte-Index-Frontend (öffentliche Website + Admin, SvelteKit `adapter-static`) + Deployment-Pipeline; (Extension) Settings-Tab „Menü-Index", Einreichen, Update-Check + Diff | Phase 1 |
+| 2 | **Öffentliches GitHub-Repo `gestura-index` einrichten** (Monorepo backend/frontend/schema/deploy, Skeleton-Scaffolds, `.gitignore`, Lizenz/README); Symfony-JSON-API (Index, Moderation, Admin); Svelte-Index-Frontend (öffentliche Website + Admin, SvelteKit `adapter-static`); Deployment-Pipeline; (Extension) Settings-Tab „Menü-Index", Einreichen, Update-Check + Diff | Phase 1 |
 | 3 | Konten (Passkey), Bewertungen, „Meine Daten", E2E-Settings-Sync, Token-Überführung — Extension-UI in Lit, Konto-Seiten im Svelte-Index-Frontend | Phase 2 |
