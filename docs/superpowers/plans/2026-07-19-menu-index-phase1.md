@@ -1049,7 +1049,7 @@ class MenuImportDialog extends LitElement {
 
 	#close() { this._open = false; this._result = null; }
 
-	#lang() { return (window.i18n && window.i18n.uiLang) ? window.i18n.uiLang : 'en'; }
+	#lang() { try { return (window.i18n.getCurrentLanguage() || 'en').split('_')[0]; } catch { return 'en'; } }
 
 	get #needsScriptAck() {
 		const r = this._result;
