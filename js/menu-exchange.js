@@ -133,9 +133,63 @@
 		return { ok, type, errors, value: ok ? JSON.parse(JSON.stringify(obj)) : null };
 	}
 
+	function newId(prefix) {
+		const uuid = (root.crypto && root.crypto.randomUUID)
+			? root.crypto.randomUUID().replace(/-/g, '')
+			: Math.random().toString(16).slice(2);
+		return `${prefix}_${uuid.slice(0, 12)}`;
+	}
+
+	function toCustomMenu(menuValue, source, genId) {
+		const g = genId || newId;
+		const menuId = g('menu');
+		const items = (menuValue.items || []).map(it => {
+			if (it.type === 'separator') return { id: g('item'), type: 'separator' };
+			const out = { id: g('item'), action: it.action };
+			if (it.label != null) out.label = JSON.parse(JSON.stringify(it.label));
+			if (it.icon != null) out.icon = it.icon;
+			if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
+			if (it.action === 'searchLink') {
+				if (it.engineId) out.engineId = it.engineId;
+				if (it.url) out.url = it.url;
+			}
+			return out;
+		});
+		const def = {
+			name: JSON.parse(JSON.stringify(menuValue.name)),
+			icon: menuValue.icon || 'menu',
+			patterns: Array.isArray(menuValue.patterns) ? menuValue.patterns.slice() : [],
+			items,
+			source: source ? JSON.parse(JSON.stringify(source)) : null,
+		};
+		return { id: menuId, def };
+	}
+
+	function toCustomEngine(engineValue, source, genId) {
+		const g = genId || newId;
+		return {
+			id: g('eng'),
+			name: JSON.parse(JSON.stringify(engineValue.name)),
+			url: engineValue.url || '',
+			plus: !!engineValue.plus,
+			slug: !!engineValue.slug,
+			suffix: engineValue.suffix || '',
+			clipboardMode: !!engineValue.clipboardMode,
+			transformEnabled: !!engineValue.transformEnabled,
+			transformCode: engineValue.transformCode || '',
+			transformClipboard: !!engineValue.transformClipboard,
+			transformRawResult: !!engineValue.transformRawResult,
+			rawResult: !!engineValue.rawResult,
+			builtin: false,
+			type: engineValue.type === 'image' ? 'image' : 'text',
+			source: source ? JSON.parse(JSON.stringify(source)) : null,
+		};
+	}
+
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
 		detectType, isHttpsUrl, pickLabel, validate, hasTransform,
+		newId, toCustomMenu, toCustomEngine,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;

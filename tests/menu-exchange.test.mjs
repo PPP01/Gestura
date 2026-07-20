@@ -139,3 +139,36 @@ describe('validate(engine)', () => {
 		expect(X.validate({ ...validEngine(), type: 'video' }).ok).toBe(false);
 	});
 });
+
+describe('toCustomMenu', () => {
+	it('maps a validated menu to a custom siteMenus entry with fresh ids', () => {
+		const v = X.validate(validMenu()).value;
+		let n = 0;
+		const genId = (p) => `${p}_test${n++}`;
+		const source = { type: 'file', version: '1.0.0' };
+		const { id, def } = X.toCustomMenu(v, source, genId);
+		expect(id).toBe('menu_test0');
+		expect(def.name).toEqual({ en: 'Shop', de: 'Laden' });
+		expect(def.patterns).toEqual(['*example.com*']);
+		expect(def.items).toHaveLength(3);
+		expect(def.items[0].id).toBe('item_test1'); // neue ID
+		expect(def.items[0].action).toBe('openCustomUrl');
+		expect(def.items[0].customUrl).toBe('https://example.com/orders');
+		expect(def.items[1].type).toBe('separator');
+		expect(def.source).toEqual(source);
+	});
+});
+
+describe('toCustomEngine', () => {
+	it('maps a validated engine to a searchEngines.custom entry', () => {
+		const v = X.validate({ ...validEngine(), transformEnabled: true, transformCode: 'return selection;' }).value;
+		const genId = () => 'eng_test';
+		const e = X.toCustomEngine(v, { type: 'file', version: '1.0.0' }, genId);
+		expect(e.id).toBe('eng_test');
+		expect(e.builtin).toBe(false);
+		expect(e.url).toBe('https://example.com/s?q=%s');
+		expect(e.transformEnabled).toBe(true);
+		expect(e.transformCode).toBe('return selection;');
+		expect(e.source.type).toBe('file');
+	});
+});
