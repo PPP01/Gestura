@@ -13,6 +13,17 @@ function downloadJson(obj, filename) {
 	setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Turn a display name into a safe file base name (replaces filesystem-reserved
+// characters and whitespace with '_', caps length); falls back to 'gestura'.
+function sanitizeFilename(name) {
+	const s = String(name || '').trim()
+		.replace(/[<>:"/\\|?*]+/g, '_')
+		.replace(/\s+/g, '_')
+		.replace(/^[._]+|_+$/g, '')
+		.slice(0, 60);
+	return s || 'gestura';
+}
+
 class EngineManager extends LitElement {
 
 	static properties = {
@@ -713,7 +724,7 @@ class EngineManager extends LitElement {
 			id: (engine.source && engine.source.indexId) || engine.id,
 			version: (engine.source && engine.source.version) || '1.0.0',
 		});
-		downloadJson(out, `${engine.id}.gestura-engine.json`);
+		downloadJson(out, `${sanitizeFilename(engine.name || engine.id)}.gestura-engine.json`);
 	}
 
 	#renderRow(eng, idx) {
@@ -756,6 +767,10 @@ class EngineManager extends LitElement {
 							${unsafeHTML(icon(hidden ? 'search' : 'eyeOff', { size: 14, strokeWidth: 2 }))}
 						</button>
 						${hasOverride ? html`
+							<button class="engine-btn" @click=${(e) => { e.stopPropagation(); this.#exportEngine(eng); }}
+								.tooltip=${tooltip(i18n.getMessage('exchangeExport'))}>
+								${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
+							</button>
 							<button class="engine-btn" @click=${() => this.#resetBuiltin(eng.id)}
 								.tooltip=${tooltip(i18n.getMessage('engineReset'))}>
 								${unsafeHTML(icon('rotateCcw', { size: 13, strokeWidth: 2.5 }))}

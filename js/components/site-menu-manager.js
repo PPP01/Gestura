@@ -17,6 +17,17 @@ function downloadJson(obj, filename) {
 	setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Turn a display name into a safe file base name (strips filesystem-reserved
+// characters, collapses whitespace, caps length); falls back to 'gestura'.
+function sanitizeFilename(name) {
+	const s = String(name || '').trim()
+		.replace(/[<>:"/\\|?*]+/g, '_')
+		.replace(/\s+/g, '_')
+		.replace(/^[._]+|_+$/g, '')
+		.slice(0, 60);
+	return s || 'gestura';
+}
+
 // Settings-Sektion „Website-Menüs": Liste aller Standard-Menüs (Katalog +
 // eigene), Ein/Aus, Bearbeiten (site-menu-editor), Zurücksetzen, eigene Menüs
 // anlegen/löschen, Domain-Wahl, plus globale Switcher/Theme-Einstellungen.
@@ -179,11 +190,20 @@ class SiteMenuManager extends LitElement {
 	}
 
 	#exportMenu(m) {
-		const out = window.FlowMouseMenuExchange.menuToExchange(m.def, {
+		const i18n = window.i18n;
+		// Resolve i18n keys to literal text so an edited catalog menu (whose
+		// untouched items still carry labelKey/nameKey) exports real labels,
+		// not empty strings.
+		const labelOf = (it) => it.customName || (it.labelKey ? i18n.getMessage(it.labelKey) : '');
+		const menuName = m.def.name || (m.def.nameKey ? i18n.getMessage(m.def.nameKey) : '') || m.id;
+		const items = (m.def.items || []).map(it =>
+			it.type === 'separator' ? it : { ...it, customName: labelOf(it) });
+		const resolvedDef = { ...m.def, name: menuName, items };
+		const out = window.FlowMouseMenuExchange.menuToExchange(resolvedDef, {
 			id: (m.def.source && m.def.source.indexId) || m.id,
 			version: (m.def.source && m.def.source.version) || '1.0.0',
 		});
-		downloadJson(out, `${m.id}.gestura-menu.json`);
+		downloadJson(out, `${sanitizeFilename(menuName)}.gestura-menu.json`);
 	}
 
 	#renderGlobalSettings() {
@@ -350,11 +370,13 @@ class SiteMenuManager extends LitElement {
 							${unsafeHTML(icon('rotateCcw', { size: 14, strokeWidth: 2 }))}
 						</button>
 					` : ''}
-					${m.isCustom ? html`
+					${(m.isCustom || m.isEdited) ? html`
 						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('exchangeExport'))}
 							@click=${(e) => { e.stopPropagation(); this.#exportMenu(m); }}>
 							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
 						</button>
+					` : ''}
+					${m.isCustom ? html`
 						<button class="menu-btn danger" .tooltip=${tooltip(i18n.getMessage('delete'))}
 							@click=${() => this.#deleteMenu(m)}>
 							${unsafeHTML(icon('trash2', { size: 14, strokeWidth: 2 }))}
