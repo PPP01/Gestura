@@ -105,7 +105,7 @@ class MenuImportDialog extends LitElement {
 		const detail = (r && r.errors) ? r.errors.join(', ') : '';
 		return html`
 			<p class="err">${i18n.getMessage('exchangeInvalid')}</p>
-			<p class="err">${i18n.getMessage('exchangeInvalidDetail').replace('$DETAIL$', detail)}</p>
+			<p class="err">${i18n.getMessage('exchangeInvalidDetail').replace('{detail}', detail)}</p>
 			<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 	}
 

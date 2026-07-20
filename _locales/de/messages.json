@@ -2836,7 +2836,7 @@
 		"message": "Diese Datei ist kein gültiges Gestura-Menü und keine gültige Engine."
 	},
 	"exchangeInvalidDetail": {
-		"message": "Der Import wurde aus Sicherheitsgründen abgelehnt: $DETAIL$"
+		"message": "Der Import wurde aus Sicherheitsgründen abgelehnt: {detail}"
 	},
 	"exchangeScriptWarnTitle": {
 		"message": "Diese Engine führt JavaScript aus"

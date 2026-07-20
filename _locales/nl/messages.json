@@ -2798,7 +2798,7 @@
 		"message": "This file is not a valid Gestura menu or engine."
 	},
 	"exchangeInvalidDetail": {
-		"message": "The import was rejected for safety: $DETAIL$"
+		"message": "The import was rejected for safety: {detail}"
 	},
 	"exchangeScriptWarnTitle": {
 		"message": "This engine runs JavaScript"
