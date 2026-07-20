@@ -2760,5 +2760,77 @@
 	"ctxTitlePromptLabel": {
 		"message": "Titolo della voce di menu",
 		"description": "Label for the title input when adding a custom menu entry"
+	},
+	"exchangeImportTitle": {
+		"message": "Import menu or engine"
+	},
+	"exchangeImportFromFile": {
+		"message": "Import from file…"
+	},
+	"exchangeImportFromUrl": {
+		"message": "Import from URL…"
+	},
+	"exchangeImportUrlPlaceholder": {
+		"message": "https://example.com/menu.json"
+	},
+	"exchangeExport": {
+		"message": "Export"
+	},
+	"exchangePreviewTitle": {
+		"message": "Import preview"
+	},
+	"exchangePreviewMenu": {
+		"message": "Menu"
+	},
+	"exchangePreviewEngine": {
+		"message": "Search engine"
+	},
+	"exchangePreviewItems": {
+		"message": "Entries"
+	},
+	"exchangeConfirmImport": {
+		"message": "Add to Gestura"
+	},
+	"exchangeCancel": {
+		"message": "Cancel"
+	},
+	"exchangeInvalid": {
+		"message": "This file is not a valid Gestura menu or engine."
+	},
+	"exchangeInvalidDetail": {
+		"message": "The import was rejected for safety: {detail}"
+	},
+	"exchangeScriptWarnTitle": {
+		"message": "This engine runs JavaScript"
+	},
+	"exchangeScriptWarnBody": {
+		"message": "It executes a script to transform your input. Only import it if you trust the source. Review the code below."
+	},
+	"exchangeScriptChromeOnly": {
+		"message": "Scripts only run in Chrome/Chromium. In Firefox this engine is imported without its script."
+	},
+	"exchangeScriptChromeOnlyRequired": {
+		"message": "This engine requires its script and only works in Chrome/Chromium."
+	},
+	"exchangeScriptConfirm": {
+		"message": "I understand this runs a script and I trust the source"
+	},
+	"exchangeImportedMenu": {
+		"message": "Menu imported."
+	},
+	"exchangeImportedEngine": {
+		"message": "Engine imported."
+	},
+	"exchangeFromSite": {
+		"message": "This website offers a Gestura menu."
+	},
+	"exchangeImportAs": {
+		"message": "Import as"
+	},
+	"exchangeReplaceStandard": {
+		"message": "Replace the standard «{name}»"
+	},
+	"exchangeAddAsNew": {
+		"message": "Add as a new entry"
 	}
 }

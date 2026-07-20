@@ -282,6 +282,7 @@ class OptionsPage extends LitElement {
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
 		this.addEventListener('navigate-section', this._boundNavigateSection);
 		this.#init();
+		this.#checkPendingImport();
 	}
 
 	disconnectedCallback() {
@@ -329,6 +330,36 @@ class OptionsPage extends LitElement {
 			this.#handleHashNavigation();
 			window.addEventListener('hashchange', () => this.#handleHashNavigation());
 		});
+	}
+
+	// Operator-button import hand-off (see js/content.js + js/background.js
+	// 'importFromSite'): the background service worker stashes the fetched JSON in
+	// chrome.storage.session under 'pendingImport' and opens/focuses this page. Pick it
+	// up once, consume it (remove from session storage so a reload doesn't re-show it),
+	// and hand it to <menu-import-dialog> for validation + preview. Not gated on
+	// #ready/#init — this can run in parallel with settings load.
+	async #checkPendingImport() {
+		let stored;
+		try {
+			stored = await chrome.storage.session.get('pendingImport');
+		} catch {
+			return;
+		}
+		const pending = stored && stored.pendingImport;
+		if (!pending || !pending.json) return;
+
+		try {
+			await chrome.storage.session.remove('pendingImport');
+		} catch { }
+
+		await customElements.whenDefined('menu-import-dialog');
+		let dialog = this.shadowRoot.querySelector('menu-import-dialog');
+		if (!dialog) {
+			dialog = document.createElement('menu-import-dialog');
+			dialog.addEventListener('import-done', () => this.requestUpdate());
+			this.shadowRoot.appendChild(dialog);
+		}
+		dialog.openWith(pending.json, { type: 'site', url: pending.url });
 	}
 
 
@@ -996,21 +1027,45 @@ class OptionsPage extends LitElement {
 								</span>
 								<div class="setting-label">
 									<span>${i18n.getMessage('feedbackTitle')}</span>
-									<span>${unsafeHTML(i18n.getMessage(!i18n.isFirefox && !i18n.isEdge ? 'feedbackTextChrome' : 'feedbackText'))}</span>
+									<span>${unsafeHTML(this.#getFeedbackText())}</span>
 								</div>
 							</div>
 						</div>
+						${i18n.getBrowserInfo().gesturaStoreLink ? html`
 						<div class="setting-row">
 							<div class="setting-left">
 								<span class="setting-icon icon-heart">
 									${unsafeHTML(icons.mdHeart)}
 								</span>
 								<div class="setting-label">
-									<span>${i18n.getMessage('supportUsTitle')}</span>
-									<span>${unsafeHTML(this.#getSupportUsText())}</span>
+									<span>${i18n.getMessage('supportGesturaTitle')}</span>
+									<span>${unsafeHTML(this.#getSupportGesturaText())}</span>
+								</div>
+							</div>
+						</div>` : ''}
+						<div class="setting-row">
+							<div class="setting-left">
+								<span class="setting-icon icon-flowmouse">
+									${unsafeHTML(icon('heart'))}
+								</span>
+								<div class="setting-label">
+									<span>${i18n.getMessage('supportFlowmouseTitle')}</span>
+									<span>${unsafeHTML(this.#getSupportFlowmouseText())}</span>
 								</div>
 							</div>
 						</div>
+						${this.#getCrossBrowserText() ? html`
+						<div class="setting-row">
+							<div class="setting-left">
+								<span class="setting-icon icon-browser">
+									${unsafeHTML(icons.globe)}
+								</span>
+								<div class="setting-label">
+									<span>${i18n.getMessage('crossBrowserTitle')}</span>
+									<span>${unsafeHTML(this.#getCrossBrowserText())}</span>
+								</div>
+							</div>
+						</div>` : ''}
 					</div>
 				</div>
 
@@ -1038,9 +1093,6 @@ class OptionsPage extends LitElement {
 						<div class="footer-privacy">
 							<span class="footer-privacy-icon">${unsafeHTML(icon('lock', { size: 12, strokeWidth: 2 }))}</span>
 							${i18n.getMessage('privacyNote')}
-						</div>
-						<div class="footer-author">
-							Made with <span class="footer-heart-icon">${unsafeHTML(icon('heart'))}</span> by Hmily[LCG] & Coxxs
 						</div>
 					</div>
 				</footer>
@@ -1579,14 +1631,39 @@ class OptionsPage extends LitElement {
 	}
 
 
-	#getSupportUsText() {
+	#getFeedbackText() {
+		const key = (!window.i18n.isFirefox && !window.i18n.isEdge) ? 'feedbackTextChrome' : 'feedbackText';
+		// The Chrome feedback text carries a GESTURA_CWS_ID placeholder in the store-support
+		// link; replace it here so every locale gets a working link without editing each file.
+		return window.i18n.getMessage(key).replace('GESTURA_CWS_ID', 'ddcendiamegpalekoneonjkenhcamjnj');
+	}
+
+	#getSupportGesturaText() {
+		const browserInfo = window.i18n.getBrowserInfo();
+		let storeInfo = browserInfo.storeName;
+		if (browserInfo.gesturaStoreLink) {
+			storeInfo = `<a href="${browserInfo.gesturaStoreLink}" target="_blank">${storeInfo}</a>`;
+		}
+		return window.i18n.getMessage('supportGesturaText').replace('%appStoreInfo%', storeInfo);
+	}
+
+	#getSupportFlowmouseText() {
 		const browserInfo = window.i18n.getBrowserInfo();
 		let storeInfo = browserInfo.storeName;
 		if (browserInfo.flowmouseStoreLink) {
 			storeInfo = `<a href="${browserInfo.flowmouseStoreLink}" target="_blank">${storeInfo}</a>`;
 		}
-		const template = window.i18n.getMessage('supportUsText');
-		return template.replace('%appStoreInfo%', storeInfo);
+		return window.i18n.getMessage('supportFlowmouseText').replace('%appStoreInfo%', storeInfo);
+	}
+
+	#getCrossBrowserText() {
+		const stores = window.i18n.getBrowserInfo().crossBrowserStores;
+		if (!stores || !stores.length) return '';
+		const links = stores.map(s => `<a href="${s.link}" target="_blank">${s.name}</a>`);
+		const list = links.length > 1
+			? `${links.slice(0, -1).join(', ')} &amp; ${links[links.length - 1]}`
+			: links[0];
+		return window.i18n.getMessage('crossBrowserText').replace('%browserStores%', list);
 	}
 
 	#getRestrictedStoreDesc() {

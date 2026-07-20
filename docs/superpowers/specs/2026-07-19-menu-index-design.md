@@ -35,7 +35,9 @@ Gestura-Nutzer können Menüs und Custom-Engines heute nur lokal anlegen. Es feh
 | --- | --- |
 | Zielgruppe | Veröffentlichung von Gestura ist geplant; Index ist Teil davon. |
 | Infrastruktur | Eigener Server, klassisches Webhosting (PHP/MySQL). |
-| Backend-Ansatz | **Symfony** (minimal starten, `symfony/skeleton`), Doctrine/MySQL, WebAuthn-Bundle; Lese-Endpunkte mit `ETag`/`Cache-Control` (statische Materialisierung bleibt spätere Option). |
+| Backend-Ansatz | **Symfony als reine JSON-API** (minimal starten, `symfony/skeleton`), Doctrine/MySQL, WebAuthn-Bundle; kein Twig-Frontend; Lese-Endpunkte mit `ETag`/`Cache-Control` (statische Materialisierung bleibt spätere Option). |
+| Frontend-Stack | **Svelte 5 ausschließlich für das Index-Frontend** (öffentliche Index-Website + Admin-Panel, laufen auf dem Server). **Die Extension bleibt komplett unverändert:** Lit-Komponenten, plain JS, **kein Build-Schritt**. In der Extension entsteht kein Svelte. |
+| Deployment | Automatisiertes Deployment zum Live-Server (Symfony-API + gebautes Svelte-Index-Frontend), s. Abschnitt 7. |
 | Moderation | **Hybrid nach Vertrauen** (s. u.). |
 | Anonymer Besitz | **Geheimer Edit-Token** (lokal gespeichert, Anzeige zum Sichern, Konto-Übernahme möglich). |
 | Bewertungen | **Sterne nur mit Konto** (1/Menü, änderbar) + anonyme aggregierte Install-Zähler. |
@@ -44,6 +46,7 @@ Gestura-Nutzer können Menüs und Custom-Engines heute nur lokal anlegen. Es feh
 | Taxonomie | Feste **Kategorien** + freie **Tags** + **Domain-Gruppierung** (aus den URL-Mustern: „github.com → alle Varianten"). |
 | Engines im Index | Ja — Custom-Engines (Suchmaschinen **und** reine Links) sind zweiter Inhaltstyp; JS-Transformationen mit Warnpflicht (s. Abschnitt 6). |
 | Admin-Auth | **Zwei-Faktor-Pflicht** für Admins (s. Abschnitt 2). |
+| Sprachen | **Index-Frontend + Admin starten mit en/de** (weitere später). **Die Extension behält ihre Sprachen** (~40 Locales): neue Extension-UI-Strings kommen als i18n-Keys in alle vorhandenen `_locales/*` (Muster wie Site-Menüs, maschinell übersetzt, `en` = Fallback). Das Austauschformat erlaubt beliebige Sprachen (Sprach-Objekte, `en`-Fallback). |
 | Phasierung | **Format → Index → Konten** (drei Sub-Projekte, je eigener Plan). |
 
 ## Nicht-Ziele (YAGNI / bewusst verworfen)
@@ -63,23 +66,66 @@ Gestura-Nutzer können Menüs und Custom-Engines heute nur lokal anlegen. Es feh
 ## Architektur-Überblick
 
 ```text
-┌──────────────────────────── Gestura (Extension) ────────────────────────────┐
-│ Austauschformat + Validator (js/menu-exchange.js, pure, geteiltes Schema)   │
-│ Import-Vorschau (Button/URL/Datei/Index — ein Pfad)                         │
-│ Settings-Tab „Menü-Index“ · Einreichen-Dialog · Update-Diff                 │
-│ Konto-Anbindung (Popup-Fenster für WebAuthn) · E2E-Crypto (WebCrypto+Argon2)│
+┌──────────────────────────── Gestura (Extension) — UNVERÄNDERT ──────────────┐
+│ Lit-Komponenten (Options/Popup/Editor…) · Content-Scripts · Service-Worker  │
+│ plain JS, kein Build-Schritt (wie heute)                                     │
+│ NEU hier (weiterhin Lit/plain JS):                                           │
+│   Austauschformat + Validator (js/menu-exchange.js, pure, geteiltes Schema) │
+│   Import-Vorschau (Button/URL/Datei/Index) · Settings-Tab „Menü-Index“      │
+│   Einreichen · Update-Diff · Konto-Anbindung · E2E-Crypto (WebCrypto)       │
 └───────────────┬─────────────────────────────────────────────────────────────┘
                 │ HTTPS, JSON, /api/v1 (Lese-Pfad ETag/Cache-Control)
-┌───────────────▼──────────────── Index-Backend (Symfony, eigenes Repo) ──────┐
-│ API (~12 Endpunkte) · Moderations-Statusmaschine · RateLimiter              │
-│ Doctrine/MySQL: Entry, EntryVersion, Submitter, Report, User, SyncBlob      │
-│ WebAuthn (web-auth/webauthn-symfony-bundle) · Twig: Web-Ansicht + /admin    │
+┌───────────────▼──────────── Index (eigenes Repo, eigener Server) ───────────┐
+│ Index-Frontend (Svelte 5): öffentliche Index-Website + Admin-Panel          │
+│   (prerendered/SPA, konsumiert nur die API) — HIER lebt Svelte              │
+│ Backend (Symfony, reine JSON-API):                                          │
+│   API (~12 Endpunkte) · Moderations-Statusmaschine · RateLimiter           │
+│   Doctrine/MySQL: Entry, EntryVersion, Submitter, Report, User, SyncBlob    │
+│   WebAuthn (web-auth/webauthn-symfony-bundle)                               │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Das Backend lebt in einem **eigenen Repo** mit eigenem Deploy-Zyklus. Geteilte
-Vertragsdatei ist das **JSON-Schema des Austauschformats** (liegt im
-Gestura-Repo, wird ins Backend übernommen).
+Backend **und** Svelte-Index-Frontend leben in einem **eigenen, öffentlichen
+GitHub-Repo** (`gestura-index`) mit eigenem Deploy-Zyklus, getrennt von der
+Extension. Es ist ein **Monorepo** (Backend + Frontend als Unterordner), kein
+Aufsplitten in mehrere Repos:
+
+```text
+gestura-index/            ← eigenes, öffentliches GitHub-Repo (Geschwister-Ordner zu Gestura, NICHT darin)
+├── backend/              ← Symfony JSON-API
+├── frontend/             ← SvelteKit (öffentliche Website + Admin)
+├── schema/               ← JSON-Schema des Austauschformats (Vertrag, aus Gestura übernommen)
+└── deploy/               ← Deploy-Skripte, CI-Config
+```
+
+Begründung:
+
+- **Getrennt von der Extension:** Der Gestura-Repo-Ordner *ist* die entpackte
+  Extension — Build-Artefakte (`node_modules`, SvelteKit-Output,
+  Composer-`vendor/`) würden Store-Reviewbarkeit und „Load unpacked"
+  verschmutzen; zudem völlig andere Toolchain und anderer Deploy-Zyklus.
+- **Backend + Frontend zusammen in einem Repo:** deployen auf denselben
+  Server, werden gemeinsam versioniert, API-/UI-Änderungen gehören in einen
+  atomaren Commit; eine CI-Pipeline statt zwei.
+
+Geteilte Vertragsdatei ist das **JSON-Schema des Austauschformats** (liegt im
+Gestura-Repo, wird nach `gestura-index/schema/` übernommen — Kopie oder
+Submodule, in der Umsetzung festzulegen).
+
+### Constraint: Svelte nur im Index-Frontend, Extension bleibt Lit/plain JS
+
+- **Extension (Gestura-Repo):** komplett unverändert im Stack — Lit-Komponenten
+  für UI, Content-Scripts/Service-Worker als plain JS im IIFE-/Globals-Muster,
+  **kein Build-Schritt**. Alle neuen Extension-Teile dieses Features
+  (Import-Vorschau, Settings-Tab „Menü-Index", Einreichen-Dialog, Update-Diff,
+  Konto-/Sync-UI) werden als **Lit-Komponenten** gebaut, passend zum Bestand.
+- **Pure-Funktionen** (`menu-exchange.js`/Validator, `menu-model.js`,
+  `transform-runner.js`): klassische Skripte + `module.exports`, geteilt
+  zwischen Content-Script, Lit-UI und Node-Tests; das JSON-Schema wird
+  zusätzlich vom Symfony-Backend genutzt.
+- **Svelte lebt ausschließlich im Index-Repo** (öffentliche Website + Admin).
+  Es berührt die Extension nicht; der Extension-Build-Zustand
+  („no build step") bleibt bestehen.
 
 ---
 
@@ -190,7 +236,7 @@ Versioniertes JSON; `formatVersion` (Feldname = Typ) getrennt von inhaltlicher
 - Meldungen ab Schwellwert (konfigurierbar) → automatisch `hidden` bis zur
   Prüfung.
 
-### Admin (`/admin`, Twig — kein SPA)
+### Admin (`/admin`, Svelte-SPA gegen die API)
 
 - Warteschlange, Meldungsliste, Suche, Verstecken/Löschen, Sperren
   (Token-Hash- oder Kontobasiert), Trust-Level setzen.
@@ -204,7 +250,7 @@ Versioniertes JSON; `formatVersion` (Feldname = Typ) getrennt von inhaltlicher
 Optional 1 Screenshot pro Eintrag; serverseitig **neu enkodiert**
 (GD/Imagick → WebP, feste Maximalgröße), niemals Fremd-URLs.
 
-### Client (Gestura)
+### Client (Gestura, Lit-UI wie der Bestand)
 
 - Neuer Settings-Tab **„Menü-Index"**: Suche, Kategorie-/Tag-Filter,
   Domain-Gruppierung, Typ-Filter (Menü/Engine), Detailansicht mit
@@ -285,9 +331,12 @@ oder anonymisiert belassen).
 
 **v1:**
 
-1. **Öffentliche Web-Ansicht** des Index (Twig, serverseitig gerendert):
-   SEO/Entdeckbarkeit, Fallback-Ziel für den Betreiber-Button, Deep-Link
-   „In Gestura öffnen".
+1. **Öffentliche Web-Ansicht** des Index (Svelte 5). Für SEO/Entdeckbarkeit
+   werden die weitgehend statischen Seiten (Startseite, Kategorie-,
+   Detailseiten) **prerendered** (SvelteKit `adapter-static` — reine
+   HTML/JS-Dateien, laufen auf klassischem Hosting ohne Node-SSR); dynamische
+   Suche hydratisiert clientseitig. Dient zugleich als Fallback-Ziel für den
+   Betreiber-Button und liefert Deep-Links „In Gestura öffnen".
 2. **Import per URL & Datei** (s. Abschnitt 1).
 3. **Meldegründe** statt Freitext (s. Datenmodell).
 4. **Deprecation-Hinweis** (Autor markiert „veraltet, Nachfolger: X";
@@ -315,11 +364,15 @@ oder anonymisiert belassen).
 - **Validator beidseitig:** Client validiert vor Anzeige/Import (nie
   ungeprüftes JSON rendern), Server unabhängig bei jeder Einreichung —
   gleiche Regeln via geteiltem JSON-Schema.
-- **Tests Client (vitest):** `menu-exchange.test.mjs` — Validator (Whitelist,
-  URL-Schemata, Formatversionen, bösartige Payloads: `javascript:`-URLs,
-  Riesen-JSON, SemVer-Overflow), Import-Mapping nach `siteMenus.custom` bzw.
-  Engine-Registry, Update-Diff-Berechnung, Same-Origin-Regel des
-  Betreiber-Buttons, Transform-Warnpfad (Abschnitt 6).
+- **Tests Extension (vitest, wie Bestand):** `menu-exchange.test.mjs` —
+  Validator (Whitelist, URL-Schemata, Formatversionen, bösartige Payloads:
+  `javascript:`-URLs, Riesen-JSON, SemVer-Overflow), Import-Mapping nach
+  `siteMenus.custom` bzw. Engine-Registry, Update-Diff-Berechnung,
+  Same-Origin-Regel des Betreiber-Buttons, Transform-Warnpfad (Abschnitt 6).
+  Framework-freie Pure-Funktionen — direkt testbar, kein Svelte im Spiel.
+- **Tests Index-Frontend (Svelte):** leichte Komponententests (Vitest +
+  `@testing-library/svelte`) für Web-Ansicht/Admin — der Großteil der Logik
+  liegt aber im Backend bzw. in den geteilten Pure-Funktionen.
 - **Tests Backend (PHPUnit):** Endpunkte inkl. Auth-Grenzen (anonym / Token /
   Konto / Admin), Moderations-Statusmaschine (inkl. Transform-Ausnahme),
   Rate-Limits, WebAuthn-Flows, Sync-Blob bleibt opak (kein Klartext-Pfad).
@@ -357,6 +410,44 @@ oder anonymisiert belassen).
 
 ---
 
+## Abschnitt 7: Build-Toolchain & Deployment
+
+### Extension: kein Build-Schritt (unverändert)
+
+Die Extension behält ihren Zustand aus [CLAUDE.md](../../../CLAUDE.md) —
+**kein Build, kein Bundler**: Repo-Ordner = entpackte Extension, Lit als
+vendored Bundle, `chrome://extensions`-Reload nach Edits. Das neue Feature
+fügt der Extension nur weitere plain-JS-/Lit-Dateien hinzu.
+
+### Index-Repo: Build (Svelte) + Deployment
+
+Der **neue Build-Schritt betrifft ausschließlich das Index-Repo**, nicht die
+Extension.
+
+- **Repo-Einrichtung (Teil von Phase 2):** öffentliches GitHub-Repo
+  `gestura-index` anlegen (Monorepo `backend/`, `frontend/`, `schema/`,
+  `deploy/`), Lizenz + README, `.gitignore` (Composer-`vendor/`,
+  `node_modules/`, Build-Output), Symfony-Skeleton und SvelteKit-Grundgerüst
+  scaffolden, `schema/` initial aus dem Gestura-Repo befüllen.
+- **Index-Frontend (Svelte 5):** SvelteKit mit `adapter-static` (Prerender der
+  öffentlichen Seiten für SEO, Admin als client-only SPA) → reine statische
+  Dateien, kein Node auf dem Server nötig. `vite build` / `svelte-kit build` →
+  Upload ins Web-Root der Index-Domain.
+- **Backend (Symfony):** PHP ≥ 8.2. `composer install --no-dev -o` lokal/CI,
+  Deploy per Skript (SSH/rsync bzw. Muster wie
+  `\\192.168.60.225\patric\scripts`; Zielumgebung noch zu klären).
+  Migrationen via `doctrine:migrations:migrate` im Deploy-Schritt. Secrets
+  über `.env.local`/Environment außerhalb des Repos.
+- **Pure-Funktionen/Schema:** das JSON-Schema des Austauschformats wird aus dem
+  Gestura-Repo ins Index-Repo übernommen (Kopie oder Submodule — in der
+  Umsetzung festzulegen), damit Client- und Serverregeln nicht driften.
+- **CI (empfohlen):** Pipeline für das Index-Repo, die bei Push Tests
+  (Svelte-Komponententests + PHPUnit) fährt, baut und deployt. Die Extension
+  wird davon nicht berührt und weiterhin manuell/über den Store-Prozess
+  veröffentlicht.
+
+---
+
 ## Risiken & bewusste Entscheidungen
 
 - **Erstes Backend des Projekts:** getrenntes Repo, kleiner API-Umfang,
@@ -377,11 +468,19 @@ oder anonymisiert belassen).
   (lokal bauen, hochladen). Vor Phase 2 einmal verifizieren.
 - **WebAuthn-Popup-Flow aus der Extension:** Browser-Unterschiede (FF/Brave)
   früh in Phase 3 prototypisch testen, bevor die Konto-UI entsteht.
+- **Zwei Stacks bewusst getrennt:** Extension bleibt Lit/plain JS ohne Build
+  (Store-Reviewbarkeit, kein Neuschreiben funktionierender UI); Svelte nur im
+  Index-Repo. Eine Vereinheitlichung auf Svelte in der Extension wurde geprüft
+  und **verworfen** — kein erkennbarer Vorteil, aber Build-Zwang, CSP-Aufwand
+  und ~23 zu portierende Komponenten als Nachteil.
+- **SPA-SEO:** öffentliche Index-Website wird prerendered (`adapter-static`),
+  damit Entdeckbarkeit trotz Svelte erhalten bleibt; rein clientseitig
+  gerenderte Seiten wären für SEO schädlich.
 
 ## Phasierung (je Phase ein eigener Implementierungsplan)
 
 | Phase | Inhalt | Abhängigkeit |
 | --- | --- | --- |
-| 1 | Austauschformat + Validator + JSON-Schema, Betreiber-Button, Import (Datei/URL), Export, Import-Vorschau | keine (rein clientseitig) |
-| 2 | Symfony-Backend (Index, Moderation, Admin, Web-Ansicht), Settings-Tab „Menü-Index", Einreichen, Update-Check + Diff | Phase 1 |
-| 3 | Konten (Passkey), Bewertungen, „Meine Daten", E2E-Settings-Sync, Token-Überführung | Phase 2 |
+| 1 | (Extension, Lit/plain JS) Austauschformat + Validator + JSON-Schema (Pure-Funktionen), Betreiber-Button, Import (Datei/URL), Export, Import-Vorschau | keine (rein clientseitig) |
+| 2 | **Öffentliches GitHub-Repo `gestura-index` einrichten** (Monorepo backend/frontend/schema/deploy, Skeleton-Scaffolds, `.gitignore`, Lizenz/README); Symfony-JSON-API (Index, Moderation, Admin); Svelte-Index-Frontend (öffentliche Website + Admin, SvelteKit `adapter-static`); Deployment-Pipeline; (Extension) Settings-Tab „Menü-Index", Einreichen, Update-Check + Diff | Phase 1 |
+| 3 | Konten (Passkey), Bewertungen, „Meine Daten", E2E-Settings-Sync, Token-Überführung — Extension-UI in Lit, Konto-Seiten im Svelte-Index-Frontend | Phase 2 |

@@ -53,6 +53,40 @@
 })();
 
 
+// Operator-button import: a site can offer <a rel="gestura-menu" href="/menu.json">
+// to hand a ready-made menu/engine to the extension. Same-origin only; validation
+// happens in the trusted background context, never here.
+(function () {
+	'use strict';
+
+	if (window.__gesturaMenuLinkImport) return;
+	window.__gesturaMenuLinkImport = true;
+
+	document.addEventListener('click', (e) => {
+		if (!e.isTrusted) return;
+		const link = e.target && e.target.closest && e.target.closest('a[rel~="gestura-menu"]');
+		if (!link) return;
+
+		let url;
+		try {
+			url = new URL(link.getAttribute('href'), location.href);
+		} catch {
+			return;
+		}
+		if (url.origin !== location.origin) return;
+
+		e.preventDefault();
+		e.stopPropagation();
+
+		try {
+			chrome.runtime.sendMessage({ action: 'importFromSite', url: url.href });
+		} catch {
+			// extension context may be invalidated (e.g. reload mid-navigation); ignore.
+		}
+	}, true);
+})();
+
+
 (function () {
 	'use strict';
 

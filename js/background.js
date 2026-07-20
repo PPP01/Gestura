@@ -1151,6 +1151,64 @@ async function handleAction(request, sender) {
 			}
 			return { success: true };
 		}
+
+		case 'importFromSite':
+			return await importFromSite(request, sender);
+	}
+}
+
+// Operator-button import (<a rel="gestura-menu">): content.js already verified the
+// click was trusted and the link is same-origin with the page; here we re-derive the
+// page origin from sender.tab.url as defense in depth, fetch the JSON with a byte cap
+// (mirrors menu-exchange.js's LIMITS.blobMax so an oversized/malicious response never
+// reaches storage), and hand off to the options page. Validation of the JSON itself
+// happens later, in <menu-import-dialog> (trusted extension context), not here.
+const IMPORT_FROM_SITE_MAX_BYTES = 100 * 1024;
+
+async function importFromSite(request, sender) {
+	let url;
+	try {
+		url = new URL(request.url);
+	} catch {
+		return { success: false, error: 'Invalid URL' };
+	}
+	if (!/^https?:$/.test(url.protocol)) {
+		return { success: false, error: 'Unsupported protocol' };
+	}
+
+	const pageUrl = sender.url || sender.tab?.url;
+	if (pageUrl) {
+		try {
+			if (new URL(pageUrl).origin !== url.origin) {
+				return { success: false, error: 'Cross-origin import blocked' };
+			}
+		} catch { }
+	}
+
+	try {
+		const ctl = new AbortController();
+		const timeout = setTimeout(() => ctl.abort(), 8000);
+		let res;
+		try {
+			res = await fetch(url.href, { signal: ctl.signal, credentials: 'omit', redirect: 'follow' });
+		} finally {
+			clearTimeout(timeout);
+		}
+		if (!res.ok) return { success: false, error: 'Fetch failed: ' + res.status };
+
+		const text = await res.text();
+		if (new TextEncoder().encode(text).length > IMPORT_FROM_SITE_MAX_BYTES) {
+			return { success: false, error: 'Response too large' };
+		}
+		const json = JSON.parse(text);
+
+		await chrome.storage.session.set({
+			pendingImport: { json, url: url.href, ts: Date.now() },
+		});
+		await openOptionsPage('');
+		return { success: true };
+	} catch (e) {
+		return { success: false, error: String(e?.message || e) };
 	}
 }
 

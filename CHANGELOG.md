@@ -7,6 +7,10 @@
 
 ### Unreleased
 
+**New Features:**
+
+- **Share menus and search engines:** any menu or search engine you've added or customized (your own, plus edited website menus and modified built-in engines) can be exported to a portable `.gestura-menu.json` / `.gestura-engine.json` file — named after the entry — and imported again from a file, from a URL, or from a website's own "Add to Gestura" link (`<a rel="gestura-menu">`, same-origin only). When an imported file matches a built-in menu or engine, the import dialog lets you choose whether to **replace the standard** (it then behaves like an edited/overridden entry) or **add it as a new** entry. Every import shows a preview of the entries and their target URLs before anything is added. Imported search engines that run a custom JavaScript transform display a security warning with the full script and a Chrome-only note, and must be explicitly acknowledged before import. This is the client-side foundation for the upcoming optional menu index.
+
 **Fixes & Improvements:**
 
 - **Per-link open settings work again — now per click type:** menu link entries (custom URLs and search entries) can opt into individual open positions per mouse button (left / middle / right), overriding the per-menu and global "Open links" behavior. The default for every link is "Use global menu settings"; existing links keep inheriting automatically. Unconfigured click types still follow the menu/global setting.

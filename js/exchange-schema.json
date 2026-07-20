@@ -1,0 +1,85 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Gestura Exchange Format (menu & engine)",
+	"description": "Portable format for sharing Gestura menus and search engines. The runtime validator lives in js/menu-exchange.js and is authoritative; this file is the shared contract for the future index backend. Beyond this structural schema, the runtime additionally enforces: item ids are unique within a menu; a non-separator menu item must have a whitelisted action; a searchLink item must have either an engineId or an https url.",
+	"x-gestura": {
+		"formatVersion": 1,
+		"types": { "menu": "gesturaMenu", "engine": "gesturaEngine" },
+		"allowedMenuItemActions": ["none", "openCustomUrl", "searchLink", "back", "forward", "refresh", "newTab", "scrollUp", "scrollDown", "scrollToTop", "scrollToBottom"],
+		"limits": {
+			"idMax": 128, "nameMax": 200, "descMax": 2000, "iconMax": 64,
+			"urlMax": 2000, "patternMax": 200, "patternsMax": 50,
+			"itemsMax": 100, "blobMax": 102400, "transformCodeMax": 10240
+		}
+	},
+	"oneOf": [{ "$ref": "#/$defs/menu" }, { "$ref": "#/$defs/engine" }],
+	"$defs": {
+		"label": {
+			"oneOf": [
+				{ "type": "string", "maxLength": 200 },
+				{ "type": "object", "additionalProperties": { "type": "string", "maxLength": 200 } }
+			]
+		},
+		"descriptionLabel": {
+			"oneOf": [
+				{ "type": "string", "maxLength": 2000 },
+				{ "type": "object", "additionalProperties": { "type": "string", "maxLength": 2000 } }
+			]
+		},
+		"menu": {
+			"type": "object",
+			"required": ["gesturaMenu", "id", "version", "name", "items"],
+			"properties": {
+				"gesturaMenu": { "const": 1 },
+				"id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$" },
+				"version": { "type": "string", "pattern": "^\\d{1,5}\\.\\d{1,5}\\.\\d{1,5}$" },
+				"name": { "$ref": "#/$defs/label" },
+				"description": { "$ref": "#/$defs/descriptionLabel" },
+				"icon": { "type": "string", "maxLength": 64 },
+				"homepage": { "type": "string", "format": "uri", "pattern": "^https://", "maxLength": 2000 },
+				"patterns": { "type": "array", "maxItems": 50, "items": { "type": "string", "maxLength": 200 } },
+				"items": {
+					"type": "array", "minItems": 1, "maxItems": 100,
+					"items": {
+						"type": "object",
+						"required": ["id"],
+						"properties": {
+							"id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$" },
+							"type": { "const": "separator" },
+							"action": { "enum": ["none", "openCustomUrl", "searchLink", "back", "forward", "refresh", "newTab", "scrollUp", "scrollDown", "scrollToTop", "scrollToBottom"] },
+							"label": { "$ref": "#/$defs/label" },
+							"icon": { "type": "string", "maxLength": 64 },
+							"customUrl": { "type": "string", "maxLength": 2000, "pattern": "^https://" },
+							"url": { "type": "string", "maxLength": 2000, "pattern": "^https://" },
+							"engineId": { "type": "string", "maxLength": 128 }
+						}
+					}
+				}
+			}
+		},
+		"engine": {
+			"type": "object",
+			"required": ["gesturaEngine", "id", "version", "name", "url"],
+			"properties": {
+				"gesturaEngine": { "const": 1 },
+				"id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$" },
+				"version": { "type": "string", "pattern": "^\\d{1,5}\\.\\d{1,5}\\.\\d{1,5}$" },
+				"name": { "$ref": "#/$defs/label" },
+				"description": { "$ref": "#/$defs/descriptionLabel" },
+				"url": { "type": "string", "maxLength": 2000, "pattern": "^https://" },
+				"icon": { "type": "string", "maxLength": 64 },
+				"type": { "enum": ["text", "image"] },
+				"plus": { "type": "boolean" },
+				"slug": { "type": "boolean" },
+				"suffix": { "type": "string", "maxLength": 200 },
+				"clipboardMode": { "type": "boolean" },
+				"rawResult": { "type": "boolean" },
+				"transformEnabled": { "type": "boolean" },
+				"transformCode": { "type": "string", "maxLength": 10240 },
+				"transformClipboard": { "type": "boolean" },
+				"transformRawResult": { "type": "boolean" },
+				"transformRequired": { "type": "boolean" }
+			}
+		}
+	}
+}

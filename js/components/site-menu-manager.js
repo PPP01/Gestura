@@ -8,6 +8,26 @@ import { menuDisplayName } from './gesture-menu-config.js';
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
 
+function downloadJson(obj, filename) {
+	const blob = new Blob([JSON.stringify(obj, null, '\t')], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url; a.download = filename;
+	a.click();
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Turn a display name into a safe file base name (strips filesystem-reserved
+// characters, collapses whitespace, caps length); falls back to 'gestura'.
+function sanitizeFilename(name) {
+	const s = String(name || '').trim()
+		.replace(/[<>:"/\\|?*]+/g, '_')
+		.replace(/\s+/g, '_')
+		.replace(/^[._]+|_+$/g, '')
+		.slice(0, 60);
+	return s || 'gestura';
+}
+
 // Settings-Sektion „Website-Menüs": Liste aller Standard-Menüs (Katalog +
 // eigene), Ein/Aus, Bearbeiten (site-menu-editor), Zurücksetzen, eigene Menüs
 // anlegen/löschen, Domain-Wahl, plus globale Switcher/Theme-Einstellungen.
@@ -77,6 +97,9 @@ class SiteMenuManager extends LitElement {
 			.menu-btn.flag:hover { opacity: 0.75; color: var(--text-muted); }
 			.menu-btn.flag.on { opacity: 1; color: var(--accent-color); }
 			.menu-btn.flag.on:hover { color: var(--accent-color); }
+			.import-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+			.import-url { flex: 1; min-width: 160px; font: inherit; font-size: 12px; padding: 5px 8px;
+				border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: inherit; }
 		`,
 	];
 
@@ -85,10 +108,15 @@ class SiteMenuManager extends LitElement {
 		this._expandedId = '';
 		this.advancedMode = false;
 		this._unsubscribe = null;
+		// Local SettingsStore.save() does not fire onChange, so imports/edits from
+		// elsewhere (the import dialog, the native context menu) announce via this
+		// window event — mirror engine-manager and refresh on it.
+		this._onCatalogChanged = () => this.requestUpdate();
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
+		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = SettingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed) this.requestUpdate();
 		});
@@ -96,6 +124,7 @@ class SiteMenuManager extends LitElement {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe?.();
 		this._unsubscribe = null;
 	}
@@ -130,7 +159,57 @@ class SiteMenuManager extends LitElement {
 				${unsafeHTML(icon('plus', { size: 13, strokeWidth: 2.5 }))}
 				<span>${i18n.getMessage('siteMenuAddCustom')}</span>
 			</button>
+			<div class="import-bar">
+				<button class="btn btn-ghost" @click=${() => this.#importFile()}>${i18n.getMessage('exchangeImportFromFile')}</button>
+				<input class="import-url" type="url" placeholder=${i18n.getMessage('exchangeImportUrlPlaceholder')}
+					@keydown=${(e) => { if (e.key === 'Enter') this.#importUrl(e.target.value); }}>
+				<button class="btn btn-ghost" @click=${(e) => this.#importUrl(e.target.previousElementSibling.value)}>${i18n.getMessage('exchangeImportFromUrl')}</button>
+				<menu-import-dialog @import-done=${() => this.requestUpdate()}></menu-import-dialog>
+			</div>
 		`;
+	}
+
+	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }
+
+	async #importFile() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = 'application/json,.json';
+		input.onchange = async () => {
+			const file = input.files[0];
+			if (!file) return;
+			try {
+				const obj = JSON.parse(await file.text());
+				this.#dialog().openWith(obj, { type: 'file' });
+			} catch { this.#dialog().openWith({}, { type: 'file' }); }
+		};
+		input.click();
+	}
+
+	async #importUrl(url) {
+		if (!url) return;
+		try {
+			const res = await fetch(url);
+			const obj = await res.json();
+			this.#dialog().openWith(obj, { type: 'url', url });
+		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
+	}
+
+	#exportMenu(m) {
+		const i18n = window.i18n;
+		// Resolve i18n keys to literal text so an edited catalog menu (whose
+		// untouched items still carry labelKey/nameKey) exports real labels,
+		// not empty strings.
+		const labelOf = (it) => it.customName || (it.labelKey ? i18n.getMessage(it.labelKey) : '');
+		const menuName = m.def.name || (m.def.nameKey ? i18n.getMessage(m.def.nameKey) : '') || m.id;
+		const items = (m.def.items || []).map(it =>
+			it.type === 'separator' ? it : { ...it, customName: labelOf(it) });
+		const resolvedDef = { ...m.def, name: menuName, items };
+		const out = window.FlowMouseMenuExchange.menuToExchange(resolvedDef, {
+			id: (m.def.source && m.def.source.indexId) || m.id,
+			version: (m.def.source && m.def.source.version) || '1.0.0',
+		});
+		downloadJson(out, `${sanitizeFilename(menuName)}.gestura-menu.json`);
 	}
 
 	#renderGlobalSettings() {
@@ -295,6 +374,12 @@ class SiteMenuManager extends LitElement {
 						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('siteMenuReset'))}
 							@click=${() => this.#resetMenu(m)}>
 							${unsafeHTML(icon('rotateCcw', { size: 14, strokeWidth: 2 }))}
+						</button>
+					` : ''}
+					${(m.isCustom || m.isEdited) ? html`
+						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('exchangeExport'))}
+							@click=${(e) => { e.stopPropagation(); this.#exportMenu(m); }}>
+							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
 						</button>
 					` : ''}
 					${m.isCustom ? html`

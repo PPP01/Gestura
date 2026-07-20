@@ -321,6 +321,20 @@ header .version {
 	border-color: oklch(from var(--icon-color) l c h / 10%);
 }
 
+.icon-flowmouse {
+	--icon-color: #a855f7;
+	background: oklch(from var(--icon-color) l c h / 12%);
+	color: var(--icon-color);
+	border-color: oklch(from var(--icon-color) l c h / 10%);
+}
+
+.icon-browser {
+	--icon-color: #0082e6;
+	background: oklch(from var(--icon-color) l c h / 12%);
+	color: var(--icon-color);
+	border-color: oklch(from var(--icon-color) l c h / 10%);
+}
+
 :host-context([data-theme="dark"]) .icon-theme { 
 	--icon-color: #70b3f7; 
 	background: oklch(from var(--icon-color) l c h / 18%); 
@@ -333,9 +347,17 @@ header .version {
 	--icon-color: #f8c655; 
 	background: oklch(from var(--icon-color) l c h / 18%); 
 }
-:host-context([data-theme="dark"]) .icon-heart { 
-	--icon-color: #ff7b74; 
-	background: oklch(from var(--icon-color) l c h / 18%); 
+:host-context([data-theme="dark"]) .icon-heart {
+	--icon-color: #ff7b74;
+	background: oklch(from var(--icon-color) l c h / 18%);
+}
+:host-context([data-theme="dark"]) .icon-flowmouse {
+	--icon-color: #c77dff;
+	background: oklch(from var(--icon-color) l c h / 18%);
+}
+:host-context([data-theme="dark"]) .icon-browser {
+	--icon-color: #70b3f7;
+	background: oklch(from var(--icon-color) l c h / 18%);
 }
 
 input[type="color"] {
@@ -1173,20 +1195,6 @@ color-picker {
 	height: 14px;
 }
 
-.footer-author .footer-heart-icon {
-	transition: color 0.2s ease;
-}
-
-.footer-author:hover .footer-heart-icon {
-	color: oklch(0.67 0.21 23.93);
-}
-
-.footer-heart-icon svg {
-	transform: translateY(2px);
-	width: 12px;
-	height: 12px;
-}
-
 .footer-bottom {
 	display: flex;
 	align-items: center;
@@ -1209,11 +1217,6 @@ color-picker {
 .footer-privacy-icon svg {
 	width: 12px;
 	height: 12px;
-}
-
-.footer-author {
-	font-size: 11.5px;
-	color: var(--text-muted);
 }
 
 .inline-icon svg {

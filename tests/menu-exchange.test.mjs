@@ -1,0 +1,274 @@
+import { describe, it, expect } from 'vitest';
+import '../js/menu-exchange.js';
+const X = globalThis.FlowMouseMenuExchange;
+
+const validMenu = () => ({
+	gesturaMenu: 1,
+	id: 'com.example.shop',
+	version: '1.0.0',
+	name: { en: 'Shop', de: 'Laden' },
+	icon: 'cart',
+	patterns: ['*example.com*'],
+	items: [
+		{ id: 'orders', label: { en: 'Orders' }, icon: 'package', action: 'openCustomUrl', customUrl: 'https://example.com/orders' },
+		{ id: 'sep1', type: 'separator' },
+		{ id: 'search', label: { en: 'Search' }, action: 'searchLink', url: 'https://example.com/s?q=%s' },
+	],
+});
+
+describe('detectType', () => {
+	it('detects menu and engine and null', () => {
+		expect(X.detectType({ gesturaMenu: 1 })).toBe('menu');
+		expect(X.detectType({ gesturaEngine: 1 })).toBe('engine');
+		expect(X.detectType({})).toBe(null);
+		expect(X.detectType(null)).toBe(null);
+	});
+});
+
+describe('isHttpsUrl', () => {
+	it('accepts https only', () => {
+		expect(X.isHttpsUrl('https://a.example/x')).toBe(true);
+		expect(X.isHttpsUrl('http://a.example/x')).toBe(false);
+		expect(X.isHttpsUrl('javascript:alert(1)')).toBe(false);
+		expect(X.isHttpsUrl('data:text/html,x')).toBe(false);
+		expect(X.isHttpsUrl('file:///etc/passwd')).toBe(false);
+		expect(X.isHttpsUrl('not a url')).toBe(false);
+	});
+});
+
+describe('pickLabel', () => {
+	it('prefers lang, falls back to en, then to string', () => {
+		expect(X.pickLabel({ en: 'Orders', de: 'Bestellungen' }, 'de')).toBe('Bestellungen');
+		expect(X.pickLabel({ en: 'Orders' }, 'de')).toBe('Orders');
+		expect(X.pickLabel('Plain', 'de')).toBe('Plain');
+		expect(X.pickLabel(null, 'de')).toBe('');
+	});
+});
+
+describe('validate(menu)', () => {
+	it('accepts a well-formed menu', () => {
+		const r = X.validate(validMenu());
+		expect(r.ok).toBe(true);
+		expect(r.type).toBe('menu');
+		expect(r.errors).toEqual([]);
+		expect(r.value.items).toHaveLength(3);
+	});
+	it('rejects unsupported format version', () => {
+		const r = X.validate({ ...validMenu(), gesturaMenu: 2 });
+		expect(r.ok).toBe(false);
+		expect(r.errors.join()).toMatch(/format/i);
+	});
+	it('rejects missing id / bad semver', () => {
+		expect(X.validate({ ...validMenu(), id: '' }).ok).toBe(false);
+		expect(X.validate({ ...validMenu(), version: '1.0' }).ok).toBe(false);
+		expect(X.validate({ ...validMenu(), version: '999999.0.0' }).ok).toBe(false);
+	});
+	it('rejects non-https item url and javascript url', () => {
+		const m = validMenu();
+		m.items[0].customUrl = 'http://example.com/x';
+		expect(X.validate(m).ok).toBe(false);
+		const m2 = validMenu();
+		m2.items[0].customUrl = 'javascript:alert(1)';
+		expect(X.validate(m2).ok).toBe(false);
+	});
+	it('rejects a disallowed action', () => {
+		const m = validMenu();
+		m.items[0].action = 'sendExtensionMessage';
+		expect(X.validate(m).ok).toBe(false);
+	});
+	it('rejects duplicate item ids', () => {
+		const m = validMenu();
+		m.items[2].id = 'orders';
+		expect(X.validate(m).ok).toBe(false);
+	});
+	it('rejects too many items', () => {
+		const m = validMenu();
+		m.items = Array.from({ length: 101 }, (_, i) => ({ id: 'i' + i, action: 'openCustomUrl', customUrl: 'https://x.example/' + i }));
+		expect(X.validate(m).ok).toBe(false);
+	});
+	it('rejects an oversized blob', () => {
+		const m = validMenu();
+		m.description = { en: 'x'.repeat(200000) };
+		expect(X.validate(m).ok).toBe(false);
+	});
+	it('rejects an over-long homepage', () => {
+		const m = validMenu();
+		m.homepage = 'https://example.com/' + 'x'.repeat(3000);
+		expect(X.validate(m).ok).toBe(false);
+	});
+	it('rejects an item id with an unsafe charset', () => {
+		const m = validMenu();
+		m.items[0].id = '__pro to__';
+		expect(X.validate(m).ok).toBe(false);
+	});
+});
+
+const validEngine = () => ({
+	gesturaEngine: 1,
+	id: 'example-search',
+	version: '1.0.0',
+	name: { en: 'Example Search' },
+	url: 'https://example.com/s?q=%s',
+	type: 'text',
+});
+
+describe('validate(engine)', () => {
+	it('accepts a well-formed engine without transform', () => {
+		const r = X.validate(validEngine());
+		expect(r.ok).toBe(true);
+		expect(r.type).toBe('engine');
+		expect(X.hasTransform(r.value)).toBe(false);
+	});
+	it('accepts an engine with transform and reports hasTransform', () => {
+		const e = { ...validEngine(), transformEnabled: true, transformCode: 'return selection.trim();' };
+		const r = X.validate(e);
+		expect(r.ok).toBe(true);
+		expect(X.hasTransform(r.value)).toBe(true);
+	});
+	it('reports hasTransform false for enabled-but-empty code', () => {
+		expect(X.hasTransform({ transformEnabled: true, transformCode: '   ' })).toBe(false);
+	});
+	it('rejects non-https engine url', () => {
+		expect(X.validate({ ...validEngine(), url: 'http://example.com/s?q=%s' }).ok).toBe(false);
+	});
+	it('rejects oversized transform code', () => {
+		const e = { ...validEngine(), transformEnabled: true, transformCode: 'x'.repeat(11000) };
+		expect(X.validate(e).ok).toBe(false);
+	});
+	it('rejects bad type value', () => {
+		expect(X.validate({ ...validEngine(), type: 'video' }).ok).toBe(false);
+	});
+});
+
+describe('toCustomMenu', () => {
+	it('maps a validated menu to a custom siteMenus entry with fresh ids', () => {
+		const v = X.validate(validMenu()).value;
+		let n = 0;
+		const genId = (p) => `${p}_test${n++}`;
+		const source = { type: 'file', version: '1.0.0' };
+		const { id, def } = X.toCustomMenu(v, source, genId);
+		expect(id).toBe('menu_test0');
+		expect(def.name).toBe('Shop');
+		expect(def.patterns).toEqual(['*example.com*']);
+		expect(def.items).toHaveLength(3);
+		expect(def.items[0].id).toBe('item_test1'); // neue ID
+		expect(def.items[0].action).toBe('openCustomUrl');
+		expect(def.items[0].customUrl).toBe('https://example.com/orders');
+		expect(def.items[0].customName).toBe('Orders');
+		expect(def.items[0].label).toBeUndefined();
+		expect(def.items[1].type).toBe('separator');
+		expect(def.source).toEqual(source);
+	});
+});
+
+describe('toCustomEngine', () => {
+	it('maps a validated engine to a searchEngines.custom entry', () => {
+		const v = X.validate({ ...validEngine(), transformEnabled: true, transformCode: 'return selection;' }).value;
+		const genId = () => 'eng_test';
+		const e = X.toCustomEngine(v, { type: 'file', version: '1.0.0' }, genId);
+		expect(e.id).toBe('eng_test');
+		expect(e.name).toBe('Example Search');
+		expect(e.builtin).toBe(false);
+		expect(e.url).toBe('https://example.com/s?q=%s');
+		expect(e.transformEnabled).toBe(true);
+		expect(e.transformCode).toBe('return selection;');
+		expect(e.source.type).toBe('file');
+	});
+});
+
+describe('export round-trip', () => {
+	it('menuToExchange produces a valid menu that re-validates', () => {
+		const def = {
+			name: { en: 'My Menu' }, icon: 'star', patterns: ['*x.example*'],
+			items: [
+				{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', customName: 'A' },
+				{ id: 's', type: 'separator' },
+			],
+		};
+		const out = X.menuToExchange(def, { id: 'com.me.mymenu', version: '2.1.0' });
+		expect(out.gesturaMenu).toBe(1);
+		expect(out.id).toBe('com.me.mymenu');
+		expect(out.version).toBe('2.1.0');
+		expect(out.items[0].id).toBe('a'); // stabile IDs erhalten
+		expect(out.items[0].label).toBe('A');
+		expect(X.validate(out).ok).toBe(true);
+	});
+	it('engineToExchange produces a valid engine that re-validates', () => {
+		const engine = { name: { en: 'E' }, url: 'https://e.example/?q=%s', type: 'text', transformEnabled: true, transformCode: 'return selection;' };
+		const out = X.engineToExchange(engine, { id: 'my-engine', version: '1.2.3' });
+		expect(out.gesturaEngine).toBe(1);
+		expect(out.transformCode).toBe('return selection;');
+		expect(X.validate(out).ok).toBe(true);
+	});
+	it('engineToExchange omits all transform fields when hasTransform is false', () => {
+		const engine = { name: { en: 'E' }, url: 'https://e.example/?q=%s', type: 'text', transformEnabled: false, transformCode: 'return selection;' };
+		const out = X.engineToExchange(engine, { id: 'my-engine', version: '1.0.0' });
+		expect(out.transformEnabled).toBeUndefined();
+		expect(out.transformCode).toBeUndefined();
+		expect(out.transformClipboard).toBeUndefined();
+		expect(out.transformRawResult).toBeUndefined();
+		expect(out.transformRequired).toBeUndefined();
+		// enabled-but-empty code must also count as "no transform"
+		const out2 = X.engineToExchange({ ...engine, transformEnabled: true, transformCode: '   ' }, { id: 'my-engine', version: '1.0.0' });
+		expect(out2.transformEnabled).toBeUndefined();
+		expect(out2.transformCode).toBeUndefined();
+	});
+	it('menuToExchange output shares no references with its input (deep copy)', () => {
+		const def = {
+			name: { en: 'My Menu' }, icon: 'star', patterns: ['*x.example*'],
+			items: [{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', customName: 'A' }],
+		};
+		const out = X.menuToExchange(def, { id: 'com.me.mymenu', version: '1.0.0' });
+		out.patterns[0] = 'MUTATED';
+		expect(def.patterns[0]).toBe('*x.example*');
+	});
+	it('real-settings round-trip preserves names', () => {
+		const def = {
+			name: 'My Shop', icon: 'cart', patterns: ['*shop.example*'],
+			items: [{ id: 'o', action: 'openCustomUrl', customUrl: 'https://shop.example/o', customName: 'Orders' }],
+		};
+		const ex = X.menuToExchange(def, { id: 'com.me.shop', version: '1.0.0' });
+		expect(ex.items[0].label).toBe('Orders');
+		expect(X.validate(ex).ok).toBe(true);
+		const { def: def2 } = X.toCustomMenu(X.validate(ex).value, { type: 'file' }, (p) => p + '_1');
+		expect(def2.items[0].customName).toBe('Orders');
+		expect(def2.name).toBe('My Shop');
+
+		const ex2 = X.engineToExchange({ name: 'My Engine', url: 'https://e.example/?q=%s', type: 'text' }, { id: 'my-eng', version: '1.0.0' });
+		const eng2 = X.toCustomEngine(X.validate(ex2).value, { type: 'file' }, () => 'eng_1');
+		expect(eng2.name).toBe('My Engine');
+	});
+});
+
+describe('replace-standard mappers', () => {
+	it('toStandardMenu keeps file item ids and resolves labels to customName', () => {
+		const v = X.validate({
+			gesturaMenu: 1, id: 'github', version: '2.0.0', name: { en: 'GitHub' }, icon: 'github',
+			patterns: ['*github.com*'],
+			items: [
+				{ id: 'gh-home', action: 'openCustomUrl', customUrl: 'https://github.com/dashboard', label: { en: 'Home' } },
+				{ id: 'gh-sep', type: 'separator' },
+			],
+		}).value;
+		const def = X.toStandardMenu(v, 'en');
+		expect(def.name).toBe('GitHub');
+		expect(def.items[0].id).toBe('gh-home');           // file id kept, not regenerated
+		expect(def.items[0].customName).toBe('Home');
+		expect(def.items[1]).toEqual({ id: 'gh-sep', type: 'separator' });
+		expect(def).not.toHaveProperty('source');
+	});
+	it('toEngineOverride yields a builtin-less, id-less override with string name', () => {
+		const v = X.validate({
+			gesturaEngine: 1, id: 'google', version: '2.0.0', name: { en: 'My Google' },
+			url: 'https://google.com/search?q=%s', type: 'text',
+			transformEnabled: true, transformCode: 'return selection;',
+		}).value;
+		const ov = X.toEngineOverride(v, 'en');
+		expect(ov.name).toBe('My Google');
+		expect(ov.url).toBe('https://google.com/search?q=%s');
+		expect(ov.transformEnabled).toBe(true);
+		expect(ov).not.toHaveProperty('id');
+		expect(ov).not.toHaveProperty('builtin');
+		expect(ov).not.toHaveProperty('source');
+	});
+});
