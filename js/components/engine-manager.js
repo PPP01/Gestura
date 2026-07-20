@@ -4,6 +4,15 @@ import { icon } from '../icons.js';
 import { SettingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 
+function downloadJson(obj, filename) {
+	const blob = new Blob([JSON.stringify(obj, null, '\t')], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url; a.download = filename;
+	a.click();
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 class EngineManager extends LitElement {
 
 	static properties = {
@@ -262,6 +271,10 @@ class EngineManager extends LitElement {
 				color: var(--accent-color);
 				box-shadow: 0 0 0 0.75px var(--border-color);
 			}
+
+			.import-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+			.import-url { flex: 1; min-width: 160px; font: inherit; font-size: 12px; padding: 5px 8px;
+				border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: inherit; }
 		`,
 	];
 
@@ -658,7 +671,49 @@ class EngineManager extends LitElement {
 					<span>${i18n.getMessage('engineAddCustom')}</span>
 				</button>
 			`}
+
+			<div class="import-bar">
+				<button class="btn btn-ghost" @click=${() => this.#importFile()}>${i18n.getMessage('exchangeImportFromFile')}</button>
+				<input class="import-url" type="url" placeholder=${i18n.getMessage('exchangeImportUrlPlaceholder')}
+					@keydown=${(e) => { if (e.key === 'Enter') this.#importUrl(e.target.value); }}>
+				<button class="btn btn-ghost" @click=${(e) => this.#importUrl(e.target.previousElementSibling.value)}>${i18n.getMessage('exchangeImportFromUrl')}</button>
+				<menu-import-dialog @import-done=${() => this.requestUpdate()}></menu-import-dialog>
+			</div>
 		`;
+	}
+
+	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }
+
+	async #importFile() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = 'application/json,.json';
+		input.onchange = async () => {
+			const file = input.files[0];
+			if (!file) return;
+			try {
+				const obj = JSON.parse(await file.text());
+				this.#dialog().openWith(obj, { type: 'file' });
+			} catch { this.#dialog().openWith({}, { type: 'file' }); }
+		};
+		input.click();
+	}
+
+	async #importUrl(url) {
+		if (!url) return;
+		try {
+			const res = await fetch(url);
+			const obj = await res.json();
+			this.#dialog().openWith(obj, { type: 'url', url });
+		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
+	}
+
+	#exportEngine(engine) {
+		const out = window.FlowMouseMenuExchange.engineToExchange(engine, {
+			id: (engine.source && engine.source.indexId) || engine.id,
+			version: (engine.source && engine.source.version) || '1.0.0',
+		});
+		downloadJson(out, `${engine.id}.gestura-engine.json`);
 	}
 
 	#renderRow(eng, idx) {
@@ -707,6 +762,10 @@ class EngineManager extends LitElement {
 							</button>
 						` : ''}
 					` : html`
+						<button class="engine-btn" @click=${(e) => { e.stopPropagation(); this.#exportEngine(eng); }}
+							.tooltip=${tooltip(i18n.getMessage('exchangeExport'))}>
+							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
+						</button>
 						<button class="engine-btn danger" @click=${() => this.#deleteCustom(eng.id)}
 							.tooltip=${tooltip(i18n.getMessage('engineDelete'))}>
 							${unsafeHTML(icon('trash2', { size: 14, strokeWidth: 2 }))}
