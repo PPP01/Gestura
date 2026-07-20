@@ -196,4 +196,30 @@ describe('export round-trip', () => {
 		expect(out.transformCode).toBe('return selection;');
 		expect(X.validate(out).ok).toBe(true);
 	});
+	it('engineToExchange omits all transform fields when hasTransform is false', () => {
+		const engine = { name: { en: 'E' }, url: 'https://e.example/?q=%s', type: 'text', transformEnabled: false, transformCode: 'return selection;' };
+		const out = X.engineToExchange(engine, { id: 'my-engine', version: '1.0.0' });
+		expect(out.transformEnabled).toBeUndefined();
+		expect(out.transformCode).toBeUndefined();
+		expect(out.transformClipboard).toBeUndefined();
+		expect(out.transformRawResult).toBeUndefined();
+		expect(out.transformRequired).toBeUndefined();
+		// enabled-but-empty code must also count as "no transform"
+		const out2 = X.engineToExchange({ ...engine, transformEnabled: true, transformCode: '   ' }, { id: 'my-engine', version: '1.0.0' });
+		expect(out2.transformEnabled).toBeUndefined();
+		expect(out2.transformCode).toBeUndefined();
+	});
+	it('menuToExchange output shares no references with its input (deep copy)', () => {
+		const def = {
+			name: { en: 'My Menu' }, icon: 'star', patterns: ['*x.example*'],
+			items: [{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', label: { en: 'A' } }],
+		};
+		const out = X.menuToExchange(def, { id: 'com.me.mymenu', version: '1.0.0' });
+		out.name.en = 'MUTATED';
+		out.items[0].label.en = 'MUTATED';
+		out.patterns[0] = 'MUTATED';
+		expect(def.name.en).toBe('My Menu');
+		expect(def.items[0].label.en).toBe('A');
+		expect(def.patterns[0]).toBe('*x.example*');
+	});
 });
