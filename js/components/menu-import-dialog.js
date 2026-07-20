@@ -72,12 +72,12 @@ class MenuImportDialog extends LitElement {
 		const source = { ...this._source, version };
 		let ok;
 		if (r.type === 'menu') {
-			const { id, def } = X().toCustomMenu(r.value, source);
+			const { id, def } = X().toCustomMenu(r.value, source, undefined, this.#lang());
 			const cur = SettingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
 			const next = { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
 			ok = await SettingsStore.save({ siteMenus: next });
 		} else {
-			const engine = X().toCustomEngine(r.value, source);
+			const engine = X().toCustomEngine(r.value, source, undefined, this.#lang());
 			if (isFirefox && !r.value.transformRequired) { engine.transformEnabled = false; engine.transformCode = ''; }
 			const cur = SettingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
 			const next = { ...cur, custom: [...(cur.custom || []), engine] };

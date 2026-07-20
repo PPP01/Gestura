@@ -148,12 +148,14 @@ describe('toCustomMenu', () => {
 		const source = { type: 'file', version: '1.0.0' };
 		const { id, def } = X.toCustomMenu(v, source, genId);
 		expect(id).toBe('menu_test0');
-		expect(def.name).toEqual({ en: 'Shop', de: 'Laden' });
+		expect(def.name).toBe('Shop');
 		expect(def.patterns).toEqual(['*example.com*']);
 		expect(def.items).toHaveLength(3);
 		expect(def.items[0].id).toBe('item_test1'); // neue ID
 		expect(def.items[0].action).toBe('openCustomUrl');
 		expect(def.items[0].customUrl).toBe('https://example.com/orders');
+		expect(def.items[0].customName).toBe('Orders');
+		expect(def.items[0].label).toBeUndefined();
 		expect(def.items[1].type).toBe('separator');
 		expect(def.source).toEqual(source);
 	});
@@ -165,6 +167,7 @@ describe('toCustomEngine', () => {
 		const genId = () => 'eng_test';
 		const e = X.toCustomEngine(v, { type: 'file', version: '1.0.0' }, genId);
 		expect(e.id).toBe('eng_test');
+		expect(e.name).toBe('Example Search');
 		expect(e.builtin).toBe(false);
 		expect(e.url).toBe('https://example.com/s?q=%s');
 		expect(e.transformEnabled).toBe(true);
@@ -178,7 +181,7 @@ describe('export round-trip', () => {
 		const def = {
 			name: { en: 'My Menu' }, icon: 'star', patterns: ['*x.example*'],
 			items: [
-				{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', label: { en: 'A' } },
+				{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', customName: 'A' },
 				{ id: 's', type: 'separator' },
 			],
 		};
@@ -187,6 +190,7 @@ describe('export round-trip', () => {
 		expect(out.id).toBe('com.me.mymenu');
 		expect(out.version).toBe('2.1.0');
 		expect(out.items[0].id).toBe('a'); // stabile IDs erhalten
+		expect(out.items[0].label).toBe('A');
 		expect(X.validate(out).ok).toBe(true);
 	});
 	it('engineToExchange produces a valid engine that re-validates', () => {
@@ -212,14 +216,26 @@ describe('export round-trip', () => {
 	it('menuToExchange output shares no references with its input (deep copy)', () => {
 		const def = {
 			name: { en: 'My Menu' }, icon: 'star', patterns: ['*x.example*'],
-			items: [{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', label: { en: 'A' } }],
+			items: [{ id: 'a', action: 'openCustomUrl', customUrl: 'https://x.example/a', customName: 'A' }],
 		};
 		const out = X.menuToExchange(def, { id: 'com.me.mymenu', version: '1.0.0' });
-		out.name.en = 'MUTATED';
-		out.items[0].label.en = 'MUTATED';
 		out.patterns[0] = 'MUTATED';
-		expect(def.name.en).toBe('My Menu');
-		expect(def.items[0].label.en).toBe('A');
 		expect(def.patterns[0]).toBe('*x.example*');
+	});
+	it('real-settings round-trip preserves names', () => {
+		const def = {
+			name: 'My Shop', icon: 'cart', patterns: ['*shop.example*'],
+			items: [{ id: 'o', action: 'openCustomUrl', customUrl: 'https://shop.example/o', customName: 'Orders' }],
+		};
+		const ex = X.menuToExchange(def, { id: 'com.me.shop', version: '1.0.0' });
+		expect(ex.items[0].label).toBe('Orders');
+		expect(X.validate(ex).ok).toBe(true);
+		const { def: def2 } = X.toCustomMenu(X.validate(ex).value, { type: 'file' }, (p) => p + '_1');
+		expect(def2.items[0].customName).toBe('Orders');
+		expect(def2.name).toBe('My Shop');
+
+		const ex2 = X.engineToExchange({ name: 'My Engine', url: 'https://e.example/?q=%s', type: 'text' }, { id: 'my-eng', version: '1.0.0' });
+		const eng2 = X.toCustomEngine(X.validate(ex2).value, { type: 'file' }, () => 'eng_1');
+		expect(eng2.name).toBe('My Engine');
 	});
 });

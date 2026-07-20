@@ -140,13 +140,14 @@
 		return `${prefix}_${uuid.slice(0, 12)}`;
 	}
 
-	function toCustomMenu(menuValue, source, genId) {
+	function toCustomMenu(menuValue, source, genId, lang) {
+		const lg = lang || 'en';
 		const g = genId || newId;
 		const menuId = g('menu');
 		const items = (menuValue.items || []).map(it => {
 			if (it.type === 'separator') return { id: g('item'), type: 'separator' };
 			const out = { id: g('item'), action: it.action };
-			if (it.label != null) out.label = JSON.parse(JSON.stringify(it.label));
+			const nm = pickLabel(it.label, lg); if (nm) out.customName = nm;
 			if (it.icon != null) out.icon = it.icon;
 			if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
 			if (it.action === 'searchLink') {
@@ -156,7 +157,7 @@
 			return out;
 		});
 		const def = {
-			name: JSON.parse(JSON.stringify(menuValue.name)),
+			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',
 			patterns: Array.isArray(menuValue.patterns) ? menuValue.patterns.slice() : [],
 			items,
@@ -165,11 +166,11 @@
 		return { id: menuId, def };
 	}
 
-	function toCustomEngine(engineValue, source, genId) {
+	function toCustomEngine(engineValue, source, genId, lang) {
 		const g = genId || newId;
 		return {
 			id: g('eng'),
-			name: JSON.parse(JSON.stringify(engineValue.name)),
+			name: pickLabel(engineValue.name, lang || 'en'),
 			url: engineValue.url || '',
 			plus: !!engineValue.plus,
 			slug: !!engineValue.slug,
@@ -191,7 +192,7 @@
 		const items = (menuDef.items || []).map(it => {
 			if (it.type === 'separator') return { id: it.id, type: 'separator' };
 			const out = { id: it.id, action: it.action };
-			if (it.label != null) out.label = JSON.parse(JSON.stringify(it.label));
+			if (it.customName) out.label = it.customName;
 			if (it.icon != null) out.icon = it.icon;
 			if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
 			if (it.action === 'searchLink') {
@@ -204,7 +205,7 @@
 			gesturaMenu: CURRENT_FORMAT_VERSION,
 			id: m.id || '',
 			version: m.version || '1.0.0',
-			name: JSON.parse(JSON.stringify(menuDef.name || { en: '' })),
+			name: typeof menuDef.name === 'string' ? (menuDef.name || '') : (pickLabel(menuDef.name, 'en') || ''),
 			items,
 		};
 		if (menuDef.icon) out.icon = menuDef.icon;
