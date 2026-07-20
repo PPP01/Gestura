@@ -39,12 +39,6 @@ class MenuImportDialog extends LitElement {
 		.ack { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0; font-size: 13px; }
 		.err { color: var(--danger-color, #d33); font-size: 13px; }
 		.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-		.btn { appearance: none; font: inherit; font-size: 13px; padding: 6px 14px; border-radius: 6px;
-			border: 1px solid var(--border-color, rgba(128,128,128,.35)); background: var(--card-bg, transparent);
-			color: var(--text-primary, inherit); cursor: pointer; }
-		.btn:hover { border-color: var(--accent-color, #2962ff); }
-		.btn-primary { background: var(--accent-color, #2962ff); border-color: var(--accent-color, #2962ff); color: #fff; }
-		.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 	`];
 
 	constructor() {
@@ -74,21 +68,23 @@ class MenuImportDialog extends LitElement {
 	async #confirm() {
 		const r = this._result;
 		if (!r || !r.ok) return;
-		const i18n = window.i18n;
 		const version = r.value.version || '1.0.0';
 		const source = { ...this._source, version };
+		let ok;
 		if (r.type === 'menu') {
 			const { id, def } = X().toCustomMenu(r.value, source);
 			const cur = SettingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
 			const next = { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
-			await SettingsStore.save({ siteMenus: next });
+			ok = await SettingsStore.save({ siteMenus: next });
 		} else {
 			const engine = X().toCustomEngine(r.value, source);
 			if (isFirefox && !r.value.transformRequired) { engine.transformEnabled = false; engine.transformCode = ''; }
 			const cur = SettingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
 			const next = { ...cur, custom: [...(cur.custom || []), engine] };
-			await SettingsStore.save({ searchEngines: next });
+			ok = await SettingsStore.save({ searchEngines: next });
 		}
+		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
+		window.dispatchEvent(new Event('action-catalog-changed'));
 		this.dispatchEvent(new CustomEvent('import-done', { detail: { type: r.type }, bubbles: true, composed: true }));
 		this.#close();
 	}
