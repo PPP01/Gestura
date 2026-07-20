@@ -27,6 +27,10 @@ class MenuImportDialog extends LitElement {
 		.title { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
 		.kind { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
 		.name { font-size: 16px; font-weight: 600; margin: 2px 0 8px; }
+		.name-row { display: flex; align-items: center; gap: 8px; margin: 2px 0 8px; }
+		.name-row .name { margin: 0; }
+		.favicon { width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; object-fit: contain; }
+		.item .favicon { width: 16px; height: 16px; }
 		.items { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
 		.item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 6px;
 			border-radius: 6px; background: var(--bg-secondary, rgba(128,128,128,.08)); }
@@ -69,6 +73,29 @@ class MenuImportDialog extends LitElement {
 	}
 
 	#close() { this._open = false; this._result = null; this._catalogMatch = null; }
+
+	#faviconCache = new Map(); // origin -> dataURL
+
+	async #loadFavicon(url, origin) {
+		this.#faviconCache.set(origin, null); // mark inflight
+		try {
+			const resp = await chrome.runtime.sendMessage({ action: 'getFavicon', url });
+			if (resp && resp.success && resp.icon) { this.#faviconCache.set(origin, resp.icon); this.requestUpdate(); }
+		} catch { }
+	}
+
+	// Real site favicon (resolved via the background, cached by origin); shows a
+	// coloured monogram immediately and upgrades in place when the icon arrives.
+	#faviconSrc(url, name) {
+		let origin = null;
+		try { origin = url ? new URL(url).origin : null; } catch { }
+		if (origin) {
+			const cached = this.#faviconCache.get(origin);
+			if (cached) return cached;
+			if (!this.#faviconCache.has(origin)) this.#loadFavicon(url, origin);
+		}
+		return window.FlowMouseFavicon.monogramDataUri(name || url || '?');
+	}
 
 	#catalogMenuMatch(v) {
 		const cat = (window.FlowMouseMenuCatalog && window.FlowMouseMenuCatalog.SITE_MENU_CATALOG) || [];
@@ -182,6 +209,9 @@ class MenuImportDialog extends LitElement {
 				${v.items.map(it => it.type === 'separator'
 					? html`<div class="sep"></div>`
 					: html`<div class="item">
+						${(it.customUrl || it.url)
+							? html`<img class="favicon" src="${this.#faviconSrc(it.customUrl || it.url, X().pickLabel(it.label, lang))}" alt="">`
+							: ''}
 						<span>${X().pickLabel(it.label, lang) || it.action}</span>
 						<span class="url">${it.customUrl || it.url || it.engineId || ''}</span>
 					</div>`)}
@@ -198,7 +228,10 @@ class MenuImportDialog extends LitElement {
 		const script = this.#needsScriptAck;
 		return html`
 			<div class="kind">${i18n.getMessage('exchangePreviewEngine')}</div>
-			<div class="name">${X().pickLabel(v.name, lang)}</div>
+			<div class="name-row">
+				<img class="favicon" src="${this.#faviconSrc(v.url, X().pickLabel(v.name, lang))}" alt="">
+				<div class="name">${X().pickLabel(v.name, lang)}</div>
+			</div>
 			<div class="item"><span class="url">${v.url}</span></div>
 			${script ? html`
 				<div class="warn">
