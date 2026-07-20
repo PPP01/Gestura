@@ -5,7 +5,7 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
-### Unreleased
+### v2.5 (2026-07-20)
 
 **New Features:**
 
@@ -15,6 +15,7 @@
 
 - **Per-link open settings work again — now per click type:** menu link entries (custom URLs and search entries) can opt into individual open positions per mouse button (left / middle / right), overriding the per-menu and global "Open links" behavior. The default for every link is "Use global menu settings"; existing links keep inheriting automatically. Unconfigured click types still follow the menu/global setting.
 - **New "Open links" behavior:** added a reverse standard — left-click (and middle-click) opens a new tab to the right, right-click opens in the same tab — alongside the existing behaviors in the global and per-menu "Open links" dropdown.
+- **Support section:** repaired broken links and split the Gestura and FlowMouse support boxes.
 
 ### v2.4 (2026-07-15)
 
