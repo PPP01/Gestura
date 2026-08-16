@@ -64,6 +64,8 @@ sh scripts/stamp-version.sh stamp
 git add --renormalize manifest.json
 ```
 
+**Switching branches with a stamped manifest fails.** `git checkout <branch>` aborts with *"Please commit your changes or stash them"* even though `git diff` is empty — checkout decides from the cached stat without running the clean filter, and the stamp changed the file's size. Nothing is at stake: the filtered content hashes to exactly the committed blob. But `commit`, `stash` and `git checkout HEAD -- manifest.json` all fail to clear it, the last because `post-checkout` re-stamps immediately. Use **`git checkout -f <branch>`** — the stamp is the only thing it can discard, and the hook re-stamps for the new branch. Commit or stash real work first.
+
 ## Architecture
 
 ### Two execution contexts, two settings paths
