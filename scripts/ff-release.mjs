@@ -1,4 +1,6 @@
 // ff:release — bump the version, then sign + submit the Firefox build to AMO.
+// Pass --no-bump (npm run ff:release -- --no-bump) to sign the version that is
+// already in the manifest.
 //
 // Credentials: reads WEB_EXT_API_KEY (JWT issuer) and WEB_EXT_API_SECRET from the
 // environment. If either is missing, it prompts for it interactively (paste when
@@ -47,5 +49,13 @@ function run(command) {
 	if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-run('npm run ff:bump');
+// AMO refuses a version number it has already signed, and we cannot tell from
+// here whether the current one went out — so bump by default. Pass --no-bump
+// when you set the version yourself (typically taken from `main` during the
+// merge) and want it shipped unchanged.
+if (process.argv.slice(2).includes('--no-bump')) {
+	console.log('ff:release: --no-bump — keeping the current manifest version');
+} else {
+	run('npm run ff:bump');
+}
 run('npm run ff:sign');
