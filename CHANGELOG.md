@@ -5,7 +5,7 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
-### v2.6 (unreleased)
+### v2.6 (2026-08-16)
 
 **New Features:**
 
@@ -14,6 +14,7 @@
 
 **Fixes & Improvements:**
 
+- **The "Website menus" settings section is split into two tabs:** the section opened with the menu-switcher, theme and mini-search-menu settings, so the actual list of menus started well below the fold — the settings you configure once buried the thing you come back to. The section now leads with a **"Menus" / "Settings"** tab bar (the same control the search-engine section uses for Text/Image). "Menus" holds the list, "Add menu" and the import bar; "Settings" groups the rest under **Appearance**, **Behavior** and **Adding sites**. "Ask which menu when none matches" moved into "Adding sites" and lost its section-level toggle switch — it only applies while adding a site, and looked like the section's master on/off switch. Nothing about the stored settings changed.
 - **The entry flips to "Remove from menu ‹name›" once the page is in it:** adding the same page twice was silently impossible — `addLinkToMenu` deduplicates by URL, so the title dialog appeared, you typed a name, and nothing happened. The page entry now reads *"Remove from menu ‹name›"* whenever that page is already one of its entries, and removes it. Right-clicking a **link** still always offers "Add", because Chrome builds the context menu before it knows which link you clicked; if that link turns out to be in the menu already, a toast says so instead of opening a dialog that would discard your input.
 - **The title dialog now always appears when adding a page:** "Add to menu ‹name›" skipped the "Title for the menu entry" prompt whenever the page already matched exactly that menu — the very case where you have curated the menu and most want to name the entry. The title is now always asked for; only the URL pattern is still skipped when the page already points at that menu.
 - **In-page dialogs follow the theme:** the "Title for the menu entry" and pattern dialogs were hard-wired to a light palette and stayed white on a dark desktop. They now follow the same source as the website menus — the "Menu theme" setting, whose *auto* resolves to the browser/OS scheme — including `color-scheme`, so the native checkbox and text caret match too.
