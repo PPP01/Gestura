@@ -102,16 +102,20 @@ They are stored as settings data, not code, so they never affect a rebase.
 sandbox (`offscreen`), engine favicons (`favicon`), and save-as-MHTML
 (`pageCapture`). The core search/menu features work.
 
-**Full build / sign / install / auto-update guide:**
+Gestura is distributed **AMO-listed** (`a8eb50a`): Mozilla hosts, signs and
+updates it. There is no self-hosting — no `update_url`, no `updates.json`.
+
+**Full build / sign guide:**
 [`docs/firefox-build-guide.md`](docs/firefox-build-guide.md) (on the
-`firefox-build` branch). It covers the `ff:*` npm scripts, the release
-routine, and the auto-update setup. Quick reference:
+`firefox-build` branch). Quick reference:
 
 - Develop: `npm run ff:run`
-- Ship a version: `npm run ff:release -- --api-key=… --api-secret=…`, then
-  install the signed `.xpi` (about:addons → gear → Install Add-on From File)
-- Auto-update: release → upload the `.xpi` to a GitHub release → add the
-  entry to `updates.json` → push `firefox-build`
+- Ship a version: take the version from `main` into `manifest.json`, then
+  `npm run ff:sign`. Once the signed `.xpi` lands in `web-ext-artifacts/`, the
+  version is public and installed copies auto-update via AMO.
+- **Not** `npm run ff:release` — it runs a non-optional bump first and appends a
+  fourth version digit. Only use it for a Firefox-only respin when AMO would
+  reject the number you already submitted.
 
 ## If you ever re-attempt an upstream PR
 

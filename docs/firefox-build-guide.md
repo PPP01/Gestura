@@ -106,9 +106,21 @@ Hinweise:
 
 ## Mit `main` Schritt halten
 
-`firefox-build` wird **gemergt**, nicht rebased — der Branch ist bei AMO
-veröffentlicht, seine Historie muss stabil bleiben (siehe `../FORK-NOTES.md`
-für den vollständigen Remote-/Branch-Workflow):
+`firefox-build` wird **gemergt**, nicht rebased. Zwei Gründe (die ausführliche
+Fassung samt Remote-/Branch-Workflow steht in `../FORK-NOTES.md`):
+
+- **Konflikte bleiben klein.** Ein Merge löst gegen die vorige Merge-Basis auf,
+  du entscheidest also pro Release nur, was sich seither geändert hat — nicht
+  jedes Mal die gesamte Firefox-Form des Manifests neu. Ein Rebase spielt jeden
+  Firefox-Commit auf eine Basis ab, die er nie gesehen hat, und focht denselben
+  `manifest.json`-Konflikt jedes Mal neu aus.
+- **Ausgelieferte Commits behalten ihren Hash.** Jeder `release(ff): x.y.z` ist
+  die exakte Quelle einer bei AMO signierten Version. Nach einem Rebase hätte er
+  einen neuen Hash, und „welcher Commit war 2.6.1?" wäre nicht mehr zu
+  beantworten.
+
+AMO selbst ist die Git-Historie egal — es geht um die Nachvollziehbarkeit hier
+im Repo.
 
 ```bash
 git checkout firefox-build
