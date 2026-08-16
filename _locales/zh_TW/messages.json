@@ -2697,6 +2697,26 @@
 		"message": "新增網站且沒有相符選單時，顯示選單選擇器；關閉 = 靜默新增到預設選單",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "選單",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "設定",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "外觀設定",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "行為",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "新增網站",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "右鍵選單",
 		"description": "Section title for context menu settings"

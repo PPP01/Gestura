@@ -2697,6 +2697,26 @@
 		"message": "Ha egy oldal hozzáadásakor egyik menü sem egyezik, kínáljon fel menüválasztót; kikapcsolva = néma hozzáadás az alapértelmezett menühöz",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "Menük",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "Beállítások",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "Megjelenés",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "Viselkedés",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "Webhelyek hozzáadása",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "Helyi menü",
 		"description": "Section title for context menu settings"

@@ -2697,6 +2697,26 @@
 		"message": "Apabila menambah laman dan tiada menu sepadan, tawarkan pemilih menu; dimatikan = tambah senyap ke menu lalai",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "Menu",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "Tetapan",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "Penampilan",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "Kelakuan",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "Menambah tapak",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "Menu konteks",
 		"description": "Section title for context menu settings"

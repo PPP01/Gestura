@@ -2697,6 +2697,26 @@
 		"message": "সাইট যোগ করার সময় কোনো মেনু না মিললে, একটি মেনু নির্বাচক দেখান; বন্ধ = নীরবে ডিফল্ট মেনুতে যোগ করুন",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "মেনু",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "সেটিংস",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "চেহারা",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "আচরণ",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "সাইট যোগ করা",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "প্রসঙ্গ মেনু",
 		"description": "Section title for context menu settings"

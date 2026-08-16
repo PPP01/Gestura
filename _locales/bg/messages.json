@@ -2697,6 +2697,26 @@
 		"message": "При добавяне на сайт, ако никое меню не съвпада, се предлага избор на меню; изключено = добавяне в менюто по подразбиране без питане",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "Менюта",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "Настройки",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "Изглед",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "Поведение",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "Добавяне на сайтове",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "Контекстно меню",
 		"description": "Section title for context menu settings"

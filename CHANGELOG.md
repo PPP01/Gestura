@@ -5,6 +5,21 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### v2.6 (2026-08-16)
+
+**New Features:**
+
+- **Set a website menu for the current page:** a new right-click entry, *"Set website menu for this page"*, stores the page as a URL **pattern** on a website menu, so that menu opens here from then on. Unlike "Add to a website menu", it adds no link entry — only the assignment. A dialog offers a **"Whole site"** switch — on by default, filling in `*www.amazon.de*` with the field locked. Switching it off swaps in the current page's pattern (path kept, query string and fragment dropped: `*www.amazon.de/dp/B0XYZ*`) and unlocks the field so you can trim it down to the section you actually mean. Toggleable in the "Context menu" settings section.
+- **Change or clear an existing assignment:** once a page matches a menu, the entry becomes *"Assigned to: &lt;menu&gt;"* and opens a submenu listing every other menu (move the pattern there) plus *"Remove assignment"* (drop the matching patterns). No dialog on the move — the existing pattern is carried over unchanged.
+
+**Fixes & Improvements:**
+
+- **The "Website menus" settings section is split into two tabs:** the section opened with the menu-switcher, theme and mini-search-menu settings, so the actual list of menus started well below the fold — the settings you configure once buried the thing you come back to. The section now leads with a **"Menus" / "Settings"** tab bar (the same control the search-engine section uses for Text/Image). "Menus" holds the list, "Add menu" and the import bar; "Settings" groups the rest under **Appearance**, **Behavior** and **Adding sites**. "Ask which menu when none matches" moved into "Adding sites" and lost its section-level toggle switch — it only applies while adding a site, and looked like the section's master on/off switch. Nothing about the stored settings changed.
+- **The entry flips to "Remove from menu ‹name›" once the page is in it:** adding the same page twice was silently impossible — `addLinkToMenu` deduplicates by URL, so the title dialog appeared, you typed a name, and nothing happened. The page entry now reads *"Remove from menu ‹name›"* whenever that page is already one of its entries, and removes it. Right-clicking a **link** still always offers "Add", because Chrome builds the context menu before it knows which link you clicked; if that link turns out to be in the menu already, a toast says so instead of opening a dialog that would discard your input.
+- **The title dialog now always appears when adding a page:** "Add to menu ‹name›" skipped the "Title for the menu entry" prompt whenever the page already matched exactly that menu — the very case where you have curated the menu and most want to name the entry. The title is now always asked for; only the URL pattern is still skipped when the page already points at that menu.
+- **In-page dialogs follow the theme:** the "Title for the menu entry" and pattern dialogs were hard-wired to a light palette and stayed white on a dark desktop. They now follow the same source as the website menus — the "Menu theme" setting, whose *auto* resolves to the browser/OS scheme — including `color-scheme`, so the native checkbox and text caret match too.
+- **Stale right-click entries are gone:** the context menu could show leftovers from a previously visited page — most visibly a second, outdated "Add to menu ‹name›" above the current entries. The rebuild tracked its dynamically created entry IDs in service-worker memory, which is lost when the worker is suspended, and overlapping rebuilds from `tabs.onUpdated`/`onActivated` could interleave. The menu is now cleared wholesale before each rebuild, and only the most recent rebuild is allowed to finish.
+
 ### v2.5 (2026-07-20)
 
 **New Features:**

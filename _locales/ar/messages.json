@@ -2697,6 +2697,26 @@
 		"message": "عند إضافة موقع ولا توجد قائمة مطابقة، تُعرض قائمة للاختيار؛ الإيقاف = الإضافة إلى القائمة الافتراضية بصمت",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "القوائم",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "الإعدادات",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "المظهر",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "السلوك",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "إضافة المواقع",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "قائمة السياق",
 		"description": "Section title for context menu settings"

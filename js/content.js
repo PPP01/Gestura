@@ -2299,11 +2299,18 @@ window.ContentContextMenu = ContentContextMenu;
 					def = (document.title || '').trim() || request.url || '';
 				}
 				def = def.replace(/\s+/g, ' ').slice(0, 120);
-				if (request.prompt) {
-					promptForTitle(def).then(v => sendResponse(v == null ? { cancelled: true } : { label: v }));
-					return true; // async
-				}
-				sendResponse({ label: def });
+				promptForTitle(def).then(v => sendResponse(v == null ? { cancelled: true } : { label: v }));
+				return true; // async
+			}
+
+			if (request.action === 'ctxCollectPattern') {
+				promptForPattern(request.domainPattern || '', request.pagePattern || '')
+					.then(v => sendResponse(v == null ? { cancelled: true } : { pattern: v }));
+				return true; // async
+			}
+
+			if (request.action === 'ctxToast' && !isIframe) {
+				if (request.text) toaster.showToast(request.text, { duration: 4000 });
 				return;
 			}
 
@@ -2494,39 +2501,100 @@ window.ContentContextMenu = ContentContextMenu;
 			return true;
 		}
 
-		function promptForTitle(defaultTitle) {
+		// Dialoge folgen derselben Theme-Quelle wie die Website-Menüs: die
+		// Einstellung customMenuTheme, deren 'auto' hier — im Top-Level-Kontext
+		// der Seite — verlässlich auf das Browser-/OS-Theme auflöst.
+		function resolveDialogTheme() {
+			const t = SETTINGS.customMenuTheme || 'auto';
+			if (t === 'dark' || t === 'light') return t;
+			return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+		}
+
+		// Kleiner In-Page-Dialog mit Textfeld. onBuild(input) darf eine Zusatzzeile
+		// zwischen Beschriftung und Feld liefern (z. B. den Domain-Schalter) und
+		// dabei Feldinhalt/-zustand vorbelegen.
+		function promptForText(labelKey, defaultValue, onBuild) {
 			return new Promise((resolve) => {
+				const dark = resolveDialogTheme() === 'dark';
+				// Akzentfarbe im Dunkeln heller, dafür dunkle Schrift darauf —
+				// Weiß auf #5b9cf6 wäre zu kontrastarm.
+				const c = dark
+					? { backdrop: 'rgba(0,0,0,.5)', box: '#2b2d33', text: '#e5e5e7', field: '#1f2126', border: '#4a4d55', btn: '#3a3d45', accent: '#5b9cf6', onAccent: '#10121a' }
+					: { backdrop: 'rgba(0,0,0,.35)', box: '#fff', text: '#111', field: '#fff', border: '#ccc', btn: '#fff', accent: '#4285f4', onAccent: '#fff' };
+
 				const host = document.createElement('div');
 				host.setAttribute('data-gesture-ignore', '');
-				host.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)';
+				// color-scheme zieht die nativen Steuerelemente (Checkbox, Caret,
+				// Auswahlfarbe) mit — die kann keine Inline-Farbe erreichen.
+				host.style.cssText = `position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:${c.backdrop};color-scheme:${dark ? 'dark' : 'light'}`;
 				const box = document.createElement('div');
-				box.style.cssText = 'background:#fff;color:#111;min-width:280px;max-width:90vw;padding:16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.3);font:14px system-ui,sans-serif';
+				box.style.cssText = `background:${c.box};color:${c.text};min-width:280px;max-width:90vw;padding:16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,${dark ? '.6' : '.3'});font:14px system-ui,sans-serif`;
 				const label = document.createElement('div');
-				label.textContent = msg('ctxTitlePromptLabel') || 'Title';
+				label.textContent = msg(labelKey) || 'Title';
 				label.style.cssText = 'margin-bottom:8px;font-weight:600';
 				const input = document.createElement('input');
 				input.type = 'text';
-				input.value = defaultTitle || '';
-				input.style.cssText = 'width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px';
+				input.value = defaultValue || '';
+				input.style.cssText = `width:100%;box-sizing:border-box;padding:8px;background:${c.field};color:${c.text};border:1px solid ${c.border};border-radius:6px;margin-bottom:12px`;
+				const extra = typeof onBuild === 'function' ? onBuild(input) : null;
 				const row = document.createElement('div');
 				row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end';
 				const cancel = document.createElement('button');
 				cancel.textContent = msg('buttonCancel') || 'Cancel';
 				const ok = document.createElement('button');
 				ok.textContent = msg('buttonOkay') || 'OK';
-				for (const b of [cancel, ok]) b.style.cssText = 'padding:6px 14px;border-radius:6px;border:1px solid #ccc;cursor:pointer';
-				ok.style.background = '#4285f4'; ok.style.color = '#fff'; ok.style.borderColor = '#4285f4';
+				for (const b of [cancel, ok]) b.style.cssText = `padding:6px 14px;border-radius:6px;background:${c.btn};color:${c.text};border:1px solid ${c.border};cursor:pointer;font:inherit`;
+				ok.style.background = c.accent; ok.style.color = c.onAccent; ok.style.borderColor = c.accent;
 				let done = false;
 				const finish = (val) => { if (done) return; done = true; host.remove(); resolve(val); };
 				cancel.addEventListener('click', () => finish(null));
-				ok.addEventListener('click', () => finish(input.value.trim() || (defaultTitle || '')));
-				input.addEventListener('keydown', (ev) => {
+				ok.addEventListener('click', () => finish(input.value.trim() || (defaultValue || '')));
+				// Am Host statt am Feld: bei deaktiviertem Feld (Domain-Schalter an)
+				// liegt der Fokus auf OK, Enter/Escape sollen trotzdem greifen.
+				host.addEventListener('keydown', (ev) => {
 					if (ev.key === 'Enter') { ev.preventDefault(); ok.click(); }
 					else if (ev.key === 'Escape') { ev.preventDefault(); cancel.click(); }
 				});
-				row.append(cancel, ok); box.append(label, input, row); host.append(box);
+				row.append(cancel, ok);
+				box.append(label);
+				if (extra) box.append(extra);
+				box.append(input, row);
+				host.append(box);
 				(document.body || document.documentElement).append(host);
-				input.focus(); input.select();
+				if (input.disabled) { ok.focus(); } else { input.focus(); input.select(); }
+			});
+		}
+
+		function promptForTitle(defaultTitle) {
+			return promptForText('ctxTitlePromptLabel', defaultTitle);
+		}
+
+		// Muster-Dialog: „Ganze Seite“ (= ganzer Host) ist der Normalfall und daher vorbelegt,
+		// das Feld bleibt dann gesperrt. Ausschalten schaltet auf das Muster der
+		// aktuellen Seite um und gibt es zum Kürzen frei — der Pfad enthält oft
+		// Ballast (Amazons /ref=…), den nur der Nutzer wegschneiden kann.
+		function promptForPattern(domainPattern, pagePattern) {
+			return promptForText('ctxPatternPromptLabel', domainPattern, (input) => {
+				const row = document.createElement('label');
+				row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer';
+				row.title = msg('ctxPatternWholeDomainTitle') || '';
+				const cb = document.createElement('input');
+				cb.type = 'checkbox';
+				cb.checked = true;
+				cb.style.cssText = 'margin:0;cursor:pointer';
+				const text = document.createElement('span');
+				text.textContent = msg('ctxPatternWholeDomain') || 'Whole site';
+				row.append(cb, text);
+
+				const sync = (focus) => {
+					input.value = cb.checked ? domainPattern : (pagePattern || domainPattern);
+					input.disabled = cb.checked;
+					input.style.opacity = cb.checked ? '.55' : '';
+					if (focus && !cb.checked) { input.focus(); input.select(); }
+				};
+				cb.addEventListener('change', () => sync(true));
+				sync(false);
+				return row;
 			});
 		}
 

@@ -325,6 +325,49 @@ describe('settings helpers', () => {
 	});
 });
 
+describe('patternsMatchingUrl', () => {
+	it('returns only the patterns of that menu which match the url', () => {
+		const sm = { ...EMPTY, edited: { gh: { name: 'GH', patterns: ['*github.com*', '*gh.io*'], items: [] } } };
+		expect(M.patternsMatchingUrl(CATALOG, sm, 'gh', 'https://gh.io/x', matches)).toEqual(['*gh.io*']);
+		expect(M.patternsMatchingUrl(CATALOG, sm, 'gh', 'https://example.org/', matches)).toEqual([]);
+	});
+	it('a menu without patterns never matches (empty list is not a wildcard here)', () => {
+		const sm = { ...EMPTY, custom: { m1: { name: 'Eigenes', patterns: [], items: [] } } };
+		expect(M.patternsMatchingUrl(CATALOG, sm, 'm1', 'https://anything.example/', matches)).toEqual([]);
+	});
+	it('returns [] for unknown menus, missing url or missing matcher', () => {
+		expect(M.patternsMatchingUrl(CATALOG, EMPTY, 'nope', 'https://github.com/', matches)).toEqual([]);
+		expect(M.patternsMatchingUrl(CATALOG, EMPTY, 'gh', '', matches)).toEqual([]);
+		expect(M.patternsMatchingUrl(CATALOG, EMPTY, 'gh', 'https://github.com/', null)).toEqual([]);
+	});
+});
+
+describe('removePatternFromMenu', () => {
+	it('drops the pattern, creating an edited copy for a pristine catalog menu', () => {
+		const { siteMenus, removed } = M.removePatternFromMenu(CATALOG, EMPTY, 'gh', '*github.com*');
+		expect(removed).toBe('*github.com*');
+		expect(siteMenus.edited.gh.patterns).toEqual([]);
+		expect(CATALOG[0].patterns).toEqual(['*github.com*']); // Katalog unangetastet
+		expect(EMPTY.edited).toEqual({});
+	});
+	it('keeps the other patterns of the menu', () => {
+		const sm = { ...EMPTY, custom: { m1: { name: 'Eigenes', patterns: ['*a.example*', '*b.example*'], items: [] } } };
+		const { siteMenus } = M.removePatternFromMenu(CATALOG, sm, 'm1', '*a.example*');
+		expect(siteMenus.custom.m1.patterns).toEqual(['*b.example*']);
+	});
+	it('is a no-op for an unknown pattern, unknown menu or empty pattern', () => {
+		expect(M.removePatternFromMenu(CATALOG, EMPTY, 'gh', '*nope*').removed).toBeNull();
+		expect(M.removePatternFromMenu(CATALOG, EMPTY, 'gh', '*nope*').siteMenus).toBe(EMPTY);
+		expect(M.removePatternFromMenu(CATALOG, EMPTY, 'nope', '*x*').removed).toBeNull();
+		expect(M.removePatternFromMenu(CATALOG, EMPTY, 'gh', '').removed).toBeNull();
+	});
+	it('round-trips with addPatternToMenu', () => {
+		let { siteMenus } = M.addPatternToMenu(CATALOG, EMPTY, 'gh', '*gh.io*');
+		({ siteMenus } = M.removePatternFromMenu(CATALOG, siteMenus, 'gh', '*gh.io*'));
+		expect(siteMenus.edited.gh.patterns).toEqual(['*github.com*']);
+	});
+});
+
 describe('addLinkToMenu', () => {
 	it('creates edited copy for catalog menu and appends a link item', () => {
 		const { siteMenus, added } = M.addLinkToMenu(CATALOG, EMPTY, 'gh',
@@ -357,6 +400,47 @@ describe('addLinkToMenu', () => {
 	it('generates an item_ id when none is given', () => {
 		const { added } = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'B', url: 'https://github.com/new' });
 		expect(added.id).toMatch(/^item_[0-9a-f]{10}$/);
+	});
+});
+
+describe('findLinkInMenu / removeLinkFromMenu', () => {
+	it('finds an item by its customUrl, matching addLinkToMenu dedupe', () => {
+		expect(M.findLinkInMenu(CATALOG, EMPTY, 'gh', 'https://github.com/a').id).toBe('a');
+		expect(M.findLinkInMenu(CATALOG, EMPTY, 'gh', 'https://github.com/nope')).toBeNull();
+		expect(M.findLinkInMenu(CATALOG, EMPTY, 'nope', 'https://github.com/a')).toBeNull();
+		expect(M.findLinkInMenu(CATALOG, EMPTY, 'gh', '')).toBeNull();
+	});
+	it('does not confuse {domain} template entries with a concrete url', () => {
+		expect(M.findLinkInMenu(CATALOG, EMPTY, 'amz', 'https://www.amazon.de/cart')).toBeNull();
+	});
+	it('removes the item, creating an edited copy for a pristine catalog menu', () => {
+		const { siteMenus, removed } = M.removeLinkFromMenu(CATALOG, EMPTY, 'gh', 'https://github.com/a');
+		expect(removed.id).toBe('a');
+		expect(siteMenus.edited.gh.items.map(i => i.id)).toEqual(['s1', 'b']);
+		expect(CATALOG[0].items).toHaveLength(3); // Katalog unangetastet
+	});
+	it('drops every duplicate of that url, not just the first', () => {
+		const sm = { ...EMPTY, custom: { m1: { name: 'Eigenes', items: [
+			{ id: 'x', action: 'openCustomUrl', customUrl: 'https://a.example' },
+			{ id: 'y', action: 'openCustomUrl', customUrl: 'https://b.example' },
+			{ id: 'z', action: 'openCustomUrl', customUrl: 'https://a.example' },
+		] } } };
+		const { siteMenus, removed } = M.removeLinkFromMenu(CATALOG, sm, 'm1', 'https://a.example');
+		expect(removed.id).toBe('x'); // gemeldet wird der erste Treffer
+		expect(siteMenus.custom.m1.items.map(i => i.id)).toEqual(['y']);
+	});
+	it('is a no-op for an unknown url, unknown menu or empty url', () => {
+		expect(M.removeLinkFromMenu(CATALOG, EMPTY, 'gh', 'https://nope').removed).toBeNull();
+		expect(M.removeLinkFromMenu(CATALOG, EMPTY, 'gh', 'https://nope').siteMenus).toBe(EMPTY);
+		expect(M.removeLinkFromMenu(CATALOG, EMPTY, 'nope', 'https://github.com/a').removed).toBeNull();
+		expect(M.removeLinkFromMenu(CATALOG, EMPTY, 'gh', '').removed).toBeNull();
+	});
+	it('round-trips with addLinkToMenu', () => {
+		let { siteMenus } = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'Neu', url: 'https://github.com/neu', id: 'item_n' });
+		expect(M.findLinkInMenu(CATALOG, siteMenus, 'gh', 'https://github.com/neu')).not.toBeNull();
+		({ siteMenus } = M.removeLinkFromMenu(CATALOG, siteMenus, 'gh', 'https://github.com/neu'));
+		expect(M.findLinkInMenu(CATALOG, siteMenus, 'gh', 'https://github.com/neu')).toBeNull();
+		expect(siteMenus.edited.gh.items.map(i => i.id)).toEqual(['a', 's1', 'b']);
 	});
 });
 

@@ -283,6 +283,7 @@
 		blacklist: [],
 		enableBlacklistContextMenu: false,
 		ctxMenuAddSite: true,
+		ctxMenuAssignSite: true,
 		ctxMenuSiteMenu: true,
 		ctxMenuSiteMenuMode: 'contextual',
 		ctxMenuSiteMenuId: '',

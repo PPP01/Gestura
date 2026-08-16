@@ -850,16 +850,8 @@ class OptionsPage extends LitElement {
 					<h2><span class="section-icon">${unsafeHTML(icon('layoutList', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('siteMenusTitle')}</span>${this.#renderAdvancedToggle('siteMenus')}</h2>
 					<div class="section-body">
 						<div class="setting-row first-row">
-							<div class="setting-label">
-								<span>${i18n.getMessage('siteMenuAddAsk')}</span>
-								<span>${i18n.getMessage('siteMenuAddAskDesc')}</span>
-							</div>
-							<label class="toggle">
-								<input type="checkbox" id="siteMenuAddAsk" .checked=${this._settings.siteMenuAddAsk !== false} @change=${e => this.#updateSetting('siteMenuAddAsk', e.target.checked)}>
-								<span class="slider"></span>
-							</label>
+							<site-menu-manager style="width:100%" ?advanced-mode=${this._settings.sectionAdvanced?.siteMenus}></site-menu-manager>
 						</div>
-						<site-menu-manager ?advanced-mode=${this._settings.sectionAdvanced?.siteMenus}></site-menu-manager>
 					</div>
 				</div>
 
@@ -904,6 +896,16 @@ class OptionsPage extends LitElement {
 									</div>
 									<label class="toggle">
 										<input type="checkbox" id="ctxMenuAddSite" .checked=${this._settings.ctxMenuAddSite !== false} @change=${e => this.#updateSetting('ctxMenuAddSite', e.target.checked)}>
+										<span class="slider"></span>
+									</label>
+								</div>
+								<div class="setting-row" style="display:${newFeaturesOn ? '' : 'none'}">
+									<div class="setting-label">
+										<span>${i18n.getMessage('ctxMenuAssignSite')}</span>
+										<span>${i18n.getMessage('ctxMenuAssignSiteDesc')}</span>
+									</div>
+									<label class="toggle">
+										<input type="checkbox" id="ctxMenuAssignSite" .checked=${this._settings.ctxMenuAssignSite !== false} @change=${e => this.#updateSetting('ctxMenuAssignSite', e.target.checked)}>
 										<span class="slider"></span>
 									</label>
 								</div>

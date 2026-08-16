@@ -2697,6 +2697,26 @@
 		"message": "साइट जोड़ते समय यदि कोई मेनू मेल न खाए, तो मेनू चयनकर्ता दिखाएं; बंद = चुपचाप डिफ़ॉल्ट मेनू में जोड़ें",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "मेन्यू",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "सेटिंग्स",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "दिखावट",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "व्यवहार",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "साइट जोड़ना",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "संदर्भ मेनू",
 		"description": "Section title for context menu settings"

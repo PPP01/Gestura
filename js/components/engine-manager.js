@@ -1,5 +1,5 @@
 import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
-import { commonStyles, optionStyles } from './shared-styles.js';
+import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { SettingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
@@ -37,6 +37,7 @@ class EngineManager extends LitElement {
 	static styles = [
 		commonStyles,
 		optionStyles,
+		tabStyles,
 		css`
 			:host {
 				display: flex;
@@ -251,36 +252,6 @@ class EngineManager extends LitElement {
 
 			.manager-header .section-advanced-toggle {
 				margin-inline-start: auto;
-			}
-
-			.type-switch {
-				display: flex;
-				gap: 4px;
-				padding: 3px;
-				border-radius: 8px;
-				background: var(--bg-tertiary);
-			}
-
-			.type-tab {
-				border: none;
-				background: transparent;
-				color: var(--text-muted);
-				font-size: 12px;
-				font-weight: 500;
-				padding: 5px 12px;
-				border-radius: 6px;
-				cursor: pointer;
-				transition: background-color 0.15s ease, color 0.15s ease;
-			}
-
-			.type-tab:hover {
-				color: var(--text-primary);
-			}
-
-			.type-tab.active {
-				background: var(--card-bg);
-				color: var(--accent-color);
-				box-shadow: 0 0 0 0.75px var(--border-color);
 			}
 
 			.import-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
