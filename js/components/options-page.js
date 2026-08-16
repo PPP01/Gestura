@@ -4,6 +4,10 @@ import { SettingsStore } from '../settings-store.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
 
+// Survives the reload that #importSettings triggers, so the fresh page can pick the
+// data section back up and finally show the "import done" message.
+const IMPORT_RELOAD_KEY = 'gestura:importReload';
+
 class OptionsPage extends LitElement {
 	static properties = {
 		_settings: { state: true },
@@ -329,6 +333,7 @@ class OptionsPage extends LitElement {
 		this.updateComplete.then(() => {
 			this.#handleHashNavigation();
 			window.addEventListener('hashchange', () => this.#handleHashNavigation());
+			this.#resumeAfterImport();
 		});
 	}
 
@@ -1460,6 +1465,19 @@ class OptionsPage extends LitElement {
 		this.#showStatus(window.i18n.getMessage('exportDone'));
 	}
 
+	// Zweite Hälfte des Import-Reloads: Datenverwaltung wieder anspringen und die
+	// Erfolgsmeldung nachholen, die der Reload sonst verschluckt.
+	#resumeAfterImport() {
+		if (!sessionStorage.getItem(IMPORT_RELOAD_KEY)) return;
+		sessionStorage.removeItem(IMPORT_RELOAD_KEY);
+		// Wie bei der Hash-Navigation: erst scrollen, wenn die Unterkomponenten
+		// gerendert sind, sonst verschiebt sich die Zielposition noch.
+		setTimeout(() => {
+			this.#scrollToSection('data');
+			this.#showStatus(window.i18n.getMessage('importDone'));
+		}, 300);
+	}
+
 	#triggerImport() {
 		this.shadowRoot.getElementById('importFile').click();
 	}
@@ -1501,13 +1519,22 @@ class OptionsPage extends LitElement {
 					delete imported.customGestureUrls;
 				}
 				const merged = { ...DEFAULT_SETTINGS, ...imported };
+				// Ein noch offener Debounce-Patch stammt aus dem Stand *vor* dem Import
+				// und würde die importierten Werte beim beforeunload wieder überschreiben.
+				if (this._debounceTimer) clearTimeout(this._debounceTimer);
+				this._debounceTimer = null;
+				this._pendingPatch = null;
 				const ok = await this._store.save(merged);
-				if (ok) {
-					this._settings = { ...this._store.current };
-					this.#showStatus(window.i18n.getMessage('importDone'));
-				} else {
+				if (!ok) {
 					this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
+					return;
 				}
+				// SettingsStore.save() aktualisiert _current vor dem Schreiben, deshalb
+				// meldet handleExternalChange keine Änderung und die Unterkomponenten
+				// (Gesten-Grid, Engine-/Menü-Manager …) behalten ihren alten Stand.
+				// Ein Reload ist der einzige Weg, den ganzen Baum neu aufzubauen.
+				sessionStorage.setItem(IMPORT_RELOAD_KEY, '1');
+				window.location.reload();
 			} catch (err) {
 				console.error('Import failed:', err);
 				this.#showStatus(window.i18n.getMessage('importFailed'), 'error');
