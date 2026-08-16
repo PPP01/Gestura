@@ -102,24 +102,20 @@ They are stored as settings data, not code, so they never affect a rebase.
 sandbox (`offscreen`), engine favicons (`favicon`), and save-as-MHTML
 (`pageCapture`). The core search/menu features work.
 
-### Packaging / permanent install
+Gestura is distributed **AMO-listed** (`a8eb50a`): Mozilla hosts, signs and
+updates it. There is no self-hosting — no `update_url`, no `updates.json`.
 
-A temporary add-on (`about:debugging`) disappears on Firefox restart. For a
-build a `.zip`/`.xpi`:
+**Full build / sign guide:**
+[`docs/firefox-build-guide.md`](docs/firefox-build-guide.md) (on the
+`firefox-build` branch). Quick reference:
 
-```bash
-git checkout firefox-build
-npx web-ext build --overwrite-dest   # writes web-ext-artifacts/*.zip (rename to .xpi)
-```
-
-A permanent install needs a **signed** `.xpi`. Two paths:
-
-- **Regular Firefox** installs only signed extensions. Sign it as an *unlisted*
-  add-on via a free Mozilla add-on account + API key:
-  `npx web-ext sign --channel=unlisted --api-key=… --api-secret=…`
-  → produces a signed `.xpi` installable in normal Firefox.
-- **Developer Edition / Nightly / ESR** can install an unsigned `.xpi` after
-  setting `xpinstall.signatures.required = false` in `about:config`.
+- Develop: `npm run ff:run`
+- Ship a version: take the version from `main` into `manifest.json`, then
+  `npm run ff:sign`. Once the signed `.xpi` lands in `web-ext-artifacts/`, the
+  version is public and installed copies auto-update via AMO.
+- **Not** `npm run ff:release` — it runs a non-optional bump first and appends a
+  fourth version digit. Only use it for a Firefox-only respin when AMO would
+  reject the number you already submitted.
 
 ## If you ever re-attempt an upstream PR
 
