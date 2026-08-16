@@ -2697,6 +2697,26 @@
 		"message": "เมื่อเพิ่มเว็บไซต์และไม่มีเมนูที่ตรงกัน ให้แสดงตัวเลือกเมนู; ปิด = เพิ่มลงในเมนูเริ่มต้นโดยไม่ถาม",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "เมนู",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "การตั้งค่า",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "ลักษณะที่ปรากฏ",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "พฤติกรรม",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "การเพิ่มเว็บไซต์",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "เมนูบริบท",
 		"description": "Section title for context menu settings"

@@ -2871,6 +2871,26 @@
 		"message": "When adding a site and no menu matches, offer a menu picker; off = add to the default menu silently",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "Menus",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "Settings",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "Appearance",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "Behavior",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "Adding sites",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"menuAddSiteToMenu": {
 		"message": "Add this page as a menu entry",
 		"description": "Prompt title when adding a site to a menu"

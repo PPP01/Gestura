@@ -2811,6 +2811,26 @@
 		"message": "Wenn beim Hinzufügen kein Menü zur Seite passt, eine Menü-Auswahl anbieten; aus = still ins Standard-Menü",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "Menüs",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "Einstellungen",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "Aussehen",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "Verhalten",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "Hinzufügen",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"menuAddSiteToMenu": {
 		"message": "Diese Seite als Menüpunkt hinzufügen",
 		"description": "Prompt title when adding a site to a menu"

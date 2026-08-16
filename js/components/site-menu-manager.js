@@ -1,5 +1,5 @@
 import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
-import { commonStyles, optionStyles } from './shared-styles.js';
+import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { SettingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
@@ -28,19 +28,23 @@ function sanitizeFilename(name) {
 	return s || 'gestura';
 }
 
-// Settings-Sektion „Website-Menüs": Liste aller Standard-Menüs (Katalog +
-// eigene), Ein/Aus, Bearbeiten (site-menu-editor), Zurücksetzen, eigene Menüs
-// anlegen/löschen, Domain-Wahl, plus globale Switcher/Theme-Einstellungen.
+// Settings-Sektion „Website-Menüs", aufgeteilt in zwei Tabs: „Menüs" listet
+// alle Standard-Menüs (Katalog + eigene) mit Ein/Aus, Bearbeiten
+// (site-menu-editor), Zurücksetzen, Anlegen/Löschen, Domain-Wahl und Import;
+// „Einstellungen" bündelt die globalen Optionen (Aussehen, Verhalten,
+// Hinzufügen).
 class SiteMenuManager extends LitElement {
 
 	static properties = {
 		_expandedId: { state: true },
+		_activeTab: { state: true },
 		advancedMode: { type: Boolean, attribute: 'advanced-mode' },
 	};
 
 	static styles = [
 		commonStyles,
 		optionStyles,
+		tabStyles,
 		css`
 			:host { display: flex; flex-direction: column; gap: 14px; }
 			.menu-list { display: flex; flex-direction: column; gap: 6px; }
@@ -72,6 +76,15 @@ class SiteMenuManager extends LitElement {
 				border-radius: 8px;
 				box-shadow: 0 0 0 0.75px var(--border-color);
 				background: var(--bg-secondary, transparent);
+			}
+			/* :host ist eine Spalte — sonst zöge die Tab-Leiste über die volle Breite. */
+			.type-switch { align-self: flex-start; }
+			.settings-groups { display: flex; flex-direction: column; gap: 18px; }
+			.settings-group { display: flex; flex-direction: column; gap: 10px; }
+			.settings-group > h3 {
+				margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+				text-transform: uppercase; color: var(--text-muted);
+				padding-bottom: 6px; border-bottom: 1px solid var(--border-color);
 			}
 			.switcher-settings { display: flex; flex-direction: column; gap: 10px; }
 			.switcher-toggle { display: flex; align-items: flex-start; gap: 10px; }
@@ -106,6 +119,7 @@ class SiteMenuManager extends LitElement {
 	constructor() {
 		super();
 		this._expandedId = '';
+		this._activeTab = 'menus';
 		this.advancedMode = false;
 		this._unsubscribe = null;
 		// Local SettingsStore.save() does not fire onChange, so imports/edits from
@@ -118,7 +132,7 @@ class SiteMenuManager extends LitElement {
 		super.connectedCallback();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = SettingsStore.onChange((changed) => {
-			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed) this.requestUpdate();
+			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed || 'siteMenuAddAsk' in changed) this.requestUpdate();
 		});
 	}
 
@@ -149,9 +163,23 @@ class SiteMenuManager extends LitElement {
 
 	render() {
 		const i18n = window.i18n;
+		const tab = (id, label) => html`
+			<button class="type-tab ${this._activeTab === id ? 'active' : ''}"
+				role="tab" aria-selected=${this._activeTab === id}
+				@click=${() => { this._activeTab = id; }}>${i18n.getMessage(label)}</button>
+		`;
+		return html`
+			<div class="type-switch" role="tablist">
+				${tab('menus', 'siteMenuTabMenus')}
+				${tab('settings', 'siteMenuTabSettings')}
+			</div>
+			${this._activeTab === 'settings' ? this.#renderSettingsTab(i18n) : this.#renderMenusTab(i18n)}
+		`;
+	}
+
+	#renderMenusTab(i18n) {
 		const menus = M().listMenus(CATALOG(), this.siteMenus);
 		return html`
-			${this.#renderGlobalSettings()}
 			<div class="menu-list">
 				${menus.map(m => this.#renderMenuRow(m, i18n))}
 			</div>
@@ -212,42 +240,72 @@ class SiteMenuManager extends LitElement {
 		downloadJson(out, `${sanitizeFilename(menuName)}.gestura-menu.json`);
 	}
 
-	#renderGlobalSettings() {
-		const i18n = window.i18n;
+	#renderSettingsTab(i18n) {
+		const group = (titleKey, body) => html`
+			<section class="settings-group">
+				<h3>${i18n.getMessage(titleKey)}</h3>
+				<div class="switcher-settings">${body}</div>
+			</section>
+		`;
+		return html`
+			<div class="settings-groups">
+				${group('siteMenuGroupAppearance', this.#renderAppearance(i18n))}
+				${group('siteMenuGroupBehavior', html`
+					${this.#renderOpenBehavior(i18n)}
+					${this.#renderMenuAppend(i18n)}
+				`)}
+				${group('siteMenuGroupAdding', this.#renderAddAsk(i18n))}
+			</div>
+		`;
+	}
+
+	#renderAppearance(i18n) {
 		const s = SettingsStore.current.customMenuSwitcher || { enabled: false, position: 'header' };
 		const theme = SettingsStore.current.customMenuTheme || 'auto';
 		const saveSwitcher = (patch) => { SettingsStore.save({ customMenuSwitcher: { ...s, ...patch } }); this.requestUpdate(); };
 		return html`
-			<div class="switcher-settings">
-				<label class="switcher-toggle">
-					<input type="checkbox" .checked=${!!s.enabled}
-						@change=${(e) => saveSwitcher({ enabled: e.target.checked })}>
-					<span class="switcher-toggle-text">
-						<span class="switcher-toggle-label">${i18n.getMessage('menuSwitcherEnable')}</span>
-						<span class="switcher-toggle-hint">${i18n.getMessage('menuSwitcherEnableHint')}</span>
-					</span>
-				</label>
-				${s.enabled ? html`
-					<div class="seg" role="group">
-						<button type="button" class=${s.position !== 'footer' ? 'active' : ''}
-							@click=${() => saveSwitcher({ position: 'header' })}>${i18n.getMessage('menuSwitcherHeader')}</button>
-						<button type="button" class=${s.position === 'footer' ? 'active' : ''}
-							@click=${() => saveSwitcher({ position: 'footer' })}>${i18n.getMessage('menuSwitcherFooter')}</button>
-					</div>
-				` : ''}
-				<div class="theme-row">
-					<span>${i18n.getMessage('menuThemeTitle')}</span>
-					<div class="seg" role="group">
-						${['auto', 'light', 'dark'].map(v => html`
-							<button type="button" class=${theme === v ? 'active' : ''}
-								@click=${() => { SettingsStore.save({ customMenuTheme: v }); this.requestUpdate(); }}
-							>${i18n.getMessage('menuTheme' + v[0].toUpperCase() + v.slice(1))}</button>
-						`)}
-					</div>
+			<label class="switcher-toggle">
+				<input type="checkbox" .checked=${!!s.enabled}
+					@change=${(e) => saveSwitcher({ enabled: e.target.checked })}>
+				<span class="switcher-toggle-text">
+					<span class="switcher-toggle-label">${i18n.getMessage('menuSwitcherEnable')}</span>
+					<span class="switcher-toggle-hint">${i18n.getMessage('menuSwitcherEnableHint')}</span>
+				</span>
+			</label>
+			${s.enabled ? html`
+				<div class="seg" role="group">
+					<button type="button" class=${s.position !== 'footer' ? 'active' : ''}
+						@click=${() => saveSwitcher({ position: 'header' })}>${i18n.getMessage('menuSwitcherHeader')}</button>
+					<button type="button" class=${s.position === 'footer' ? 'active' : ''}
+						@click=${() => saveSwitcher({ position: 'footer' })}>${i18n.getMessage('menuSwitcherFooter')}</button>
 				</div>
-				${this.#renderOpenBehavior(i18n)}
-				${this.#renderMenuAppend(i18n)}
+			` : ''}
+			<div class="theme-row">
+				<span>${i18n.getMessage('theme')}</span>
+				<div class="seg" role="group">
+					${['auto', 'light', 'dark'].map(v => html`
+						<button type="button" class=${theme === v ? 'active' : ''}
+							@click=${() => { SettingsStore.save({ customMenuTheme: v }); this.requestUpdate(); }}
+						>${i18n.getMessage('menuTheme' + v[0].toUpperCase() + v.slice(1))}</button>
+					`)}
+				</div>
 			</div>
+		`;
+	}
+
+	// „Menü abfragen, wenn keins passt" — greift nur beim Hinzufügen eines
+	// Eintrags, daher eine eigene Gruppe statt eines prominenten Sektions-Schalters.
+	#renderAddAsk(i18n) {
+		const on = SettingsStore.current.siteMenuAddAsk !== false;
+		return html`
+			<label class="switcher-toggle">
+				<input type="checkbox" .checked=${on}
+					@change=${(e) => { SettingsStore.save({ siteMenuAddAsk: e.target.checked }); this.requestUpdate(); }}>
+				<span class="switcher-toggle-text">
+					<span class="switcher-toggle-label">${i18n.getMessage('siteMenuAddAsk')}</span>
+					<span class="switcher-toggle-hint">${i18n.getMessage('siteMenuAddAskDesc')}</span>
+				</span>
+			</label>
 		`;
 	}
 

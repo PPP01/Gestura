@@ -2697,6 +2697,26 @@
 		"message": "هنگام افزودن سایت، اگر هیچ منویی مطابقت نداشته باشد، انتخاب‌گر منو نمایش داده می‌شود؛ خاموش = افزودن بی‌صدا به منوی پیش‌فرض",
 		"description": "Description for asking which menu to add to"
 	},
+	"siteMenuTabMenus": {
+		"message": "منوها",
+		"description": "Tab in the website-menus section showing the list of menus"
+	},
+	"siteMenuTabSettings": {
+		"message": "تنظیمات",
+		"description": "Tab in the website-menus section showing the global menu settings"
+	},
+	"siteMenuGroupAppearance": {
+		"message": "ظاهر",
+		"description": "Settings group: how the menus look (switcher bar, theme)"
+	},
+	"siteMenuGroupBehavior": {
+		"message": "رفتار",
+		"description": "Settings group: how the menus behave (link opening, mini search menu)"
+	},
+	"siteMenuGroupAdding": {
+		"message": "افزودن سایت‌ها",
+		"description": "Settings group: options that only apply when adding a site to a menu"
+	},
 	"contextMenuSection": {
 		"message": "منوی راست‌کلیک",
 		"description": "Section title for context menu settings"
