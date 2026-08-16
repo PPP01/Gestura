@@ -34,8 +34,8 @@ Umgebungsvariablen `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` setzen.
 | `npm run ff:run` | Startet Firefox mit der Erweiterung, lädt bei jeder Änderung neu. Nur zum Entwickeln — kein Signieren, kein Versions-Bump. |
 | `npm run ff:build` | Baut ein **unsigniertes** `.zip` nach `web-ext-artifacts/` (nur Laufzeit-Dateien). |
 | `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.6` → `2.6.1`, dann `2.6.2`, …). Nur für **Firefox-only-Nachbesserungen** — bei einem regulären Release trägst du stattdessen von Hand die Nummer von `main` ein (siehe Szenario B). |
-| `npm run ff:sign` | Reicht die Version bei **AMO** ein (Kanal `listed`) und durchläuft die AMO-Review. |
-| `npm run ff:release` | `ff:bump` dann `ff:sign` — der Ein-Befehl-Release. |
+| `npm run ff:sign` | Reicht die Version bei **AMO** ein (Kanal `listed`), wartet die Prüfung ab und lädt die signierte `.xpi` herunter. Danach ist die Version **live**. |
+| `npm run ff:release` | `ff:bump` dann `ff:sign`. ⚠️ Der Bump ist nicht abschaltbar — bei einem regulären Release **nicht** benutzen, sonst geht eine vierstellige Nummer raus (`2.6` → `2.6.1`). Siehe Szenario B. |
 
 ## Szenario A — nur entwickeln / ausprobieren
 
@@ -62,18 +62,37 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 npm run ff:sign -- --api-key=DEIN_KEY --api-secret=DEIN_SECRET
 ```
 
-`ff:sign` reicht die Version über `web-ext sign --channel=listed` bei AMO ein.
-Nach bestandener AMO-Review erscheint sie im Store; installierte Instanzen
-**aktualisieren sich automatisch über AMO**.
+`ff:sign` reicht die Version über `web-ext sign --channel=listed` bei AMO ein und
+bleibt stehen, bis die Prüfung durch ist:
 
-**Versionsnummer:** Seit 2.6 trägt der Firefox-Build dieselbe Nummer wie
-Chrome/Edge. Beim Merge kollidiert `manifest.json` immer — dort die
-Firefox-Form behalten (kein `version_name`, kein `favicon`/`offscreen`/
-`pageCapture`, `background.scripts` statt `service_worker`,
-`browser_specific_settings`) und die Version von `main` übernehmen. `ff:bump`
-bzw. `ff:release` sind dafür **nicht** zu gebrauchen — die hängen eine
-vierte Stelle an (`2.6` → `2.6.1`) und sind nur für Firefox-only-Nachbesserungen
-gedacht, wenn AMO eine bereits eingereichte Nummer ablehnt.
+```text
+Waiting for validation...
+Waiting for approval...
+Signed xpi downloaded: web-ext-artifacts/gestura_mouse_gestures-<version>.xpi
+```
+
+Sobald die signierte `.xpi` da ist, ist die Version **öffentlich** — kein
+weiterer Schritt im Developer Hub nötig, installierte Instanzen ziehen sie per
+Auto-Update. (Bei 2.6.1 lief das automatisiert durch; AMO kann eine
+veröffentlichte Version später trotzdem noch manuell nachprüfen, gerade wegen
+`<all_urls>`.)
+
+**Versionsnummer:** Ziel ist dieselbe Nummer wie Chrome/Edge. Beim Merge
+kollidiert `manifest.json` immer — dort die Firefox-Form behalten (kein
+`version_name`, kein `favicon`/`offscreen`/`pageCapture`, `background.scripts`
+statt `service_worker`, `browser_specific_settings`) und die Version von `main`
+übernehmen. Dann mit **`ff:sign`** signieren, nicht mit `ff:release`.
+
+> Beim 2.6-Release ist genau das schiefgegangen: `ff:release` lief, der
+> eingebaute `ff:bump` machte `2.6` → `2.6.1`, und diese Nummer ging bei AMO
+> raus. Firefox steht deshalb auf **2.6.1**, Chrome/Edge auf **2.6** — derselbe
+> Code. Ein Versatz in der letzten Stelle ist verschmerzbar (2.3/2.3.1 und
+> 2.5/2.5.1 waren genauso), aber vermeidbar: `ff:release` nur nehmen, wenn du
+> eine Firefox-only-Nachbesserung nachschieben willst und AMO die bereits
+> eingereichte Nummer ohnehin ablehnen würde.
+
+Nach dem Signieren den Bump **committen** — sonst weicht die bei AMO
+veröffentlichte Version von der in git ab.
 
 Hinweise:
 

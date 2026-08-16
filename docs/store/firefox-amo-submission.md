@@ -111,10 +111,17 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 
 ## Nach der Einreichung
 
-- **Review:** AMO prüft automatisiert, teils manuell (bei breiten Permissions wie
-  `<all_urls>` wahrscheinlicher). Rückmeldung per E-Mail ans Entwicklerkonto.
-- **Updates:** `firefox-build` aktualisieren → `npm run ff:release …` (bumpt Version,
-  signiert, reicht ein). Version muss höher sein als die letzte auf AMO.
+- **Review:** läuft in der Praxis automatisiert durch. `ff:sign` wartet sie ab
+  (`Waiting for validation...` → `Waiting for approval...`); sobald die signierte
+  `.xpi` in `web-ext-artifacts/` liegt, ist die Version **öffentlich** und das
+  Auto-Update greift — so lief es bei 2.6.1. AMO kann eine bereits
+  veröffentlichte Version danach noch manuell nachprüfen, bei breiten
+  Permissions wie `<all_urls>` eher; Rückmeldung dann per E-Mail ans
+  Entwicklerkonto.
+- **Updates:** `firefox-build` aktualisieren → Version aus `main` ins Manifest →
+  `npm run ff:sign …`. Die Nummer muss höher sein als die letzte auf AMO.
+  **Nicht** `ff:release` nehmen: das bumpt ungefragt eine vierte Stelle dazu
+  (Details in [`docs/firefox-build-guide.md`](../firefox-build-guide.md)).
 - **Auto-Update (self-hosted, optional):** `update_url` + `updates.json` sind im
   `firefox-build` vorbereitet — Details in [`docs/firefox-build-guide.md`](../firefox-build-guide.md).
 
