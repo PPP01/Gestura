@@ -67,10 +67,13 @@ npm run ff:release
 ```
 
 - `ff:release` **fragt selbständig** nach dem API-Key (Format `user:XXX`) und
-  dem Secret — die Credentials müssen **nicht** mit ins Kommando. (Optional
-  gehen sie weiterhin per `-- --api-key=… --api-secret=…`.)
+  dem Secret (wird nicht angezeigt) und reicht beides über die Umgebung an
+  `web-ext` weiter. Die Credentials gehören **nie** ins Kommando — als
+  `--api-key=…` landen sie in der Shell-History. Alternativ vorab
+  `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` setzen, dann fragt es nicht.
 - `ff:release` = `ff:bump` (Versionsnummer hochzählen) + `ff:sign`
-  (`web-ext sign --channel=listed`).
+  (`web-ext sign --channel=listed`). Hast du die Version schon selbst gesetzt
+  (etwa beim Merge von `main` übernommen), hängst du `-- --no-bump` an.
 - `channel=listed` reicht die signierte, **gelistete** XPI direkt bei AMO ein.
 - Danach im Developer Hub das **Listing** vervollständigen (siehe unten).
 
@@ -82,9 +85,7 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 
 ### Weg B — Upload über die AMO-Weboberfläche 👤
 
-1. `npm run ff:build` → `web-ext-artifacts/gestura_-_mouse_gestures-<version>.zip`
-   (web-ext leitet den Dateinamen aus dem Erweiterungsnamen ab, aktuell
-   `gestura_-_mouse_gestures-2.6.zip`).
+1. `npm run ff:build` → `web-ext-artifacts/gestura-<version>.zip`.
 2. Developer Hub → **Submit a New Add-on** → **On this site** (gelistet) →
    ZIP hochladen. AMO signiert automatisch nach dem Review.
 
@@ -111,19 +112,18 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 
 ## Nach der Einreichung
 
-- **Review:** läuft in der Praxis automatisiert durch. `ff:sign` wartet sie ab
+- **Review:** läuft in der Praxis automatisiert durch. `ff:release` wartet sie ab
   (`Waiting for validation...` → `Waiting for approval...`); sobald die signierte
   `.xpi` in `web-ext-artifacts/` liegt, ist die Version **öffentlich** und das
   Auto-Update greift — so lief es bei 2.6.1. AMO kann eine bereits
   veröffentlichte Version danach noch manuell nachprüfen, bei breiten
   Permissions wie `<all_urls>` eher; Rückmeldung dann per E-Mail ans
   Entwicklerkonto.
-- **Updates:** `firefox-build` aktualisieren → Version aus `main` ins Manifest →
-  `npm run ff:sign …`. Die Nummer muss höher sein als die letzte auf AMO.
-  **Nicht** `ff:release` nehmen: das bumpt ungefragt eine vierte Stelle dazu
-  (Details in [`docs/firefox-build-guide.md`](../firefox-build-guide.md)).
-- **Auto-Update (self-hosted, optional):** `update_url` + `updates.json` sind im
-  `firefox-build` vorbereitet — Details in [`docs/firefox-build-guide.md`](../firefox-build-guide.md).
+- **Updates:** `firefox-build` aktualisieren → `npm run ff:release`. Die Nummer
+  muss höher sein als die letzte auf AMO; darum bumpt das Skript vorab. Willst
+  du die Version von `main` unverändert ausliefern, `-- --no-bump` anhängen.
+- **Auto-Update:** übernimmt AMO. Kein Self-Hosting — es gibt weder `update_url`
+  noch `updates.json` (siehe `a8eb50a`).
 
 ---
 

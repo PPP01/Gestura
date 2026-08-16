@@ -48,7 +48,7 @@ Load the repo folder at `chrome://extensions` (Developer mode → "Load unpacked
 
 ## Releasing
 
-Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then build the package. Chrome and Edge upload the *same* zip. Firefox is signed and published from `firefox-build` with `npm run ff:sign` — **not** `npm run ff:release`, which runs a non-optional bump first and appends a fourth version digit. Step-by-step store guides live in [docs/store/](docs/store/); the Firefox build/sign mechanics are in `docs/firefox-build-guide.md` on the `firefox-build` branch.
+Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then build the package. Chrome and Edge upload the *same* zip. Firefox is signed and published from `firefox-build` with **`npm run ff:release`**, which prompts for the AMO credentials and hands them to `web-ext` via the environment — never call `ff:sign` with `--api-key=` on the command line, that puts the secret in the shell history. `ff:release` bumps the version first (AMO refuses a number it already signed); add `-- --no-bump` when you already took the version from `main`. Step-by-step store guides live in [docs/store/](docs/store/); the Firefox build/sign mechanics are in `docs/firefox-build-guide.md` on the `firefox-build` branch.
 
 ### `version_name` is generated — never edit it
 

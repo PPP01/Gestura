@@ -110,12 +110,26 @@ updates it. There is no self-hosting — no `update_url`, no `updates.json`.
 `firefox-build` branch). Quick reference:
 
 - Develop: `npm run ff:run`
-- Ship a version: take the version from `main` into `manifest.json`, then
-  `npm run ff:sign`. Once the signed `.xpi` lands in `web-ext-artifacts/`, the
-  version is public and installed copies auto-update via AMO.
-- **Not** `npm run ff:release` — it runs a non-optional bump first and appends a
-  fourth version digit. Only use it for a Firefox-only respin when AMO would
-  reject the number you already submitted.
+- Ship a version: **`npm run ff:release`**. It prompts for the AMO key and
+  secret (the secret is not echoed) and passes them to `web-ext` through the
+  environment, so they never reach your shell history — always prefer it over
+  calling `ff:sign` with `--api-key=…` on the command line.
+- Once the signed `.xpi` lands in `web-ext-artifacts/`, the version is public
+  and installed copies auto-update via AMO.
+
+`ff:release` bumps the version before signing, because AMO refuses a number it
+has already signed and the script cannot know whether the current one went out.
+The third digit is the Firefox build counter for `main`'s feature set — 2.6 →
+`2.6.1` means "first Firefox build of the 2.6 features". Note that `2.6` and
+`2.6.0` are the *same* version to Firefox (missing parts count as 0), which is
+why the bump skips `2.6.0`.
+
+If you already raised the version yourself — usually by taking it from `main`
+during the merge — skip the bump and keep your number:
+
+```bash
+npm run ff:release -- --no-bump
+```
 
 ## If you ever re-attempt an upstream PR
 
