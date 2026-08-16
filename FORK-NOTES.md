@@ -28,7 +28,7 @@ repo-local; add `--global` to apply everywhere).
 | Branch | Role | Keep it… |
 |---|---|---|
 | `main` | **Your Gestura product (Chrome/Edge).** The Gestura commits (feature + rebrand) stacked on `upstream/main`. Default branch; this is what you load as the unpacked extension. | rebased on `upstream/main` |
-| `firefox-build` | **Firefox build.** `main` + Firefox commits (Firefox manifest, `menu-patterns.js` via `background.scripts` + `importScripts` guard, Chrome-only entries dropped, AMO-listed distribution). Load this in Firefox. See "Firefox" below. | rebased on `main` |
+| `firefox-build` | **Firefox build.** `main` + Firefox commits (Firefox manifest, `menu-patterns.js` via `background.scripts` + `importScripts` guard, Chrome-only entries dropped, AMO-listed distribution). Load this in Firefox. See "Firefox" below. | **merged** from `main` — never rebased |
 | `feature/search-links` | Full 130-commit development history + the plans/recon docs + the personal-engines migration snippet (`docs/dev/`). Archive — don't rebase. | untouched |
 | `firefox-test` | Old Firefox branch (built on the 130-commit history). Backup — safe to delete once `firefox-build` is confirmed. | — |
 
@@ -52,18 +52,38 @@ git rebase upstream/main
 #   (usually a few _locales/* files — always keep "Gestura"), then:
 git push --force-with-lease gestura main
 
-# 2. replay the Firefox build on top of the updated main
+# 2. carry the updated main into the Firefox build — merge, never rebase
 git checkout firefox-build
-git rebase main
-git push --force-with-lease gestura firefox-build
+git merge main
+#   conflicts: manifest.json (keep the Firefox form, take main's version),
+#   and CHANGELOG.md on release merges
+git push gestura firefox-build
 
 git checkout main
 ```
 
-Rebase rewrites history, hence the `--force-with-lease` push (fine for a
-solo-maintained fork). Because Gestura is a small linear stack, conflicts are
+Rebase rewrites history, hence the `--force-with-lease` push on `main` (fine for
+a solo-maintained fork). Because Gestura is a small linear stack, conflicts are
 localized and rare (mostly the ~40 `_locales` files). Do *not* rebase
 `feature/search-links` (130 commits = pain); it is only kept for reference.
+
+### Why `main` rebases but `firefox-build` merges
+
+Not an inconsistency — the two branches have different jobs.
+
+`main` is replayed onto `upstream/main` so it stays a clean, inspectable patch
+stack; that stack is the thing that could theoretically go upstream one day
+(see the last section). `firefox-build` goes nowhere: it is only built and
+signed. Two things make merging the better fit there:
+
+- **Conflicts stay small.** A merge resolves against the previous merge base, so
+  each release only re-decides what changed since — not the whole Firefox
+  manifest shape. A rebase replays every Firefox commit onto a base it has never
+  seen and re-fights the same `manifest.json` conflict every time. (`git config
+  rerere.enabled true` would soften that, but it is not set.)
+- **Shipped commits keep their hashes.** Each `release(ff): x.y.z` commit is the
+  exact source of a signed artifact published on AMO. Rebasing would give it a
+  new hash and tree, and "which commit was 2.6.1?" stops being answerable.
 
 ## Personal (German) search engines
 
