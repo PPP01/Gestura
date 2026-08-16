@@ -2775,6 +2775,14 @@
 		"message": "Aktuelle Seite (oder den angeklickten Link) zu einem Website-Menü hinzufügen",
 		"description": "Description for add site context menu entry"
 	},
+	"ctxMenuAssignSite": {
+		"message": "Website-Menü für diese Seite festlegen",
+		"description": "Label for context menu entry that assigns a pattern to a menu"
+	},
+	"ctxMenuAssignSiteDesc": {
+		"message": "Aktuelle Seite als Muster hinterlegen, damit dieses Website-Menü hier künftig immer öffnet — und die Zuordnung später ändern oder entfernen",
+		"description": "Description for assign site context menu entry"
+	},
 	"ctxMenuSiteMenu": {
 		"message": "Website-Menü öffnen",
 		"description": "Label for context menu entry to open website menu"
@@ -2804,12 +2812,20 @@
 		"description": "Description for asking which menu to add to"
 	},
 	"menuAddSiteToMenu": {
-		"message": "Diese Seite zu Menü hinzufügen",
+		"message": "Diese Seite als Menüpunkt hinzufügen",
 		"description": "Prompt title when adding a site to a menu"
 	},
 	"menuAddSiteToNamed": {
 		"message": "Zu Menü „{NAME}“ hinzufügen",
 		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuRemoveSiteFromNamed": {
+		"message": "Aus Menü „{NAME}“ entfernen",
+		"description": "Menu entry template shown when the page is already an entry of that menu"
+	},
+	"menuLinkAlreadyInMenu": {
+		"message": "Steht bereits im Menü „{NAME}“",
+		"description": "Toast shown when the clicked link is already an entry of that menu"
 	},
 	"menuOpenSiteMenu": {
 		"message": "Website-Menü öffnen",
@@ -2822,6 +2838,30 @@
 	"ctxTitlePromptLabel": {
 		"message": "Titel für den Menüeintrag",
 		"description": "Label for the title input when adding a custom menu entry"
+	},
+	"ctxPatternPromptLabel": {
+		"message": "Muster für dieses Website-Menü (* = beliebige Zeichen)",
+		"description": "Label for the pattern input when assigning a website menu to a page"
+	},
+	"ctxPatternWholeDomain": {
+		"message": "Ganze Seite",
+		"description": "Toggle in the pattern dialog: use the whole site instead of the current page"
+	},
+	"ctxPatternWholeDomainTitle": {
+		"message": "Ein: Das Menü öffnet auf der ganzen Website. Aus: nur im aktuellen Pfad — das Muster wird zum Bearbeiten freigegeben.",
+		"description": "Tooltip for the whole-site toggle in the pattern dialog"
+	},
+	"menuAssignSiteToMenu": {
+		"message": "Website-Menü für diese Seite festlegen",
+		"description": "Context menu parent entry for assigning a website menu to the current page"
+	},
+	"menuAssignedToNamed": {
+		"message": "Zugeordnet: {NAME}",
+		"description": "Context menu parent entry shown when the page already matches a website menu"
+	},
+	"menuAssignClear": {
+		"message": "Zuordnung entfernen",
+		"description": "Context menu entry that drops the patterns matching the current page"
 	},
 	"exchangeImportTitle": {
 		"message": "Menü oder Engine importieren"

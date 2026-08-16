@@ -2835,6 +2835,14 @@
 		"message": "Add the current page (or the right-clicked link) to a website menu",
 		"description": "Description for add site context menu entry"
 	},
+	"ctxMenuAssignSite": {
+		"message": "Set website menu for this page",
+		"description": "Label for context menu entry that assigns a pattern to a menu"
+	},
+	"ctxMenuAssignSiteDesc": {
+		"message": "Store the current page as a pattern so this website menu always opens here — and change or remove that assignment later",
+		"description": "Description for assign site context menu entry"
+	},
 	"ctxMenuSiteMenu": {
 		"message": "Open website menu",
 		"description": "Label for context menu entry to open website menu"
@@ -2864,12 +2872,20 @@
 		"description": "Description for asking which menu to add to"
 	},
 	"menuAddSiteToMenu": {
-		"message": "Add this site to menu",
+		"message": "Add this page as a menu entry",
 		"description": "Prompt title when adding a site to a menu"
 	},
 	"menuAddSiteToNamed": {
 		"message": "Add to menu \"{NAME}\"",
 		"description": "Menu entry template for adding to a named menu"
+	},
+	"menuRemoveSiteFromNamed": {
+		"message": "Remove from menu \"{NAME}\"",
+		"description": "Menu entry template shown when the page is already an entry of that menu"
+	},
+	"menuLinkAlreadyInMenu": {
+		"message": "Already in menu \"{NAME}\"",
+		"description": "Toast shown when the clicked link is already an entry of that menu"
 	},
 	"menuOpenSiteMenu": {
 		"message": "Open Website menu",
@@ -2882,6 +2898,30 @@
 	"ctxTitlePromptLabel": {
 		"message": "Title for the menu entry",
 		"description": "Label for the title input when adding a custom menu entry"
+	},
+	"ctxPatternPromptLabel": {
+		"message": "Pattern for this website menu (* = any characters)",
+		"description": "Label for the pattern input when assigning a website menu to a page"
+	},
+	"ctxPatternWholeDomain": {
+		"message": "Whole site",
+		"description": "Toggle in the pattern dialog: use the whole site instead of the current page"
+	},
+	"ctxPatternWholeDomainTitle": {
+		"message": "On: the menu opens across the whole website. Off: only within the current path — the pattern is unlocked for editing.",
+		"description": "Tooltip for the whole-site toggle in the pattern dialog"
+	},
+	"menuAssignSiteToMenu": {
+		"message": "Set website menu for this page",
+		"description": "Context menu parent entry for assigning a website menu to the current page"
+	},
+	"menuAssignedToNamed": {
+		"message": "Assigned to: {NAME}",
+		"description": "Context menu parent entry shown when the page already matches a website menu"
+	},
+	"menuAssignClear": {
+		"message": "Remove assignment",
+		"description": "Context menu entry that drops the patterns matching the current page"
 	},
 	"exchangeImportTitle": {
 		"message": "Import menu or engine"

@@ -55,6 +55,7 @@ describe("DEFAULT_SETTINGS", () => {
 	it("context-menu feature flags default on with contextual site-menu mode", () => {
 		expect(DEFAULT_SETTINGS.enableContextMenu).toBe(true);
 		expect(DEFAULT_SETTINGS.ctxMenuAddSite).toBe(true);
+		expect(DEFAULT_SETTINGS.ctxMenuAssignSite).toBe(true);
 		expect(DEFAULT_SETTINGS.ctxMenuSiteMenu).toBe(true);
 		expect(DEFAULT_SETTINGS.ctxMenuSiteMenuMode).toBe("contextual");
 		expect(DEFAULT_SETTINGS.ctxMenuSiteMenuId).toBe("");

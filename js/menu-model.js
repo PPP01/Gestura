@@ -299,6 +299,26 @@
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: pattern };
 	}
 
+	function removePatternFromMenu(catalog, siteMenus, menuId, pattern) {
+		if (!pattern) return { siteMenus, removed: null };
+		const base = getBaseMenu(catalog, siteMenus, menuId);
+		if (!base) return { siteMenus, removed: null };
+		const cur = base.patterns || [];
+		if (!cur.includes(pattern)) return { siteMenus, removed: null };
+		const def = { ...base, patterns: cur.filter(p => p !== pattern) };
+		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), removed: pattern };
+	}
+
+	// Welche Muster eines Menüs greifen für diese URL? Jedes Muster wird einzeln
+	// geprüft — matchesPatterns behandelt eine leere Liste als „passt immer“,
+	// ein Menü ohne Muster soll hier aber nie treffen.
+	function patternsMatchingUrl(catalog, siteMenus, menuId, url, matchesPatterns) {
+		if (!url || typeof matchesPatterns !== 'function') return [];
+		const base = getBaseMenu(catalog, siteMenus, menuId);
+		if (!base) return [];
+		return (base.patterns || []).filter(p => p && matchesPatterns(url, [p]));
+	}
+
 	function newItemId() {
 		try {
 			return 'item_' + crypto.randomUUID().replace(/-/g, '').slice(0, 10);
@@ -327,6 +347,25 @@
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: item };
 	}
 
+	// Gegenstück zur Dedupe-Prüfung in addLinkToMenu: dieselbe Gleichheit über
+	// customUrl. Katalog-Einträge mit {domain}-Platzhalter treffen dabei nie auf
+	// eine konkrete URL — das sind Vorlagen, keine hinzugefügten Seiten.
+	function findLinkInMenu(catalog, siteMenus, menuId, url) {
+		if (!url) return null;
+		const base = getBaseMenu(catalog, siteMenus, menuId);
+		if (!base) return null;
+		return (base.items || []).find(it => it && it.customUrl === url) || null;
+	}
+
+	function removeLinkFromMenu(catalog, siteMenus, menuId, url) {
+		const hit = findLinkInMenu(catalog, siteMenus, menuId, url);
+		if (!hit) return { siteMenus, removed: null };
+		const base = getBaseMenu(catalog, siteMenus, menuId);
+		// Alle Dubletten mitnehmen — Altbestände können mehrere tragen.
+		const def = { ...base, items: (base.items || []).filter(it => !it || it.customUrl !== url) };
+		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), removed: hit };
+	}
+
 	const api = {
 		getBaseMenu, listMenus, listActiveMenus,
 		emptyFork, resolveFork,
@@ -334,7 +373,8 @@
 		resolveMenu, resolveContextualMenuId, applyDomain, applyMenuAppend,
 		withMenuDef, withMenuReset, withMenuDisabled, withoutCustomMenu, withDomain,
 		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu, itemOpenConfig,
-		addPatternToMenu, addLinkToMenu,
+		addPatternToMenu, removePatternFromMenu, patternsMatchingUrl,
+		addLinkToMenu, findLinkInMenu, removeLinkFromMenu,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuModel = api;

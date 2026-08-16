@@ -1531,7 +1531,12 @@ const MENU_ID_BLACKLIST = 'flowmouse-blacklist-toggle';
 const MENU_ID_OPTIONS = 'flowmouse-open-options';
 const MENU_ID_SITEMENU = 'flowmouse-open-sitemenu';
 const MENU_ID_ADD_PARENT = 'flowmouse-add-site-parent';
-const CTX_ADD_PREFIX = 'flowmouse-add-site::';   // + menuId
+const MENU_ID_ASSIGN_PARENT = 'flowmouse-assign-site-parent';
+const MENU_ID_ASSIGN_CLEAR = 'flowmouse-assign-clear';
+const CTX_ADD_PREFIX = 'flowmouse-add-site::';   // + menuId (Seite/Bild)
+const CTX_ADD_LINK_PREFIX = 'flowmouse-add-link::';   // + menuId (Link)
+const CTX_REMOVE_PREFIX = 'flowmouse-remove-site::';   // + menuId (Seite/Bild)
+const CTX_ASSIGN_PREFIX = 'flowmouse-assign-site::';   // + menuId
 
 function menuDisplayName(m) {
 	// m = Eintrag aus listActiveMenus (hat .id, .def)
@@ -1552,15 +1557,23 @@ function matchingSiteMenuIds(url) {
 		.map(m => m.id);
 }
 
-function removeContextMenuExtras() {
-	for (const id of [MENU_ID_OPTIONS, MENU_ID_SITEMENU, MENU_ID_ADD_PARENT]) {
-		chrome.contextMenus.remove(id, () => { chrome.runtime.lastError; });
+// Löst die Zuordnung einer Seite: entfernt aus allen aktiven Menüs die Muster,
+// die auf url passen, und gibt sie zusammen mit den geänderten siteMenus
+// zurück. Die Muster sind die Basis fürs Umhängen auf ein anderes Menü.
+function detachSitePatterns(siteMenus, url) {
+	const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
+	const mp = self.FlowMouseSearchUrl.matchesPatterns;
+	const model = self.FlowMouseMenuModel;
+	const ids = model.listActiveMenus(catalog, siteMenus).map(m => m.id);
+	let sm = siteMenus;
+	const patterns = [];
+	for (const id of ids) {
+		for (const p of model.patternsMatchingUrl(catalog, sm, id, url, mp)) {
+			if (!patterns.includes(p)) patterns.push(p);
+			({ siteMenus: sm } = model.removePatternFromMenu(catalog, sm, id, p));
+		}
 	}
-	self._ctxAddIds = self._ctxAddIds || [];
-	for (const id of self._ctxAddIds) {
-		chrome.contextMenus.remove(id, () => { chrome.runtime.lastError; });
-	}
-	self._ctxAddIds = [];
+	return { siteMenus: sm, patterns };
 }
 
 let fileSchemeAllowed = false;
@@ -1614,17 +1627,7 @@ function getMsg(key, fallback) {
 	}
 }
 
-function removeAllMenus() {
-	chrome.contextMenus.remove(MENU_ID_REFRESH, () => { chrome.runtime.lastError; });
-	chrome.contextMenus.remove(MENU_ID_RESTRICTED, () => { chrome.runtime.lastError; });
-}
-
-function removeBlacklistMenu() {
-	chrome.contextMenus.remove(MENU_ID_BLACKLIST, () => { chrome.runtime.lastError; });
-}
-
 function createBlacklistMenu(isInBlacklist) {
-	removeBlacklistMenu();
 	const title = isInBlacklist
 		? chrome.i18n.getMessage('menuRemoveFromBlacklist')
 		: chrome.i18n.getMessage('menuAddToBlacklist');
@@ -1636,7 +1639,6 @@ function createBlacklistMenu(isInBlacklist) {
 }
 
 function createRefreshMenu() {
-	removeAllMenus();
 	const title = chrome.i18n.getMessage('menuNeedRefresh');
 	chrome.contextMenus.create({
 		id: MENU_ID_REFRESH,
@@ -1646,7 +1648,6 @@ function createRefreshMenu() {
 }
 
 function createRestrictedMenu() {
-	removeAllMenus();
 	const title = chrome.i18n.getMessage('menuRestricted');
 	chrome.contextMenus.create({
 		id: MENU_ID_RESTRICTED,
@@ -1667,25 +1668,35 @@ function updateBadge(tabId, status) {
 	}
 }
 
+// Aufbau-Generation: chrome.tabs.onUpdated und onActivated können sich
+// überlappen, und updateMenuForTab hat mehrere await-Punkte. Ohne Guard baut
+// ein älterer Lauf nach dem removeAll() eines jüngeren weiter auf und
+// hinterlässt Einträge aus der vorigen Seite (z. B. ein „Zu Menü X
+// hinzufügen“ über den frisch erzeugten Einträgen).
+let menuBuildSeq = 0;
+
 async function updateMenuForTab(tab) {
 	const tabId = tab.id;
 	const url = tab.url;
 	const status = tab.status;
+	const gen = ++menuBuildSeq;
+	const stale = () => gen !== menuBuildSeq;
+
+	// Immer zuerst alles wegräumen; unten in fester Reihenfolge neu aufbauen.
+	// removeAll() statt Buchführung über erzeugte IDs: die dynamischen
+	// „…::<menuId>“-Einträge überlebten sonst einen Neustart des Service
+	// Workers, weil die ID-Liste nur im Worker-Speicher lag.
+	await chrome.contextMenus.removeAll();
+	if (stale()) return;
 
 	if (status === 'loading') {
-		removeAllMenus();
-		removeContextMenuExtras();
 		updateBadge(tabId, 'normal');
 		return;
 	}
 
-	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist', 'enableSiteMenus', 'enableContextMenu', 'ctxMenuAddSite', 'ctxMenuSiteMenu', 'ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId', 'ctxMenuOptions', 'siteMenuAddAsk', 'siteMenus']);
+	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist', 'enableSiteMenus', 'enableContextMenu', 'ctxMenuAddSite', 'ctxMenuAssignSite', 'ctxMenuSiteMenu', 'ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId', 'ctxMenuOptions', 'siteMenuAddAsk', 'siteMenus']);
+	if (stale()) return;
 	self._siteMenusCache = items.siteMenus || {};
-
-	// Immer zuerst alles wegräumen; unten in fester Reihenfolge neu aufbauen.
-	removeAllMenus();
-	removeBlacklistMenu();
-	removeContextMenuExtras();
 
 	// Kontextmenü-Feature aus → gar kein FlowMouse-Eintrag im Rechtsklick-Menü.
 	if (items.enableContextMenu === false) {
@@ -1706,7 +1717,8 @@ async function updateMenuForTab(tab) {
 	const pageOk = !!hostname && !restricted && !isBlacklistedHost;
 
 	// Reihenfolge im Rechtsklick-Menü:
-	// 1) Optionen  2) Gesten-Toggle  3) Hinweis  4) Website-Menü öffnen  5) Zu Menü hinzufügen
+	// 1) Optionen  2) Gesten-Toggle  3) Hinweis  4) Website-Menü öffnen
+	// 5) Zu Menü hinzufügen  6) Website-Menü für diese Seite festlegen
 
 	// 1) Optionen
 	if (items.ctxMenuOptions !== false) {
@@ -1733,6 +1745,7 @@ async function updateMenuForTab(tab) {
 		}
 	} else if (hostname) {
 		const loaded = await isContentScriptLoaded(tabId);
+		if (stale()) return;
 		if (!loaded && showNotice) {
 			createRefreshMenu();
 			badge = 'needRefresh';
@@ -1748,48 +1761,104 @@ async function updateMenuForTab(tab) {
 		}, () => { chrome.runtime.lastError; });
 	}
 
-	// 5) Zu einem Website-Menü hinzufügen
+	// 5) Zu einem Website-Menü hinzufügen bzw. wieder daraus entfernen
 	if (pageOk && siteMenusOn && items.ctxMenuAddSite !== false) {
 		const matches = matchingSiteMenuIds(url);
 		const active = activeSiteMenus();
-		self._ctxAddIds = self._ctxAddIds || [];
-		if (matches.length === 1) {
-			const m = active.find(x => x.id === matches[0]);
-			const addId = CTX_ADD_PREFIX + matches[0];
-			self._ctxAddIds.push(addId);
+
+		// Pro Menü zwei Einträge, die einander ausschließen: Chrome blendet den
+		// Link-Eintrag nur beim Rechtsklick auf einen Link ein, den Seiten-Eintrag
+		// nur sonst. Nötig, weil der Seiten-Eintrag auf „entfernen“ kippt, sobald
+		// die Seite schon im Menü steht — der Zielort eines Links aber beim Aufbau
+		// des Menüs noch unbekannt ist und dort weiterhin „hinzufügen“ gelten muss.
+		const addEntries = (m, parentId) => {
+			const name = menuDisplayName(m);
+			const has = !!self.FlowMouseMenuModel.findLinkInMenu(
+				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, self._siteMenusCache, m.id, url);
+			const named = (key, fallback) => getMsg(key, fallback).replace('{NAME}', name);
+			const parent = parentId ? { parentId } : {};
 			chrome.contextMenus.create({
-				id: addId,
-				title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
-				contexts: ['page', 'link', 'image']
+				...parent,
+				id: (has ? CTX_REMOVE_PREFIX : CTX_ADD_PREFIX) + m.id,
+				// Im Untermenü tragen die Kinder sonst nur den Menünamen; ein
+				// „entfernen“ muss dort aber ausgeschrieben stehen.
+				title: (has || !parentId) ? named(has ? 'menuRemoveSiteFromNamed' : 'menuAddSiteToNamed', has ? 'Remove from menu' : 'Add to menu') : name,
+				contexts: ['page', 'image']
 			}, () => { chrome.runtime.lastError; });
+			chrome.contextMenus.create({
+				...parent,
+				id: CTX_ADD_LINK_PREFIX + m.id,
+				title: parentId ? name : named('menuAddSiteToNamed', 'Add to menu'),
+				contexts: ['link']
+			}, () => { chrome.runtime.lastError; });
+		};
+
+		if (matches.length === 1) {
+			addEntries(active.find(x => x.id === matches[0]), null);
 		} else if (items.siteMenuAddAsk !== false) {
 			chrome.contextMenus.create({
 				id: MENU_ID_ADD_PARENT,
 				title: getMsg('menuAddSiteToMenu', 'Add this site to menu'),
 				contexts: ['page', 'link', 'image']
 			}, () => { chrome.runtime.lastError; });
-			for (const m of active) {
-				const addId = CTX_ADD_PREFIX + m.id;
-				self._ctxAddIds.push(addId);
-				chrome.contextMenus.create({
-					id: addId,
-					parentId: MENU_ID_ADD_PARENT,
-					title: menuDisplayName(m),
-					contexts: ['page', 'link', 'image']
-				}, () => { chrome.runtime.lastError; });
-			}
+			for (const m of active) addEntries(m, MENU_ID_ADD_PARENT);
 		} else {
 			// Nicht fragen: still ins exklusive Standard-Menü (falls aktiv)
 			const dm = self._siteMenusCache.defaultMenuId || '';
-			const dmActive = dm && active.some(x => x.id === dm);
-			if (dmActive) {
-				const m = active.find(x => x.id === dm);
-				const addId = CTX_ADD_PREFIX + dm;
-				self._ctxAddIds.push(addId);
+			const m = dm ? active.find(x => x.id === dm) : null;
+			if (m) addEntries(m, null);
+		}
+	}
+
+	// 6) Website-Menü für diese Seite festlegen bzw. bestehende Zuordnung
+	//    umhängen/entfernen. Anders als 5) legt das nur ein Muster an — kein
+	//    Link-Eintrag im Menü.
+	if (pageOk && siteMenusOn && items.ctxMenuAssignSite !== false) {
+		const active = activeSiteMenus();
+		const assigned = matchingSiteMenuIds(url);
+		if (assigned.length) {
+			// Zugeordnet: Untermenü zum Umhängen auf ein anderes Menü + Entfernen.
+			const cur = active.find(x => x.id === assigned[0]);
+			chrome.contextMenus.create({
+				id: MENU_ID_ASSIGN_PARENT,
+				title: getMsg('menuAssignedToNamed', 'Assigned to: {NAME}').replace('{NAME}', menuDisplayName(cur)),
+				contexts: ['all']
+			}, () => { chrome.runtime.lastError; });
+			const others = active.filter(m => !assigned.includes(m.id));
+			for (const m of others) {
 				chrome.contextMenus.create({
-					id: addId,
-					title: getMsg('menuAddSiteToNamed', 'Add to menu').replace('{NAME}', menuDisplayName(m)),
-					contexts: ['page', 'link', 'image']
+					id: CTX_ASSIGN_PREFIX + m.id,
+					parentId: MENU_ID_ASSIGN_PARENT,
+					title: menuDisplayName(m),
+					contexts: ['all']
+				}, () => { chrome.runtime.lastError; });
+			}
+			if (others.length) {
+				chrome.contextMenus.create({
+					id: MENU_ID_ASSIGN_PARENT + '-sep',
+					parentId: MENU_ID_ASSIGN_PARENT,
+					type: 'separator',
+					contexts: ['all']
+				}, () => { chrome.runtime.lastError; });
+			}
+			chrome.contextMenus.create({
+				id: MENU_ID_ASSIGN_CLEAR,
+				parentId: MENU_ID_ASSIGN_PARENT,
+				title: getMsg('menuAssignClear', 'Remove assignment'),
+				contexts: ['all']
+			}, () => { chrome.runtime.lastError; });
+		} else if (active.length) {
+			chrome.contextMenus.create({
+				id: MENU_ID_ASSIGN_PARENT,
+				title: getMsg('menuAssignSiteToMenu', 'Set website menu for this page'),
+				contexts: ['all']
+			}, () => { chrome.runtime.lastError; });
+			for (const m of active) {
+				chrome.contextMenus.create({
+					id: CTX_ASSIGN_PREFIX + m.id,
+					parentId: MENU_ID_ASSIGN_PARENT,
+					title: menuDisplayName(m),
+					contexts: ['all']
 				}, () => { chrome.runtime.lastError; });
 			}
 		}
@@ -1857,32 +1926,94 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		const config = (cfg.ctxMenuSiteMenuMode === 'standard' && menuId) ? { mode: 'standard', menuId } : { mode: 'contextual' };
 		chrome.tabs.sendMessage(tab.id, { action: 'openSiteMenuOverlay', config }, { frameId: info.frameId || 0 })
 			.catch(() => {});
-	} else if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith(CTX_ADD_PREFIX)) {
+	} else if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith(CTX_REMOVE_PREFIX)) {
+		// Nur im Seiten-/Bild-Kontext vorhanden, dort gibt es keine linkUrl.
 		if (!tab || !tab.url) return;
-		const menuId = info.menuItemId.slice(CTX_ADD_PREFIX.length);
-		const url = info.linkUrl || tab.url;
+		const menuId = info.menuItemId.slice(CTX_REMOVE_PREFIX.length);
+		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
+		const { siteMenus, removed } = self.FlowMouseMenuModel.removeLinkFromMenu(
+			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url);
+		if (!removed) return;
+		self._siteMenusCache = siteMenus;
+		await chrome.storage.sync.set({ siteMenus });
+	} else if (typeof info.menuItemId === 'string' &&
+			(info.menuItemId.startsWith(CTX_ADD_PREFIX) || info.menuItemId.startsWith(CTX_ADD_LINK_PREFIX))) {
+		if (!tab || !tab.url) return;
 		const isLink = !!info.linkUrl;
+		const menuId = info.menuItemId.slice((isLink ? CTX_ADD_LINK_PREFIX : CTX_ADD_PREFIX).length);
+		const url = info.linkUrl || tab.url;
 		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
 		self._siteMenusCache = cur;
+
+		// Beim Link-Eintrag kann das Ziel längst im Menü stehen — der Eintrag wird
+		// aufgebaut, bevor feststeht, worauf geklickt wird. Ohne diese Prüfung
+		// erschiene der Titel-Dialog und das Ergebnis verschwände wortlos.
+		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
+		if (self.FlowMouseMenuModel.findLinkInMenu(catalog, cur, menuId, url)) {
+			const m = activeSiteMenus().find(x => x.id === menuId);
+			chrome.tabs.sendMessage(tab.id, {
+				action: 'ctxToast',
+				text: getMsg('menuLinkAlreadyInMenu', 'Already in menu “{NAME}”').replace('{NAME}', m ? menuDisplayName(m) : menuId),
+			}, { frameId: info.frameId || 0 }).catch(() => {});
+			return;
+		}
+
 		const matches = matchingSiteMenuIds(tab.url);
-		const selectionPath = !(matches.length === 1 && matches[0] === menuId);
+		// Muster nur nachtragen, wenn die Seite noch nicht ohnehin genau auf
+		// dieses Menü zeigt. Der Titel wird immer erfragt.
+		const addPattern = !(matches.length === 1 && matches[0] === menuId);
 
 		let label = null;
 		try {
 			const resp = await chrome.tabs.sendMessage(tab.id,
-				{ action: 'ctxCollectMenuLabel', url, isLink, prompt: selectionPath },
+				{ action: 'ctxCollectMenuLabel', url, isLink },
 				{ frameId: info.frameId || 0 });
 			if (resp && resp.cancelled) return;
 			if (resp && resp.label) label = resp.label;
 		} catch (e) { /* Content nicht verfügbar → Fallback */ }
 		if (!label) label = isLink ? url : (tab.title || url);
 
-		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url });
-		if (selectionPath) {
+		if (addPattern) {
 			const pat = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
 			({ siteMenus } = self.FlowMouseMenuModel.addPatternToMenu(catalog, siteMenus, menuId, pat));
 		}
+		await chrome.storage.sync.set({ siteMenus });
+	} else if (info.menuItemId === MENU_ID_ASSIGN_CLEAR) {
+		if (!tab || !tab.url) return;
+		const cur = await chrome.storage.sync.get(['siteMenus']);
+		const { siteMenus, patterns } = detachSitePatterns(cur.siteMenus || {}, tab.url);
+		if (!patterns.length) return;
+		self._siteMenusCache = siteMenus;
+		await chrome.storage.sync.set({ siteMenus });
+	} else if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith(CTX_ASSIGN_PREFIX)) {
+		if (!tab || !tab.url) return;
+		const menuId = info.menuItemId.slice(CTX_ASSIGN_PREFIX.length);
+		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
+		const cur = await chrome.storage.sync.get(['siteMenus']);
+		const model = self.FlowMouseMenuModel;
+
+		// Bestehende Zuordnung → Muster unverändert umhängen (ohne Dialog).
+		// Keine Zuordnung → Muster im Dialog bestätigen/bearbeiten lassen.
+		let { siteMenus, patterns } = detachSitePatterns(cur.siteMenus || {}, tab.url);
+		if (!patterns.length) {
+			const domainPattern = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
+			if (!domainPattern) return;
+			const pagePattern = self.FlowMouseMenuPatterns.pageToPattern(tab.url) || domainPattern;
+			let pattern = domainPattern;
+			try {
+				const resp = await chrome.tabs.sendMessage(tab.id,
+					{ action: 'ctxCollectPattern', domainPattern, pagePattern },
+					{ frameId: info.frameId || 0 });
+				if (resp && resp.cancelled) return;
+				if (resp && resp.pattern) pattern = resp.pattern;
+			} catch (e) { /* Content nicht verfügbar → ganze Domain ungefragt übernehmen */ }
+			patterns = [pattern];
+		}
+		for (const p of patterns) {
+			({ siteMenus } = model.addPatternToMenu(catalog, siteMenus, menuId, p));
+		}
+		self._siteMenusCache = siteMenus;
 		await chrome.storage.sync.set({ siteMenus });
 	}
 });
@@ -1890,7 +2021,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 chrome.storage.onChanged.addListener((changes, namespace) => {
 	if (namespace === 'sync') {
 		if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist || changes.enableBlacklist ||
-			changes.enableSiteMenus || changes.enableContextMenu || changes.ctxMenuAddSite || changes.ctxMenuSiteMenu ||
+			changes.enableSiteMenus || changes.enableContextMenu || changes.ctxMenuAddSite || changes.ctxMenuAssignSite || changes.ctxMenuSiteMenu ||
 			changes.ctxMenuSiteMenuMode || changes.ctxMenuSiteMenuId || changes.ctxMenuOptions || changes.siteMenuAddAsk || changes.siteMenus) {
 			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 				if (tabs[0]) {

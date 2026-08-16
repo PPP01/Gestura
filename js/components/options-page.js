@@ -909,6 +909,16 @@ class OptionsPage extends LitElement {
 								</div>
 								<div class="setting-row" style="display:${newFeaturesOn ? '' : 'none'}">
 									<div class="setting-label">
+										<span>${i18n.getMessage('ctxMenuAssignSite')}</span>
+										<span>${i18n.getMessage('ctxMenuAssignSiteDesc')}</span>
+									</div>
+									<label class="toggle">
+										<input type="checkbox" id="ctxMenuAssignSite" .checked=${this._settings.ctxMenuAssignSite !== false} @change=${e => this.#updateSetting('ctxMenuAssignSite', e.target.checked)}>
+										<span class="slider"></span>
+									</label>
+								</div>
+								<div class="setting-row" style="display:${newFeaturesOn ? '' : 'none'}">
+									<div class="setting-label">
 										<span>${i18n.getMessage('ctxMenuSiteMenu')}</span>
 										<span>${i18n.getMessage('ctxMenuSiteMenuDesc')}</span>
 									</div>
