@@ -3,10 +3,11 @@
 Wie du die Firefox-Variante von Gestura (einem FlowMouse-Fork) baust, signierst, installierst und
 automatisch aktualisierst. Alles hier läuft auf dem Branch **`firefox-build`**.
 
-- `firefox-build` = `feature/search-engine-suite` (die Feature-Arbeit) + einige
-  Firefox-spezifische Commits (Firefox-Manifest, `menu-patterns.js` per
-  `background.scripts` geladen, Chrome-only-Manifest-Einträge entfernt).
-- `web-ext lint` → 0 Fehler, lädt warnungsfrei.
+- `firefox-build` = `main` (die Feature-Arbeit) + einige Firefox-spezifische
+  Commits (Firefox-Manifest, `menu-patterns.js` & Co. per `background.scripts`
+  geladen, Chrome-only-Manifest-Einträge entfernt).
+- `web-ext lint` → **0 Fehler**. Warnungen bleiben: die unten genannten
+  fehlenden APIs plus `innerHTML`-Hinweise aus Lit — die sind erwartet.
 - **Funktioniert in Firefox:** Suchmaschinen-Verwaltung, kontextabhängige Menüs,
   Drag-Suche, Clipboard-Modus — die Kern-Gesten/Menü-Funktionen.
 - **Funktioniert in Firefox NICHT** (APIs fehlen, systembedingt): der
@@ -32,7 +33,7 @@ Umgebungsvariablen `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` setzen.
 |---|---|
 | `npm run ff:run` | Startet Firefox mit der Erweiterung, lädt bei jeder Änderung neu. Nur zum Entwickeln — kein Signieren, kein Versions-Bump. |
 | `npm run ff:build` | Baut ein **unsigniertes** `.zip` nach `web-ext-artifacts/` (nur Laufzeit-Dateien). |
-| `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.2` → `2.2.1`, dann `2.2.2`, …). |
+| `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.6` → `2.6.1`, dann `2.6.2`, …). Nur für **Firefox-only-Nachbesserungen** — bei einem regulären Release trägst du stattdessen von Hand die Nummer von `main` ein (siehe Szenario B). |
 | `npm run ff:sign` | Reicht die Version bei **AMO** ein (Kanal `listed`) und durchläuft die AMO-Review. |
 | `npm run ff:release` | `ff:bump` dann `ff:sign` — der Ein-Befehl-Release. |
 
@@ -54,16 +55,25 @@ signiert, verteilt und aktualisiert automatisch — kein Self-Hosting, kein
 
 ```bash
 git checkout firefox-build
-git rebase feature/search-engine-suite       # nur falls du am Feature etwas geändert hast
-npm run ff:release -- --api-key=DEIN_KEY --api-secret=DEIN_SECRET
+git merge main                               # den Feature-Stand von main holen
+# Konflikte: manifest.json (Firefox-Form behalten!), ggf. CHANGELOG.md
+npm run ff:build                             # unsigniertes zip zur Kontrolle
+npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler zeigen
+npm run ff:sign -- --api-key=DEIN_KEY --api-secret=DEIN_SECRET
 ```
 
-Das bumpt die Version und reicht sie über `web-ext sign --channel=listed` bei AMO
-ein. Nach bestandener AMO-Review erscheint die Version im Store; installierte
-Instanzen **aktualisieren sich automatisch über AMO**.
+`ff:sign` reicht die Version über `web-ext sign --channel=listed` bei AMO ein.
+Nach bestandener AMO-Review erscheint sie im Store; installierte Instanzen
+**aktualisieren sich automatisch über AMO**.
 
-> AMO verweigert eine bereits vorhandene Versionsnummer — darum bumpt
-> `ff:release` zuerst. Version `2.2` existiert schon, die nächste wird `2.2.1`.
+**Versionsnummer:** Seit 2.6 trägt der Firefox-Build dieselbe Nummer wie
+Chrome/Edge. Beim Merge kollidiert `manifest.json` immer — dort die
+Firefox-Form behalten (kein `version_name`, kein `favicon`/`offscreen`/
+`pageCapture`, `background.scripts` statt `service_worker`,
+`browser_specific_settings`) und die Version von `main` übernehmen. `ff:bump`
+bzw. `ff:release` sind dafür **nicht** zu gebrauchen — die hängen eine
+vierte Stelle an (`2.6` → `2.6.1`) und sind nur für Firefox-only-Nachbesserungen
+gedacht, wenn AMO eine bereits eingereichte Nummer ablehnt.
 
 Hinweise:
 
@@ -75,17 +85,22 @@ Hinweise:
   Firefox Developer Edition / Nightly / ESR mit
   `xpinstall.signatures.required = false` in `about:config` laden.
 
-## Mit Upstream Schritt halten
+## Mit `main` Schritt halten
 
-Wenn sich das Upstream-FlowMouse ändert, spiele diesen Branch neu auf den
-aktualisierten Feature-Branch (siehe `../FORK-NOTES.md` für den vollständigen
-Remote-/Branch-Workflow):
+`firefox-build` wird **gemergt**, nicht rebased — der Branch ist bei AMO
+veröffentlicht, seine Historie muss stabil bleiben (siehe `../FORK-NOTES.md`
+für den vollständigen Remote-/Branch-Workflow):
 
 ```bash
-git fetch upstream
 git checkout firefox-build
-git rebase feature/search-engine-suite
+git merge main
 ```
 
-Da `firefox-build` nur eine Handvoll Commits über dem Feature-Branch liegt, ist
-dieses Rebase klein.
+Konflikte gibt es zuverlässig in `manifest.json` (Version + die
+Firefox-Anpassungen) und je nach Release in `CHANGELOG.md`. Alles andere mergt
+sauber, weil die Firefox-Patches auf wenige Dateien beschränkt sind.
+
+Prüfe nach jedem Merge, ob `main` ein neues Top-Level-Skript hinzugefügt hat,
+das `js/background.js` per `importScripts` lädt — Firefox kennt kein
+`importScripts` im Hintergrundskript, jede solche Datei muss zusätzlich in
+`background.scripts` im Manifest stehen. Die beiden Listen müssen sich decken.

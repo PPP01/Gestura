@@ -82,7 +82,9 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 
 ### Weg B — Upload über die AMO-Weboberfläche 👤
 
-1. `npm run ff:build` → `web-ext-artifacts/gestura-<version>.zip`.
+1. `npm run ff:build` → `web-ext-artifacts/gestura_-_mouse_gestures-<version>.zip`
+   (web-ext leitet den Dateinamen aus dem Erweiterungsnamen ab, aktuell
+   `gestura_-_mouse_gestures-2.6.zip`).
 2. Developer Hub → **Submit a New Add-on** → **On this site** (gelistet) →
    ZIP hochladen. AMO signiert automatisch nach dem Review.
 

@@ -16,7 +16,7 @@ export default {
 		'README.md', 'README.zh_CN.md',
 		'CHANGELOG.md', 'CHANGELOG.zh_CN.md',
 		'FORK-NOTES.md', 'THIRD_PARTY_LICENSES.md',
-		'CLAUDE.md',
+		'CLAUDE.md', 'AGENTS.md',
 		// README/store screenshots, promo tiles and Lucide source SVGs. None are
 		// referenced by the extension at runtime (UI icons are inlined in
 		// js/icons.js; manifest icons live in icons/), so keep them out of the xpi.
