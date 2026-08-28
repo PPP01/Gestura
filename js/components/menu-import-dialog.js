@@ -1,6 +1,6 @@
 import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 
 const X = () => window.FlowMouseMenuExchange;
 const isFirefox = navigator.userAgent.includes('Firefox');
@@ -148,7 +148,7 @@ class MenuImportDialog extends LitElement {
 		const replace = !!this._catalogMatch && this._importMode === 'replace';
 		let ok;
 		if (r.type === 'menu') {
-			const cur = SettingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
+			const cur = settingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
 			let next;
 			if (replace) {
 				// Replace the standard menu → behaves like an edited catalog menu.
@@ -158,9 +158,9 @@ class MenuImportDialog extends LitElement {
 				const { id, def } = X().toCustomMenu(r.value, source, undefined, lang);
 				next = { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
 			}
-			ok = await SettingsStore.save({ siteMenus: next });
+			ok = await settingsStore.save({ siteMenus: next });
 		} else {
-			const cur = SettingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
+			const cur = settingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
 			let next;
 			if (replace) {
 				// Replace the built-in engine → behaves like an overridden built-in.
@@ -172,7 +172,7 @@ class MenuImportDialog extends LitElement {
 				if (isFirefox && !r.value.transformRequired) { engine.transformEnabled = false; engine.transformCode = ''; }
 				next = { ...cur, custom: [...(cur.custom || []), engine] };
 			}
-			ok = await SettingsStore.save({ searchEngines: next });
+			ok = await settingsStore.save({ searchEngines: next });
 		}
 		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
 		window.dispatchEvent(new Event('action-catalog-changed'));

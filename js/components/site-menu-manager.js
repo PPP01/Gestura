@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
 
@@ -122,7 +122,7 @@ class SiteMenuManager extends LitElement {
 		this._activeTab = 'menus';
 		this.advancedMode = false;
 		this._unsubscribe = null;
-		// Local SettingsStore.save() does not fire onChange, so imports/edits from
+		// Local settingsStore.save() does not fire onChange, so imports/edits from
 		// elsewhere (the import dialog, the native context menu) announce via this
 		// window event — mirror engine-manager and refresh on it.
 		this._onCatalogChanged = () => this.requestUpdate();
@@ -131,7 +131,7 @@ class SiteMenuManager extends LitElement {
 	connectedCallback() {
 		super.connectedCallback();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
-		this._unsubscribe = SettingsStore.onChange((changed) => {
+		this._unsubscribe = settingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed || 'siteMenuAddAsk' in changed) this.requestUpdate();
 		});
 	}
@@ -144,11 +144,11 @@ class SiteMenuManager extends LitElement {
 	}
 
 	get siteMenus() {
-		return SettingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [] };
+		return settingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [] };
 	}
 
 	async #saveSiteMenus(next) {
-		const ok = await SettingsStore.save({ siteMenus: next });
+		const ok = await settingsStore.save({ siteMenus: next });
 		if (!ok) alert(window.i18n.getMessage('menuSyncSaveError'));
 		window.dispatchEvent(new Event('action-catalog-changed'));
 		this.requestUpdate();
@@ -260,9 +260,9 @@ class SiteMenuManager extends LitElement {
 	}
 
 	#renderAppearance(i18n) {
-		const s = SettingsStore.current.customMenuSwitcher || { enabled: false, position: 'header' };
-		const theme = SettingsStore.current.customMenuTheme || 'auto';
-		const saveSwitcher = (patch) => { SettingsStore.save({ customMenuSwitcher: { ...s, ...patch } }); this.requestUpdate(); };
+		const s = settingsStore.current.customMenuSwitcher || { enabled: false, position: 'header' };
+		const theme = settingsStore.current.customMenuTheme || 'auto';
+		const saveSwitcher = (patch) => { settingsStore.save({ customMenuSwitcher: { ...s, ...patch } }); this.requestUpdate(); };
 		return html`
 			<label class="switcher-toggle">
 				<input type="checkbox" .checked=${!!s.enabled}
@@ -285,7 +285,7 @@ class SiteMenuManager extends LitElement {
 				<div class="seg" role="group">
 					${['auto', 'light', 'dark'].map(v => html`
 						<button type="button" class=${theme === v ? 'active' : ''}
-							@click=${() => { SettingsStore.save({ customMenuTheme: v }); this.requestUpdate(); }}
+							@click=${() => { settingsStore.save({ customMenuTheme: v }); this.requestUpdate(); }}
 						>${i18n.getMessage('menuTheme' + v[0].toUpperCase() + v.slice(1))}</button>
 					`)}
 				</div>
@@ -296,11 +296,11 @@ class SiteMenuManager extends LitElement {
 	// „Menü abfragen, wenn keins passt" — greift nur beim Hinzufügen eines
 	// Eintrags, daher eine eigene Gruppe statt eines prominenten Sektions-Schalters.
 	#renderAddAsk(i18n) {
-		const on = SettingsStore.current.siteMenuAddAsk !== false;
+		const on = settingsStore.current.siteMenuAddAsk !== false;
 		return html`
 			<label class="switcher-toggle">
 				<input type="checkbox" .checked=${on}
-					@change=${(e) => { SettingsStore.save({ siteMenuAddAsk: e.target.checked }); this.requestUpdate(); }}>
+					@change=${(e) => { settingsStore.save({ siteMenuAddAsk: e.target.checked }); this.requestUpdate(); }}>
 				<span class="switcher-toggle-text">
 					<span class="switcher-toggle-label">${i18n.getMessage('siteMenuAddAsk')}</span>
 					<span class="switcher-toggle-hint">${i18n.getMessage('siteMenuAddAskDesc')}</span>
@@ -325,11 +325,11 @@ class SiteMenuManager extends LitElement {
 
 	#renderOpenBehavior(i18n) {
 		if (!this.advancedMode) return '';
-		const value = SettingsStore.current.menuOpenBehavior || 'standard';
+		const value = settingsStore.current.menuOpenBehavior || 'standard';
 		return html`
 			<div class="theme-row">
 				<span>${i18n.getMessage('siteMenuOpenBehaviorLabel')}</span>
-				<select @change=${(e) => { SettingsStore.save({ menuOpenBehavior: e.target.value }); this.requestUpdate(); }}>
+				<select @change=${(e) => { settingsStore.save({ menuOpenBehavior: e.target.value }); this.requestUpdate(); }}>
 					${this.#behaviorOptions(i18n, false).map(([v, label]) => html`
 						<option value=${v} ?selected=${v === value}>${label}</option>
 					`)}
@@ -339,11 +339,11 @@ class SiteMenuManager extends LitElement {
 	}
 
 	get menuAppend() {
-		return SettingsStore.current.menuAppend || { enabled: false, items: [] };
+		return settingsStore.current.menuAppend || { enabled: false, items: [] };
 	}
 
 	async #saveMenuAppend(next) {
-		const ok = await SettingsStore.save({ menuAppend: next });
+		const ok = await settingsStore.save({ menuAppend: next });
 		if (!ok) alert(window.i18n.getMessage('menuSyncSaveError'));
 		this.requestUpdate();
 	}
@@ -392,7 +392,7 @@ class SiteMenuManager extends LitElement {
 	// Pro-Menü-Flags (Switcher-Sichtbarkeit, Quick-Search-Anhang) — nur sichtbar,
 	// wenn das jeweilige globale Feature aktiv ist. Umschalten forkt das Menü nicht.
 	#renderFlagToggles(m, i18n, size = 14) {
-		const switcherEnabled = !!(SettingsStore.current.customMenuSwitcher || {}).enabled;
+		const switcherEnabled = !!(settingsStore.current.customMenuSwitcher || {}).enabled;
 		const appendEnabled = !!this.menuAppend.enabled;
 		const toggle = (key, current, iconName, label) => html`
 			<button class="menu-btn flag ${current ? 'on' : ''}" .tooltip=${tooltip(label)}
@@ -465,7 +465,7 @@ class SiteMenuManager extends LitElement {
 		const def = m.def;
 		const rows = (def.items || []).map(item => ({ item, state: 'own' }));
 		const domainValue = (this.siteMenus.domains || {})[m.id] || def.domains?.default || '';
-		const switcherEnabled = !!(SettingsStore.current.customMenuSwitcher || {}).enabled;
+		const switcherEnabled = !!(settingsStore.current.customMenuSwitcher || {}).enabled;
 		const defaultMenuId = this.siteMenus.defaultMenuId || '';
 		const isDefault = defaultMenuId === m.id;
 		// Exklusiv: sobald ein Standard-Menü gesetzt ist, bieten andere Menüs den Schalter nicht an.

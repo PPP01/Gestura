@@ -59,7 +59,6 @@ class ShadowHost {
 			width: 100%;
 			height: 100%;
 			pointer-events: none;
-			z-index: 2147483647;
 			display: block !important;
 			background: transparent !important;
 			margin: 0 !important;
@@ -67,6 +66,7 @@ class ShadowHost {
 			border: 0 !important;
 			overflow: visible !important;
 			opacity: 1 !important;
+			color-scheme: normal !important;
 		`;
 
 		this.setLang(lang, isRtl);
@@ -216,8 +216,8 @@ class ShadowHost {
 				break;
 		}
 
-		let css = `:host{font-family:${fontFamily} !important;${extraRules}}`;
-		if (this.#useDialog) css += 'dialog::backdrop{background:transparent}';
+		let css = `:host{font-family:${fontFamily} !important;z-index:2147483647 !important;${extraRules}}:host::backdrop{background:transparent !important}`;
+		if (this.#useDialog) css += 'dialog::backdrop{background:transparent !important}';
 		return css;
 	}
 

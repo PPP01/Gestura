@@ -2,7 +2,7 @@ import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { tooltip } from '../tooltip.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 
 // Editor für EINE Menüdefinition. Hält keinen Settings-Zustand: rendert die
 // übergebenen Rows und meldet jede Operation als Event; der Parent
@@ -125,7 +125,7 @@ class SiteMenuEditor extends LitElement {
 		if (item.action === 'searchLink' && window.FlowMouseEngineRegistry && window.FlowMouseEngineCatalogApi) {
 			const link = window.FlowMouseEngineRegistry.resolveMenuItemLink(
 				window.FlowMouseEngineCatalogApi.ENGINE_CATALOG,
-				SettingsStore.current.searchEngines,
+				settingsStore.current.searchEngines,
 				item,
 			);
 			if (link?.name) return link.name;

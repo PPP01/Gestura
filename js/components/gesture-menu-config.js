@@ -1,6 +1,6 @@
 import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -17,7 +17,7 @@ export function getGestureMenuLabel(config, action = 'siteMenu') {
 	const i18n = window.i18n;
 	if (action === 'customMenu') return config?.ownMenu?.name || i18n.getMessage('customMenuOwnLabel');
 	const cfg = { ...(window.GestureConstants.ACTION_DEFAULTS.siteMenu || {}), ...(config || {}) };
-	const siteMenus = SettingsStore.current.siteMenus;
+	const siteMenus = settingsStore.current.siteMenus;
 	if (cfg.mode !== 'standard' && cfg.mode !== 'fork') return i18n.getMessage('customMenuContextualLabel');
 	const base = M().getBaseMenu(CATALOG(), siteMenus, cfg.menuId);
 	if (!base) return `${i18n.getMessage('siteMenusTitle')} ${i18n.getMessage('menuNotFound')}`;
@@ -61,7 +61,7 @@ class GestureMenuConfig extends LitElement {
 	}
 
 	#activeMenus() {
-		return M().listActiveMenus(CATALOG(), SettingsStore.current.siteMenus);
+		return M().listActiveMenus(CATALOG(), settingsStore.current.siteMenus);
 	}
 
 	#menuSelect(value, onChange) {
@@ -110,7 +110,7 @@ class GestureMenuConfig extends LitElement {
 		if (cfg.mode === 'standard') {
 			const active = this.#activeMenus();
 			// Vorauswahl: das globale Standard-Menü, sonst das erste aktive.
-			const dm = SettingsStore.current.siteMenus?.defaultMenuId || '';
+			const dm = settingsStore.current.siteMenus?.defaultMenuId || '';
 			const first = active.find(m => m.id === dm) || active[0];
 			if (!cfg.menuId && first) queueMicrotask(() => this.#update({ menuId: first.id }));
 			return html`
@@ -162,7 +162,7 @@ class GestureMenuConfig extends LitElement {
 					d.items = e.detail.orderedIds.map(id => byId.get(id)).filter(Boolean);
 				})}
 			></site-menu-editor>
-			${SettingsStore.current.menuAppend?.enabled ? html`
+			${settingsStore.current.menuAppend?.enabled ? html`
 				<label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-secondary)">
 					<input type="checkbox" .checked=${ownMenu.appendMini !== false}
 						@change=${(e) => saveOwn(d => { d.appendMini = e.target.checked; })}>
@@ -173,7 +173,7 @@ class GestureMenuConfig extends LitElement {
 	}
 
 	#renderForkEditor(cfg, i18n) {
-		const siteMenus = SettingsStore.current.siteMenus;
+		const siteMenus = settingsStore.current.siteMenus;
 		const base = M().getBaseMenu(CATALOG(), siteMenus, cfg.menuId);
 		if (!cfg.menuId || !base) {
 			const first = this.#activeMenus()[0];

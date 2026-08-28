@@ -165,16 +165,51 @@
 
 
 	function getRoot() {
-		return document.scrollingElement || document.documentElement;
+		return document.scrollingElement || window;
+	}
+
+	const SCROLL_ACTIONS = {
+		scrollUp: { axis: 'y', dir: -1 },
+		scrollDown: { axis: 'y', dir: 1 },
+		scrollLeft: { axis: 'x', dir: -1 },
+		scrollRight: { axis: 'x', dir: 1 },
+		scrollToTop: { axis: 'y', dir: -1, toEdge: true },
+		scrollToBottom: { axis: 'y', dir: 1, toEdge: true },
+		scrollToLeftEdge: { axis: 'x', dir: -1, toEdge: true },
+		scrollToRightEdge: { axis: 'x', dir: 1, toEdge: true },
+	};
+
+	const AXES = {
+		x: { pos: 'scrollLeft', size: 'clientWidth', scrollSize: 'scrollWidth', windowPos: 'scrollX', windowSize: 'innerWidth', overflow: 'overflowX', to: 'left' },
+		y: { pos: 'scrollTop', size: 'clientHeight', scrollSize: 'scrollHeight', windowPos: 'scrollY', windowSize: 'innerHeight', overflow: 'overflowY', to: 'top' },
+	};
+
+	function getScrollMetrics(target, axis) {
+		const ax = AXES[axis];
+		if (target !== window) {
+			return {
+				pos: target[ax.pos],
+				size: target[ax.size],
+				scrollSize: target[ax.scrollSize],
+			};
+		}
+
+		return {
+			pos: window[ax.windowPos],
+			size: window[ax.windowSize],
+			scrollSize: Math.max(
+				document.documentElement?.[ax.scrollSize] ?? 0,
+				document.body?.[ax.scrollSize] ?? 0,
+			),
+		};
 	}
 
 	function hasScrollRoom(el, action) {
-		const max = el.scrollHeight - el.clientHeight;
+		const { axis, dir } = SCROLL_ACTIONS[action];
+		const { pos, size, scrollSize } = getScrollMetrics(el, axis);
+		const max = Math.max(0, scrollSize - size);
 		if (max <= 1) return false;
-		const top = el.scrollTop;
-		if (action === 'scrollUp' || action === 'scrollToTop') return top > 1;
-		if (action === 'scrollDown' || action === 'scrollToBottom') return top < max - 1;
-		return true;
+		return dir < 0 ? pos > 1 : pos < max - 1;
 	}
 
 	function deepElementFromPoint(x, y) {
@@ -198,10 +233,11 @@
 		if (forceTargetWindow) return root;
 
 		if (cursorX != null && cursorY != null) {
+			const overflowProp = AXES[SCROLL_ACTIONS[action].axis].overflow;
 			let el = deepElementFromPoint(cursorX, cursorY);
 			while (el && el !== root && el !== document.body) {
-				const s = window.getComputedStyle(el);
-				if ((s.overflowY === 'auto' || s.overflowY === 'scroll') && hasScrollRoom(el, action)) {
+				const o = window.getComputedStyle(el)[overflowProp];
+				if ((o === 'auto' || o === 'scroll') && hasScrollRoom(el, action)) {
 					return el;
 				}
 				el = parentAcrossShadow(el);
@@ -211,18 +247,8 @@
 	}
 
 	function checkScrollFeasibility(action, cursorX, cursorY) {
-		const tolerance = 1;
-		const target = getScrollTarget(action, false, cursorX, cursorY);
-
-		const currentScrollTop = target.scrollTop;
-		const maxScrollTop = target.scrollHeight - target.clientHeight;
-
-		if (action === 'scrollUp' || action === 'scrollToTop') {
-			return currentScrollTop > tolerance;
-		} else if (action === 'scrollDown' || action === 'scrollToBottom') {
-			return currentScrollTop < maxScrollTop - tolerance;
-		}
-		return true;
+		if (!SCROLL_ACTIONS[action]) throw new Error(`Not a scroll action: ${action}`);
+		return hasScrollRoom(getScrollTarget(action, false, cursorX, cursorY), action);
 	}
 
 	function resolveScrollSmoothness(value) {
@@ -262,21 +288,22 @@
 		stopScrollListeners();
 	}
 
-	function easeScrollTo(target, goalY, unclampedGoalY) {
+	function easeScrollTo(target, axis, goal, unclampedGoal, baseDuration = 500) {
 		scrollActiveTarget = target;
 
-		const startY = target.scrollTop;
-		if (startY === goalY) {
+		const ax = AXES[axis];
+		const { pos: start } = getScrollMetrics(target, axis);
+		if (start === goal) {
 			scrollActiveTarget = null;
 			return;
 		}
 
-		const deltaY = goalY - startY;
+		const delta = goal - start;
 		const startTime = performance.now();
 
-		const realDist = Math.abs(deltaY);
-		const unclampedDist = Math.abs(unclampedGoalY - startY);
-		let duration = 500;
+		const realDist = Math.abs(delta);
+		const unclampedDist = Math.abs(unclampedGoal - start);
+		let duration = baseDuration;
 		if (unclampedDist > 0 && realDist < unclampedDist) {
 			duration = Math.max(16, duration * (realDist / unclampedDist));
 		}
@@ -286,7 +313,7 @@
 		function step(now) {
 			const elapsed = now - startTime;
 			if (elapsed >= duration) {
-				target.scrollTo({ top: goalY, behavior: 'instant' });
+				target.scrollTo({ [ax.to]: goal, behavior: 'instant' });
 				scrollRafId = null;
 				scrollActiveTarget = null;
 				scrollGoals.delete(target);
@@ -294,8 +321,7 @@
 				return;
 			}
 			const ease = 1 - Math.pow(1 - elapsed / duration, 3);
-			const y = startY + deltaY * ease;
-			target.scrollTo({ top: y, behavior: 'instant' });
+			target.scrollTo({ [ax.to]: start + delta * ease, behavior: 'instant' });
 			scrollRafId = requestAnimationFrame(step);
 		}
 
@@ -303,16 +329,20 @@
 	}
 
 	function handleScroll(action, scrollConfig, forceTargetWindow = false, cursorX, cursorY) {
+		const meta = SCROLL_ACTIONS[action];
+		if (!meta) return;
+		const ax = AXES[meta.axis];
 		const target = getScrollTarget(action, forceTargetWindow, cursorX, cursorY);
 		const smoothness = resolveScrollSmoothness(scrollConfig.scrollSmoothness);
 
-		const curY = target.scrollTop;
-		const maxY = target.scrollHeight - target.clientHeight;
+		const { pos: cur, size, scrollSize } = getScrollMetrics(target, meta.axis);
+		const max = Math.max(0, scrollSize - size);
 
-		let goalY, unclampedGoalY;
-		if (action === 'scrollUp' || action === 'scrollDown') {
-			const containerHeight = target.clientHeight;
-			let delta = containerHeight * (scrollConfig.scrollDistance / 100) * (action === 'scrollUp' ? -1 : 1);
+		let goal, unclampedGoal;
+		if (meta.toEdge) {
+			goal = unclampedGoal = meta.dir < 0 ? 0 : max;
+		} else {
+			let delta = size * (scrollConfig.scrollDistance / 100) * meta.dir;
 
 			const accel = scrollConfig.scrollAccel ?? 1;
 			const accelWindow = scrollConfig.scrollAccelWindow ?? 400;
@@ -330,25 +360,19 @@
 				}
 			}
 
-			unclampedGoalY = (scrollGoals.get(target) ?? curY) + delta;
-			goalY = Math.max(0, Math.min(unclampedGoalY, maxY));
-		} else if (action === 'scrollToTop') {
-			goalY = unclampedGoalY = 0;
-		} else if (action === 'scrollToBottom') {
-			goalY = unclampedGoalY = maxY;
-		} else {
-			return;
+			unclampedGoal = (scrollGoals.get(target)?.[meta.axis] ?? cur) + delta;
+			goal = Math.max(0, Math.min(unclampedGoal, max));
 		}
 
 		cancelEaseScroll();
-		scrollGoals.set(target, goalY);
-		if (curY === goalY) return;
+		scrollGoals.set(target, { [meta.axis]: goal });
+		if (cur === goal) return;
 
 		if (smoothness === 'none') {
 			scrollGoals.delete(target);
-			target.scrollTo({ top: goalY, behavior: 'instant' });
+			target.scrollTo({ [ax.to]: goal, behavior: 'instant' });
 		} else if (smoothness === 'system') {
-			target.scrollTo({ top: goalY, behavior: 'smooth' });
+			target.scrollTo({ [ax.to]: goal, behavior: 'smooth' });
 			const version = ++scrollVersion;
 			const eventTarget = target === getRoot() ? document : target;
 			eventTarget.addEventListener('scrollend', () => {
@@ -357,7 +381,7 @@
 				}
 			}, { once: true });
 		} else {
-			easeScrollTo(target, goalY, unclampedGoalY);
+			easeScrollTo(target, meta.axis, goal, unclampedGoal, scrollConfig.scrollDuration ?? 500);
 		}
 	}
 
@@ -545,6 +569,10 @@ class ContentContextMenu {
 
 		const iframe = host.createElement('iframe');
 		iframe.className = 'fm-ctx-frame';
+		// A COEP-isolated page (crossOriginIsolated) refuses to embed the menu frame
+		// unless it opts out of credentials. context-menu.js pairs this by skipping
+		// its localStorage cache, which a credentialless frame cannot persist.
+		if (window.crossOriginIsolated) iframe.credentialless = true;
 		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
 		// where prefers-color-scheme reflects the real OS setting. Inside the menu
 		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
@@ -1181,7 +1209,7 @@ window.ContentContextMenu = ContentContextMenu;
 			if (this.#state !== STATES.INACTIVE) return;
 			if (document.contentType === 'image/svg+xml') return;
 			this.#isIframe = isIframe;
-			this.#warnThreshold = warnThreshold || 15;
+			this.#warnThreshold = warnThreshold ?? 15;
 			this.#operationInterval = options?.operationInterval ?? 0;
 			this.#highlighter = new LinkHighlighter();
 			if (options?.textUrl === false) this.#highlighter.textLinks = false;
@@ -1225,7 +1253,7 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#boundPointerCancel = (e) => this.#onPointerCancel(e);
 			this.#boundKeyDown = (e) => this.#onKeyDown(e);
 			this.#boundContextMenu = (e) => this.#onContextMenu(e);
-			this.#boundScroll = () => this.#onScroll();
+			this.#boundScroll = (e) => this.#onScroll(e);
 			this.#boundWheel = (e) => this.#onWheel(e);
 
 			window.addEventListener('pointerdown', this.#boundPointerDown, true);
@@ -1343,7 +1371,8 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		}
 
-		#onScroll() {
+		#onScroll(e) {
+			if (!e.isTrusted) return;
 			if (this.#state !== STATES.SELECTING) return;
 			if (!this.#dragStartedInFixed && !this.#firstHitIsFixed && !this.#highlighter.skipFixed) {
 				this.#highlighter.skipFixed = true;
@@ -1474,8 +1503,8 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		#onWheel(e) {
-			if (this.#state !== STATES.SELECTING) return;
 			if (!e.isTrusted) return;
+			if (this.#state !== STATES.SELECTING) return;
 			if (!e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) return;
 			e.preventDefault();
 			window.scrollBy(0, e.deltaY);
@@ -1652,7 +1681,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
 
-			if (urls.length > this.#warnThreshold) {
+			if (this.#warnThreshold > 0 && urls.length > this.#warnThreshold) {
 				if (this.#modal) {
 					this.#modal._body.textContent = this.#msg('areaSelectWarnMessage').replaceAll('%count%', String(urls.length));
 					this.#modal.style.display = '';
@@ -2123,8 +2152,10 @@ window.ContentContextMenu = ContentContextMenu;
 		function getActionName(pattern) {
 			const action = getGestureAction(pattern);
 			if (!action || action === 'none') return '';
-			const customName = SETTINGS.mouseGestures?.[pattern]?.customName;
-			if (customName) return customName;
+			if (SETTINGS.enableGestureCustomization) {
+				const customName = SETTINGS.mouseGestures?.[pattern]?.customName;
+				if (customName) return customName;
+			}
 			if (action === 'actionChain') {
 				const config = SETTINGS.mouseGestures?.[pattern];
 				const chain = SETTINGS.actionChains?.[config?.chainId];
@@ -2208,6 +2239,8 @@ window.ContentContextMenu = ContentContextMenu;
 				}
 				if (items) {
 					const { blacklist, ...otherSettings } = items;
+					// NOTE: upstream v2.3.1 rebuilds from DEFAULT_SETTINGS here so a reset
+					// reaches open tabs. Deferred together with SettingsStore.reset().
 					SETTINGS = { ...SETTINGS, ...otherSettings };
 				}
 
@@ -2998,7 +3031,8 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		}, { capture: true });
 
-		function restoreDraggable() {
+		function restoreDraggable(e) {
+			if (!e.isTrusted) return;
 			window.removeEventListener('mouseup', restoreDraggable, true);
 			window.removeEventListener('dragend', restoreDraggable, true);
 
@@ -3284,6 +3318,7 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 
 			function onChromeWheel(e) {
+				if (!e.isTrusted) return;
 				if (!isWheelGestureEnabled() || !(e.buttons & 2)) {
 					removeWheelListener();
 					return;
@@ -3402,12 +3437,16 @@ window.ContentContextMenu = ContentContextMenu;
 			const mergedConfig = { ...defaults, ...config };
 
 			if (LOCAL_ACTIONS.has(action)) {
-				const scrollConfig = { scrollDistance: mergedConfig.scrollDistance, scrollSmoothness: mergedConfig.scrollSmoothness, scrollAccel: mergedConfig.scrollAccel, scrollAccelWindow: mergedConfig.scrollAccelWindow };
+				const scrollConfig = { scrollDistance: mergedConfig.scrollDistance, scrollSmoothness: mergedConfig.scrollSmoothness, scrollDuration: mergedConfig.scrollDuration, scrollAccel: mergedConfig.scrollAccel, scrollAccelWindow: mergedConfig.scrollAccelWindow };
 				switch (action) {
 					case 'scrollUp':
 					case 'scrollDown':
+					case 'scrollLeft':
+					case 'scrollRight':
 					case 'scrollToTop':
 					case 'scrollToBottom':
+					case 'scrollToLeftEdge':
+					case 'scrollToRightEdge':
 						if (isIframe && !checkScrollFeasibility(action, cursor.startX, cursor.startY)) {
 							safeSendMessage({ action: 'gestureScrollUpdate', data: { action, scrollConfig } });
 							break;

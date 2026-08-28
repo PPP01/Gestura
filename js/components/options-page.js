@@ -1,6 +1,6 @@
+import { settingsStore } from '../settings-store.js';
 import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
-import { SettingsStore } from '../settings-store.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
 
@@ -272,7 +272,7 @@ class OptionsPage extends LitElement {
 		this._debounceTimer = null;
 		this._pendingPatch = null;
 		this._statusTimer = null;
-		this._store = SettingsStore;
+		this._store = settingsStore;
 	}
 
 	connectedCallback() {
@@ -315,7 +315,7 @@ class OptionsPage extends LitElement {
 	}
 
 	async #init() {
-		await this._store.load();
+		await this._store.waitForLoad();
 		this._settings = { ...this._store.current };
 		this._ready = true;
 
@@ -754,8 +754,8 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'areaSelect' ? 'active' : ''}" data-nav="areaSelect" style="display:${this._settings.enableAreaSelect !== false ? '' : 'none'}">
-					<h2><span class="section-icon">${unsafeHTML(icon('squareDashedMousePointer', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('areaSelectTitle')}</span></h2>
+				<div class="section ${this._activeSection === 'areaSelect' ? 'active' : ''} ${(this._settings.sectionAdvanced?.areaSelect) ? 'advanced-expanded' : ''}" data-nav="areaSelect" style="display:${this._settings.enableAreaSelect !== false ? '' : 'none'}">
+					<h2><span class="section-icon">${unsafeHTML(icon('squareDashedMousePointer', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('areaSelectTitle')}</span>${this.#renderAdvancedToggle('areaSelect')}</h2>
 					<div class="section-body">
 						<div class="setting-row first-row">
 							<div class="setting-label">
@@ -764,6 +764,7 @@ class OptionsPage extends LitElement {
 							</div>
 							<div style="display:flex;align-items:center;gap:8px;">
 								<select class="input-lg"
+									.value=${this._settings.areaSelectModifierKey}
 									@change=${e => this.#updateSetting('areaSelectModifierKey', e.target.value)}>
 									${(() => {
 										const current = this._settings.areaSelectModifierKey;
@@ -793,7 +794,7 @@ class OptionsPage extends LitElement {
 								<span class="slider"></span>
 							</label>
 						</div>
-						<div class="setting-row">
+						<div class="setting-row advanced-setting">
 							<div class="setting-label">
 								<span class="setting-title">${i18n.getMessage('areaSelectWarnThreshold')}${this.#renderInlineReset('areaSelectWarnThreshold')}</span>
 								<span>${i18n.getMessage('areaSelectWarnThresholdDesc')}</span>
@@ -802,7 +803,7 @@ class OptionsPage extends LitElement {
 								.value=${String(this._settings.areaSelectWarnThreshold)}
 								@change=${e => { const v = Math.max(0, Math.min(999, parseInt(e.target.value) || 0)); e.target.value = v; this.#updateSetting('areaSelectWarnThreshold', v); }}>
 						</div>
-						<div class="setting-row">
+						<div class="setting-row advanced-setting">
 							<div class="setting-label">
 								<span class="setting-title">${i18n.getMessage('areaSelectDelay')}${this.#renderInlineReset('areaSelectDelay')}</span>
 								<span>${i18n.getMessage('areaSelectDelayDesc')}</span>
@@ -1461,7 +1462,7 @@ class OptionsPage extends LitElement {
 		a.href = url;
 		a.download = 'Gestura-settings.json';
 		a.click();
-		URL.revokeObjectURL(url);
+		setTimeout(() => URL.revokeObjectURL(url), 10000);
 		this.#showStatus(window.i18n.getMessage('exportDone'));
 	}
 
