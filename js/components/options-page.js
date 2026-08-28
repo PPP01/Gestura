@@ -344,6 +344,10 @@ class OptionsPage extends LitElement {
 	// and hand it to <menu-import-dialog> for validation + preview. Not gated on
 	// #ready/#init — this can run in parallel with settings load.
 	async #checkPendingImport() {
+		// This path appends the dialog straight into the shadow root, bypassing the
+		// _ready gate that holds back every other child. settingsStore.save() throws
+		// while the store is still loading, so wait for it before offering an import.
+		await settingsStore.waitForLoad();
 		let stored;
 		try {
 			stored = await chrome.storage.session.get('pendingImport');
@@ -1530,7 +1534,7 @@ class OptionsPage extends LitElement {
 					this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
 					return;
 				}
-				// SettingsStore.save() aktualisiert _current vor dem Schreiben, deshalb
+				// settingsStore.save() aktualisiert #current vor dem Schreiben, deshalb
 				// meldet handleExternalChange keine Änderung und die Unterkomponenten
 				// (Gesten-Grid, Engine-/Menü-Manager …) behalten ihren alten Stand.
 				// Ein Reload ist der einzige Weg, den ganzen Baum neu aufzubauen.
