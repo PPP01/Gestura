@@ -26,7 +26,15 @@ Merged FlowMouse v2.3 and v2.3.1 (upstream sections below).
 - **Bookmark folders survive a sync between devices:** a folder is now stored as `{ id, path }` instead of a bare ID, and resolved by path when the ID does not exist locally or points somewhere else. Chrome hands out different bookmark folder IDs per device, so *Add to bookmarks* and the bookmarks menu could end up writing to or reading from the wrong folder. The folder list is now built in the service worker (`getBookmarkFolders`) rather than in the options page.
 - **Settings pages load faster:** `SettingsStore` became a class that starts loading on import, and the pages preload the module. Components await `settingsStore.waitForLoad()` instead of triggering the load themselves.
 - **System search no longer collides with third-party New Tab extensions** (thanks to @realDGD upstream).
+- **The area-select section gained an *Advanced* toggle:** the batch-warning threshold and the open delay moved behind it, matching the other settings sections. The modifier-key dropdown now also follows the stored value when it changes from elsewhere (an inline reset could leave the old entry showing).
+- **Area select opens the whole batch even if you close the source tab:** the loop aborted as soon as the opener tab was gone, so the remaining links were silently dropped. It now keeps going without an opener.
+- **The scroll-smoothness dropdown says what *Auto* resolves to** on this machine, e.g. *Auto (System)*.
+- **Blacklist entries were restyled** as tags inside the component itself, with a tooltip on the delete button; their rules no longer live in `option.css`.
 - Settings export no longer revokes its blob URL before the download starts; Korean text wraps on word boundaries.
+
+**Gestura-side follow-up:**
+
+- The pending-import path (an "Add to Gestura" link handed over from a website) appends its dialog straight into the options page's shadow root, bypassing the gate that holds back every other child. Since the store refactor a save throws while the initial load is still running, so that path now waits for the store first.
 
 **Not adopted yet:**
 
