@@ -1179,7 +1179,7 @@ Der Inline-Kanal ist Teil der öffentlichen Oberfläche — eine Betreiber-Seite
 
 Direkt vor `## Privacy` einfügen:
 
-```markdown
+````markdown
 ## For site operators
 
 A website can hand a ready-made Gestura menu or search engine to the extension.
@@ -1225,7 +1225,7 @@ of them:
 Limits: 100 KB per entry, 1 MB per bundle, 200 entries. Every URL inside an entry
 must be `https:`. The full contract is `js/exchange-schema.json`; the runtime
 validator in `js/menu-exchange.js` is authoritative.
-```
+````
 
 - [ ] **Step 2: Den Changelog-Eintrag ergänzen**
 
