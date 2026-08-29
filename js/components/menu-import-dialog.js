@@ -21,6 +21,7 @@ class MenuImportDialog extends LitElement {
 		_scriptAck: { state: true },
 		_catalogMatch: { state: true },   // matching catalog menu / built-in engine, or null
 		_importMode: { state: true },     // 'replace' | 'new'
+		_bundle: { state: true },   // { errors: string[], rows: Row[] } | null
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -54,6 +55,22 @@ class MenuImportDialog extends LitElement {
 		.mode-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 		.mode-opt { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; cursor: pointer; }
 		.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+		.bsum { font-size: 12px; color: var(--text-muted); margin: 0 0 10px; display: flex;
+			align-items: center; gap: 10px; }
+		.bsum .spacer { flex: 1 1 auto; }
+		.brow { border-top: 1px solid var(--border-color); padding: 8px 0; }
+		.brow:first-of-type { border-top: none; }
+		.bhead { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+		.bhead .grow { flex: 1 1 auto; min-width: 0; }
+		.bname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		.bmeta { font-size: 11px; color: var(--text-muted); }
+		.badge { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px;
+			border-radius: 999px; background: var(--bg-secondary, rgba(128,128,128,.12)); color: var(--text-muted); }
+		.badge.bad { background: rgba(211,51,51,.12); color: var(--danger-color, #d33); }
+		.bcaret { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 2px 6px; }
+		.bbody { padding: 6px 0 2px 26px; }
+		.brow.invalid .bname { color: var(--text-muted); }
+		.bhint { font-size: 12px; color: var(--text-muted); margin: 8px 0 0; }
 	`];
 
 	constructor() {
@@ -66,18 +83,39 @@ class MenuImportDialog extends LitElement {
 		this._importMode = 'new';
 	}
 
+	// Verzweigt auf den Formattyp: ein Bundle bekommt die Sammel-Vorschau, alles
+	// andere den bisherigen Einzelpfad. Gerendert wird nie das rohe JSON, sondern
+	// immer nur der normalisierte value aus der Validierung.
 	openWith(rawObject, source) {
 		this._source = source || { type: 'file' };
-		this._result = X().validate(rawObject);
 		this._scriptAck = false;
-		this._catalogMatch = this._result.ok
-			? (this._result.type === 'menu' ? this.#catalogMenuMatch(this._result.value) : this.#catalogEngineMatch(this._result.value))
-			: null;
-		this._importMode = this._catalogMatch ? 'replace' : 'new';
+		this._result = null;
+		this._bundle = null;
+		this._catalogMatch = null;
+		this._importMode = 'new';
+
+		if (X().detectType(rawObject) === 'bundle') {
+			const res = X().validateBundle(rawObject);
+			this._bundle = {
+				errors: res.errors,
+				rows: res.entries.map((result) => {
+					const match = result.ok ? this.#catalogMatch(result) : null;
+					return { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false };
+				}),
+			};
+		} else {
+			this._result = X().validate(rawObject);
+			this._catalogMatch = this._result.ok ? this.#catalogMatch(this._result) : null;
+			this._importMode = this._catalogMatch ? 'replace' : 'new';
+		}
 		this._open = true;
 	}
 
-	#close() { this._open = false; this._result = null; this._catalogMatch = null; }
+	#catalogMatch(result) {
+		return result.type === 'menu' ? this.#catalogMenuMatch(result.value) : this.#catalogEngineMatch(result.value);
+	}
+
+	#close() { this._open = false; this._result = null; this._bundle = null; this._catalogMatch = null; }
 
 	#faviconCache = new Map(); // origin -> dataURL
 
@@ -190,6 +228,38 @@ class MenuImportDialog extends LitElement {
 		this.#close();
 	}
 
+	// Schreibt alle gewählten Einträge in EINEM settingsStore.save(). Nicht je
+	// Eintrag speichern: das wären n Sync-Schreibzugriffe und n Gelegenheiten
+	// für einen Sync-Konflikt.
+	async #confirmBundle() {
+		const chosen = this.#bundleChosen;
+		if (!chosen.length || this.#bundleBlocked) return;
+		const lang = this.#lang();
+		let siteMenus = settingsStore.current.siteMenus || EMPTY_SITE_MENUS;
+		let engines = settingsStore.current.searchEngines || EMPTY_ENGINES;
+		let touchedMenus = false;
+		let touchedEngines = false;
+		for (const row of chosen) {
+			const source = { ...this._source, version: row.result.value.version || '1.0.0' };
+			const matchId = row.match ? row.match.id : null;
+			if (row.result.type === 'menu') {
+				siteMenus = this.#applyMenu(siteMenus, row.result, source, lang, row.mode, matchId);
+				touchedMenus = true;
+			} else {
+				engines = this.#applyEngine(engines, row.result, source, lang, row.mode, matchId);
+				touchedEngines = true;
+			}
+		}
+		const patch = {};
+		if (touchedMenus) patch.siteMenus = siteMenus;
+		if (touchedEngines) patch.searchEngines = engines;
+		const ok = await settingsStore.save(patch);
+		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
+		window.dispatchEvent(new Event('action-catalog-changed'));
+		this.dispatchEvent(new CustomEvent('import-done', { detail: { count: chosen.length }, bubbles: true, composed: true }));
+		this.#close();
+	}
+
 	render() {
 		if (!this._open) return html``;
 		const i18n = window.i18n;
@@ -197,9 +267,112 @@ class MenuImportDialog extends LitElement {
 		return html`<div class="backdrop" @click=${(e) => { if (e.target === e.currentTarget) this.#close(); }}>
 			<div class="dialog">
 				<h3 class="title">${i18n.getMessage('exchangePreviewTitle')}</h3>
-				${r && r.ok ? (r.type === 'menu' ? this.#renderMenu(r.value, i18n) : this.#renderEngine(r.value, i18n)) : this.#renderError(r, i18n)}
+				${this._bundle
+					? this.#renderBundle(i18n)
+					: (r && r.ok ? (r.type === 'menu' ? this.#renderMenu(r.value, i18n) : this.#renderEngine(r.value, i18n)) : this.#renderError(r, i18n))}
 			</div>
 		</div>`;
+	}
+
+	// Auswählbar ist nur, was die Validierung überstanden hat. Ungültige Zeilen
+	// bleiben sichtbar — der Nutzer soll sehen, was übersprungen wird.
+	get #bundleRows() { return (this._bundle && this._bundle.rows) || []; }
+	get #bundleChosen() { return this.#bundleRows.filter(r => r.selected && r.result.ok); }
+
+	// null = importierbar, 'empty' = nichts gewählt, 'script' = eine gewählte
+	// Zeile führt ein Skript aus und ist noch nicht bestätigt.
+	get #bundleBlocked() {
+		const chosen = this.#bundleChosen;
+		if (!chosen.length) return 'empty';
+		const pending = chosen.some(r => r.result.type === 'engine' && X().hasTransform(r.result.value) && !r.scriptAck);
+		return pending ? 'script' : null;
+	}
+
+	#rowName(row, lang) {
+		if (row.result.ok) return X().pickLabel(row.result.value.name, lang) || row.result.value.id;
+		// Ungültige Einträge tragen keinen geprüften Namen, und ungeprüftes JSON
+		// wird bewusst nie gerendert. Die Zeile trägt Typ-Label und Fehler-Badge.
+		return '';
+	}
+
+	#renderBundle(i18n) {
+		const rows = this.#bundleRows;
+		if (this._bundle.errors.length || !rows.length) {
+			// Wrapper kaputt (kein Bundle, falsche Version, zu groß, zu viele
+			// Einträge): es gibt keine Zeilen, also die bestehende Fehleransicht.
+			// #renderError liest nur r.errors und kommt ohne ok/type/value aus.
+			return this.#renderError({ errors: this._bundle.errors }, i18n);
+		}
+		const lang = this.#lang();
+		const valid = rows.filter(r => r.result.ok).length;
+		if (!valid) {
+			return html`
+				<p class="err">${i18n.getMessage('exchangeBundleEmpty')}</p>
+				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
+		}
+		const blocked = this.#bundleBlocked;
+		const allOn = this.#bundleChosen.length === valid;
+		return html`
+			<div class="bsum">
+				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
+				<span class="spacer"></span>
+				<label class="mode-opt">
+					<input type="checkbox" .checked=${allOn}
+						@change=${(e) => { for (const r of rows) { if (r.result.ok) r.selected = e.target.checked; } this.requestUpdate(); }}>
+					<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
+				</label>
+			</div>
+			${rows.map(row => this.#renderBundleRow(row, i18n, lang))}
+			${blocked === 'script' ? html`<p class="bhint">${i18n.getMessage('exchangeBundleScriptPending')}</p>` : ''}
+			<div class="actions">
+				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
+				<button class="btn btn-primary" ?disabled=${!!blocked} @click=${() => this.#confirmBundle()}>
+					${i18n.getMessage('exchangeBundleImport').replace('{count}', this.#bundleChosen.length)}
+				</button>
+			</div>`;
+	}
+
+	#renderBundleRow(row, i18n, lang) {
+		const ok = row.result.ok;
+		const v = row.result.value;
+		const script = ok && row.result.type === 'engine' && X().hasTransform(v);
+		const firstLink = ok && row.result.type === 'menu' ? v.items.find(it => it.customUrl || it.url) : null;
+		const iconUrl = !ok ? null
+			: (row.result.type === 'engine' ? v.url : (firstLink ? (firstLink.customUrl || firstLink.url) : null));
+		const name = this.#rowName(row, lang);
+		return html`
+			<div class="brow ${ok ? '' : 'invalid'}">
+				<div class="bhead">
+					<input type="checkbox" ?disabled=${!ok} .checked=${row.selected}
+						@change=${(e) => { row.selected = e.target.checked; this.requestUpdate(); }}>
+					${ok ? html`<img class="favicon" src="${this.#faviconSrc(iconUrl, name)}" alt="">` : ''}
+					<span class="grow">
+						<span class="bname">${name}</span>
+						${row.result.type
+							? html`<span class="bmeta">${i18n.getMessage(row.result.type === 'menu' ? 'exchangePreviewMenu' : 'exchangePreviewEngine')}</span>`
+							: ''}
+					</span>
+					${script ? html`<span class="badge bad">${i18n.getMessage('exchangeScriptWarnTitle')}</span>` : ''}
+					${ok ? '' : html`<span class="badge bad">${i18n.getMessage('exchangeBundleInvalid')}</span>`}
+					<button class="bcaret" @click=${() => { row.expanded = !row.expanded; this.requestUpdate(); }}>
+						${row.expanded ? '▾' : '▸'}
+					</button>
+				</div>
+				${row.expanded ? html`<div class="bbody">${this.#renderBundleBody(row, i18n)}</div>` : ''}
+			</div>`;
+	}
+
+	#renderBundleBody(row, i18n) {
+		if (!row.result.ok) {
+			return html`<p class="err">${i18n.getMessage('exchangeInvalidDetail').replace('{detail}', row.result.errors.join(', '))}</p>`;
+		}
+		const v = row.result.value;
+		const body = row.result.type === 'menu'
+			? this.#renderMenuBody(v, i18n)
+			: this.#renderEngineBody(v, i18n, row.scriptAck, (c) => { row.scriptAck = c; this.requestUpdate(); });
+		return html`
+			${body}
+			${this.#renderModeChoice(i18n, row.match, row.result.type, row.mode, (m) => { row.mode = m; this.requestUpdate(); })}`;
 	}
 
 	#renderError(r, i18n) {
