@@ -44,7 +44,7 @@ Load the repo folder at `chrome://extensions` (Developer mode → "Load unpacked
 
 `main` is the Chrome/Edge product. `firefox-build` is `main` plus a small Firefox patch set (~8 files: a Gecko manifest, `background.scripts` instead of a service worker, the `ff:*` tooling).
 
-**Keep `firefox-build` current by merging `main` into it — never rebase it.** `main` itself *is* rebased onto `upstream/main`; the asymmetry is deliberate and explained in [FORK-NOTES.md](FORK-NOTES.md).
+**Both branches are kept current by merging, never rebasing** — `main` from `upstream/main`, `firefox-build` from `main`. `main` used to be rebased; with 150+ Gestura commits on top of the upstream base that stopped being practical. See [FORK-NOTES.md](FORK-NOTES.md).
 
 ## Releasing
 

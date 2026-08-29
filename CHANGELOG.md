@@ -5,7 +5,7 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
-### Unreleased
+### v2.7.0 (2026-08-29)
 
 Merged FlowMouse v2.3 and v2.3.1 (upstream sections below).
 
