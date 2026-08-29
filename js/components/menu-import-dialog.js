@@ -98,9 +98,9 @@ class MenuImportDialog extends LitElement {
 			const res = X().validateBundle(rawObject);
 			this._bundle = {
 				errors: res.errors,
-				rows: res.entries.map((result) => {
+				rows: res.entries.map((result, i) => {
 					const match = result.ok ? this.#catalogMatch(result) : null;
-					return { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false };
+					return { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false, idx: i };
 				}),
 			};
 		} else {
@@ -156,19 +156,24 @@ class MenuImportDialog extends LitElement {
 		return match.name || match.id;
 	}
 
-	#renderModeChoice(i18n, match, type, mode, onMode) {
+	// scope disambiguates the radio group name across bundle rows: shadow-root
+	// radio groups are scoped only by name, and two rows can share a match.id
+	// (a menu and an engine with the same catalog id, or a bundle with a
+	// duplicate id across entries). The single-format callers pass no scope
+	// and keep today's unscoped name.
+	#renderModeChoice(i18n, match, type, mode, onMode, scope = '') {
 		if (!match) return '';
 		const name = this.#matchName(match, type, i18n);
 		return html`
 			<div class="mode">
 				<div class="mode-label">${i18n.getMessage('exchangeImportAs')}</div>
 				<label class="mode-opt">
-					<input type="radio" name="importmode-${match.id}" .checked=${mode === 'replace'}
+					<input type="radio" name="importmode-${scope}${match.id}" .checked=${mode === 'replace'}
 						@change=${() => onMode('replace')}>
 					<span>${i18n.getMessage('exchangeReplaceStandard').replace('{name}', name)}</span>
 				</label>
 				<label class="mode-opt">
-					<input type="radio" name="importmode-${match.id}" .checked=${mode === 'new'}
+					<input type="radio" name="importmode-${scope}${match.id}" .checked=${mode === 'new'}
 						@change=${() => onMode('new')}>
 					<span>${i18n.getMessage('exchangeAddAsNew')}</span>
 				</label>
@@ -372,7 +377,7 @@ class MenuImportDialog extends LitElement {
 			: this.#renderEngineBody(v, i18n, row.scriptAck, (c) => { row.scriptAck = c; this.requestUpdate(); });
 		return html`
 			${body}
-			${this.#renderModeChoice(i18n, row.match, row.result.type, row.mode, (m) => { row.mode = m; this.requestUpdate(); })}`;
+			${this.#renderModeChoice(i18n, row.match, row.result.type, row.mode, (m) => { row.mode = m; this.requestUpdate(); }, `r${row.idx}-`)}`;
 	}
 
 	#renderError(r, i18n) {
