@@ -135,7 +135,7 @@ document.dispatchEvent(new CustomEvent('gestura:import', { detail: jsonString })
 
 - **`detail` ist ein String, kein Objekt.** Zwei Gründe: Objekte aus dem Seiten-Realm brauchen in Firefox `cloneInto`/Xray-Sonderbehandlung, ein String überquert die Welten-Grenze ohne Sonderfall; und die Größenprüfung greift so **vor** dem Parsen.
 - Der String ist das Bundle-JSON – oder, gleichwertig unterstützt, ein Einzelformat. Der Dialog verzweigt ohnehin auf `detectType()`.
-- Das Fenster bleibt **15 Sekunden** offen und nimmt **genau einen** Payload an; der erste schließt es. Es lebt im Content-Skript und stirbt mit dem Dokument – eine echte Navigation räumt es ohne Zutun ab, ein zusätzlicher Listener ist nicht nötig.
+- Das Fenster bleibt **15 Sekunden** offen und nimmt **genau einen** Payload an; der erste schließt es. Es lebt im Content-Skript und stirbt mit dem Dokument – eine echte Navigation räumt es ohne Zutun ab. In einer Single-Page-App reißt ein rein clientseitiger Routenwechsel das Dokument aber **nicht** ab, das Fenster bliebe offen; dafür ist der 15-Sekunden-Timeout die eigentliche Grenze.
 - Kommt kein Payload, passiert nichts – kein Dialog, keine Meldung. Die Seite ist für ihre eigene Fehleranzeige zuständig.
 
 ### 5.3 Sicherheitsargument
@@ -186,7 +186,7 @@ Die Konstante `bundleBlobMax` liegt in `menu-exchange.js`, das im Content-Kontex
 - Der Import-Button ist deaktiviert, wenn nichts gewählt ist, oder solange eine **gewählte** Skript-Zeile unbestätigt ist; im zweiten Fall erscheint `exchangeBundleScriptPending` als Hinweis.
 - Ein Bundle ohne einen einzigen gültigen Eintrag zeigt `exchangeBundleEmpty` und nur »Abbrechen«.
 
-**Bestätigen:** über alle gewählten Zeilen iterieren, `siteMenus` und `searchEngines` in je einem Objekt akkumulieren, dann **ein einziges** `settingsStore.save({ siteMenus, searchEngines })`. Nicht n Speichervorgänge – das wären n Sync-Schreibzugriffe samt Konfliktpotenzial. Die Firefox-Sonderbehandlung (`transformEnabled` und `transformCode` leeren, wenn nicht `transformRequired`) läuft pro Eintrag wie heute. `import-done` trägt `{ count, types }`.
+**Bestätigen:** über alle gewählten Zeilen iterieren, `siteMenus` und `searchEngines` in je einem Objekt akkumulieren, dann **ein einziges** `settingsStore.save({ siteMenus, searchEngines })`. Nicht n Speichervorgänge – das wären n Sync-Schreibzugriffe samt Konfliktpotenzial. Die Firefox-Sonderbehandlung (`transformEnabled` und `transformCode` leeren, wenn nicht `transformRequired`) läuft pro Eintrag wie heute. `import-done` trägt `{ count }` – kein `types`, dafür liest ohnehin kein Konsument das Detail.
 
 ### 6.4 `js/components/options-page.js`
 

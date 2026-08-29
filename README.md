@@ -85,9 +85,12 @@ page — the extension will not fetch a third-party URL on a page's behalf.
 ```
 
 **Inline, for data that lives on another origin.** A trusted click on an element
-carrying `data-gestura-inline` opens a 15-second hand-off window. Fetch the data
-yourself — you are subject to the usual CORS rules, the extension is not involved
-— and dispatch it as a **string**:
+carrying `data-gestura-inline` opens a 15-second hand-off window. Put the
+attribute on the button itself, not on a wrapping container — a click on any
+descendant has its default action suppressed, so a card- or row-level attribute
+silently breaks every link inside it. Fetch the data yourself — you are subject
+to the usual CORS rules, the extension is not involved — and dispatch it as a
+**string**:
 
 ```html
 <button data-gestura-inline>Add to Gestura</button>
@@ -111,9 +114,11 @@ of them:
 { "gesturaBundle": 1, "entries": [ { "gesturaMenu": 1, "…": "…" } ] }
 ```
 
-Limits: 100 KB per entry, 1 MB per bundle, 200 entries. Every URL inside an entry
-must be `https:`. The full contract is `js/exchange-schema.json`; the runtime
-validator in `js/menu-exchange.js` is authoritative.
+Limits: 100 KB per entry, 1 MB per bundle, 200 entries — those are the hand-off
+limits; what actually fits also depends on the browser's sync storage quota.
+Every URL inside an entry must be `https:`. The full contract is
+`js/exchange-schema.json`; the runtime validator in `js/menu-exchange.js` is
+authoritative.
 
 ## Privacy
 
