@@ -5,6 +5,11 @@ import { settingsStore } from '../settings-store.js';
 const X = () => window.FlowMouseMenuExchange;
 const isFirefox = navigator.userAgent.includes('Firefox');
 
+// Leerzustände, falls die Einstellungen die Zweige noch nicht kennen. Als
+// Konstanten, weil Einzel- und Sammel-Import beide darauf zurückfallen.
+const EMPTY_SITE_MENUS = { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
+const EMPTY_ENGINES = { overrides: {}, hidden: [], custom: [], order: [] };
+
 // Import-Vorschau für Gestura-Menüs/-Engines. Für alle Import-Wege (Datei, URL,
 // Betreiber-Button) genutzt. Rendert nie ungeprüftes JSON: erst validate(), dann
 // Anzeige aus dem normalisierten value.
@@ -113,20 +118,20 @@ class MenuImportDialog extends LitElement {
 		return match.name || match.id;
 	}
 
-	#renderModeChoice(i18n) {
-		if (!this._catalogMatch) return '';
-		const name = this.#matchName(this._catalogMatch, this._result.type, i18n);
+	#renderModeChoice(i18n, match, type, mode, onMode) {
+		if (!match) return '';
+		const name = this.#matchName(match, type, i18n);
 		return html`
 			<div class="mode">
 				<div class="mode-label">${i18n.getMessage('exchangeImportAs')}</div>
 				<label class="mode-opt">
-					<input type="radio" name="importmode" .checked=${this._importMode === 'replace'}
-						@change=${() => { this._importMode = 'replace'; }}>
+					<input type="radio" name="importmode-${match.id}" .checked=${mode === 'replace'}
+						@change=${() => onMode('replace')}>
 					<span>${i18n.getMessage('exchangeReplaceStandard').replace('{name}', name)}</span>
 				</label>
 				<label class="mode-opt">
-					<input type="radio" name="importmode" .checked=${this._importMode === 'new'}
-						@change=${() => { this._importMode = 'new'; }}>
+					<input type="radio" name="importmode-${match.id}" .checked=${mode === 'new'}
+						@change=${() => onMode('new')}>
 					<span>${i18n.getMessage('exchangeAddAsNew')}</span>
 				</label>
 			</div>`;
@@ -139,41 +144,46 @@ class MenuImportDialog extends LitElement {
 		return !!(r && r.ok && r.type === 'engine' && X().hasTransform(r.value));
 	}
 
+	// Reine Transformation: nimmt den aktuellen siteMenus-Zustand und gibt den
+	// nächsten zurück, ohne zu speichern. Einzel- und Sammel-Import gehen beide
+	// hierdurch, damit sie garantiert dasselbe schreiben.
+	#applyMenu(cur, result, source, lang, mode, matchId) {
+		if (mode === 'replace' && matchId) {
+			// Standard-Menü ersetzen → verhält sich wie ein bearbeitetes Katalog-Menü.
+			const def = X().toStandardMenu(result.value, lang);
+			return { ...cur, edited: { ...cur.edited, [matchId]: def } };
+		}
+		const { id, def } = X().toCustomMenu(result.value, source, undefined, lang);
+		return { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
+	}
+
+	// Wie #applyMenu, für searchEngines. Die Firefox-Sonderbehandlung sitzt hier,
+	// damit sie auf beiden Wegen greift: dort laufen Transform-Skripte nicht,
+	// also wird das Skript beim Import entfernt — außer die Engine besteht darauf.
+	#applyEngine(cur, result, source, lang, mode, matchId) {
+		const strip = (e) => {
+			if (isFirefox && !result.value.transformRequired) { e.transformEnabled = false; e.transformCode = ''; }
+			return e;
+		};
+		if (mode === 'replace' && matchId) {
+			const ov = strip(X().toEngineOverride(result.value, lang));
+			return { ...cur, overrides: { ...cur.overrides, [matchId]: ov } };
+		}
+		const engine = strip(X().toCustomEngine(result.value, source, undefined, lang));
+		return { ...cur, custom: [...(cur.custom || []), engine] };
+	}
+
 	async #confirm() {
 		const r = this._result;
 		if (!r || !r.ok) return;
-		const version = r.value.version || '1.0.0';
-		const source = { ...this._source, version };
+		const source = { ...this._source, version: r.value.version || '1.0.0' };
 		const lang = this.#lang();
-		const replace = !!this._catalogMatch && this._importMode === 'replace';
-		let ok;
-		if (r.type === 'menu') {
-			const cur = settingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
-			let next;
-			if (replace) {
-				// Replace the standard menu → behaves like an edited catalog menu.
-				const def = X().toStandardMenu(r.value, lang);
-				next = { ...cur, edited: { ...cur.edited, [this._catalogMatch.id]: def } };
-			} else {
-				const { id, def } = X().toCustomMenu(r.value, source, undefined, lang);
-				next = { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
-			}
-			ok = await settingsStore.save({ siteMenus: next });
-		} else {
-			const cur = settingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
-			let next;
-			if (replace) {
-				// Replace the built-in engine → behaves like an overridden built-in.
-				const ov = X().toEngineOverride(r.value, lang);
-				if (isFirefox && !r.value.transformRequired) { ov.transformEnabled = false; ov.transformCode = ''; }
-				next = { ...cur, overrides: { ...cur.overrides, [this._catalogMatch.id]: ov } };
-			} else {
-				const engine = X().toCustomEngine(r.value, source, undefined, lang);
-				if (isFirefox && !r.value.transformRequired) { engine.transformEnabled = false; engine.transformCode = ''; }
-				next = { ...cur, custom: [...(cur.custom || []), engine] };
-			}
-			ok = await settingsStore.save({ searchEngines: next });
-		}
+		const mode = this._catalogMatch ? this._importMode : 'new';
+		const matchId = this._catalogMatch ? this._catalogMatch.id : null;
+		const patch = r.type === 'menu'
+			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || EMPTY_SITE_MENUS, r, source, lang, mode, matchId) }
+			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || EMPTY_ENGINES, r, source, lang, mode, matchId) };
+		const ok = await settingsStore.save(patch);
 		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
 		window.dispatchEvent(new Event('action-catalog-changed'));
 		this.dispatchEvent(new CustomEvent('import-done', { detail: { type: r.type }, bubbles: true, composed: true }));
@@ -200,7 +210,7 @@ class MenuImportDialog extends LitElement {
 			<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 	}
 
-	#renderMenu(v, i18n) {
+	#renderMenuBody(v, i18n) {
 		const lang = this.#lang();
 		return html`
 			<div class="kind">${i18n.getMessage('exchangePreviewMenu')}</div>
@@ -215,17 +225,14 @@ class MenuImportDialog extends LitElement {
 						<span>${X().pickLabel(it.label, lang) || it.action}</span>
 						<span class="url">${it.customUrl || it.url || it.engineId || ''}</span>
 					</div>`)}
-			</div>
-			${this.#renderModeChoice(i18n)}
-			<div class="actions">
-				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
-				<button class="btn btn-primary" @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
 			</div>`;
 	}
 
-	#renderEngine(v, i18n) {
+	// ack/onAck statt this._scriptAck: im Bundle-Modus hat jede Zeile ihre eigene
+	// Bestätigung, im Einzelmodus ist es weiterhin der Dialog-Zustand.
+	#renderEngineBody(v, i18n, ack, onAck) {
 		const lang = this.#lang();
-		const script = this.#needsScriptAck;
+		const script = X().hasTransform(v);
 		return html`
 			<div class="kind">${i18n.getMessage('exchangePreviewEngine')}</div>
 			<div class="name-row">
@@ -240,11 +247,27 @@ class MenuImportDialog extends LitElement {
 					<p>${i18n.getMessage(v.transformRequired && isFirefox ? 'exchangeScriptChromeOnlyRequired' : 'exchangeScriptChromeOnly')}</p>
 					<div class="code">${v.transformCode}</div>
 					<label class="ack">
-						<input type="checkbox" .checked=${this._scriptAck} @change=${(e) => { this._scriptAck = e.target.checked; }}>
+						<input type="checkbox" .checked=${ack} @change=${(e) => onAck(e.target.checked)}>
 						<span>${i18n.getMessage('exchangeScriptConfirm')}</span>
 					</label>
-				</div>` : ''}
-			${this.#renderModeChoice(i18n)}
+				</div>` : ''}`;
+	}
+
+	#renderMenu(v, i18n) {
+		return html`
+			${this.#renderMenuBody(v, i18n)}
+			${this.#renderModeChoice(i18n, this._catalogMatch, 'menu', this._importMode, (m) => { this._importMode = m; })}
+			<div class="actions">
+				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
+				<button class="btn btn-primary" @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
+			</div>`;
+	}
+
+	#renderEngine(v, i18n) {
+		const script = this.#needsScriptAck;
+		return html`
+			${this.#renderEngineBody(v, i18n, this._scriptAck, (c) => { this._scriptAck = c; })}
+			${this.#renderModeChoice(i18n, this._catalogMatch, 'engine', this._importMode, (m) => { this._importMode = m; })}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${script && !this._scriptAck} @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
