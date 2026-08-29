@@ -5,6 +5,41 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### v2.7.0 (2026-08-29)
+
+Merged FlowMouse v2.3 and v2.3.1 (upstream sections below).
+
+**New Features:**
+
+- **Horizontal scroll gestures:** *Scroll Left*, *Scroll Right*, *Scroll to Left Edge* and *Scroll to Right Edge* join the existing vertical ones. Scroll targeting was rewritten around an axis table, so the cursor-under-element search now honors `overflow-x` for the horizontal actions.
+- **Scroll animation duration:** every scroll action gained a *Duration* slider (50-1500 ms) that applies to the extension's own easing. The control is shown greyed out with an explanatory tooltip when the chosen smoothness resolves to the browser's native scrolling, which has no adjustable duration.
+
+**Fixes & Improvements:**
+
+- **Pages that would not scroll now do:** the scroll root fell back to `document.documentElement`, which reports no scroll room on sites that scroll the viewport itself. It is now `window`, with the metrics read per axis from the right source.
+- **Website styles can no longer bleed into the HUD:** the gesture overlay's `z-index` moved out of the inline style into the shadow root's `:host` rule, `color-scheme` is pinned to `normal` and `::backdrop` is forced transparent.
+- **The in-page menu opens on COEP-isolated sites** (e.g. SteamDB): the menu iframe declares `credentialless` when the embedding page is `crossOriginIsolated`. Its custom-CSS `localStorage` cache is skipped in that mode, because such a frame cannot persist it.
+- **Ad blockers no longer trigger the HUD or cancel a selection:** synthetic scroll, wheel, mouseup and dragend events are ignored — only `isTrusted` events count.
+- **The area-select batch warning can be switched off again:** a threshold of `0` was treated as "unset" and silently restored the default of 15.
+- **The HUD stops showing custom action names** once custom gestures are disabled.
+- **Window actions act on the window the gesture came from:** *Fullscreen*, *Maximize* and *Minimize* resolved the target via `windows.getCurrent()`, which is not necessarily the sender's window.
+- **Bookmark folders survive a sync between devices:** a folder is now stored as `{ id, path }` instead of a bare ID, and resolved by path when the ID does not exist locally or points somewhere else. Chrome hands out different bookmark folder IDs per device, so *Add to bookmarks* and the bookmarks menu could end up writing to or reading from the wrong folder. The folder list is now built in the service worker (`getBookmarkFolders`) rather than in the options page.
+- **Settings pages load faster:** `SettingsStore` became a class that starts loading on import, and the pages preload the module. Components await `settingsStore.waitForLoad()` instead of triggering the load themselves.
+- **System search no longer collides with third-party New Tab extensions** (thanks to @realDGD upstream).
+- **The area-select section gained an *Advanced* toggle:** the batch-warning threshold and the open delay moved behind it, matching the other settings sections. The modifier-key dropdown now also follows the stored value when it changes from elsewhere (an inline reset could leave the old entry showing).
+- **Area select opens the whole batch even if you close the source tab:** the loop aborted as soon as the opener tab was gone, so the remaining links were silently dropped. It now keeps going without an opener.
+- **The scroll-smoothness dropdown says what *Auto* resolves to** on this machine, e.g. *Auto (System)*.
+- **Blacklist entries were restyled** as tags inside the component itself, with a tooltip on the delete button; their rules no longer live in `option.css`.
+- Settings export no longer revokes its blob URL before the download starts; Korean text wraps on word boundaries.
+
+**Gestura-side follow-up:**
+
+- The pending-import path (an "Add to Gestura" link handed over from a website) appends its dialog straight into the options page's shadow root, bypassing the gate that holds back every other child. Since the store refactor a save throws while the initial load is still running, so that path now waits for the store first.
+
+**Not adopted yet:**
+
+- Upstream's reset behavior (`reset()` writing the defaults back, and the content script rebuilding `SETTINGS` from `DEFAULT_SETTINGS`) so a reset reaches open tabs — deferred for a separate look.
+
 ### v2.6 (2026-08-16)
 
 **New Features:**
@@ -68,6 +103,37 @@
   - **Custom JavaScript transform for search links:** Each search-link engine can now carry an optional JS snippet that receives the current `selection` (and optionally the `clipboard`) and returns the string substituted for `%s`. The snippet runs in an isolated sandbox with no access to the page or the extension, and can be tested against a sample input directly in the editor. An optional **"Replace default encoding"** toggle inserts the transform result verbatim into the URL, skipping `%s`, `+`, and slug encoding — useful when the function already returns a fully-formed URL component.
 - Search-engine selection for text drag and the clipboard-search action now uses the central search-engine catalog, so your custom engines, hidden state, and ordering apply there too. Regional search engines (Baidu, Yandex, Naver, etc.) are included but hidden by default.
 - Image search engines are now configurable in the "Search engines" page (Text/Image switch) — add custom reverse-image engines, reorder, hide, and give each an optional image-URL transform (e.g. thumbnail → original).
+
+### FlowMouse v2.3.1 (2026-08-28)
+
+- Optimized the loading speed of settings and other pages
+- Optimized scrolling logic, fixing an issue where a few websites could not be scrolled
+- Fixed an issue where the styles of a few websites might interfere with the extension's Shadow DOM
+- Fixed default settings not syncing to open tabs after reset
+- Fixed an issue where the Batch Operation Alert for Area Select could not be disabled
+- Fixed an issue where third-party New Tab extensions might interfere with drag-to-search functionality (Thanks to @realDGD)
+- Fixed an issue where bookmark features might fail after syncing settings due to inconsistent bookmark folder IDs across devices in Chrome
+- Optimized HUD display logic to prevent false positives from third-party ad blocker extensions
+- Fixed an issue where the HUD still showed custom action names after disabling custom gestures
+- Other minor improvements
+
+
+### FlowMouse v2.3 (2026-08-03)
+
+**New Features:**
+- New gestures:
+  - Scroll Left
+  - Scroll Right
+  - Scroll to Left Edge
+  - Scroll to Right Edge
+- Support adjusting scroll animation duration
+
+**Interface & General Improvements:**
+- Fixed an issue where the popup menu failed to open on certain websites (e.g., SteamDB)
+- Fixed an issue with incorrect color rendering in the popup menu on certain websites
+- Minor improvements to settings interface
+- Other minor improvements
+
 
 ### v2.2 (2026-06-29)
 

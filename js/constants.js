@@ -31,8 +31,12 @@
 		'urlToRoot': 'actionUrlToRoot',
 		'scrollUp': 'actionScrollUp',
 		'scrollDown': 'actionScrollDown',
+		'scrollLeft': 'actionScrollLeft',
+		'scrollRight': 'actionScrollRight',
 		'scrollToTop': 'actionScrollToTop',
 		'scrollToBottom': 'actionScrollToBottom',
+		'scrollToLeftEdge': 'actionScrollToLeftEdge',
+		'scrollToRightEdge': 'actionScrollToRightEdge',
 		'closeTab': 'actionCloseTab',
 		'closeWindow': 'actionCloseWindow',
 		'closeBrowser': 'actionCloseBrowser',
@@ -112,12 +116,16 @@
 		newWindow: { focused: true },
 		newTab: { position: 'last', active: true },
 		openCustomUrl: { customUrl: '', position: 'last', active: true, incognito: false, ownOpen: null },
-		addToBookmarks: { folderId: '' },
+		addToBookmarks: { folderId: { id: '' } },
 		copyTitleAndUrl: { asMarkdown: false },
-		scrollUp: { scrollDistance: 75, scrollSmoothness: 'auto', scrollAccel: 1, scrollAccelWindow: 500 },
-		scrollDown: { scrollDistance: 75, scrollSmoothness: 'auto', scrollAccel: 1, scrollAccelWindow: 500 },
-		scrollToTop: { scrollSmoothness: 'none' },
-		scrollToBottom: { scrollSmoothness: 'none' },
+		scrollUp: { scrollDistance: 75, scrollSmoothness: 'auto', scrollDuration: 500, scrollAccel: 1, scrollAccelWindow: 500 },
+		scrollDown: { scrollDistance: 75, scrollSmoothness: 'auto', scrollDuration: 500, scrollAccel: 1, scrollAccelWindow: 500 },
+		scrollLeft: { scrollDistance: 75, scrollSmoothness: 'auto', scrollDuration: 500, scrollAccel: 1, scrollAccelWindow: 500 },
+		scrollRight: { scrollDistance: 75, scrollSmoothness: 'auto', scrollDuration: 500, scrollAccel: 1, scrollAccelWindow: 500 },
+		scrollToTop: { scrollSmoothness: 'none', scrollDuration: 500 },
+		scrollToBottom: { scrollSmoothness: 'none', scrollDuration: 500 },
+		scrollToLeftEdge: { scrollSmoothness: 'none', scrollDuration: 500 },
+		scrollToRightEdge: { scrollSmoothness: 'none', scrollDuration: 500 },
 		switchLeftTab: { noWrap: false, moveTab: false },
 		switchRightTab: { noWrap: false, moveTab: false },
 		switchFirstTab: { moveTab: false },
@@ -140,11 +148,11 @@
 		viewPageSource: { position: 'right', active: true },
 		menuShowTabs: { sortOrder: 'default', maxItems: 0, scrollToBottom: false, timeDisplay: 'lastAccess' },
 		menuRecentlyClosed: { maxItems: 12, sortOrder: 'default', scrollToBottom: false, timeDisplay: 'closedTime' },
-		menuShowBookmarks: { folderId: '1', position: 'right', active: true, incognito: false, sortOrder: 'default', maxItems: 30, scrollToBottom: false, timeDisplay: 'dateAdded' },
+		menuShowBookmarks: { folderId: { id: '1' }, position: 'right', active: true, incognito: false, sortOrder: 'default', maxItems: 30, scrollToBottom: false, timeDisplay: 'dateAdded' },
 	};
 
 	const LOCAL_ACTIONS = new Set([
-		'none', 'scrollUp', 'scrollDown', 'scrollToTop', 'scrollToBottom',
+		'none', 'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
 		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent', 'simulateKey',
 		'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 		'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
@@ -313,8 +321,11 @@
 	};
 
 	function arrowsToSvg(text) {
-		if (CORNER_SVG[text]) return CORNER_SVG[text];
-		return text.replace(/[↑↓←→]/g, match => ARROW_SVG[match] || match);
+		if (typeof text !== 'string' || !text) return '';
+		const arrows = text.replace(/[^↑↓←→]/g, '');
+		if (!arrows) return '';
+		if (CORNER_SVG[arrows]) return CORNER_SVG[arrows];
+		return arrows.replace(/[↑↓←→]/g, match => ARROW_SVG[match]);
 	}
 
 	window.GestureConstants = {

@@ -1,8 +1,12 @@
+import { settingsStore } from '../settings-store.js';
 import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
-import { SettingsStore } from '../settings-store.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
+
+// Survives the reload that #importSettings triggers, so the fresh page can pick the
+// data section back up and finally show the "import done" message.
+const IMPORT_RELOAD_KEY = 'gestura:importReload';
 
 class OptionsPage extends LitElement {
 	static properties = {
@@ -268,7 +272,7 @@ class OptionsPage extends LitElement {
 		this._debounceTimer = null;
 		this._pendingPatch = null;
 		this._statusTimer = null;
-		this._store = SettingsStore;
+		this._store = settingsStore;
 	}
 
 	connectedCallback() {
@@ -311,7 +315,7 @@ class OptionsPage extends LitElement {
 	}
 
 	async #init() {
-		await this._store.load();
+		await this._store.waitForLoad();
 		this._settings = { ...this._store.current };
 		this._ready = true;
 
@@ -329,6 +333,7 @@ class OptionsPage extends LitElement {
 		this.updateComplete.then(() => {
 			this.#handleHashNavigation();
 			window.addEventListener('hashchange', () => this.#handleHashNavigation());
+			this.#resumeAfterImport();
 		});
 	}
 
@@ -339,6 +344,10 @@ class OptionsPage extends LitElement {
 	// and hand it to <menu-import-dialog> for validation + preview. Not gated on
 	// #ready/#init — this can run in parallel with settings load.
 	async #checkPendingImport() {
+		// This path appends the dialog straight into the shadow root, bypassing the
+		// _ready gate that holds back every other child. settingsStore.save() throws
+		// while the store is still loading, so wait for it before offering an import.
+		await settingsStore.waitForLoad();
 		let stored;
 		try {
 			stored = await chrome.storage.session.get('pendingImport');
@@ -749,8 +758,8 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'areaSelect' ? 'active' : ''}" data-nav="areaSelect" style="display:${this._settings.enableAreaSelect !== false ? '' : 'none'}">
-					<h2><span class="section-icon">${unsafeHTML(icon('squareDashedMousePointer', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('areaSelectTitle')}</span></h2>
+				<div class="section ${this._activeSection === 'areaSelect' ? 'active' : ''} ${(this._settings.sectionAdvanced?.areaSelect) ? 'advanced-expanded' : ''}" data-nav="areaSelect" style="display:${this._settings.enableAreaSelect !== false ? '' : 'none'}">
+					<h2><span class="section-icon">${unsafeHTML(icon('squareDashedMousePointer', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('areaSelectTitle')}</span>${this.#renderAdvancedToggle('areaSelect')}</h2>
 					<div class="section-body">
 						<div class="setting-row first-row">
 							<div class="setting-label">
@@ -759,6 +768,7 @@ class OptionsPage extends LitElement {
 							</div>
 							<div style="display:flex;align-items:center;gap:8px;">
 								<select class="input-lg"
+									.value=${this._settings.areaSelectModifierKey}
 									@change=${e => this.#updateSetting('areaSelectModifierKey', e.target.value)}>
 									${(() => {
 										const current = this._settings.areaSelectModifierKey;
@@ -788,7 +798,7 @@ class OptionsPage extends LitElement {
 								<span class="slider"></span>
 							</label>
 						</div>
-						<div class="setting-row">
+						<div class="setting-row advanced-setting">
 							<div class="setting-label">
 								<span class="setting-title">${i18n.getMessage('areaSelectWarnThreshold')}${this.#renderInlineReset('areaSelectWarnThreshold')}</span>
 								<span>${i18n.getMessage('areaSelectWarnThresholdDesc')}</span>
@@ -797,7 +807,7 @@ class OptionsPage extends LitElement {
 								.value=${String(this._settings.areaSelectWarnThreshold)}
 								@change=${e => { const v = Math.max(0, Math.min(999, parseInt(e.target.value) || 0)); e.target.value = v; this.#updateSetting('areaSelectWarnThreshold', v); }}>
 						</div>
-						<div class="setting-row">
+						<div class="setting-row advanced-setting">
 							<div class="setting-label">
 								<span class="setting-title">${i18n.getMessage('areaSelectDelay')}${this.#renderInlineReset('areaSelectDelay')}</span>
 								<span>${i18n.getMessage('areaSelectDelayDesc')}</span>
@@ -1456,8 +1466,21 @@ class OptionsPage extends LitElement {
 		a.href = url;
 		a.download = 'Gestura-settings.json';
 		a.click();
-		URL.revokeObjectURL(url);
+		setTimeout(() => URL.revokeObjectURL(url), 10000);
 		this.#showStatus(window.i18n.getMessage('exportDone'));
+	}
+
+	// Zweite Hälfte des Import-Reloads: Datenverwaltung wieder anspringen und die
+	// Erfolgsmeldung nachholen, die der Reload sonst verschluckt.
+	#resumeAfterImport() {
+		if (!sessionStorage.getItem(IMPORT_RELOAD_KEY)) return;
+		sessionStorage.removeItem(IMPORT_RELOAD_KEY);
+		// Wie bei der Hash-Navigation: erst scrollen, wenn die Unterkomponenten
+		// gerendert sind, sonst verschiebt sich die Zielposition noch.
+		setTimeout(() => {
+			this.#scrollToSection('data');
+			this.#showStatus(window.i18n.getMessage('importDone'));
+		}, 300);
 	}
 
 	#triggerImport() {
@@ -1501,13 +1524,22 @@ class OptionsPage extends LitElement {
 					delete imported.customGestureUrls;
 				}
 				const merged = { ...DEFAULT_SETTINGS, ...imported };
+				// Ein noch offener Debounce-Patch stammt aus dem Stand *vor* dem Import
+				// und würde die importierten Werte beim beforeunload wieder überschreiben.
+				if (this._debounceTimer) clearTimeout(this._debounceTimer);
+				this._debounceTimer = null;
+				this._pendingPatch = null;
 				const ok = await this._store.save(merged);
-				if (ok) {
-					this._settings = { ...this._store.current };
-					this.#showStatus(window.i18n.getMessage('importDone'));
-				} else {
+				if (!ok) {
 					this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
+					return;
 				}
+				// settingsStore.save() aktualisiert #current vor dem Schreiben, deshalb
+				// meldet handleExternalChange keine Änderung und die Unterkomponenten
+				// (Gesten-Grid, Engine-/Menü-Manager …) behalten ihren alten Stand.
+				// Ein Reload ist der einzige Weg, den ganzen Baum neu aufzubauen.
+				sessionStorage.setItem(IMPORT_RELOAD_KEY, '1');
+				window.location.reload();
 			} catch (err) {
 				console.error('Import failed:', err);
 				this.#showStatus(window.i18n.getMessage('importFailed'), 'error');

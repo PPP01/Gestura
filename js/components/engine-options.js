@@ -1,9 +1,9 @@
 import { html } from '../lib/lit-all.min.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 
 export function renderCatalogEngineOptions(currentValue, type = 'text') {
 	const i18n = window.i18n;
-	const se = SettingsStore.current.searchEngines || { overrides:{}, hidden:[], custom:[], order:[] };
+	const se = settingsStore.current.searchEngines || { overrides:{}, hidden:[], custom:[], order:[] };
 	const catalog = window.FlowMouseEngineCatalogApi ? window.FlowMouseEngineCatalogApi.ENGINE_CATALOG : [];
 	const engines = window.FlowMouseEngineRegistry.resolveEngines(catalog, se, type);
 	const ids = new Set(engines.map(e => e.id));

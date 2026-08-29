@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 
 function downloadJson(obj, filename) {
@@ -272,11 +272,11 @@ class EngineManager extends LitElement {
 	}
 
 	get #se() {
-		return SettingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
+		return settingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
 	}
 
 	get #localOnly() {
-		return SettingsStore.current.engineManagerLocalOnly !== false;
+		return settingsStore.current.engineManagerLocalOnly !== false;
 	}
 
 	get #catalog() {
@@ -286,7 +286,7 @@ class EngineManager extends LitElement {
 	connectedCallback() {
 		super.connectedCallback();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
-		this._unsubscribeStore = SettingsStore.onChange((changed) => {
+		this._unsubscribeStore = settingsStore.onChange((changed) => {
 			if ('searchEngines' in changed || 'engineManagerLocalOnly' in changed) this.requestUpdate();
 		});
 	}
@@ -311,7 +311,7 @@ class EngineManager extends LitElement {
 	}
 
 	#save(next) {
-		SettingsStore.save({ searchEngines: next });
+		settingsStore.save({ searchEngines: next });
 		window.dispatchEvent(new Event('action-catalog-changed'));
 	}
 
@@ -629,7 +629,7 @@ class EngineManager extends LitElement {
 				</div>
 				<label class="section-advanced-toggle ${this.#localOnly ? 'active' : ''}">
 					<input type="checkbox" .checked=${this.#localOnly}
-						@change=${(e) => { SettingsStore.save({ engineManagerLocalOnly: e.target.checked }); this.requestUpdate(); }}>
+						@change=${(e) => { settingsStore.save({ engineManagerLocalOnly: e.target.checked }); this.requestUpdate(); }}>
 					<div class="section-advanced-toggle-slider"></div>
 					<div class="section-advanced-toggle-label">${i18n.getMessage('engineLocalOnly')}</div>
 				</label>

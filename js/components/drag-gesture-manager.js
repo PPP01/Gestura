@@ -85,7 +85,7 @@ class DragGestureManager extends LitElement {
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 8px;
-				padding: 8px 10px;
+				padding: 8px 9px;
 				flex: 1;
 				min-width: 0;
 			}
@@ -121,7 +121,7 @@ class DragGestureManager extends LitElement {
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 8px;
-				padding: 8px 10px;
+				padding: 8px 9px;
 				background: color-mix(in srgb, var(--bg-tertiary) 50%, var(--bg-secondary) 50%);
 				border-top: 1px solid var(--border-color-light, color-mix(in srgb, var(--border-color) 50%, transparent));
 			}
@@ -558,6 +558,4 @@ class DragGestureManager extends LitElement {
 	}
 }
 
-window.i18n.waitForInit().then(() => {
-	customElements.define('drag-gesture-manager', DragGestureManager);
-});
+customElements.define('drag-gesture-manager', DragGestureManager);

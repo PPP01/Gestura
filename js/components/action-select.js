@@ -4,7 +4,7 @@ import { icons, icon } from '../icons.js';
 import { getChainLabel } from './chain-panel.js';
 import { getGestureMenuLabel } from './gesture-menu-config.js';
 import { tooltip } from '../tooltip.js';
-import { SettingsStore } from '../settings-store.js';
+import { settingsStore } from '../settings-store.js';
 import { renderCatalogEngineOptions } from './engine-options.js';
 
 let modalOpenCount = 0;
@@ -28,8 +28,12 @@ const ACTION_ICONS = {
 	'urlToRoot': 'house',
 	'scrollUp': 'chevronUp',
 	'scrollDown': 'chevronDown',
+	'scrollLeft': 'chevronLeft',
+	'scrollRight': 'chevronRight',
 	'scrollToTop': 'chevronsUp',
 	'scrollToBottom': 'chevronsDown',
+	'scrollToLeftEdge': 'chevronsLeft',
+	'scrollToRightEdge': 'chevronsRight',
 	'closeTab': 'x',
 	'closeWindow': 'squareX',
 	'closeBrowser': 'circleX',
@@ -98,13 +102,13 @@ const SCROLL_SMOOTHNESS = {
 	'none': 'smoothnessNone',
 };
 
-const SCROLL_ACTIONS = ['scrollUp', 'scrollDown', 'scrollToTop', 'scrollToBottom'];
+const SCROLL_ACTIONS = ['scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge'];
 
-const SCROLL_DISTANCE_ACTIONS = ['scrollUp', 'scrollDown'];
+const SCROLL_DISTANCE_ACTIONS = ['scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight'];
 
 const ACTION_CATEGORIES = [
 	{ key: '', actions: ['none', 'actionChain', 'delay'] },
-	{ key: 'actionCategoryNavigation', icon: 'compass', actions: ['back', 'forward', 'urlLevelUp', 'urlToRoot', 'scrollUp', 'scrollDown', 'scrollToTop', 'scrollToBottom'] },
+	{ key: 'actionCategoryNavigation', icon: 'compass', actions: ['back', 'forward', 'urlLevelUp', 'urlToRoot', 'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge'] },
 	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'siteMenu', 'customMenu', 'addSiteToMenu'] },
 	{ key: 'actionCategoryTabs', icon: 'panelTop', actions: ['newTab', 'closeTab', 'refresh', 'refreshAllTabs', 'switchLeftTab', 'switchRightTab', 'switchFirstTab', 'switchLastTab', 'closeOtherTabs', 'closeLeftTabs', 'closeRightTabs', 'closeAllTabs', 'switchLastActiveTab', 'restoreTab', 'duplicateTab', 'togglePinTab', 'moveTabToNewWindow'] },
 	{ key: 'actionCategoryWindow', icon: 'appWindow', actions: ['newWindow', 'newIncognito', 'toggleFullscreen', 'toggleMaximize', 'minimize', 'closeWindow', 'closeBrowser'] },
@@ -116,6 +120,7 @@ class ActionSelect extends LitElement {
 		value: { type: String },
 		config: { type: Object },
 		gestureLabel: { type: String, attribute: 'gesture-label' },
+		gestureArrows: { type: String, attribute: 'gesture-arrows' },
 		context: { type: String },
 		allowCustomName: { type: Boolean, attribute: 'allow-custom-name' },
 		compact: { type: Boolean },
@@ -548,6 +553,9 @@ class ActionSelect extends LitElement {
 				opacity: 0.4;
 				pointer-events: none;
 			}
+			.action-config-row.disabled .help-icon {
+				pointer-events: auto;
+			}
 			.action-config-row > .action-config-label {
 				flex-basis: 100%;
 				min-width: 0;
@@ -681,6 +689,7 @@ class ActionSelect extends LitElement {
 		this.value = 'none';
 		this.config = {};
 		this.gestureLabel = '';
+		this.gestureArrows = '';
 		this.context = 'gesture';
 		this.compact = false;
 		this._open = false;
@@ -711,7 +720,7 @@ class ActionSelect extends LitElement {
 	#getSiteMenuName(menuId) {
 		if (!menuId) return null;
 		const base = window.FlowMouseMenuModel.getBaseMenu(
-			window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SettingsStore.current.siteMenus, menuId);
+			window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, settingsStore.current.siteMenus, menuId);
 		if (!base) return null;
 		return base.name || (base.nameKey && window.i18n.getMessage(base.nameKey)) || null;
 	}
@@ -748,7 +757,7 @@ class ActionSelect extends LitElement {
 			return this.config?.customName
 				|| (window.FlowMouseEngineRegistry.resolveMenuItemLink(
 					window.FlowMouseEngineCatalogApi.ENGINE_CATALOG,
-					SettingsStore.current.searchEngines,
+					settingsStore.current.searchEngines,
 					this.config,
 				)?.name)
 				|| window.i18n.getMessage('actionSearchLink');
@@ -808,6 +817,11 @@ class ActionSelect extends LitElement {
 		`;
 	}
 
+	#renderGestureTitle() {
+		if (!this.gestureArrows && !this.gestureLabel) return '';
+		return html`<span class="modal-gesture">${this.gestureArrows ? unsafeHTML(window.GestureConstants.arrowsToSvg(this.gestureArrows)) : ''}${this.gestureArrows && this.gestureLabel ? ' ' : ''}${this.gestureLabel}</span>`;
+	}
+
 	#renderModal() {
 		const categories = this.#getFilteredCategories();
 		const hasResults = categories.some(c => c.items.length > 0);
@@ -821,7 +835,7 @@ class ActionSelect extends LitElement {
 				<div class="modal-panel" @mousedown=${(e) => e.stopPropagation()}>
 					<div class="modal-header">
 						<span class="modal-title">
-							${window.i18n.getMessage('action')}${this.gestureLabel ? html`<span class="modal-gesture">${unsafeHTML(window.GestureConstants.arrowsToSvg(this.gestureLabel))}</span>` : ''}
+							${window.i18n.getMessage('action')}${this.#renderGestureTitle()}
 						</span>
 						<button type="button" class="modal-close" @click=${this.#cancel}>${unsafeHTML(icons.x)}</button>
 					</div>
@@ -1069,7 +1083,7 @@ class ActionSelect extends LitElement {
 	// ---- searchLink config (engine picker + inline new/edit) ----
 
 	get #searchEngines() {
-		return SettingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
+		return settingsStore.current.searchEngines || { overrides: {}, hidden: [], custom: [], order: [] };
 	}
 
 	#searchLinkEngines() {
@@ -1129,7 +1143,7 @@ class ActionSelect extends LitElement {
 			transformRawResult: !!draft.transformRawResult,
 		};
 		const next = { ...se, custom: [...(se.custom || []), entry] };
-		SettingsStore.save({ searchEngines: next });
+		settingsStore.save({ searchEngines: next });
 		window.dispatchEvent(new Event('action-catalog-changed'));
 		this._pendingConfig = { ...this._pendingConfig, engineId: id, exception: {}, name: '', url: '', plus: false, slug: false, suffix: '', clipboardMode: false, transformEnabled: false, transformCode: '', transformClipboard: false, transformRawResult: false };
 		this.#searchLinkCancelPanel();
@@ -1166,7 +1180,7 @@ class ActionSelect extends LitElement {
 			const custom = (se.custom || []).map(c => (c.id === base.id ? { id: base.id, ...fields } : c));
 			next = { ...se, custom };
 		}
-		SettingsStore.save({ searchEngines: next });
+		settingsStore.save({ searchEngines: next });
 		window.dispatchEvent(new Event('action-catalog-changed'));
 		// Editing the engine globally means no per-item exception is needed.
 		this._pendingConfig = { ...this._pendingConfig, exception: {} };
@@ -1674,7 +1688,7 @@ class ActionSelect extends LitElement {
 		}
 		if (action === 'addSiteToMenu') {
 			const menus = window.FlowMouseMenuModel.listActiveMenus(
-				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, SettingsStore.current.siteMenus);
+				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, settingsStore.current.siteMenus);
 			const cur = this._pendingConfig?.menuId || '';
 			return html`
 				<div class="action-config-info">${window.i18n.getMessage('addSiteToMenuDesc')}</div>
@@ -2143,6 +2157,9 @@ class ActionSelect extends LitElement {
 			const currentSmoothness = this._pendingConfig.scrollSmoothness || smoothnessDefault;
 			const currentAcceleration = this._pendingConfig.scrollAccel ?? accelerationDefault;
 			const currentAccelWindow = this._pendingConfig.scrollAccelWindow ?? accelWindowDefault;
+			const currentDuration = this._pendingConfig.scrollDuration ?? defaults.scrollDuration ?? 500;
+			const autoResolved = window.matchMedia('(prefers-reduced-motion: no-preference)').matches ? 'system' : 'smooth';
+			const durationDisabled = (currentSmoothness === 'auto' ? autoResolved : currentSmoothness) !== 'smooth';
 			const showWarning = currentSmoothness === 'system'
 				&& window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2183,11 +2200,27 @@ class ActionSelect extends LitElement {
 					<span class="action-config-label">${window.i18n.getMessage('scrollSmoothness')}</span>
 					<select .value=${currentSmoothness}
 						@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, scrollSmoothness: e.target.value }; this.requestUpdate(); }}>
-						${Object.entries(SCROLL_SMOOTHNESS).map(([value, i18nKey]) => html`
-							<option value=${value} ?selected=${value === currentSmoothness}>${window.i18n.getMessage(i18nKey)}</option>
+						${Object.keys(SCROLL_SMOOTHNESS).map((value) => html`
+							<option value=${value} ?selected=${value === currentSmoothness}>${window.i18n.getMessage(SCROLL_SMOOTHNESS[value])}${value === 'auto' ? ` (${window.i18n.getMessage(SCROLL_SMOOTHNESS[autoResolved])})` : ''}</option>
 						`)}
 					</select>
 				</div>
+				${currentSmoothness !== 'none' ? html`
+					<div class="action-config-row ${durationDisabled ? 'disabled' : ''}">
+						<span class="action-config-label">${window.i18n.getMessage('scrollDuration')}
+						${durationDisabled ? html`<span class="help-icon"
+							.tooltip=${tooltip(window.i18n.getMessage('scrollDurationDisabledTooltip'))}>
+							${unsafeHTML(icon('circleHelp', { size: 14 }))}
+						</span>` : ''}</span>
+						<div class="slider-control">
+							<input type="range" min="50" max="1500" step="50"
+								.value=${String(currentDuration)}
+								@input=${(e) => { this._pendingConfig = { ...this._pendingConfig, scrollDuration: Number(e.target.value) }; this.requestUpdate(); }}
+							>
+							<span>${currentDuration}ms</span>
+						</div>
+					</div>
+				` : ''}
 				${showWarning ? html`
 					<div class="action-config-warning">
 						${window.i18n.getMessage('reducedMotionWarning').replace(/%OS%/g, window.i18n.platformName)}
@@ -2212,7 +2245,7 @@ class ActionSelect extends LitElement {
 	#renderBookmarkFolderSelect({ allowDefault = false } = {}) {
 		const { ACTION_DEFAULTS } = window.GestureConstants;
 		const defaults = ACTION_DEFAULTS[this._pendingValue] || {};
-		const folderId = this._pendingConfig.folderId ?? defaults.folderId;
+		const rawFolderId = this._pendingConfig.folderId ?? defaults.folderId;
 
 		if (!this._bookmarkPermission && chrome.permissions) {
 			chrome.permissions.contains({ permissions: ['bookmarks'] }).then(granted => {
@@ -2248,12 +2281,29 @@ class ActionSelect extends LitElement {
 		}
 
 		const folders = this._bookmarkFolders || [];
+		const selected = this.#findFolder(rawFolderId, folders);
+		let folderId = selected ? selected.id : '';
+
+		if (folders.length && !('folderId' in this._pendingConfig)) {
+			if (selected) {
+				this._pendingConfig.folderId = { id: selected.id, path: selected.path };
+			} else if (!allowDefault) {
+				const first = folders[0];
+				this._pendingConfig.folderId = { id: first.id, path: first.path };
+				folderId = first.id;
+			}
+		}
 		return html`
 			<div class="action-config-row">
 				<span class="action-config-label">${window.i18n.getMessage('bookmarkFolder')}</span>
 				<select class="action-config-select"
 					.value=${folderId}
-					@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, folderId: e.target.value }; this.requestUpdate(); }}
+					@change=${(e) => {
+						const selectedFolder = folders.find(f => f.id === e.target.value);
+						const newRef = selectedFolder ? { id: selectedFolder.id, path: selectedFolder.path } : e.target.value;
+						this._pendingConfig = { ...this._pendingConfig, folderId: newRef };
+						this.requestUpdate();
+					}}
 				>
 					${allowDefault ? html`<option value="" ?selected=${!folderId}>${window.i18n.getMessage('bookmarkFolderDefault')}</option>` : ''}
 					${folders.map(f => html`<option value=${f.id} ?selected=${f.id === folderId}>${'\u00A0\u00A0'.repeat(f.depth)}${f.title} (${f.linkCount})</option>`)}
@@ -2262,23 +2312,28 @@ class ActionSelect extends LitElement {
 		`;
 	}
 
-	#loadBookmarkFolders() {
-		chrome.bookmarks.getTree().then(tree => {
-			const folders = [];
-			const walk = (nodes, depth = 0) => {
-				for (const node of nodes) {
-					if (node.children) {
-						if (node.id === '0') { walk(node.children, 0); continue; }
-						const linkCount = node.children.filter(c => c.url).length;
-						folders.push({ id: node.id, title: node.title, depth, linkCount });
-						walk(node.children, depth + 1);
-					}
-				}
-			};
-			walk(tree);
-			this._bookmarkFolders = folders;
-			this.requestUpdate();
-		});
+	#findFolder(rawFolderId, folders) {
+		if (!rawFolderId) return null;
+		const { id, path } = typeof rawFolderId === 'object' ? rawFolderId : { id: rawFolderId };
+		const byId = folders.find(f => f.id === id);
+
+		{
+			const hasPath = Array.isArray(path) && path.length > 0;
+			const samePath = (a, b) => a.length === b.length && a.every((segment, i) => segment === b[i]);
+	
+			if (byId && (!hasPath || samePath(byId.path, path))) return byId;
+	
+			const byPath = hasPath ? folders.find(f => samePath(f.path, path)) : null;
+			if (byPath) return byPath;
+
+			return byId || null;
+		}
+	}
+
+	async #loadBookmarkFolders() {
+		const result = await chrome.runtime.sendMessage({ action: 'getBookmarkFolders' });
+		this._bookmarkFolders = result?.folders || [];
+		this.requestUpdate();
 	}
 
 	#isValidJson(str) {
@@ -2331,6 +2386,4 @@ class ActionSelect extends LitElement {
 	}
 }
 
-window.i18n.waitForInit().then(() => {
-	customElements.define('action-select', ActionSelect);
-});
+customElements.define('action-select', ActionSelect);

@@ -45,12 +45,14 @@ in sync. You replay your Gestura commits on top of the latest FlowMouse:
 ```bash
 git fetch upstream
 
-# 1. replay your Gestura commits onto the new upstream
-git checkout main
-git rebase upstream/main
-#   resolve conflicts only in files both sides touched
-#   (usually a few _locales/* files — always keep "Gestura"), then:
-git push --force-with-lease gestura main
+# 1. merge the new upstream into main (on a scratch branch first)
+git checkout -b upstream-sync-<version> main
+git merge upstream/main
+#   resolve conflicts only in files both sides touched, then run `npm test`
+#   and load the unpacked extension before folding it back:
+git checkout -f main          # -f: the manifest stamp blocks a plain checkout
+git merge --ff-only upstream-sync-<version>
+git push gestura main
 
 # 2. carry the updated main into the Firefox build — merge, never rebase
 git checkout firefox-build
@@ -62,19 +64,25 @@ git push gestura firefox-build
 git checkout main
 ```
 
-Rebase rewrites history, hence the `--force-with-lease` push on `main` (fine for
-a solo-maintained fork). Because Gestura is a small linear stack, conflicts are
-localized and rare (mostly the ~40 `_locales` files). Do *not* rebase
+Both branches merge — no force-push is needed anywhere. Do *not* rebase
 `feature/search-links` (130 commits = pain); it is only kept for reference.
 
-### Why `main` rebases but `firefox-build` merges
+### Why `main` merges too (it used to rebase)
 
-Not an inconsistency — the two branches have different jobs.
+Up to FlowMouse v2.2, `main` was replayed onto `upstream/main` so it stayed a
+clean, inspectable patch stack — a stack that could theoretically have gone
+upstream one day. That stopped being true:
 
-`main` is replayed onto `upstream/main` so it stays a clean, inspectable patch
-stack; that stack is the thing that could theoretically go upstream one day
-(see the last section). `firefox-build` goes nowhere: it is only built and
-signed. Two things make merging the better fit there:
+- **The stack is not small any more.** Merging v2.3.1 (2026-08-29) happened with
+  **152 Gestura commits** on top of the previous base. A rebase replays every one
+  of them onto a base none of them has seen.
+- **The merge is cheap in comparison.** That same sync produced 11 conflicted
+  files, none larger than 20 lines, and the ~40 `_locales` files merged on their
+  own.
+- **The premise is gone.** Upstream declined the feature PR, so `main` is not a
+  patch series waiting to be submitted; it is a product.
+
+`firefox-build` merged from the start, for its own reasons:
 
 - **Conflicts stay small.** A merge resolves against the previous merge base, so
   each release only re-decides what changed since — not the whole Firefox
@@ -83,7 +91,8 @@ signed. Two things make merging the better fit there:
   rerere.enabled true` would soften that, but it is not set.)
 - **Shipped commits keep their hashes.** Each `release(ff): x.y.z` commit is the
   exact source of a signed artifact published on AMO. Rebasing would give it a
-  new hash and tree, and "which commit was 2.6.1?" stops being answerable.
+  new hash and tree, and "which commit was 2.6.1?" stops being answerable. The
+  same now applies to `main` and the Chrome/Edge packages built from it.
 
 ## Personal (German) search engines
 
