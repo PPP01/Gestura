@@ -1342,7 +1342,7 @@ async function importFromSite(request, sender) {
 // and there is no origin to compare. The byte cap is re-checked here as defense in
 // depth — a runtime message can originate outside the content script — and the
 // parse happens in this trusted context, never in the page's.
-const IMPORT_INLINE_MAX_BYTES = 1024 * 1024; // mirrors LIMITS.bundleBlobMax
+const IMPORT_INLINE_MAX_BYTES = 1024 * 1024; // mirrors LIMITS.bundleBlobMax in js/menu-exchange.js
 
 async function importInline(request, sender) {
 	const text = request && request.json;

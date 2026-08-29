@@ -63,7 +63,9 @@
 // a *string*. The extension fetches nothing on this path, so there is no origin to
 // check — the page hands over data it already has. A string detail (rather than an
 // object) avoids Firefox's Xray/cloneInto handling for page-realm objects and lets
-// the size check run before parsing.
+// the size check run before parsing. Unlike the href branch, this one does not stop
+// propagation: the page's own click handler (the one that dispatches 'gestura:import')
+// is expected to run on the same click, so only the default action is suppressed.
 (function () {
 	'use strict';
 
@@ -84,8 +86,8 @@
 
 	function onInlinePayload(e) {
 		// One payload per gesture: close first, so a flood of events cannot queue up.
-		const json = e && e.detail;
 		closeInlineWindow();
+		const json = e && e.detail;
 		if (typeof json !== 'string' || !json) return;
 		if (new TextEncoder().encode(json).length > INLINE_MAX_BYTES) return;
 		try {
@@ -106,8 +108,11 @@
 
 		const inlineTrigger = e.target && e.target.closest && e.target.closest('[data-gestura-inline]');
 		if (inlineTrigger) {
+			// No stopPropagation here: the page's own click handler is expected to run
+			// on this same click (it's the one that dispatches 'gestura:import'). This
+			// listener runs first because it's registered on the capture phase, so the
+			// window is already open by the time that handler fires.
 			e.preventDefault();
-			e.stopPropagation();
 			openInlineWindow();
 			return;
 		}
