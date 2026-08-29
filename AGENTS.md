@@ -50,6 +50,18 @@ Load the repo folder at `chrome://extensions` (Developer mode → "Load unpacked
 
 Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then build the package. Chrome and Edge upload the *same* zip. Firefox is signed and published from `firefox-build` with **`npm run ff:release`**, which prompts for the AMO credentials and hands them to `web-ext` via the environment — never call `ff:sign` with `--api-key=` on the command line, that puts the secret in the shell history. `ff:release` bumps the version first (AMO refuses a number it already signed); add `-- --no-bump` when you already took the version from `main`. Step-by-step store guides live in [docs/store/](docs/store/); the Firefox build/sign mechanics are in `docs/firefox-build-guide.md` on the `firefox-build` branch.
 
+**Every released version gets a tag, and the tag matches the shipped `manifest.json` version.** Tag the `release:` / `release(ff):` commit itself, annotated:
+
+- `vX.Y[.Z]` on `main` — the Chrome/Edge release (`v2.7.0` → `9b74e3a`).
+- `ff-vX.Y[.Z]` on `firefox-build` — the AMO release. It needs its own namespace because AMO refuses a version it has already signed, so the Firefox line drifts (2.5 → 2.5.1, 2.6 → 2.6.1) even when the feature set is identical.
+
+```sh
+git tag -a v2.7.0 <release-commit> -m "Gestura v2.7.0"
+git push gestura v2.7.0
+```
+
+Tags before `v2.4` were backfilled after the fact; the Firefox line is tagged from `ff-v2.5.1` onward (older AMO uploads have no unambiguous release commit).
+
 ### `version_name` is generated — never edit it
 
 `manifest.json`'s `version_name` carries `<version>+<short-hash>[-dirty]` so `chrome://extensions` shows exactly which commit is loaded. A git clean filter strips it back to the bare version on commit (so the committed value never holds a hash), and the hooks in [.githooks/](.githooks/) re-stamp it after commit/checkout/merge/rewrite. Bump only the numeric `version`.
