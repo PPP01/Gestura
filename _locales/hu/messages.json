@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} bejegyzés · {valid} kiválasztható"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Érvénytelen"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Összes kijelölése"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} hozzáadása a Gesturához"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "A folytatáshoz erősítsd meg a fenti szkriptfigyelmeztetést."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Ez a csomag nem tartalmaz importálható bejegyzést."
 	}
 }

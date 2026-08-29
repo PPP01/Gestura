@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count}টি এন্ট্রি · {valid}টি নির্বাচনযোগ্য"
+	},
+	"exchangeBundleInvalid": {
+		"message": "অবৈধ"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "সব নির্বাচন করুন"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura-তে {count}টি যোগ করুন"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "চালিয়ে যেতে উপরের স্ক্রিপ্ট সতর্কতা নিশ্চিত করুন।"
+	},
+	"exchangeBundleEmpty": {
+		"message": "এই প্যাকেজে আমদানিযোগ্য কোনো এন্ট্রি নেই।"
 	}
 }

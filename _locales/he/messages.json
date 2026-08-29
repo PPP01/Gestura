@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} רשומות · {valid} ניתנות לבחירה"
+	},
+	"exchangeBundleInvalid": {
+		"message": "לא תקין"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "בחר הכול"
+	},
+	"exchangeBundleImport": {
+		"message": "הוספת {count} ל-Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "אשר את אזהרת הסקריפט שלמעלה כדי להמשיך."
+	},
+	"exchangeBundleEmpty": {
+		"message": "החבילה הזו אינה מכילה רשומות שניתן לייבא."
 	}
 }

@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} mục · {valid} có thể chọn"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Không hợp lệ"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Chọn tất cả"
+	},
+	"exchangeBundleImport": {
+		"message": "Thêm {count} vào Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Xác nhận cảnh báo script ở trên để tiếp tục."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Gói này không chứa mục nào có thể nhập."
 	}
 }

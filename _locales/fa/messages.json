@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} مورد · {valid} قابل انتخاب"
+	},
+	"exchangeBundleInvalid": {
+		"message": "نامعتبر"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "انتخاب همه"
+	},
+	"exchangeBundleImport": {
+		"message": "افزودن {count} به Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "برای ادامه، هشدار اسکریپت بالا را تأیید کنید."
+	},
+	"exchangeBundleEmpty": {
+		"message": "این بسته حاوی هیچ موردی برای وارد کردن نیست."
 	}
 }

@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} pozycji · {valid} do wyboru"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Nieprawidłowe"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Zaznacz wszystko"
+	},
+	"exchangeBundleImport": {
+		"message": "Dodaj {count} do Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Potwierdź powyższe ostrzeżenie o skrypcie, aby kontynuować."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Ten pakiet nie zawiera pozycji do zaimportowania."
 	}
 }

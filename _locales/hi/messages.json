@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} प्रविष्टियाँ · {valid} चयन योग्य"
+	},
+	"exchangeBundleInvalid": {
+		"message": "अमान्य"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "सभी चुनें"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura में {count} जोड़ें"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "जारी रखने के लिए ऊपर दी गई स्क्रिप्ट चेतावनी की पुष्टि करें।"
+	},
+	"exchangeBundleEmpty": {
+		"message": "इस बंडल में आयात करने योग्य कोई प्रविष्टि नहीं है।"
 	}
 }

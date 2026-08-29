@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entri · {valid} dapat dipilih"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Tidak valid"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Pilih semua"
+	},
+	"exchangeBundleImport": {
+		"message": "Tambahkan {count} ke Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Konfirmasi peringatan skrip di atas untuk melanjutkan."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Paket ini tidak berisi entri yang dapat diimpor."
 	}
 }

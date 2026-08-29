@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entry · {valid} mapipili"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Imbalido"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Piliin lahat"
+	},
+	"exchangeBundleImport": {
+		"message": "Idagdag ang {count} sa Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Kumpirmahin ang babala sa script sa itaas para magpatuloy."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Walang maio-import na entry sa bundle na ito."
 	}
 }

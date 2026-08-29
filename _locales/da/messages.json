@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} poster · {valid} valgbare"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ugyldig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Vælg alle"
+	},
+	"exchangeBundleImport": {
+		"message": "Tilføj {count} til Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bekræft scriptadvarslen ovenfor for at fortsætte."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Denne pakke indeholder ingen importerbare poster."
 	}
 }

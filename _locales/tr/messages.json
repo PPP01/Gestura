@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} giriş · {valid} seçilebilir"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Geçersiz"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Tümünü seç"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura'ya {count} ekle"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Devam etmek için yukarıdaki komut dosyası uyarısını onaylayın."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Bu pakette içe aktarılabilir giriş yok."
 	}
 }

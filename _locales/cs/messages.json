@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} položek · {valid} k výběru"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Neplatné"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Vybrat vše"
+	},
+	"exchangeBundleImport": {
+		"message": "Přidat {count} do Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Potvrďte výše uvedené upozornění na skript, chcete-li pokračovat."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Tento balíček neobsahuje žádné položky k importu."
 	}
 }

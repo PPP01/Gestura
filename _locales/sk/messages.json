@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} položiek · {valid} na výber"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Neplatné"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Vybrať všetko"
+	},
+	"exchangeBundleImport": {
+		"message": "Pridať {count} do Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Na pokračovanie potvrďte hore uvedené upozornenie na skript."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Tento balík neobsahuje žiadne položky na import."
 	}
 }

@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} 件のエントリ · {valid} 件選択可能"
+	},
+	"exchangeBundleInvalid": {
+		"message": "無効"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "すべて選択"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} 件を Gestura に追加"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "続行するには、上のスクリプトの警告を確認してください。"
+	},
+	"exchangeBundleEmpty": {
+		"message": "このバンドルにはインポート可能なエントリがありません。"
 	}
 }

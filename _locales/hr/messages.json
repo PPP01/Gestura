@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} stavki · {valid} za odabir"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Nevažeće"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Odaberi sve"
+	},
+	"exchangeBundleImport": {
+		"message": "Dodaj {count} u Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Za nastavak potvrdite gore navedeno upozorenje o skripti."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Ovaj paket ne sadrži stavke za uvoz."
 	}
 }

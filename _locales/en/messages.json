@@ -3038,5 +3038,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entries · {valid} selectable"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Invalid"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Select all"
+	},
+	"exchangeBundleImport": {
+		"message": "Add {count} to Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Confirm the script warning above to continue."
+	},
+	"exchangeBundleEmpty": {
+		"message": "This bundle contains no importable entries."
 	}
 }

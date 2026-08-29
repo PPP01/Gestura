@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} oppføringer · {valid} valgbare"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ugyldig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Velg alle"
+	},
+	"exchangeBundleImport": {
+		"message": "Legg til {count} i Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bekreft skriptvarselet ovenfor for å fortsette."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Denne pakken inneholder ingen importerbare oppføringer."
 	}
 }

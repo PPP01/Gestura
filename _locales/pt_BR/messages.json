@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entradas · {valid} selecionáveis"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Inválido"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Selecionar tudo"
+	},
+	"exchangeBundleImport": {
+		"message": "Adicionar {count} ao Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Confirme o aviso de script acima para continuar."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Este pacote não contém entradas importáveis."
 	}
 }

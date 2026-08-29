@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} รายการ · {valid} ที่เลือกได้"
+	},
+	"exchangeBundleInvalid": {
+		"message": "ไม่ถูกต้อง"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "เลือกทั้งหมด"
+	},
+	"exchangeBundleImport": {
+		"message": "เพิ่ม {count} รายการไปยัง Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "ยืนยันคำเตือนสคริปต์ด้านบนเพื่อดำเนินการต่อ"
+	},
+	"exchangeBundleEmpty": {
+		"message": "ชุดนี้ไม่มีรายการที่นำเข้าได้"
 	}
 }

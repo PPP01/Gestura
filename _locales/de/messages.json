@@ -2978,5 +2978,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Als neuen Eintrag hinzufügen"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} Einträge · {valid} auswählbar"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ungültig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Alle auswählen"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} zu Gestura hinzufügen"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bestätige die Skriptwarnung oben, um fortzufahren."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Dieses Bundle enthält keine importierbaren Einträge."
 	}
 }

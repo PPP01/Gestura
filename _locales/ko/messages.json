@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count}개 항목 · {valid}개 선택 가능"
+	},
+	"exchangeBundleInvalid": {
+		"message": "잘못됨"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "모두 선택"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura에 {count}개 추가"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "계속하려면 위의 스크립트 경고를 확인하세요."
+	},
+	"exchangeBundleEmpty": {
+		"message": "이 번들에는 가져올 수 있는 항목이 없습니다."
 	}
 }

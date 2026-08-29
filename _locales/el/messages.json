@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} καταχωρίσεις · {valid} επιλέξιμες"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Μη έγκυρο"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Επιλογή όλων"
+	},
+	"exchangeBundleImport": {
+		"message": "Προσθήκη {count} στο Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Επιβεβαιώστε την παραπάνω προειδοποίηση σεναρίου για να συνεχίσετε."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Αυτό το πακέτο δεν περιέχει καταχωρίσεις προς εισαγωγή."
 	}
 }

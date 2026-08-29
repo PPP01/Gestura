@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} записів · {valid} доступно для вибору"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Недійсно"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Вибрати все"
+	},
+	"exchangeBundleImport": {
+		"message": "Додати {count} до Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Підтвердіть попередження про скрипт вище, щоб продовжити."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Цей пакет не містить записів для імпортування."
 	}
 }

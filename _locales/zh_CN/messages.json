@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} 个条目 · {valid} 个可选择"
+	},
+	"exchangeBundleInvalid": {
+		"message": "无效"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "全选"
+	},
+	"exchangeBundleImport": {
+		"message": "将 {count} 个添加到 Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "确认上方的脚本警告以继续。"
+	},
+	"exchangeBundleEmpty": {
+		"message": "此套件不包含可导入的条目。"
 	}
 }

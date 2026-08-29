@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} عنصر · {valid} قابل للتحديد"
+	},
+	"exchangeBundleInvalid": {
+		"message": "غير صالح"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "تحديد الكل"
+	},
+	"exchangeBundleImport": {
+		"message": "إضافة {count} إلى Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "أكِّد تحذير النص البرمجي أعلاه للمتابعة."
+	},
+	"exchangeBundleEmpty": {
+		"message": "لا تحتوي هذه الحزمة على أي عناصر قابلة للاستيراد."
 	}
 }

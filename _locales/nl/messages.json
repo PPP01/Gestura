@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} items · {valid} selecteerbaar"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ongeldig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Alles selecteren"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} toevoegen aan Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bevestig de scriptwaarschuwing hierboven om door te gaan."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Deze bundel bevat geen importeerbare items."
 	}
 }

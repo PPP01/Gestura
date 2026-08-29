@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} voci · {valid} selezionabili"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Non valido"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Seleziona tutto"
+	},
+	"exchangeBundleImport": {
+		"message": "Aggiungi {count} a Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Conferma l'avviso sullo script qui sopra per continuare."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Questo pacchetto non contiene voci importabili."
 	}
 }

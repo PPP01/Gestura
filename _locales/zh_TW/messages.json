@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} 個項目 · {valid} 個可選取"
+	},
+	"exchangeBundleInvalid": {
+		"message": "無效"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "全選"
+	},
+	"exchangeBundleImport": {
+		"message": "將 {count} 個加入 Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "請確認上方的指令碼警告以繼續。"
+	},
+	"exchangeBundleEmpty": {
+		"message": "此套件不包含可匯入的項目。"
 	}
 }

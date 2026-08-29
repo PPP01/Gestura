@@ -2876,5 +2876,23 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} intrări · {valid} selectabile"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Nevalid"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Selectează tot"
+	},
+	"exchangeBundleImport": {
+		"message": "Adaugă {count} în Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Confirmă avertismentul de script de mai sus pentru a continua."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Acest pachet nu conține intrări care pot fi importate."
 	}
 }
