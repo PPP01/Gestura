@@ -5,12 +5,14 @@ import { settingsStore } from '../settings-store.js';
 const X = () => window.FlowMouseMenuExchange;
 const isFirefox = navigator.userAgent.includes('Firefox');
 
-// Leerzustände, falls die Einstellungen die Zweige noch nicht kennen. Als
-// Fabriken, weil Einzel- und Sammel-Import beide darauf zurückfallen und jeder
-// Aufruf eigene, unabhängige Container braucht - sonst landen die verschachtelten
-// Arrays/Objekte eines geteilten Moduls-Literals selbst im Anwendungszustand.
-const emptySiteMenus = () => ({ disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' });
-const emptyEngines = () => ({ overrides: {}, hidden: [], custom: [], order: [] });
+// Leerzustände, falls die Einstellungen die Zweige noch nicht kennen. Die Form
+// gehört DEFAULT_SETTINGS in js/constants.js - das ist laut CLAUDE.md die
+// einzige Quelle der Wahrheit dafür, und eine eigene Kopie hier würde beim
+// nächsten neuen Feld lautlos danebenliegen. structuredClone, weil jeder Aufruf
+// eigene, unabhängige Container braucht: sonst landen die verschachtelten
+// Arrays/Objekte des geteilten Defaults selbst im Anwendungszustand.
+const emptySiteMenus = () => structuredClone(window.GestureConstants.DEFAULT_SETTINGS.siteMenus);
+const emptyEngines = () => structuredClone(window.GestureConstants.DEFAULT_SETTINGS.searchEngines);
 
 // Import-Vorschau für Gestura-Menüs/-Engines. Für alle Import-Wege (Datei, URL,
 // Betreiber-Button) genutzt. Rendert nie ungeprüftes JSON: erst validate(), dann
@@ -60,8 +62,8 @@ class MenuImportDialog extends LitElement {
 		.bsum { font-size: 12px; color: var(--text-muted); margin: 0 0 10px; display: flex;
 			align-items: center; gap: 10px; }
 		.bsum .spacer { flex: 1 1 auto; }
-		.brow { border-top: 1px solid var(--border-color); padding: 8px 0; }
-		.brow:first-of-type { border-top: none; }
+		.brow { padding: 8px 0; }
+		.brow + .brow { border-top: 1px solid var(--border-color); }
 		.bhead { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 		.bhead .grow { flex: 1 1 auto; min-width: 0; }
 		.bname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -224,16 +226,22 @@ class MenuImportDialog extends LitElement {
 		return { ...cur, custom: [...(cur.custom || []), engine] };
 	}
 
-	// Kappe der chrome.storage.sync-Items (8 KB, QUOTA_BYTES_PER_ITEM). Die
-	// Bundle-Limits (200 Einträge, 1 MB) sind der Transport-Vertrag mit dem
-	// Index-Backend, nicht diese Grenze - beide Import-Wege schreiben am Ende
-	// je einen ganzen Zweig (siteMenus/searchEngines) als EIN Sync-Item, und das
-	// prüfen wir hier vorab, statt den Nutzer erst nach einem gescheiterten
-	// settingsStore.save() zu informieren.
-	#exceedsSyncQuota(patch) {
-		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
-		return Object.entries(patch).some(([key, value]) =>
-			new TextEncoder().encode(JSON.stringify({ [key]: value })).length > quota);
+	// Gemeinsamer Abschluss beider Import-Wege: speichern, Fehler melden,
+	// Katalog-Neuaufbau anstoßen, Dialog schließen.
+	//
+	// Die Sync-Quote (8 KB je Item, und beide Zweige sind je EIN Item) prüft
+	// chrome.storage.sync selbst: reicht der Platz nicht, lehnt set() ab,
+	// settingsStore.save() nimmt seinen Zustand zurück und liefert false, und
+	// der Nutzer sieht dieselbe Meldung. Eine eigene Vorab-Rechnung hier wäre
+	// eine zweite Kopie der Quoten-Regel, die von der echten Buchführung des
+	// Browsers abweichen kann - die Bundle-Limits (200 Einträge, 1 MB) sind
+	// ohnehin der Transport-Vertrag mit dem Index-Backend, nicht diese Grenze.
+	async #commitPatch(patch, detail) {
+		const ok = await settingsStore.save(patch);
+		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
+		window.dispatchEvent(new Event('action-catalog-changed'));
+		this.dispatchEvent(new CustomEvent('import-done', { detail, bubbles: true, composed: true }));
+		this.#close();
 	}
 
 	async #confirm() {
@@ -246,12 +254,7 @@ class MenuImportDialog extends LitElement {
 		const patch = r.type === 'menu'
 			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || emptySiteMenus(), r, source, lang, mode, matchId) }
 			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId) };
-		if (this.#exceedsSyncQuota(patch)) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
-		const ok = await settingsStore.save(patch);
-		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
-		window.dispatchEvent(new Event('action-catalog-changed'));
-		this.dispatchEvent(new CustomEvent('import-done', { detail: { type: r.type }, bubbles: true, composed: true }));
-		this.#close();
+		await this.#commitPatch(patch, { type: r.type });
 	}
 
 	// Schreibt alle gewählten Einträge in EINEM settingsStore.save(). Nicht je
@@ -259,7 +262,7 @@ class MenuImportDialog extends LitElement {
 	// für einen Sync-Konflikt.
 	async #confirmBundle() {
 		const chosen = this.#bundleChosen;
-		if (!chosen.length || this.#bundleBlocked) return;
+		if (!chosen.length || this.#blockedFor(chosen)) return;
 		const lang = this.#lang();
 		let siteMenus = settingsStore.current.siteMenus || emptySiteMenus();
 		let engines = settingsStore.current.searchEngines || emptyEngines();
@@ -279,12 +282,7 @@ class MenuImportDialog extends LitElement {
 		const patch = {};
 		if (touchedMenus) patch.siteMenus = siteMenus;
 		if (touchedEngines) patch.searchEngines = engines;
-		if (this.#exceedsSyncQuota(patch)) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
-		const ok = await settingsStore.save(patch);
-		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
-		window.dispatchEvent(new Event('action-catalog-changed'));
-		this.dispatchEvent(new CustomEvent('import-done', { detail: { count: chosen.length }, bubbles: true, composed: true }));
-		this.#close();
+		await this.#commitPatch(patch, { count: chosen.length });
 	}
 
 	render() {
@@ -307,9 +305,10 @@ class MenuImportDialog extends LitElement {
 	get #bundleChosen() { return this.#bundleRows.filter(r => r.selected && r.result.ok); }
 
 	// null = importierbar, 'empty' = nichts gewählt, 'script' = eine gewählte
-	// Zeile führt ein Skript aus und ist noch nicht bestätigt.
-	get #bundleBlocked() {
-		const chosen = this.#bundleChosen;
+	// Zeile führt ein Skript aus und ist noch nicht bestätigt. Nimmt die
+	// gewählten Zeilen entgegen, statt sie selbst zu filtern: ein Render-Durchgang
+	// braucht sie ohnehin und würde sonst bis zu 200 Zeilen mehrfach durchlaufen.
+	#blockedFor(chosen) {
 		if (!chosen.length) return 'empty';
 		const pending = chosen.some(r => r.result.type === 'engine' && X().hasTransform(r.result.value) && !r.scriptAck);
 		return pending ? 'script' : null;
@@ -352,8 +351,9 @@ class MenuImportDialog extends LitElement {
 				<p class="err">${i18n.getMessage('exchangeBundleEmpty')}</p>
 				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 		}
-		const blocked = this.#bundleBlocked;
-		const allOn = this.#bundleChosen.length === valid;
+		const chosen = this.#bundleChosen;
+		const blocked = this.#blockedFor(chosen);
+		const allOn = chosen.length === valid;
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
@@ -369,7 +369,7 @@ class MenuImportDialog extends LitElement {
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${!!blocked} @click=${() => this.#confirmBundle()}>
-					${i18n.getMessage('exchangeBundleImport').replace('{count}', this.#bundleChosen.length)}
+					${i18n.getMessage('exchangeBundleImport').replace('{count}', chosen.length)}
 				</button>
 			</div>`;
 	}

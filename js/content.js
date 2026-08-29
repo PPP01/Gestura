@@ -106,8 +106,14 @@
 	document.addEventListener('click', (e) => {
 		if (!e.isTrusted) return;
 
-		const inlineTrigger = e.target && e.target.closest && e.target.closest('[data-gestura-inline]');
-		if (inlineTrigger) {
+		// One ancestor walk for both paths: this fires on every click in every
+		// frame of every page, so the common case (a hit on neither) must bail
+		// after a single traversal. If a page contradicts itself and nests one
+		// trigger inside the other, the nearer ancestor wins.
+		const hit = e.target && e.target.closest && e.target.closest('[data-gestura-inline], a[rel~="gestura-menu"]');
+		if (!hit) return;
+
+		if (hit.matches('[data-gestura-inline]')) {
 			// No stopPropagation here: the page's own click handler is expected to run
 			// on this same click (it's the one that dispatches 'gestura:import'). This
 			// listener runs first because it's registered on the capture phase, so the
@@ -117,8 +123,7 @@
 			return;
 		}
 
-		const link = e.target && e.target.closest && e.target.closest('a[rel~="gestura-menu"]');
-		if (!link) return;
+		const link = hit;
 
 		let url;
 		try {
