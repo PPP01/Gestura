@@ -231,6 +231,17 @@ Wo eine Locale dasselbe Wort für einen anderen Key bereits übersetzt, wird die
 3. **Regression:** ein fremder Cross-Origin-`<a rel="gestura-menu">` bleibt blockiert; ein Same-Origin-`<a rel="gestura-menu">` funktioniert unverändert.
 4. Ein `data-gestura-inline`-Klick ohne folgendes Event → nach 15 s passiert nichts; ein `gestura:import` **ohne** vorherigen Klick → wird ignoriert.
 
+### 8.1 Lokale Abnahme in der Dev-Umgebung
+
+Die manuellen Schritte laufen vollständig gegen den Vite-Dev-Server des Index-Repos (`http://localhost:5173`); nichts davon braucht ein Deployment.
+
+- **Das Content-Skript läuft dort.** `content_scripts.matches` ist `<all_urls>` (`all_frames`, `document_start`), das deckt `http://localhost` ab, und die Default-Blacklist in `js/constants.js` ist leer.
+- **Die Same-Origin-Regel spielt auf dem Inline-Weg keine Rolle** – die Extension fetcht nichts, es gibt keinen Origin zu vergleichen. Das ist der Grund, warum dieser Weg lokal trivial zu testen ist: eine fest verdrahtete Ausnahme für `api.gestura.eu` (die verworfene Variante 1) hätte auf `localhost:8000` nicht gegriffen und einen Dev-Sonderfall in der Extension gebraucht.
+- **Die Seite kommt lokal ohnehin same-origin an ihr Bundle:** `frontend/.env.local` setzt `PUBLIC_API_BASE=http://localhost:5173`, und `vite.config.ts` proxyt `/api` auf den Backend-Port. CORS ist lokal kein Thema.
+- **Die Regressionsprobe (Schritt 3) ist lokal nachstellbar**, weil `importFromSite` auch `http:` akzeptiert und rein auf Origin-Gleichheit prüft: `<a rel="gestura-menu" href="/menu.json">` auf `localhost:5173` muss funktionieren, dieselbe Seite mit `href="http://localhost:8000/menu.json"` muss »Cross-origin import blocked« liefern – anderer Port ist ein anderer Origin.
+
+**Falle, die lokal Zeit kostet:** Der `https:`-Zwang gilt für die URLs **innerhalb** der Einträge (`customUrl`, `url`, `homepage`), nicht für den Transportweg. Ein Test-Bundle, dessen Menüpunkte auf `http://localhost/…` zeigen, erscheint völlig zu Recht als ungültig. Fixtures brauchen echte `https:`-Ziele in den Payloads; die Übergabe selbst darf über `http://localhost` laufen.
+
 ## 9 · Zerlegung für die Plan-Phase
 
 1. **Schema + Konstanten** – `exchange-schema.json` und `menu-exchange.js` (`FORMAT_TYPES`, `LIMITS`, `$defs.bundle`), ein Commit, `exchange-schema.test.mjs` grün.
@@ -250,7 +261,21 @@ Reihenfolge: 1 → 2 → 3 → 4, dazu 5 und 6 unabhängig; 7 zum Schluss. Arbei
 - `BasketTray.svelte`: Button live schalten, `data-gestura-inline` setzen, nach dem `getBundle()` das `gestura:import`-Event feuern, `basket_send_soon` durch echten Aktionstext ersetzen.
 - B1 (GET-Endpunkt) und B2 (Same-Origin-Proxy) entfallen ersatzlos.
 
-## 11 · Festgezurrte Entscheidungen
+## 11 · Warum keine Prüfsumme und keine Signatur
+
+Durabel festgehalten, damit die Frage nicht erneut aufgemacht wird: Das Bundle trägt **keine Prüfsumme über seine Felder** und **keine Signatur**.
+
+**Transportintegrität ist bereits abgedeckt.** Der Weg ist HTTPS von der API zur Seite – TLS liefert Integrität und Authentizität der Verbindung – und danach ein JavaScript-String innerhalb **eines** Browser-Prozesses: Seite → Content-Skript → Background. Dort geht nichts halb kaputt. Abgeschnittenes oder verfälschtes JSON fängt `JSON.parse` ab, alles strukturell Durchgekommene geht anschließend durch `validate()`. Eine Prüfsumme fände nichts, was nicht ohnehin auffliegt.
+
+**Authentizität kann eine Prüfsumme prinzipiell nicht leisten.** Wer die Daten ändert, rechnet die Prüfsumme neu. Dafür bräuchte es eine Signatur – und ein MAC mit gemeinsamem Geheimnis scheidet aus demselben Grund aus, der in Sub-B §7 schon festgehalten ist: jedes in einer MV3-Extension eingebettete Geheimnis ist aus dem Store-Paket auslesbar.
+
+**Eine echte Signatur wäre hier kein neutraler Zugewinn, sondern ein Rückschritt.** Das Sicherheitsmodell lautet: *der Quelle wird nie vertraut, der Inhalt wird immer geprüft* – Aktions-Whitelist, `https:`-only, Limits, Skript-Bestätigung gelten für ein Bundle von gestura.eu wie für eine Datei aus einem Forum. Eine Signatur zahlte sich nur aus, wenn man daraufhin etwas **lockert** (Vorschau überspringen, Skriptwarnung unterdrücken, automatisch importieren). Damit würde der Index-Betreiber zum Single Point of Failure der Lieferkette – dieselbe Risikoklasse, gegen die das Index-Projekt eigenständig vorbaut, indem jede Einreichung mit `transformCode` zwingend in die Moderation geht. Dazu käme ein fest verdrahteter Public Key für gestura.eu in einer bewusst anbieterneutralen Extension, samt Rotation und Widerruf auf Dauer – derselbe Einwand, an dem Variante 1 gescheitert ist.
+
+**Der in-band-Angriff wird davon nicht berührt.** Im 15-Sekunden-Fenster könnte ein fremdes Skript auf der Seite das `gestura:import`-Event vor dem echten Absender feuern. Eine Prüfsumme hilft dagegen nicht – das Skript rechnet seine eigene mit. Was hilft, steht im Design: das Fenster öffnet nur nach einer echten Nutzergeste, nimmt genau **einen** Payload an, und vor dem Schreiben steht eine validierte Vorschau. Läuft fremder Code auf der Seite, hätte der ohnehin Button, Fetch oder Antwort tauschen können – das Fenster ist dort nicht das schwächste Glied.
+
+**Was stattdessen einmal Sinn ergeben könnte:** ein *Inhalts-Hash je Eintrag*, den der Index neben dem Katalog veröffentlicht, um zu erkennen, ob ein importiertes Menü sich seit dem Import geändert hat. Das ist Update-Erkennung, nicht Übergabesicherheit – gehört also in den Index-Zyklus, und das vorhandene SemVer-`version`-Feld deckt den größten Teil davon bereits ab.
+
+## 12 · Festgezurrte Entscheidungen
 
 - **Cross-Origin:** Inline-Übergabe; keine Origin-Ausnahme, kein Proxy, kein Vendor-Host im Extension-Code. ✔
 - **Auslöser:** `data-gestura-inline` plus vertrauter Klick; `rel="gestura-menu"` bleibt dem URL-Pfad vorbehalten. ✔
@@ -259,3 +284,4 @@ Reihenfolge: 1 → 2 → 3 → 4, dazu 5 und 6 unabhängig; 7 zum Schluss. Arbei
 - **Vorschau:** ein Dialog, eine Zeile je Eintrag, aufklappbar, Sammel-Bestätigung mit **einem** Speichervorgang. ✔
 - **Ungültige Einträge:** sichtbar, nicht wählbar, blockieren die übrigen nicht. ✔
 - **Bestehender `href`-Pfad:** unverändert. ✔
+- **Keine Prüfsumme, keine Signatur** über das Bundle – Begründung in §11. ✔
