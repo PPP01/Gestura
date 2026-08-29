@@ -106,6 +106,13 @@ class SettingsStore {
 	async save(patch = {}) {
 		this.#assertLoaded();
 		const now = new Date().toISOString();
+		// Snapshot what a failed write would otherwise leave mutated: patched keys
+		// plus lastSyncTime, which every save touches. A rejected chrome.storage.sync.set
+		// must be a no-op on #current, or a retried save (e.g. after re-editing a
+		// selection) sees data from the failed attempt as if it had already landed.
+		const previous = {};
+		for (const key of Object.keys(patch)) previous[key] = this.#current[key];
+		previous.lastSyncTime = this.#current.lastSyncTime;
 		Object.assign(this.#current, patch, { lastSyncTime: now });
 
 		try {
@@ -113,6 +120,7 @@ class SettingsStore {
 			return true;
 		} catch (e) {
 			console.error('Settings save failed:', e);
+			for (const key of Object.keys(previous)) this.#current[key] = previous[key];
 			return false;
 		}
 	}

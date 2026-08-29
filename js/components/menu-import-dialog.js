@@ -6,9 +6,11 @@ const X = () => window.FlowMouseMenuExchange;
 const isFirefox = navigator.userAgent.includes('Firefox');
 
 // Leerzustände, falls die Einstellungen die Zweige noch nicht kennen. Als
-// Konstanten, weil Einzel- und Sammel-Import beide darauf zurückfallen.
-const EMPTY_SITE_MENUS = { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' };
-const EMPTY_ENGINES = { overrides: {}, hidden: [], custom: [], order: [] };
+// Fabriken, weil Einzel- und Sammel-Import beide darauf zurückfallen und jeder
+// Aufruf eigene, unabhängige Container braucht - sonst landen die verschachtelten
+// Arrays/Objekte eines geteilten Moduls-Literals selbst im Anwendungszustand.
+const emptySiteMenus = () => ({ disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' });
+const emptyEngines = () => ({ overrides: {}, hidden: [], custom: [], order: [] });
 
 // Import-Vorschau für Gestura-Menüs/-Engines. Für alle Import-Wege (Datei, URL,
 // Betreiber-Button) genutzt. Rendert nie ungeprüftes JSON: erst validate(), dann
@@ -81,6 +83,7 @@ class MenuImportDialog extends LitElement {
 		this._scriptAck = false;
 		this._catalogMatch = null;
 		this._importMode = 'new';
+		this._bundle = null;
 	}
 
 	// Verzweigt auf den Formattyp: ein Bundle bekommt die Sammel-Vorschau, alles
@@ -100,7 +103,12 @@ class MenuImportDialog extends LitElement {
 				errors: res.errors,
 				rows: res.entries.map((result, i) => {
 					const match = result.ok ? this.#catalogMatch(result) : null;
-					return { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false, idx: i };
+					const row = { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false, idx: i };
+					// Ein Eintrag mit Skript ist per Vorbelegung schon ausgewählt (s.o.) -
+					// ohne das hier nachzuholen, zeigt der Blocker von Anfang an auf einen
+					// eingeklappten Body.
+					if (row.selected && this.#rowNeedsAck(row)) row.expanded = true;
+					return row;
 				}),
 			};
 		} else {
@@ -216,6 +224,18 @@ class MenuImportDialog extends LitElement {
 		return { ...cur, custom: [...(cur.custom || []), engine] };
 	}
 
+	// Kappe der chrome.storage.sync-Items (8 KB, QUOTA_BYTES_PER_ITEM). Die
+	// Bundle-Limits (200 Einträge, 1 MB) sind der Transport-Vertrag mit dem
+	// Index-Backend, nicht diese Grenze - beide Import-Wege schreiben am Ende
+	// je einen ganzen Zweig (siteMenus/searchEngines) als EIN Sync-Item, und das
+	// prüfen wir hier vorab, statt den Nutzer erst nach einem gescheiterten
+	// settingsStore.save() zu informieren.
+	#exceedsSyncQuota(patch) {
+		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
+		return Object.entries(patch).some(([key, value]) =>
+			new TextEncoder().encode(JSON.stringify({ [key]: value })).length > quota);
+	}
+
 	async #confirm() {
 		const r = this._result;
 		if (!r || !r.ok) return;
@@ -224,8 +244,9 @@ class MenuImportDialog extends LitElement {
 		const mode = this._catalogMatch ? this._importMode : 'new';
 		const matchId = this._catalogMatch ? this._catalogMatch.id : null;
 		const patch = r.type === 'menu'
-			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || EMPTY_SITE_MENUS, r, source, lang, mode, matchId) }
-			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || EMPTY_ENGINES, r, source, lang, mode, matchId) };
+			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || emptySiteMenus(), r, source, lang, mode, matchId) }
+			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId) };
+		if (this.#exceedsSyncQuota(patch)) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
 		const ok = await settingsStore.save(patch);
 		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
 		window.dispatchEvent(new Event('action-catalog-changed'));
@@ -240,8 +261,8 @@ class MenuImportDialog extends LitElement {
 		const chosen = this.#bundleChosen;
 		if (!chosen.length || this.#bundleBlocked) return;
 		const lang = this.#lang();
-		let siteMenus = settingsStore.current.siteMenus || EMPTY_SITE_MENUS;
-		let engines = settingsStore.current.searchEngines || EMPTY_ENGINES;
+		let siteMenus = settingsStore.current.siteMenus || emptySiteMenus();
+		let engines = settingsStore.current.searchEngines || emptyEngines();
 		let touchedMenus = false;
 		let touchedEngines = false;
 		for (const row of chosen) {
@@ -258,6 +279,7 @@ class MenuImportDialog extends LitElement {
 		const patch = {};
 		if (touchedMenus) patch.siteMenus = siteMenus;
 		if (touchedEngines) patch.searchEngines = engines;
+		if (this.#exceedsSyncQuota(patch)) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
 		const ok = await settingsStore.save(patch);
 		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
 		window.dispatchEvent(new Event('action-catalog-changed'));
@@ -296,8 +318,23 @@ class MenuImportDialog extends LitElement {
 	#rowName(row, lang) {
 		if (row.result.ok) return X().pickLabel(row.result.value.name, lang) || row.result.value.id;
 		// Ungültige Einträge tragen keinen geprüften Namen, und ungeprüftes JSON
-		// wird bewusst nie gerendert. Die Zeile trägt Typ-Label und Fehler-Badge.
-		return '';
+		// wird bewusst nie gerendert. Ohne jeden Bezugspunkt lässt sich eine leere
+		// Zeile in einem großen Bundle aber nicht mehr zuordnen - die 1-basierte
+		// Position ist abgeleitet (nicht von der Seite geliefert) und unbedenklich.
+		return `#${row.idx + 1}`;
+	}
+
+	// Eine gewählte Zeile mit unbestätigtem Skript blockiert den Import, aber ihre
+	// Warnung liegt im eingeklappten Body. #selectRow holt das Aufklappen nach,
+	// wo immer eine Zeile (neu) ausgewählt wird - Vorbelegung wie Nutzerklick,
+	// nie aus render(), sonst Endlosschleife über requestUpdate().
+	#rowNeedsAck(row) {
+		return row.result.ok && row.result.type === 'engine' && X().hasTransform(row.result.value) && !row.scriptAck;
+	}
+
+	#selectRow(row, selected) {
+		row.selected = selected;
+		if (selected && this.#rowNeedsAck(row)) row.expanded = true;
 	}
 
 	#renderBundle(i18n) {
@@ -323,7 +360,7 @@ class MenuImportDialog extends LitElement {
 				<span class="spacer"></span>
 				<label class="mode-opt">
 					<input type="checkbox" .checked=${allOn}
-						@change=${(e) => { for (const r of rows) { if (r.result.ok) r.selected = e.target.checked; } this.requestUpdate(); }}>
+						@change=${(e) => { for (const r of rows) { if (r.result.ok) this.#selectRow(r, e.target.checked); } this.requestUpdate(); }}>
 					<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
 				</label>
 			</div>
@@ -349,7 +386,7 @@ class MenuImportDialog extends LitElement {
 			<div class="brow ${ok ? '' : 'invalid'}">
 				<div class="bhead">
 					<input type="checkbox" ?disabled=${!ok} .checked=${row.selected}
-						@change=${(e) => { row.selected = e.target.checked; this.requestUpdate(); }}>
+						@change=${(e) => { this.#selectRow(row, e.target.checked); this.requestUpdate(); }}>
 					${ok ? html`<img class="favicon" src="${this.#faviconSrc(iconUrl, name)}" alt="">` : ''}
 					<span class="grow">
 						<span class="bname">${name}</span>
