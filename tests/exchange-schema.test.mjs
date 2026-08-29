@@ -19,4 +19,11 @@ describe('exchange-schema.json', () => {
 		expect(schema['x-gestura'].allowedMenuItemActions.sort()).toEqual(X.ALLOWED_MENU_ITEM_ACTIONS.slice().sort());
 		expect(schema['x-gestura'].limits).toEqual(X.LIMITS);
 	});
+	it('declares the bundle wrapper', () => {
+		expect(schema['x-gestura'].types.bundle).toBe('gesturaBundle');
+		expect(schema.$defs.bundle).toBeTruthy();
+		expect(schema.$defs.bundle.properties.gesturaBundle.const).toBe(X.CURRENT_FORMAT_VERSION);
+		expect(schema.$defs.bundle.properties.entries.maxItems).toBe(X.LIMITS.bundleEntriesMax);
+		expect(schema.oneOf).toContainEqual({ $ref: '#/$defs/bundle' });
+	});
 });

@@ -4,7 +4,7 @@
 	// Options-UI) identisch nutzbar. Eingaben werden nie verändert.
 
 	const CURRENT_FORMAT_VERSION = 1;
-	const FORMAT_TYPES = { menu: 'gesturaMenu', engine: 'gesturaEngine' };
+	const FORMAT_TYPES = { menu: 'gesturaMenu', engine: 'gesturaEngine', bundle: 'gesturaBundle' };
 
 	// Whitelist der Aktionen, die in importierten Menüeinträgen erlaubt sind.
 	// Bewusst konservativ: nur Links, Suche, Scrollen, einfache Navigation.
@@ -22,6 +22,10 @@
 		idMax: 128, nameMax: 200, descMax: 2000, iconMax: 64,
 		urlMax: 2000, patternMax: 200, patternsMax: 50,
 		itemsMax: 100, blobMax: 100 * 1024, transformCodeMax: 10 * 1024,
+		// Bundle-Wrapper: Deckel für das Gesamtpaket auf dem Übergabeweg. Die
+		// Per-Eintrag-Kappe bleibt blobMax. bundleEntriesMax ist deckungsgleich
+		// mit dem 200-ID-Cap des Index-Backends (BundleController::MAX_IDS).
+		bundleEntriesMax: 200, bundleBlobMax: 1024 * 1024,
 	};
 
 	const SEMVER_RE = /^\d{1,5}\.\d{1,5}\.\d{1,5}$/;
