@@ -35,6 +35,7 @@
 		if (!obj || typeof obj !== 'object') return null;
 		if (typeof obj[FORMAT_TYPES.menu] === 'number') return 'menu';
 		if (typeof obj[FORMAT_TYPES.engine] === 'number') return 'engine';
+		if (typeof obj[FORMAT_TYPES.bundle] === 'number') return 'bundle';
 		return null;
 	}
 
@@ -130,11 +131,31 @@
 		const type = detectType(obj);
 		const errors = [];
 		if (!type) return { ok: false, type: null, errors: ['notGesturaFormat'], value: null };
+		// Bundles gehören zu validateBundle(). Ohne diese Zeile liefe ein Bundle
+		// durch validate(), ohne dass validateMenu/validateEngine je greifen —
+		// und käme mit leerer Fehlerliste als ok:true heraus.
+		if (type === 'bundle') return { ok: false, type: 'bundle', errors: ['notSingleFormat'], value: null };
 		if (byteLength(obj) > LIMITS.blobMax) errors.push('tooLarge');
 		if (type === 'menu') validateMenu(obj, errors);
 		if (type === 'engine') validateEngine(obj, errors);
 		const ok = errors.length === 0;
 		return { ok, type, errors, value: ok ? JSON.parse(JSON.stringify(obj)) : null };
+	}
+
+	// Prüft den Bundle-Wrapper und danach jeden Eintrag einzeln durch validate().
+	// Bricht bewusst nicht beim ersten kaputten Eintrag ab: die Sammel-Vorschau
+	// zeigt Teil-Ergebnisse, damit ein Fehler die übrigen nicht blockiert.
+	// `ok` beschreibt ausschließlich den Wrapper; ob ein Eintrag brauchbar ist,
+	// steht in entries[i].ok.
+	function validateBundle(obj) {
+		const fail = (err) => ({ ok: false, type: 'bundle', errors: [err], entries: [] });
+		if (detectType(obj) !== 'bundle') return fail('notGesturaFormat');
+		if (obj[FORMAT_TYPES.bundle] !== CURRENT_FORMAT_VERSION) return fail('unsupportedFormatVersion');
+		if (byteLength(obj) > LIMITS.bundleBlobMax) return fail('tooLarge');
+		const list = obj.entries;
+		if (!Array.isArray(list) || list.length < 1) return fail('entries');
+		if (list.length > LIMITS.bundleEntriesMax) return fail('tooManyEntries');
+		return { ok: true, type: 'bundle', errors: [], entries: list.map((e) => validate(e)) };
 	}
 
 	function newId(prefix) {
@@ -282,7 +303,7 @@
 
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
-		detectType, isHttpsUrl, pickLabel, validate, hasTransform,
+		detectType, isHttpsUrl, pickLabel, validate, validateBundle, hasTransform,
 		newId, toCustomMenu, toCustomEngine, toStandardMenu, toEngineOverride,
 		menuToExchange, engineToExchange,
 	};
