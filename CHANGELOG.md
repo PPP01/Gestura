@@ -5,6 +5,22 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### Unreleased
+
+**New Features:**
+
+- **Import several menus and engines at once:** the import dialog understands a
+  `gesturaBundle` wrapper. Every entry is validated on its own and listed with its
+  own checkbox, its own "replace the standard entry / add as new" choice and, for
+  engines carrying a script, its own confirmation. A broken entry is shown with
+  its reason and skipped — it no longer blocks the rest. The whole selection is
+  written in a single save.
+- **Sites on a split origin can hand over data:** a new inline hand-off lets a page
+  fetch a payload itself and pass it to the extension after a trusted click
+  (`data-gestura-inline` plus a `gestura:import` event). On this path the extension
+  performs no request of its own, so no origin exception was needed — the existing
+  same-origin link import is unchanged. See *For site operators* in the README.
+
 ### v2.7.0 (2026-08-29)
 
 Merged FlowMouse v2.3 and v2.3.1 (upstream sections below).

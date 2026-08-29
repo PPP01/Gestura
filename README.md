@@ -69,6 +69,52 @@ All gestures can be customized in the options page.
 | `↑↓` | Scroll to Bottom | `↓↑` | Scroll to Top |
 | `←→` | Close Current Tab | `→←` | Reopen Closed Tab |
 
+## For site operators
+
+A website can hand a ready-made Gestura menu or search engine to the extension.
+Nothing is imported silently: every hand-off requires a real user click, the
+payload is validated against the exchange format, and the user confirms it in a
+preview dialog. Search engines that carry a transform script need a separate,
+explicit acknowledgement.
+
+**By link, for JSON you host yourself.** The link must be same-origin with the
+page — the extension will not fetch a third-party URL on a page's behalf.
+
+```html
+<a rel="gestura-menu" href="/gestura-menu.json">Add to Gestura</a>
+```
+
+**Inline, for data that lives on another origin.** A trusted click on an element
+carrying `data-gestura-inline` opens a 15-second hand-off window. Fetch the data
+yourself — you are subject to the usual CORS rules, the extension is not involved
+— and dispatch it as a **string**:
+
+```html
+<button data-gestura-inline>Add to Gestura</button>
+<script>
+document.querySelector('[data-gestura-inline]').addEventListener('click', async () => {
+	const res = await fetch('https://api.example.com/bundle', { /* … */ });
+	document.dispatchEvent(new CustomEvent('gestura:import', {
+		detail: JSON.stringify(await res.json()),
+	}));
+});
+</script>
+```
+
+The window accepts exactly one payload and closes on the first one. On this path
+the extension performs no request of its own.
+
+**Payload formats.** A single `gesturaMenu` or `gesturaEngine` object, or a bundle
+of them:
+
+```json
+{ "gesturaBundle": 1, "entries": [ { "gesturaMenu": 1, "…": "…" } ] }
+```
+
+Limits: 100 KB per entry, 1 MB per bundle, 200 entries. Every URL inside an entry
+must be `https:`. The full contract is `js/exchange-schema.json`; the runtime
+validator in `js/menu-exchange.js` is authoritative.
+
 ## Privacy
 
 Gestura is an open source extension. The code is hosted on GitHub and open to review and contribution.
