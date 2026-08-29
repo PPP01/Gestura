@@ -1269,7 +1269,21 @@ async function handleAction(request, sender) {
 
 		case 'importFromSite':
 			return await importFromSite(request, sender);
+
+		case 'importInline':
+			return await importInline(request, sender);
 	}
+}
+
+// Hand-off to the options page: stash the parsed JSON in session storage and
+// open/focus the options page, which picks it up in #checkPendingImport().
+// Shared by both import paths (fetched href, and inline hand-off).
+async function stashPendingImport(json, url) {
+	await chrome.storage.session.set({
+		pendingImport: { json, url, ts: Date.now() },
+	});
+	await openOptionsPage('');
+	return { success: true };
 }
 
 // Operator-button import (<a rel="gestura-menu">): content.js already verified the
@@ -1317,14 +1331,32 @@ async function importFromSite(request, sender) {
 		}
 		const json = JSON.parse(text);
 
-		await chrome.storage.session.set({
-			pendingImport: { json, url: url.href, ts: Date.now() },
-		});
-		await openOptionsPage('');
-		return { success: true };
+		return await stashPendingImport(json, url.href);
 	} catch (e) {
 		return { success: false, error: String(e?.message || e) };
 	}
+}
+
+// Inline hand-off (<[data-gestura-inline]> + 'gestura:import', see js/content.js):
+// the page hands over JSON it fetched itself, so the extension performs no request
+// and there is no origin to compare. The byte cap is re-checked here as defense in
+// depth — a runtime message can originate outside the content script — and the
+// parse happens in this trusted context, never in the page's.
+const IMPORT_INLINE_MAX_BYTES = 1024 * 1024; // mirrors LIMITS.bundleBlobMax
+
+async function importInline(request, sender) {
+	const text = request && request.json;
+	if (typeof text !== 'string' || !text) return { success: false, error: 'Missing payload' };
+	if (new TextEncoder().encode(text).length > IMPORT_INLINE_MAX_BYTES) {
+		return { success: false, error: 'Payload too large' };
+	}
+	let json;
+	try {
+		json = JSON.parse(text);
+	} catch {
+		return { success: false, error: 'Invalid JSON' };
+	}
+	return await stashPendingImport(json, sender.url || sender.tab?.url || '');
 }
 
 // ---- Favicon resolution (cross-browser; replaces Chrome-only /_favicon/) ----

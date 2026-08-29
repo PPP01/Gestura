@@ -56,14 +56,62 @@
 // Operator-button import: a site can offer <a rel="gestura-menu" href="/menu.json">
 // to hand a ready-made menu/engine to the extension. Same-origin only; validation
 // happens in the trusted background context, never here.
+//
+// Second path, for sites whose data lives on another origin: an element carrying
+// [data-gestura-inline] opens a short hand-off window on a trusted click, and the
+// page then dispatches a 'gestura:import' CustomEvent whose detail is the JSON as
+// a *string*. The extension fetches nothing on this path, so there is no origin to
+// check — the page hands over data it already has. A string detail (rather than an
+// object) avoids Firefox's Xray/cloneInto handling for page-realm objects and lets
+// the size check run before parsing.
 (function () {
 	'use strict';
 
 	if (window.__gesturaMenuLinkImport) return;
 	window.__gesturaMenuLinkImport = true;
 
+	// Mirrors LIMITS.bundleBlobMax in js/menu-exchange.js, which is authoritative.
+	const INLINE_MAX_BYTES = 1024 * 1024;
+	const INLINE_WINDOW_MS = 15000;
+	let inlineTimer = null;
+
+	function closeInlineWindow() {
+		if (inlineTimer === null) return;
+		clearTimeout(inlineTimer);
+		inlineTimer = null;
+		document.removeEventListener('gestura:import', onInlinePayload, true);
+	}
+
+	function onInlinePayload(e) {
+		// One payload per gesture: close first, so a flood of events cannot queue up.
+		const json = e && e.detail;
+		closeInlineWindow();
+		if (typeof json !== 'string' || !json) return;
+		if (new TextEncoder().encode(json).length > INLINE_MAX_BYTES) return;
+		try {
+			chrome.runtime.sendMessage({ action: 'importInline', json });
+		} catch {
+			// extension context may be invalidated (e.g. reload mid-navigation); ignore.
+		}
+	}
+
+	function openInlineWindow() {
+		closeInlineWindow();
+		document.addEventListener('gestura:import', onInlinePayload, true);
+		inlineTimer = setTimeout(closeInlineWindow, INLINE_WINDOW_MS);
+	}
+
 	document.addEventListener('click', (e) => {
 		if (!e.isTrusted) return;
+
+		const inlineTrigger = e.target && e.target.closest && e.target.closest('[data-gestura-inline]');
+		if (inlineTrigger) {
+			e.preventDefault();
+			e.stopPropagation();
+			openInlineWindow();
+			return;
+		}
+
 		const link = e.target && e.target.closest && e.target.closest('a[rel~="gestura-menu"]');
 		if (!link) return;
 
