@@ -113,6 +113,9 @@ class MenuImportDialog extends LitElement {
 					return row;
 				}),
 			};
+			// Ein Menü, dessen Engine nirgends herkommt, darf nicht ausgewählt starten —
+			// sonst zählte der Import-Button etwas mit, das er gar nicht schreiben kann.
+			this.#dropDependentMenus();
 		} else {
 			this._result = X().validate(rawObject);
 			this._catalogMatch = this._result.ok ? this.#catalogMatch(this._result) : null;
@@ -247,6 +250,9 @@ class MenuImportDialog extends LitElement {
 	async #confirm() {
 		const r = this._result;
 		if (!r || !r.ok) return;
+		// Defense in depth: der Button ist bereits gesperrt, aber ein Menü mit
+		// fehlender Engine darf auf keinem Weg in den Speicher.
+		if (r.type === 'menu' && this.#missingEngines(r.value, null).length) return;
 		const source = { ...this._source, version: r.value.version || '1.0.0' };
 		const lang = this.#lang();
 		const mode = this._catalogMatch ? this._importMode : 'new';
@@ -263,6 +269,8 @@ class MenuImportDialog extends LitElement {
 	async #confirmBundle() {
 		const chosen = this.#bundleChosen;
 		if (!chosen.length || this.#blockedFor(chosen)) return;
+		const provided = this.#providedEngineIds();
+		if (chosen.some(r => r.result.type === 'menu' && this.#missingEngines(r.result.value, provided).length)) return;
 		const lang = this.#lang();
 		let siteMenus = settingsStore.current.siteMenus || emptySiteMenus();
 		let engines = settingsStore.current.searchEngines || emptyEngines();
@@ -331,9 +339,52 @@ class MenuImportDialog extends LitElement {
 		return row.result.ok && row.result.type === 'engine' && X().hasTransform(row.result.value) && !row.scriptAck;
 	}
 
+	// Engines, auf die ein Menü zeigt, die es aber nirgends gibt: weder eingebaut,
+	// noch beim Nutzer, noch unter den Engines, die dieser Import selbst mitbringt.
+	// Solche Einträge verschwänden nach dem Import stillschweigend aus dem Menü —
+	// engine-registry.js' resolveMenuItemLink() liefert für eine unbekannte ID
+	// null, und content.js lässt den Eintrag daraufhin einfach weg. Deshalb wird
+	// ein Menü mit fehlender Engine gar nicht erst importierbar.
+	#missingEngines(menuValue, provided) {
+		const ids = X().menuEngineIds(menuValue);
+		if (!ids.length) return [];
+		const catalog = (window.FlowMouseEngineCatalogApi && window.FlowMouseEngineCatalogApi.ENGINE_CATALOG) || [];
+		const se = settingsStore.current.searchEngines || emptyEngines();
+		const reg = window.FlowMouseEngineRegistry;
+		return ids.filter(id => !(provided && provided.has(id)) && !reg.getEngineById(catalog, se, id));
+	}
+
+	// Engine-IDs, die dieser Import selbst liefert — nur aus Zeilen, die auch
+	// wirklich ausgewählt sind. Wählt der Nutzer eine Engine ab, verlieren die
+	// Menüs, die auf sie zeigen, ihre Grundlage wieder.
+	#providedEngineIds() {
+		const ids = new Set();
+		for (const row of this.#bundleRows) {
+			if (row.selected && row.result.ok && row.result.type === 'engine') ids.add(row.result.value.id);
+		}
+		return ids;
+	}
+
+	// Eine abgewählte Engine zieht die Menüs mit, die auf sie zeigen — sonst
+	// bliebe ein Menü ausgewählt, dessen Einträge nach dem Import fehlen.
+	#dropDependentMenus() {
+		const provided = this.#providedEngineIds();
+		for (const r of this.#bundleRows) {
+			if (!r.selected || !r.result.ok || r.result.type !== 'menu') continue;
+			if (this.#missingEngines(r.result.value, provided).length) r.selected = false;
+		}
+	}
+
+	#rowSelectable(row, provided) {
+		if (!row.result.ok) return false;
+		if (row.result.type !== 'menu') return true;
+		return !this.#missingEngines(row.result.value, provided).length;
+	}
+
 	#selectRow(row, selected) {
 		row.selected = selected;
 		if (selected && this.#rowNeedsAck(row)) row.expanded = true;
+		if (!selected && row.result.ok && row.result.type === 'engine') this.#dropDependentMenus();
 	}
 
 	#renderBundle(i18n) {
@@ -345,14 +396,18 @@ class MenuImportDialog extends LitElement {
 			return this.#renderError({ errors: this._bundle.errors }, i18n);
 		}
 		const lang = this.#lang();
-		const valid = rows.filter(r => r.result.ok).length;
-		if (!valid) {
+		if (!rows.some(r => r.result.ok)) {
 			return html`
 				<p class="err">${i18n.getMessage('exchangeBundleEmpty')}</p>
 				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 		}
 		const chosen = this.#bundleChosen;
 		const blocked = this.#blockedFor(chosen);
+		const provided = this.#providedEngineIds();
+		// Auswählbar ist weniger als gültig: ein Menü mit fehlender Engine ist
+		// tadellos validiert und trotzdem gesperrt. Die Zahl bewegt sich mit, wenn
+		// der Nutzer eine Engine an- oder abwählt — das ist gewollt.
+		const valid = rows.filter(r => this.#rowSelectable(r, provided)).length;
 		const allOn = chosen.length === valid;
 		return html`
 			<div class="bsum">
@@ -360,11 +415,18 @@ class MenuImportDialog extends LitElement {
 				<span class="spacer"></span>
 				<label class="mode-opt">
 					<input type="checkbox" .checked=${allOn}
-						@change=${(e) => { for (const r of rows) { if (r.result.ok) this.#selectRow(r, e.target.checked); } this.requestUpdate(); }}>
+						@change=${(e) => {
+							// Erst alles setzen, dann die Abhängigkeiten prüfen: beim Anhaken
+							// wird eine Engine erst im Lauf der Schleife verfügbar, die Reihenfolge
+							// der Zeilen darf darüber nicht entscheiden.
+							for (const r of rows) { if (r.result.ok) this.#selectRow(r, e.target.checked); }
+							this.#dropDependentMenus();
+							this.requestUpdate();
+						}}>
 					<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
 				</label>
 			</div>
-			${rows.map(row => this.#renderBundleRow(row, i18n, lang))}
+			${rows.map(row => this.#renderBundleRow(row, i18n, lang, provided))}
 			${blocked === 'script' ? html`<p class="bhint">${i18n.getMessage('exchangeBundleScriptPending')}</p>` : ''}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
@@ -374,18 +436,20 @@ class MenuImportDialog extends LitElement {
 			</div>`;
 	}
 
-	#renderBundleRow(row, i18n, lang) {
+	#renderBundleRow(row, i18n, lang, provided) {
 		const ok = row.result.ok;
 		const v = row.result.value;
+		const missing = ok && row.result.type === 'menu' ? this.#missingEngines(v, provided) : [];
+		const selectable = this.#rowSelectable(row, provided);
 		const script = ok && row.result.type === 'engine' && X().hasTransform(v);
 		const firstLink = ok && row.result.type === 'menu' ? v.items.find(it => it.customUrl || it.url) : null;
 		const iconUrl = !ok ? null
 			: (row.result.type === 'engine' ? v.url : (firstLink ? (firstLink.customUrl || firstLink.url) : null));
 		const name = this.#rowName(row, lang);
 		return html`
-			<div class="brow ${ok ? '' : 'invalid'}">
+			<div class="brow ${selectable ? '' : 'invalid'}">
 				<div class="bhead">
-					<input type="checkbox" ?disabled=${!ok} .checked=${row.selected}
+					<input type="checkbox" ?disabled=${!selectable} .checked=${row.selected}
 						@change=${(e) => { this.#selectRow(row, e.target.checked); this.requestUpdate(); }}>
 					${ok ? html`<img class="favicon" src="${this.#faviconSrc(iconUrl, name)}" alt="">` : ''}
 					<span class="grow">
@@ -400,8 +464,15 @@ class MenuImportDialog extends LitElement {
 						${row.expanded ? '▾' : '▸'}
 					</button>
 				</div>
+				${missing.length ? html`<p class="bhint">${this.#missingEngineText(missing, i18n)}</p>` : ''}
 				${row.expanded ? html`<div class="bbody">${this.#renderBundleBody(row, i18n)}</div>` : ''}
 			</div>`;
+	}
+
+	// Immer sichtbar, nicht erst nach dem Aufklappen: der Nutzer soll auf einen
+	// Blick erkennen, welche Zeile warum gesperrt ist.
+	#missingEngineText(missing, i18n) {
+		return i18n.getMessage('exchangeMissingEngine').replace('{id}', missing.join(', '));
 	}
 
 	#renderBundleBody(row, i18n) {
@@ -469,12 +540,17 @@ class MenuImportDialog extends LitElement {
 	}
 
 	#renderMenu(v, i18n) {
+		// Ein Einzel-Import bringt keine Engine mit, also gibt es hier nichts, was
+		// eine fehlende Referenz decken könnte. Die Vorschau bleibt stehen — der
+		// Nutzer soll sehen, was er bekäme —, aber der Import ist gesperrt.
+		const missing = this.#missingEngines(v, null);
 		return html`
 			${this.#renderMenuBody(v, i18n)}
+			${missing.length ? html`<p class="err">${this.#missingEngineText(missing, i18n)}</p>` : ''}
 			${this.#renderModeChoice(i18n, this._catalogMatch, 'menu', this._importMode, (m) => { this._importMode = m; })}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
-				<button class="btn btn-primary" @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
+				<button class="btn btn-primary" ?disabled=${!!missing.length} @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
 			</div>`;
 	}
 
