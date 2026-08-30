@@ -113,6 +113,7 @@ class SiteMenuManager extends LitElement {
 			.import-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
 			.import-url { flex: 1; min-width: 160px; font: inherit; font-size: 12px; padding: 5px 8px;
 				border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: inherit; }
+			.storage-line { font-size: 11.5px; color: var(--text-muted); }
 		`,
 	];
 
@@ -194,7 +195,27 @@ class SiteMenuManager extends LitElement {
 				<button class="btn btn-ghost" @click=${(e) => this.#importUrl(e.target.previousElementSibling.value)}>${i18n.getMessage('exchangeImportFromUrl')}</button>
 				<menu-import-dialog @import-done=${() => this.requestUpdate()}></menu-import-dialog>
 			</div>
+			${this.#renderStorageLine(i18n)}
 		`;
+	}
+
+	// Knapper Hinweis unter der Liste: Prozent und geschätzte Restanzahl. Bytes
+	// stehen bewusst nur in der Datenverwaltung - für die meisten Nutzer ist die
+	// Byte-Zahl keine brauchbare Größe. Unauffällig, solange Platz ist.
+	#renderStorageLine(i18n) {
+		const S = window.FlowMouseStorageUsage;
+		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
+		const cur = settingsStore.current.siteMenus || {};
+		const u = S.usageOf('siteMenus', cur, quota);
+		if (u.percent >= 100) {
+			return html`<div class="notice">${i18n.getMessage('storageFull')}</div>`;
+		}
+		const left = S.remainingEntries(u.quota - u.bytes, Object.values(cur.custom || {}), S.AVG_FALLBACK.menu);
+		const text = i18n.getMessage('storageUsed').replace('{percent}', u.percent)
+			+ ' · ' + i18n.getMessage('storageRemaining').replace('{count}', left);
+		return u.percent >= 75
+			? html`<div class="notice">${text}</div>`
+			: html`<div class="storage-line">${text}</div>`;
 	}
 
 	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }
