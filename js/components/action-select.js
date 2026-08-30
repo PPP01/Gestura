@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon } from '../icons.js';
-import { actionName, fallbackName, displayName } from './action-labels.js';
+import { actionName, fallbackName, displayName, domainMismatch } from './action-labels.js';
 import { tooltip } from '../tooltip.js';
 import { settingsStore } from '../settings-store.js';
 import { renderCatalogEngineOptions } from './engine-options.js';
@@ -768,13 +768,6 @@ class ActionSelect extends LitElement {
 		return '';
 	}
 
-	// Ein Name in Domainform, der eine andere Domain nennt als das Ziel, ist einen
-	// Hinweis wert — mehr nicht: erlaubt bleibt er.
-	#domainMismatch(val, cfg = this.config, name = displayName(val, cfg)) {
-		if (val !== 'openCustomUrl') return null;
-		return window.FlowMouseMenuPatterns.nameUrlMismatch(name, cfg?.customUrl || '');
-	}
-
 	#domainHintText(mismatch) {
 		return window.i18n.getMessage('siteMenuItemDomainHint')
 			.replace('{name}', mismatch.name)
@@ -835,7 +828,7 @@ class ActionSelect extends LitElement {
 
 	#renderNamedRow(detail) {
 		const name = displayName(this.value, this.config);
-		const mismatch = this.#domainMismatch(this.value, this.config, name);
+		const mismatch = domainMismatch(this.value, this.config, name);
 		return html`
 			<span class="trigger-icon" .tooltip=${tooltip(actionName(this.value))}>
 				${unsafeHTML(icon(ACTION_ICONS[this.value] || 'minus', { size: 14 }))}
@@ -930,7 +923,7 @@ class ActionSelect extends LitElement {
 		const cfg = this._pendingConfig;
 		// Menü-Einträge beschriften einen Eintrag, alle anderen Kontexte das HUD.
 		const hint = i18n.getMessage(CONTEXTS[this.context]?.nameHint || 'customHudNameTooltip');
-		const mismatch = this.#domainMismatch(val, cfg);
+		const mismatch = domainMismatch(val, cfg);
 		return html`
 			<div class="action-config-field">
 				<label class="action-config-label">${i18n.getMessage('customHudName')}</label>
