@@ -116,6 +116,13 @@ of them:
 
 Limits: 100 KB per entry, 1 MB per bundle, 200 entries — those are the hand-off
 limits; what actually fits also depends on the browser's sync storage quota.
+
+**Menus that use your own search engine must ship it too.** A menu item may point
+at a search engine by `engineId` instead of carrying a URL. That is ideal for the
+engines Gestura already bundles — they cost nothing and follow the user's own
+settings. But an `engineId` naming an engine the user does not have cannot
+resolve, so the extension refuses to import that menu and says which engine is
+missing. Put the `gesturaEngine` in the same bundle as the menu that needs it.
 Every URL inside an entry must be `https:`. The full contract is
 `js/exchange-schema.json`; the runtime validator in `js/menu-exchange.js` is
 authoritative.

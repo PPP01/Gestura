@@ -21,6 +21,16 @@
   performs no request of its own, so no origin exception was needed — the existing
   same-origin link import is unchanged. See *For site operators* in the README.
 
+**Fixes & Improvements:**
+
+- **A menu can no longer be imported without the search engine it needs:** a menu
+  item may point at an engine by id, and until now an id the user did not have
+  simply vanished from the finished menu — no error, no gap, the entry was just
+  missing. Such a menu is now refused with the name of the engine that is absent.
+  Inside a bundle the check follows the selection: the menu is importable while
+  its engine is selected alongside it, and is dropped again if that engine is
+  unticked.
+
 ### v2.7.0 (2026-08-29)
 
 Merged FlowMouse v2.3 and v2.3.1 (upstream sections below).
