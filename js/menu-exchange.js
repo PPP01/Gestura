@@ -69,6 +69,23 @@
 		try { return new TextEncoder().encode(JSON.stringify(obj)).length; } catch { return Infinity; }
 	}
 
+	// Alle engineId-Verweise eines Menüs, dedupliziert und in der Reihenfolge der
+	// ersten Nennung. Rein: ob eine ID auflösbar ist, weiß nur der Aufrufer mit
+	// Katalog und Nutzer-Engines — hier steht nur, worauf das Menü zeigt. Ein
+	// searchLink mit eigener url trägt keine Abhängigkeit und zählt nicht mit.
+	function menuEngineIds(menuValue) {
+		const out = [];
+		const items = menuValue && menuValue.items;
+		if (!Array.isArray(items)) return out;
+		for (const it of items) {
+			if (!it || it.action !== 'searchLink') continue;
+			const id = it.engineId;
+			if (typeof id !== 'string' || !id || out.includes(id)) continue;
+			out.push(id);
+		}
+		return out;
+	}
+
 	function hasTransform(engine) {
 		return !!(engine && engine.transformEnabled
 			&& typeof engine.transformCode === 'string' && engine.transformCode.trim().length > 0);
@@ -303,7 +320,7 @@
 
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
-		detectType, isHttpsUrl, pickLabel, validate, validateBundle, hasTransform,
+		detectType, isHttpsUrl, pickLabel, validate, validateBundle, hasTransform, menuEngineIds,
 		newId, toCustomMenu, toCustomEngine, toStandardMenu, toEngineOverride,
 		menuToExchange, engineToExchange,
 	};
