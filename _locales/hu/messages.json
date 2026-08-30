@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Ez a csomag nem tartalmaz importálható bejegyzést."
+	},
+	"exchangeMissingEngine": {
+		"message": "A(z) „{id}” keresőmotort igényli, amely nincs telepítve és nem része ennek az importnak."
 	}
 }

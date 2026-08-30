@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Ovaj paket ne sadrži stavke za uvoz."
+	},
+	"exchangeMissingEngine": {
+		"message": "Zahtijeva tražilicu „{id}“, koja nije instalirana niti je dio ovog uvoza."
 	}
 }

@@ -14,6 +14,7 @@ const EXCHANGE_KEYS = [
 	'exchangeImportAs', 'exchangeReplaceStandard', 'exchangeAddAsNew',
 	'exchangeBundleSummary', 'exchangeBundleInvalid', 'exchangeBundleSelectAll',
 	'exchangeBundleImport', 'exchangeBundleScriptPending', 'exchangeBundleEmpty',
+	'exchangeMissingEngine',
 ];
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '_locales');

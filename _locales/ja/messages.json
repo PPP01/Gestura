@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "このバンドルにはインポート可能なエントリがありません。"
+	},
+	"exchangeMissingEngine": {
+		"message": "検索エンジン「{id}」が必要ですが、インストールされておらず、このインポートにも含まれていません。"
 	}
 }

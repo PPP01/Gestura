@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Det här paketet innehåller inga importerbara poster."
+	},
+	"exchangeMissingEngine": {
+		"message": "Kräver sökmotorn ”{id}”, som varken är installerad eller ingår i den här importen."
 	}
 }

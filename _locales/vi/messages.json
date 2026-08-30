@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Gói này không chứa mục nào có thể nhập."
+	},
+	"exchangeMissingEngine": {
+		"message": "Cần công cụ tìm kiếm \"{id}\", vốn chưa được cài đặt và cũng không có trong lần nhập này."
 	}
 }

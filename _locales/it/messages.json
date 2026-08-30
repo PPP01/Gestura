@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Questo pacchetto non contiene voci importabili."
+	},
+	"exchangeMissingEngine": {
+		"message": "Richiede il motore di ricerca «{id}», che non è installato né incluso in questa importazione."
 	}
 }

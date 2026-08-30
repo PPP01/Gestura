@@ -3056,5 +3056,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "This bundle contains no importable entries."
+	},
+	"exchangeMissingEngine": {
+		"message": "Requires the search engine \"{id}\", which is not installed and not part of this import."
 	}
 }

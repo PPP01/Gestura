@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Deze bundel bevat geen importeerbare items."
+	},
+	"exchangeMissingEngine": {
+		"message": "Vereist de zoekmachine \"{id}\", die niet is geïnstalleerd en geen deel uitmaakt van deze import."
 	}
 }

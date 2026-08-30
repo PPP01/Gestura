@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "החבילה הזו אינה מכילה רשומות שניתן לייבא."
+	},
+	"exchangeMissingEngine": {
+		"message": "דורש את מנוע החיפוש „{id}“, שאינו מותקן ואינו חלק מייבוא זה."
 	}
 }

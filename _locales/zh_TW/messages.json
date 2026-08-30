@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "此套件不包含可匯入的項目。"
+	},
+	"exchangeMissingEngine": {
+		"message": "需要搜尋引擎「{id}」，但它既未安裝，也不在此次匯入中。"
 	}
 }

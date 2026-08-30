@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Pakej ini tidak mengandungi entri yang boleh diimport."
+	},
+	"exchangeMissingEngine": {
+		"message": "Memerlukan enjin carian \"{id}\", yang tidak dipasang dan tiada dalam import ini."
 	}
 }

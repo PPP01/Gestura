@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Tento balík neobsahuje žiadne položky na import."
+	},
+	"exchangeMissingEngine": {
+		"message": "Vyžaduje vyhľadávač „{id}“, ktorý nie je nainštalovaný ani nie je súčasťou tohto importu."
 	}
 }

@@ -2996,5 +2996,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Dieses Bundle enthält keine importierbaren Einträge."
+	},
+	"exchangeMissingEngine": {
+		"message": "Benötigt die Suchmaschine »{id}«, die weder installiert noch Teil dieses Imports ist."
 	}
 }

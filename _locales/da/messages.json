@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Denne pakke indeholder ingen importerbare poster."
+	},
+	"exchangeMissingEngine": {
+		"message": "Kræver søgemaskinen \"{id}\", som hverken er installeret eller en del af denne import."
 	}
 }

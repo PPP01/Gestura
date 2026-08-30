@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Walang maio-import na entry sa bundle na ito."
+	},
+	"exchangeMissingEngine": {
+		"message": "Kailangan ang search engine na \"{id}\", na hindi naka-install at wala rin sa import na ito."
 	}
 }

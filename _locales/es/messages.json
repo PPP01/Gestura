@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Este paquete no contiene entradas importables."
+	},
+	"exchangeMissingEngine": {
+		"message": "Requiere el motor de búsqueda «{id}», que no está instalado ni forma parte de esta importación."
 	}
 }

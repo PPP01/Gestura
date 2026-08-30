@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Denne pakken inneholder ingen importerbare oppføringer."
+	},
+	"exchangeMissingEngine": {
+		"message": "Krever søkemotoren «{id}», som verken er installert eller del av denne importen."
 	}
 }

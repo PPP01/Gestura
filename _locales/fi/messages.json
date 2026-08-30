@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Tämä paketti ei sisällä tuotavia kohteita."
+	},
+	"exchangeMissingEngine": {
+		"message": "Vaatii hakukoneen ”{id}”, jota ei ole asennettu eikä se sisälly tähän tuontiin."
 	}
 }

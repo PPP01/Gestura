@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Ten pakiet nie zawiera pozycji do zaimportowania."
+	},
+	"exchangeMissingEngine": {
+		"message": "Wymaga wyszukiwarki „{id}”, która nie jest zainstalowana ani nie należy do tego importu."
 	}
 }

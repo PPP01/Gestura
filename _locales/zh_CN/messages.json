@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "此套件不包含可导入的条目。"
+	},
+	"exchangeMissingEngine": {
+		"message": "需要搜索引擎“{id}”，但它既未安装，也不在此次导入中。"
 	}
 }

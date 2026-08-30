@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Paket ini tidak berisi entri yang dapat diimpor."
+	},
+	"exchangeMissingEngine": {
+		"message": "Membutuhkan mesin pencari \"{id}\", yang tidak terpasang dan tidak termasuk dalam impor ini."
 	}
 }

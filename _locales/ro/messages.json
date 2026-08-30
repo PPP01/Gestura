@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "Acest pachet nu conține intrări care pot fi importate."
+	},
+	"exchangeMissingEngine": {
+		"message": "Necesită motorul de căutare „{id}”, care nu este instalat și nu face parte din acest import."
 	}
 }

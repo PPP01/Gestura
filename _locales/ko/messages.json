@@ -2894,5 +2894,8 @@
 	},
 	"exchangeBundleEmpty": {
 		"message": "이 번들에는 가져올 수 있는 항목이 없습니다."
+	},
+	"exchangeMissingEngine": {
+		"message": "\"{id}\" 검색 엔진이 필요하지만 설치되어 있지 않으며 이 가져오기에도 포함되어 있지 않습니다."
 	}
 }
