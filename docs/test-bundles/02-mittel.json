@@ -1,0 +1,95 @@
+{
+	"gesturaMenu": 1,
+	"id": "com.example.mittel",
+	"version": "1.0.0",
+	"name": {
+		"de": "Mittel"
+	},
+	"icon": "menu",
+	"patterns": [
+		"*mittel.example*"
+	],
+	"items": [
+		{
+			"id": "it0",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 1 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/1"
+		},
+		{
+			"id": "it1",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 2 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/2"
+		},
+		{
+			"id": "it2",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 3 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/3"
+		},
+		{
+			"id": "it3",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 4 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/4"
+		},
+		{
+			"id": "it4",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 5 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/5"
+		},
+		{
+			"id": "it5",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 6 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/6"
+		},
+		{
+			"id": "it6",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 7 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/7"
+		},
+		{
+			"id": "it7",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 8 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/8"
+		},
+		{
+			"id": "it8",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 9 von Mittel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://mittel.example.com/bereich/9"
+		}
+	]
+}

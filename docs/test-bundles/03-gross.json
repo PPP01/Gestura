@@ -1,0 +1,158 @@
+{
+	"gesturaMenu": 1,
+	"id": "com.example.gross",
+	"version": "1.0.0",
+	"name": {
+		"de": "Groß"
+	},
+	"icon": "menu",
+	"patterns": [
+		"*gross.example*"
+	],
+	"items": [
+		{
+			"id": "it0",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 1 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/1"
+		},
+		{
+			"id": "it1",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 2 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/2"
+		},
+		{
+			"id": "it2",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 3 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/3"
+		},
+		{
+			"id": "it3",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 4 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/4"
+		},
+		{
+			"id": "it4",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 5 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/5"
+		},
+		{
+			"id": "it5",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 6 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/6"
+		},
+		{
+			"id": "it6",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 7 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/7"
+		},
+		{
+			"id": "it7",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 8 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/8"
+		},
+		{
+			"id": "it8",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 9 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/9"
+		},
+		{
+			"id": "it9",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 10 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/10"
+		},
+		{
+			"id": "it10",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 11 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/11"
+		},
+		{
+			"id": "it11",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 12 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/12"
+		},
+		{
+			"id": "it12",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 13 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/13"
+		},
+		{
+			"id": "it13",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 14 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/14"
+		},
+		{
+			"id": "it14",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 15 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/15"
+		},
+		{
+			"id": "it15",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 16 von Groß"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://gross.example.com/bereich/16"
+		}
+	]
+}

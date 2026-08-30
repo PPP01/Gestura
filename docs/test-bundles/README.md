@@ -1,0 +1,83 @@
+# Test-Bundles für die Speicherbelegung
+
+Import-Dateien, um `siteMenus` schrittweise zu füllen und zu beobachten, was an der Grenze passiert. Sie liegen unter `docs/`, werden also weder vom Chrome-Paket (`git archive` listet nur `manifest.json js _locales icons pages css LICENSE NOTICE THIRD_PARTY_LICENSES.md`) noch vom Firefox-Build eingepackt (`docs/**` steht in `ignoreFiles`).
+
+Alle Dateien sind formal gültig — sie scheitern also nie an der Validierung, nur am Speicher. Die URLs zeigen auf `*.example.com` und sind absichtlich tot.
+
+## Der Deckel
+
+`chrome.storage.sync` erlaubt **8192 Bytes je Item**, und `siteMenus` ist genau ein Item. Was zählt, ist **nicht die Dateigröße**, sondern die gespeicherte Form: Labels werden beim Import auf eine Sprache eingedampft, Item-IDs neu vergeben. Deshalb weicht beides voneinander ab.
+
+| Datei | Inhalt | gespeichert |
+| --- | --- | --- |
+| `01-klein.json` | 1 Menü, 4 Einträge | 718 B |
+| `02-mittel.json` | 1 Menü, 9 Einträge | 1493 B |
+| `03-gross.json` | 1 Menü, 16 Einträge | 2544 B |
+| `04-bundle-3er.json` | Bundle mit 3 Menüs | 3049 B |
+| `05-zu-gross.json` | 1 Menü, 57 Einträge | 9147 B |
+| `06-menue-mit-engine.json` | Bundle: eigene Engine + Menü, das sie nutzt | 612 B |
+| `07-menue-ohne-engine.json` | 1 Menü, zeigt auf eine fehlende Engine | 399 B |
+
+## Die Treppe
+
+Ab **frischem** Profil (`siteMenus` bei 108 B), jede Datei über *Aus Datei importieren…* im Menü-Manager, jeweils als **neuer Eintrag**:
+
+| Schritt | danach belegt | |
+| --- | --- | --- |
+| Start | 108 B · 1 % | |
+| `01-klein` | 865 B · 11 % | |
+| `02-mittel` | 2399 B · 29 % | |
+| `03-gross` | 4984 B · 61 % | |
+| `04-bundle-3er` | 8156 B · **99,6 %** | passt noch — siehe unten |
+| `01-klein` nochmal | 8915 B · 109 % | **Speichern scheitert** |
+
+Dieselbe Datei lässt sich beliebig oft importieren: „als neuen Eintrag hinzufügen" vergibt jedes Mal frische IDs, es entsteht also eine weitere Kopie. Damit kannst du dich in 718-B-Schritten an die Grenze heranarbeiten.
+
+**Schritt 4 ist der interessante.** 8156 von 8192 Bytes sind 99,56 % — naiv gerundet steht da **100 %**, obwohl noch 36 Bytes frei sind und der Import einwandfrei durchgeht. Eine Anzeige, die hier „voll" meldet, lügt. Genau dieser Fall gehört geprüft.
+
+Wer schneller an die Wand will: `05-zu-gross.json` sprengt die Quote mit 9147 B **allein**, aus jedem Startzustand heraus.
+
+## Was heute passiert, wenn es nicht passt
+
+Die Speicheranzeige ist noch nicht gebaut. Bis dahin gilt: `settingsStore.save()` scheitert, der Dialog meldet *„Speichern fehlgeschlagen — die Menüdaten überschreiten das Sync-Speicherlimit"*, und seit dem Rückgängigmachen bei Fehlschlag bleibt der Zustand sauber — der Import ist dann schlicht nicht passiert.
+
+## Belegung ablesen, solange es keine Anzeige gibt
+
+DevTools auf der **Optionsseite** öffnen (nicht auf einer Webseite) und einfügen:
+
+```js
+chrome.storage.sync.get(null, s => {
+	const q = chrome.storage.sync.QUOTA_BYTES_PER_ITEM || 8192;
+	const b = (k, v) => new TextEncoder().encode(k + JSON.stringify(v)).length;
+	for (const k of ['siteMenus', 'searchEngines', 'mouseGestures']) {
+		const n = b(k, s[k]);
+		console.log(k.padEnd(15), n + ' B', (100 * n / q).toFixed(1) + '%');
+	}
+});
+```
+
+Das ist dieselbe Formel, die die geplante Anzeige nutzen wird — die Werte müssen später übereinstimmen.
+
+## Die beiden Abhängigkeits-Fälle
+
+Sie testen nicht den Speicher, sondern die Prüfung aus `feat/import-engine-dependency`, für die noch keine manuelle Abnahme gelaufen ist.
+
+**`06-menue-mit-engine.json`** — Bundle aus einer eigenen Engine und einem Menü, das sie per `engineId` nutzt. Erwartet: beide Zeilen wählbar, Import legt beides an, und **nach dem Import muss der Sucheintrag im Menü tatsächlich funktionieren**. Das ist der Fall, der vor dem Fix still kaputt ging: die Engine bekam beim Speichern eine neue ID, das Menü zeigte weiter auf die alte.
+
+Zusatzprobe: im Bundle die **Engine abwählen**. Das Menü muss sich daraufhin mit abwählen und die Begründung zeigen.
+
+**`07-menue-ohne-engine.json`** — Einzel-Menü, das auf `com.example.gibtesnicht` zeigt. Erwartet: Vorschau erscheint, Import-Button ist **gesperrt**, und die Meldung nennt die fehlende Engine.
+
+## Aufräumen
+
+Die angelegten Menüs heißen *Klein*, *Mittel*, *Groß*, *Alpha*, *Beta*, *Gamma*, *Zu viel*, *Mit eigener Suche* und lassen sich im Menü-Manager einzeln löschen. Wer alles auf einmal loswerden will, in der DevTools-Konsole der Optionsseite:
+
+```js
+chrome.storage.sync.get(['siteMenus'], s => {
+	const sm = s.siteMenus || {};
+	chrome.storage.sync.set({ siteMenus: { ...sm, custom: {}, order: [] } },
+		() => location.reload());
+});
+```
+
+Das entfernt **alle** eigenen und importierten Menüs — bearbeitete Katalog-Menüs (`edited`) und Deaktivierungen bleiben unangetastet.

@@ -1,0 +1,32 @@
+{
+	"gesturaMenu": 1,
+	"id": "com.example.ohneengine",
+	"version": "1.0.0",
+	"name": {
+		"de": "Zeigt ins Leere"
+	},
+	"icon": "menu",
+	"patterns": [
+		"*ohneengine.example*"
+	],
+	"items": [
+		{
+			"id": "s1",
+			"icon": "search",
+			"label": {
+				"de": "Fehlende Suche"
+			},
+			"action": "searchLink",
+			"engineId": "com.example.gibtesnicht"
+		},
+		{
+			"id": "l1",
+			"icon": "link",
+			"label": {
+				"de": "Startseite"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://ohneengine.example.com/"
+		}
+	]
+}

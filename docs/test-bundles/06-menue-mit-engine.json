@@ -1,0 +1,66 @@
+{
+	"gesturaBundle": 1,
+	"entries": [
+		{
+			"gesturaEngine": 1,
+			"id": "com.example.suche",
+			"version": "1.0.0",
+			"name": "Beispiel-Suche",
+			"icon": "search",
+			"url": "https://suche.example.com/?q=%s",
+			"type": "text"
+		},
+		{
+			"gesturaMenu": 1,
+			"id": "com.example.mitengine",
+			"version": "1.0.0",
+			"name": {
+				"de": "Mit eigener Suche"
+			},
+			"icon": "menu",
+			"patterns": [
+				"*mitengine.example*"
+			],
+			"items": [
+				{
+					"id": "s1",
+					"icon": "search",
+					"label": {
+						"de": "Beispiel-Suche"
+					},
+					"action": "searchLink",
+					"engineId": "com.example.suche"
+				},
+				{
+					"id": "s2",
+					"icon": "search",
+					"label": {
+						"de": "Google"
+					},
+					"action": "searchLink",
+					"engineId": "google"
+				},
+				{
+					"id": "sep",
+					"type": "separator"
+				},
+				{
+					"id": "l1",
+					"icon": "link",
+					"label": {
+						"de": "Startseite"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://mitengine.example.com/"
+				},
+				{
+					"id": "b1",
+					"label": {
+						"de": "Zurück"
+					},
+					"action": "back"
+				}
+			]
+		}
+	]
+}

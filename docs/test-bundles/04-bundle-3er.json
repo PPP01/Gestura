@@ -1,0 +1,209 @@
+{
+	"gesturaBundle": 1,
+	"entries": [
+		{
+			"gesturaMenu": 1,
+			"id": "com.example.alpha",
+			"version": "1.0.0",
+			"name": {
+				"de": "Alpha"
+			},
+			"icon": "star",
+			"patterns": [
+				"*alpha.example*"
+			],
+			"items": [
+				{
+					"id": "it0",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 1 von Alpha"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://alpha.example.com/bereich/1"
+				},
+				{
+					"id": "it1",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 2 von Alpha"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://alpha.example.com/bereich/2"
+				},
+				{
+					"id": "it2",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 3 von Alpha"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://alpha.example.com/bereich/3"
+				},
+				{
+					"id": "it3",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 4 von Alpha"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://alpha.example.com/bereich/4"
+				},
+				{
+					"id": "it4",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 5 von Alpha"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://alpha.example.com/bereich/5"
+				}
+			]
+		},
+		{
+			"gesturaMenu": 1,
+			"id": "com.example.beta",
+			"version": "1.0.0",
+			"name": {
+				"de": "Beta"
+			},
+			"icon": "bookmark",
+			"patterns": [
+				"*beta.example*"
+			],
+			"items": [
+				{
+					"id": "it0",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 1 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/1"
+				},
+				{
+					"id": "it1",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 2 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/2"
+				},
+				{
+					"id": "it2",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 3 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/3"
+				},
+				{
+					"id": "it3",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 4 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/4"
+				},
+				{
+					"id": "it4",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 5 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/5"
+				},
+				{
+					"id": "it5",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 6 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/6"
+				},
+				{
+					"id": "it6",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 7 von Beta"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://beta.example.com/bereich/7"
+				}
+			]
+		},
+		{
+			"gesturaMenu": 1,
+			"id": "com.example.gamma",
+			"version": "1.0.0",
+			"name": {
+				"de": "Gamma"
+			},
+			"icon": "globe",
+			"patterns": [
+				"*gamma.example*"
+			],
+			"items": [
+				{
+					"id": "it0",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 1 von Gamma"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://gamma.example.com/bereich/1"
+				},
+				{
+					"id": "it1",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 2 von Gamma"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://gamma.example.com/bereich/2"
+				},
+				{
+					"id": "it2",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 3 von Gamma"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://gamma.example.com/bereich/3"
+				},
+				{
+					"id": "it3",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 4 von Gamma"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://gamma.example.com/bereich/4"
+				},
+				{
+					"id": "it4",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 5 von Gamma"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://gamma.example.com/bereich/5"
+				},
+				{
+					"id": "it5",
+					"icon": "link",
+					"label": {
+						"de": "Eintrag 6 von Gamma"
+					},
+					"action": "openCustomUrl",
+					"customUrl": "https://gamma.example.com/bereich/6"
+				}
+			]
+		}
+	]
+}
