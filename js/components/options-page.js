@@ -253,6 +253,10 @@ class OptionsPage extends LitElement {
 					display: none;
 				}
 			}
+
+			.storage-value { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+			.storage-value.near { color: var(--attention-color); }
+			.storage-value.over { color: var(--danger-color); }
 		`,
 	];
 
@@ -1020,6 +1024,7 @@ class OptionsPage extends LitElement {
 								${this._settings.lastSyncTime ? html`<span>${this.#formatSyncTime(this._settings.lastSyncTime)}</span>` : ''}
 							</div>
 						</div>
+						${this.#renderStorageRows(i18n)}
 						<div class="setting-row actions">
 							<button class="btn btn-secondary btn-lg" @click=${this.#exportSettings}>${i18n.getMessage('export')}</button>
 							<button class="btn btn-secondary btn-lg" @click=${this.#triggerImport}>${i18n.getMessage('import')}</button>
@@ -1274,6 +1279,42 @@ class OptionsPage extends LitElement {
 			...current,
 			[section]: !current[section]
 		});
+	}
+
+	// Der einzige Ort, an dem Bytes stehen: hier schaut jemand gezielt nach oder
+	// meldet ein Problem. Überall sonst genügt der Prozentwert.
+	#renderStorageRows(i18n) {
+		const S = window.FlowMouseStorageUsage;
+		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
+		const total = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES) || 102400;
+		const branches = [
+			['siteMenus', i18n.getMessage('siteMenusTitle')],
+			['searchEngines', i18n.getMessage('sectionSearchEngines')],
+			['mouseGestures', i18n.getMessage('basicSettings')],
+		];
+		let sum = 0;
+		const rows = branches.map(([key, label]) => {
+			const u = S.usageOf(key, this._settings[key], quota);
+			sum += u.bytes;
+			return html`
+				<div class="setting-row">
+					<div class="setting-label"><span>${label}</span></div>
+					<span class="storage-value ${u.percent >= 100 ? 'over' : (u.percent >= 75 ? 'near' : '')}">
+						${i18n.getMessage('storageDetail')
+							.replace('{used}', u.bytes).replace('{total}', u.quota).replace('{percent}', u.percent)}
+					</span>
+				</div>`;
+		});
+		const totalPercent = Math.round((100 * sum) / total);
+		return html`
+			<div class="setting-row">
+				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
+				<span class="storage-value">
+					${i18n.getMessage('storageDetail')
+						.replace('{used}', sum).replace('{total}', total).replace('{percent}', totalPercent)}
+				</span>
+			</div>
+			${rows}`;
 	}
 
 	#renderFeatureToggle(key, sectionId, label, first = false) {
