@@ -57,6 +57,16 @@ describe('remainingEntries', () => {
 		expect(S.remainingEntries(avg * 3, [menuA, menuB], 1001)).toBe(3);
 	});
 
+	it('misst Bytes, nicht Zeichen — sonst schätzt es bei Umlauten zu großzügig', () => {
+		// JSON.stringify({ n: 'üü…' }) hat 18 Zeichen, aber 28 Bytes.
+		// Bei 56 freien Bytes passen 2 Einträge; eine zeichenbasierte Rechnung
+		// käme auf 3 und verspräche Platz, den es nicht gibt.
+		const value = { n: 'ü'.repeat(10) };
+		expect(JSON.stringify(value).length).toBe(18);
+		expect(S.byteLength(JSON.stringify(value))).toBe(28);
+		expect(S.remainingEntries(56, [value], 999)).toBe(2);
+	});
+
 	it('greift auf den Rückfallwert zurück, wenn es noch keine Einträge gibt', () => {
 		expect(S.remainingEntries(3003, [], 1001)).toBe(3);
 	});
