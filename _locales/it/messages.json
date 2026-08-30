@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "spazio per altri {count} circa" },
 	"storageFull": { "message": "Pieno — il salvataggio fallisce finché non rimuovi delle voci." },
 	"storageImportTooLarge": { "message": "Questa selezione non entra più. Deseleziona alcune voci o importane meno alla volta." },
-	"storageAfterImport": { "message": "{percent}% utilizzato dopo l'importazione" }
+	"storageAfterImport": { "message": "{percent}% utilizzato dopo l'importazione" },
+	"importDoneTitle": { "message": "Importato" },
+	"importBadgeNew": { "message": "Nuovo" }
 }

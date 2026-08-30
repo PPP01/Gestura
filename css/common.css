@@ -47,6 +47,7 @@
 	--checkbox-border-color: rgba(0, 0, 0, 0.15);
 	--accent-color: #4285f4;
 	--accent-hover: #3367d6;
+	--success-color: #2e7d32;
 	--input-bg: #fff;
 	--card-bg: #ffffff;
 	--bg-color: #f5f7fa;
@@ -656,4 +657,51 @@ textarea.input-mono {
 	color: var(--danger-color);
 	background: color-mix(in srgb, var(--danger-color) 8%, transparent);
 	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 40%, transparent);
+}
+
+/* Gerade importiert: Meldung über der Liste, Abzeichen an der Zeile, ein
+   einmaliger Puls beim Sichtbarwerden. Die Markierung ist eine Wegbeschreibung -
+   sie verschwindet, sobald der Nutzer den Eintrag anfasst, spätestens mit dem Tab. */
+.import-done {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 9px;
+	border-radius: 6px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--success-color);
+	background: color-mix(in srgb, var(--success-color) 10%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 35%, transparent);
+}
+
+.import-done > svg {
+	flex-shrink: 0;
+	width: 14px;
+	height: 14px;
+}
+
+.import-badge {
+	flex-shrink: 0;
+	padding: 1px 6px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--success-color);
+	background: color-mix(in srgb, var(--success-color) 14%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 40%, transparent);
+}
+
+@keyframes gestura-breath {
+	0%, 100% { box-shadow: 0 0 0 0 transparent; }
+	50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--success-color) 55%, transparent); }
+}
+
+.just-imported {
+	animation: gestura-breath 1.4s ease-in-out 2;
+	border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.just-imported { animation: none; }
 }

@@ -1,4 +1,4 @@
-import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
+import { LitElement, html, css, unsafeHTML, nothing } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
@@ -6,6 +6,7 @@ import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
+import { ImportHighlight, renderImportDone, renderImportBadge } from './import-feedback.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -130,8 +131,11 @@ class SiteMenuManager extends LitElement {
 		this._onCatalogChanged = () => this.requestUpdate();
 	}
 
+	#highlight = new ImportHighlight('menu', () => this.requestUpdate());
+
 	connectedCallback() {
 		super.connectedCallback();
+		this.#highlight.connect();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = settingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed || 'siteMenuAddAsk' in changed) this.requestUpdate();
@@ -140,10 +144,13 @@ class SiteMenuManager extends LitElement {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this.#highlight.disconnect();
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe?.();
 		this._unsubscribe = null;
 	}
+
+	updated() { this.#highlight.afterRender(this.renderRoot); }
 
 	get siteMenus() {
 		return settingsStore.current.siteMenus || { disabled: [], edited: {}, custom: {}, domains: {}, order: [] };
@@ -196,6 +203,7 @@ class SiteMenuManager extends LitElement {
 				<button class="btn btn-ghost" @click=${(e) => this.#importUrl(e.target.previousElementSibling.value)}>${i18n.getMessage('exchangeImportFromUrl')}</button>
 				<menu-import-dialog @import-done=${() => this.requestUpdate()}></menu-import-dialog>
 			</div>
+			${renderImportDone(i18n, this.#highlight.done)}
 			${this.#renderStorageLine(i18n)}
 		`;
 	}
@@ -424,7 +432,8 @@ class SiteMenuManager extends LitElement {
 		const expanded = this._expandedId === m.id;
 		const isDefault = (this.siteMenus.defaultMenuId || '') === m.id;
 		return html`
-			<div class="menu-row ${m.disabled ? 'disabled' : ''}">
+			<div class="menu-row ${m.disabled ? 'disabled' : ''}"
+				data-import-id=${this.#highlight.isMarked(m.id) ? m.id : nothing}>
 				<span class="menu-icon">${menuIcon ? unsafeHTML(menuIcon) : ''}</span>
 				<span class="menu-name ${isDefault ? 'default' : ''}">
 					${isDefault ? html`<span class="default-marker"
@@ -433,6 +442,7 @@ class SiteMenuManager extends LitElement {
 					${menuDisplayName(m.def, 'menuNamePlaceholder')}
 					<span class="menu-count">(${count})</span>
 					${m.isEdited ? html`<span class="edited-badge">${i18n.getMessage('siteMenuEdited')}</span>` : ''}
+					${this.#highlight.isMarked(m.id) ? renderImportBadge(i18n) : ''}
 				</span>
 				<div class="menu-buttons">
 					${this.#renderFlagToggles(m, i18n)}
@@ -455,7 +465,7 @@ class SiteMenuManager extends LitElement {
 						</button>
 					` : ''}
 					<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('edit'))}
-						@click=${() => { this._expandedId = expanded ? '' : m.id; }}>
+						@click=${() => { this.#highlight.clear(m.id); this._expandedId = expanded ? '' : m.id; }}>
 						${unsafeHTML(icon(expanded ? 'chevronUp' : 'squarePen', { size: 14, strokeWidth: 2 }))}
 					</button>
 				</div>

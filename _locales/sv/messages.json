@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "plats för ungefär {count} till" },
 	"storageFull": { "message": "Fullt — det går inte att spara förrän du tar bort poster." },
 	"storageImportTooLarge": { "message": "Det här urvalet får inte längre plats. Avmarkera poster eller importera färre åt gången." },
-	"storageAfterImport": { "message": "{percent} % använt efter import" }
+	"storageAfterImport": { "message": "{percent} % använt efter import" },
+	"importDoneTitle": { "message": "Importerad" },
+	"importBadgeNew": { "message": "Ny" }
 }

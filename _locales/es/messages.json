@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "espacio para unos {count} más" },
 	"storageFull": { "message": "Lleno — el guardado falla hasta que elimines entradas." },
 	"storageImportTooLarge": { "message": "Esta selección ya no cabe. Deselecciona entradas o importa menos a la vez." },
-	"storageAfterImport": { "message": "{percent}% usado después de la importación" }
+	"storageAfterImport": { "message": "{percent}% usado después de la importación" },
+	"importDoneTitle": { "message": "Importado" },
+	"importBadgeNew": { "message": "Nuevo" }
 }

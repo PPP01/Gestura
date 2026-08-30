@@ -1,10 +1,11 @@
-import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
+import { LitElement, html, css, unsafeHTML, nothing } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
+import { ImportHighlight, renderImportDone, renderImportBadge } from './import-feedback.js';
 
 function downloadJson(obj, filename) {
 	const blob = new Blob([JSON.stringify(obj, null, '\t')], { type: 'application/json' });
@@ -285,8 +286,11 @@ class EngineManager extends LitElement {
 		return window.FlowMouseEngineCatalogApi.ENGINE_CATALOG;
 	}
 
+	#highlight = new ImportHighlight('engine', () => this.requestUpdate());
+
 	connectedCallback() {
 		super.connectedCallback();
+		this.#highlight.connect();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore = settingsStore.onChange((changed) => {
 			if ('searchEngines' in changed || 'engineManagerLocalOnly' in changed) this.requestUpdate();
@@ -295,10 +299,13 @@ class EngineManager extends LitElement {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this.#highlight.disconnect();
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore?.();
 		this._unsubscribeStore = null;
 	}
+
+	updated() { this.#highlight.afterRender(this.renderRoot); }
 
 	#generateId() {
 		const existing = new Set([
@@ -663,6 +670,7 @@ class EngineManager extends LitElement {
 				<button class="btn btn-ghost" @click=${(e) => this.#importUrl(e.target.previousElementSibling.value)}>${i18n.getMessage('exchangeImportFromUrl')}</button>
 				<menu-import-dialog @import-done=${() => this.requestUpdate()}></menu-import-dialog>
 			</div>
+			${renderImportDone(i18n, this.#highlight.done)}
 			${this.#renderStorageLine(i18n)}
 		`;
 	}
@@ -714,6 +722,7 @@ class EngineManager extends LitElement {
 
 		return html`
 			<div class="engine-row ${hidden ? 'is-hidden' : ''}"
+				data-import-id=${this.#highlight.isMarked(eng.id) ? eng.id : nothing}
 				@dragover=${(e) => this.#onItemDragOver(e, idx)}>
 				<span class="engine-grip" draggable="true"
 					.tooltip=${tooltip(i18n.getMessage('engineReorder'))}
@@ -730,12 +739,13 @@ class EngineManager extends LitElement {
 						<span class="engine-name">${eng.name || eng.id}</span>
 						${eng.builtin ? html`<span class="engine-badge">${i18n.getMessage('engineBuiltinBadge')}</span>` : ''}
 						${hidden ? html`<span class="engine-badge">${i18n.getMessage('engineHiddenBadge')}</span>` : ''}
+						${this.#highlight.isMarked(eng.id) ? renderImportBadge(i18n) : ''}
 					</div>
 					${eng.url ? html`<span class="engine-url">${eng.url}</span>` : ''}
 				</div>
 
 				<div class="engine-buttons">
-					<button class="engine-btn" @click=${() => this.#startEdit(eng)}
+					<button class="engine-btn" @click=${() => { this.#highlight.clear(eng.id); this.#startEdit(eng); }}
 						.tooltip=${tooltip(i18n.getMessage('engineEdit'))}>
 						${unsafeHTML(icon('squarePen', { size: 14, strokeWidth: 2 }))}
 					</button>

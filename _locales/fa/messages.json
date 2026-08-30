@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "جا برای حدود {count} مورد دیگر" },
 	"storageFull": { "message": "پر — تا زمانی که مواردی را حذف نکنید، ذخیره‌سازی انجام نمی‌شود." },
 	"storageImportTooLarge": { "message": "این انتخاب دیگر جا نمی‌شود. برخی موارد را از انتخاب خارج کنید یا تعداد کمتری را یک‌جا وارد کنید." },
-	"storageAfterImport": { "message": "{percent}% استفاده‌شده پس از وارد کردن" }
+	"storageAfterImport": { "message": "{percent}% استفاده‌شده پس از وارد کردن" },
+	"importDoneTitle": { "message": "وارد شد" },
+	"importBadgeNew": { "message": "جدید" }
 }

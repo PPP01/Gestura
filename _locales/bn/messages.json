@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "আরও প্রায় {count}টির জন্য জায়গা আছে" },
 	"storageFull": { "message": "পূর্ণ — এন্ট্রি সরানো না পর্যন্ত সংরক্ষণ ব্যর্থ হবে।" },
 	"storageImportTooLarge": { "message": "এই নির্বাচন আর ধরছে না। কিছু এন্ট্রি বাদ দিন বা একবারে কম আমদানি করুন।" },
-	"storageAfterImport": { "message": "আমদানির পরে {percent}% ব্যবহৃত" }
+	"storageAfterImport": { "message": "আমদানির পরে {percent}% ব্যবহৃত" },
+	"importDoneTitle": { "message": "ইম্পোর্ট করা হয়েছে" },
+	"importBadgeNew": { "message": "নতুন" }
 }

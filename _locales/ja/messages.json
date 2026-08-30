@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "あと約 {count} 件分の空き" },
 	"storageFull": { "message": "容量オーバー — 項目を削除するまで保存できません。" },
 	"storageImportTooLarge": { "message": "この選択はもう収まりません。項目の選択を解除するか、一度にインポートする数を減らしてください。" },
-	"storageAfterImport": { "message": "インポート後は{percent}% 使用済み" }
+	"storageAfterImport": { "message": "インポート後は{percent}% 使用済み" },
+	"importDoneTitle": { "message": "インポート完了" },
+	"importBadgeNew": { "message": "新規" }
 }

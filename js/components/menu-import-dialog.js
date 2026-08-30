@@ -254,6 +254,10 @@ class MenuImportDialog extends LitElement {
 		}
 		markImported(imported);
 		window.dispatchEvent(new Event('action-catalog-changed'));
+		// Am Fenster, nicht nur am Dialog: bei einer Übergabe von einer Webseite
+		// hängt der Dialog am Schattenbaum der Optionsseite, nicht im Manager - der
+		// bekäme das aufsteigende Ereignis nie zu sehen und meldete nichts.
+		window.dispatchEvent(new CustomEvent('gestura:import-done', { detail: imported }));
 		this.dispatchEvent(new CustomEvent('import-done', { detail: imported, bubbles: true, composed: true }));
 		this.#reportToPage('imported', imported);
 		this.#close();

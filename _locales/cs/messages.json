@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "místo pro přibližně {count}" },
 	"storageFull": { "message": "Plné — ukládání selže, dokud neodstraníte položky." },
 	"storageImportTooLarge": { "message": "Tento výběr se už nevejde. Zrušte výběr některých položek nebo importujte méně najednou." },
-	"storageAfterImport": { "message": "Po importu využito {percent}%" }
+	"storageAfterImport": { "message": "Po importu využito {percent}%" },
+	"importDoneTitle": { "message": "Importováno" },
+	"importBadgeNew": { "message": "Nové" }
 }

@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "loc pentru încă aproximativ {count}" },
 	"storageFull": { "message": "Plin — salvarea eșuează până când elimini intrări." },
 	"storageImportTooLarge": { "message": "Această selecție nu mai încape. Deselectează intrări sau importă mai puține odată." },
-	"storageAfterImport": { "message": "{percent}% utilizat după import" }
+	"storageAfterImport": { "message": "{percent}% utilizat după import" },
+	"importDoneTitle": { "message": "Importat" },
+	"importBadgeNew": { "message": "Nou" }
 }

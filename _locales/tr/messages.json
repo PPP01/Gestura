@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "yaklaşık {count} tane daha için yer var" },
 	"storageFull": { "message": "Dolu — girişleri kaldırana kadar kaydetme başarısız olur." },
 	"storageImportTooLarge": { "message": "Bu seçim artık sığmıyor. Bazı girişlerin seçimini kaldırın veya bir seferde daha azını içe aktarın." },
-	"storageAfterImport": { "message": "İçe aktarma sonrasında %{percent} kullanıldı" }
+	"storageAfterImport": { "message": "İçe aktarma sonrasında %{percent} kullanıldı" },
+	"importDoneTitle": { "message": "İçe aktarıldı" },
+	"importBadgeNew": { "message": "Yeni" }
 }

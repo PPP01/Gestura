@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "약 {count}개 더 저장할 공간 있음" },
 	"storageFull": { "message": "가득 참 — 항목을 제거할 때까지 저장에 실패합니다." },
 	"storageImportTooLarge": { "message": "이 선택 항목이 더 이상 들어가지 않습니다. 일부 항목의 선택을 해제하거나 한 번에 더 적게 가져오세요." },
-	"storageAfterImport": { "message": "가져오기 후 {percent}% 사용됨" }
+	"storageAfterImport": { "message": "가져오기 후 {percent}% 사용됨" },
+	"importDoneTitle": { "message": "가져오기 완료" },
+	"importBadgeNew": { "message": "신규" }
 }

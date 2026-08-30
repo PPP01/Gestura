@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "mjesta za još otprilike {count}" },
 	"storageFull": { "message": "Puno — spremanje ne uspijeva dok ne uklonite unose." },
 	"storageImportTooLarge": { "message": "Ovaj odabir više ne stane. Poništite odabir unosa ili uvezite manje odjednom." },
-	"storageAfterImport": { "message": "Nakon uvoza iskorišteno {percent}%" }
+	"storageAfterImport": { "message": "Nakon uvoza iskorišteno {percent}%" },
+	"importDoneTitle": { "message": "Uvezeno" },
+	"importBadgeNew": { "message": "Novo" }
 }

@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "ruang untuk sekitar {count} lagi" },
 	"storageFull": { "message": "Penuh — penyimpanan gagal sampai Anda menghapus entri." },
 	"storageImportTooLarge": { "message": "Pilihan ini tidak lagi muat. Batalkan pilihan beberapa entri atau impor lebih sedikit sekaligus." },
-	"storageAfterImport": { "message": "{percent}% terpakai setelah impor" }
+	"storageAfterImport": { "message": "{percent}% terpakai setelah impor" },
+	"importDoneTitle": { "message": "Diimpor" },
+	"importBadgeNew": { "message": "Baru" }
 }

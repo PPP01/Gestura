@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "χώρος για περίπου {count} ακόμα" },
 	"storageFull": { "message": "Πλήρες — η αποθήκευση αποτυγχάνει έως ότου αφαιρέσετε καταχωρίσεις." },
 	"storageImportTooLarge": { "message": "Αυτή η επιλογή δεν χωράει πια. Καταργήστε την επιλογή καταχωρίσεων ή εισαγάγετε λιγότερες κάθε φορά." },
-	"storageAfterImport": { "message": "{percent}% σε χρήση μετά την εισαγωγή" }
+	"storageAfterImport": { "message": "{percent}% σε χρήση μετά την εισαγωγή" },
+	"importDoneTitle": { "message": "Έγινε εισαγωγή" },
+	"importBadgeNew": { "message": "Νέο" }
 }

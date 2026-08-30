@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "tilaa noin {count} lisää varten" },
 	"storageFull": { "message": "Täynnä — tallennus epäonnistuu, kunnes poistat merkintöjä." },
 	"storageImportTooLarge": { "message": "Tämä valinta ei enää mahdu. Poista valintoja tai tuo kerralla vähemmän." },
-	"storageAfterImport": { "message": "{percent} % käytetty tuonnin jälkeen" }
+	"storageAfterImport": { "message": "{percent} % käytetty tuonnin jälkeen" },
+	"importDoneTitle": { "message": "Tuotu" },
+	"importBadgeNew": { "message": "Uusi" }
 }

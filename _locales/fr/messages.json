@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "de la place pour environ {count} de plus" },
 	"storageFull": { "message": "Plein — l'enregistrement échoue tant que vous ne supprimez pas d'entrées." },
 	"storageImportTooLarge": { "message": "Cette sélection ne tient plus. Désélectionnez des entrées ou importez-en moins à la fois." },
-	"storageAfterImport": { "message": "{percent} % utilisé après l'importation" }
+	"storageAfterImport": { "message": "{percent} % utilisé après l'importation" },
+	"importDoneTitle": { "message": "Importé" },
+	"importBadgeNew": { "message": "Nouveau" }
 }

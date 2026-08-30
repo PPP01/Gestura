@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "hely még kb. {count} továbbihoz" },
 	"storageFull": { "message": "Megtelt — a mentés sikertelen, amíg nem távolítasz el bejegyzéseket." },
 	"storageImportTooLarge": { "message": "Ez a kijelölés már nem fér el. Szüntesd meg néhány bejegyzés kijelölését, vagy importálj kevesebbet egyszerre." },
-	"storageAfterImport": { "message": "{percent}% felhasználva importálás után" }
+	"storageAfterImport": { "message": "{percent}% felhasználva importálás után" },
+	"importDoneTitle": { "message": "Importálva" },
+	"importBadgeNew": { "message": "Új" }
 }

@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "may puwang para sa humigit-kumulang {count} pa" },
 	"storageFull": { "message": "Puno — mabibigo ang pag-save hangga't hindi mo inaalis ang mga entry." },
 	"storageImportTooLarge": { "message": "Hindi na kasya ang napiling ito. Alisin sa pagpili ang ilang entry o mag-import ng mas kaunti nang sabay-sabay." },
-	"storageAfterImport": { "message": "{percent}% nagamit pagkatapos mag-import" }
+	"storageAfterImport": { "message": "{percent}% nagamit pagkatapos mag-import" },
+	"importDoneTitle": { "message": "Na-import" },
+	"importBadgeNew": { "message": "Bago" }
 }

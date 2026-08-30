@@ -2910,5 +2910,7 @@
 	"storageRemaining": { "message": "место ещё примерно для {count}" },
 	"storageFull": { "message": "Заполнено — сохранение не работает, пока вы не удалите записи." },
 	"storageImportTooLarge": { "message": "Этот выбор больше не помещается. Снимите отметку с некоторых записей или импортируйте меньше за раз." },
-	"storageAfterImport": { "message": "После импорта использовано {percent}%" }
+	"storageAfterImport": { "message": "После импорта использовано {percent}%" },
+	"importDoneTitle": { "message": "Импортировано" },
+	"importBadgeNew": { "message": "Новое" }
 }
