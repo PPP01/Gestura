@@ -285,9 +285,16 @@ class OptionsPage extends LitElement {
 		this._boundMouseMove = (e) => this.#onDocumentMouseMove(e);
 		this._boundScroll = () => this.#updateHoveredSection();
 		this._boundNavigateSection = (e) => this.#onNavigateSection(e);
+		// Ein Import aus dem Menü-/Engine-Manager schreibt via settingsStore.save() direkt
+		// in #current, bevor chrome.storage.sync.set() feuert - handleExternalChange meldet
+		// dann keine Änderung (siehe #importSettings weiter unten). Die Speicherzeilen lesen
+		// zwar live aus settingsStore.current, aber ohne ein requestUpdate() hier würde ohne
+		// eine andere Nebenwirkung gar nicht neu gerendert.
+		this._boundCatalogChanged = () => this.requestUpdate();
 		window.addEventListener('beforeunload', this._boundBeforeUnload);
 		window.addEventListener('mousemove', this._boundMouseMove, { passive: true });
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
+		window.addEventListener('action-catalog-changed', this._boundCatalogChanged);
 		this.addEventListener('navigate-section', this._boundNavigateSection);
 		this.#init();
 		this.#checkPendingImport();
@@ -298,6 +305,7 @@ class OptionsPage extends LitElement {
 		window.removeEventListener('beforeunload', this._boundBeforeUnload);
 		window.removeEventListener('mousemove', this._boundMouseMove);
 		window.removeEventListener('scroll', this._boundScroll);
+		window.removeEventListener('action-catalog-changed', this._boundCatalogChanged);
 		this.removeEventListener('navigate-section', this._boundNavigateSection);
 	}
 
@@ -1283,8 +1291,16 @@ class OptionsPage extends LitElement {
 
 	// Der einzige Ort, an dem Bytes stehen: hier schaut jemand gezielt nach oder
 	// meldet ein Problem. Überall sonst genügt der Prozentwert.
+	//
+	// Bewusst aus settingsStore.current statt this._settings gelesen: settingsStore.save()
+	// (siehe #importSettings) aktualisiert #current, bevor chrome.storage.sync.set()
+	// feuert, also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
+	// auf altem Stand, bis ein Reload sie neu zieht. Ein Lesezugriff auf den Store selbst
+	// zeigt dagegen immer den aktuellen Wert; das erneute Rendern nach dem Import besorgt
+	// der 'action-catalog-changed'-Listener in connectedCallback().
 	#renderStorageRows(i18n) {
 		const S = window.FlowMouseStorageUsage;
+		const cur = this._store.current;
 		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
 		const total = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES) || 102400;
 		const branches = [
@@ -1294,7 +1310,7 @@ class OptionsPage extends LitElement {
 		];
 		let sum = 0;
 		const rows = branches.map(([key, label]) => {
-			const u = S.usageOf(key, this._settings[key], quota);
+			const u = S.usageOf(key, cur[key], quota);
 			sum += u.bytes;
 			return html`
 				<div class="setting-row">
