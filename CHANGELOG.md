@@ -30,6 +30,22 @@
   Inside a bundle the check follows the selection: the menu is importable while
   its engine is selected alongside it, and is dropped again if that engine is
   unticked.
+- **Menu entries are labelled, not described:** a website-menu row used to read
+  *Open custom URL (https://…)* — the action, not the entry. It now shows the
+  action as an icon, then the entry's name, then its target in muted text. Entries
+  from the built-in catalog finally show their translated name here too ("Inbox",
+  "Compose"), the same one the menu itself uses; until now the editor showed only
+  the action behind them. The same applies to the steps of an action chain.
+- **The name field is where you look for it:** renaming an entry meant finding a
+  180-pixel box wedged into the dialog's button row, labelled with the action name
+  as its placeholder — most people never found it. It now sits at the top of the
+  configuration panel like any other field, with the preset name as its greyed-out
+  placeholder, and stays reachable for actions that have no other options. Leaving
+  it empty keeps the preset name, so catalog entries still follow the UI language.
+- **A hint when the name promises a different site:** if an entry is named after a
+  domain but opens another one — `spiegel.de` pointing at `spon.de` — a small info
+  icon appears in the row and a note in the dialog. Nothing is blocked or refused;
+  names that are not domains ("Inbox") never trigger it.
 
 ### v2.7.0 (2026-08-29)
 
