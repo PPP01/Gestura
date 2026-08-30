@@ -37,13 +37,15 @@ Dieselbe Datei lässt sich beliebig oft importieren: „als neuen Eintrag hinzuf
 
 Wer schneller an die Wand will: `05-zu-gross.json` sprengt die Quote mit 9147 B **allein**, aus jedem Startzustand heraus.
 
-## Was heute passiert, wenn es nicht passt
+## Was passiert, wenn es nicht passt
 
-Die Speicheranzeige ist noch nicht gebaut. Bis dahin gilt: `settingsStore.save()` scheitert, der Dialog meldet *„Speichern fehlgeschlagen — die Menüdaten überschreiten das Sync-Speicherlimit"*, und seit dem Rückgängigmachen bei Fehlschlag bleibt der Zustand sauber — der Import ist dann schlicht nicht passiert.
+Unter beiden Listen steht eine Prozentzeile, ab 75 % hervorgehoben, ab 100 % als Fehler. Der Import-Dialog zeigt zusätzlich die Belegung, die **nach** dem Import bestünde, und sperrt den Knopf, sobald die Auswahl nicht mehr hineinpasst. Die Bytes stehen nur in *Einstellungen → Datenverwaltung*.
 
-## Belegung ablesen, solange es keine Anzeige gibt
+Kommt es trotzdem zum Schreibversuch, scheitert `settingsStore.save()`, der Dialog meldet *„Speichern fehlgeschlagen — die Menüdaten überschreiten das Sync-Speicherlimit"*, und der Zustand wird zurückgerollt — der Import ist dann schlicht nicht passiert.
 
-DevTools auf der **Optionsseite** öffnen (nicht auf einer Webseite) und einfügen:
+## Belegung gegenrechnen
+
+Die Anzeige soll dieselben Zahlen liefern wie eine Rechnung von Hand. DevTools auf der **Optionsseite** öffnen (nicht auf einer Webseite) und einfügen:
 
 ```js
 chrome.storage.sync.get(null, s => {
@@ -56,7 +58,7 @@ chrome.storage.sync.get(null, s => {
 });
 ```
 
-Das ist dieselbe Formel, die die geplante Anzeige nutzen wird — die Werte müssen später übereinstimmen.
+Das ist dieselbe Formel, die `js/storage-usage.js` nutzt — die Werte müssen mit der Anzeige übereinstimmen.
 
 ## Die beiden Abhängigkeits-Fälle
 

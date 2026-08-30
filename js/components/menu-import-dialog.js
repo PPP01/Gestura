@@ -1,6 +1,7 @@
 import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { settingsStore } from '../settings-store.js';
+import { usageOf } from '../storage-usage.js';
 
 const X = () => window.FlowMouseMenuExchange;
 const isFirefox = navigator.userAgent.includes('Firefox');
@@ -204,11 +205,9 @@ class MenuImportDialog extends LitElement {
 	// danach anzeigt. Bewusst NICHT der Anteil der Auswahl am freien Platz:
 	// derselbe Prozentwert soll an beiden Orten dasselbe bedeuten.
 	#projectedUsage(patch) {
-		const S = window.FlowMouseStorageUsage;
-		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
 		let worst = null;
 		for (const [key, value] of Object.entries(patch)) {
-			const u = S.usageOf(key, value, quota);
+			const u = usageOf(key, value);
 			// Nach Bytes vergleichen, nicht nach Prozent: usageOf() rundet unterhalb
 			// des Deckels auf höchstens 99, ein Bytevergleich hat diese Deckelung nicht
 			// und entscheidet bei einem Gleichstand nahe 100 % zuverlässig.
@@ -279,18 +278,20 @@ class MenuImportDialog extends LitElement {
 		// Defense in depth: der Button ist bereits gesperrt, aber ein Menü mit
 		// fehlender Engine darf auf keinem Weg in den Speicher.
 		if (r.type === 'menu' && this.#missingEngines(r.value, null).length) return;
-		const source = { ...this._source, version: r.value.version || '1.0.0' };
-		const lang = this.#lang();
-		const mode = this._catalogMatch ? this._importMode : 'new';
-		const matchId = this._catalogMatch ? this._catalogMatch.id : null;
-		const patch = r.type === 'menu'
-			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || emptySiteMenus(), r, source, lang, mode, matchId) }
-			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId).next };
+		// Denselben Weg wie das Bundle nehmen, mit einer Zeile statt vieler: der
+		// Einzel-Import hat nichts mitzubringen, worauf ein Menü zeigen könnte,
+		// also bleibt die ID-Zuordnung leer. Zwei eigene Zusammenbauten desselben
+		// Patches wären zwei Gelegenheiten, künftig auseinanderzulaufen.
+		const patch = this.#patchFor([{
+			result: r,
+			match: this._catalogMatch,
+			mode: this._catalogMatch ? this._importMode : 'new',
+		}]);
 		const u = this.#projectedUsage(patch);
 		// Einzel-Import: es gibt genau einen Eintrag und nichts zum Abwählen -
 		// storageImportTooLarge ("Auswahl verkleinern") passt hier nicht, storageFull
 		// ("Speichern schlägt fehl, bis du Einträge entfernst") beschreibt die Lage.
-		if (u && u.bytes > u.quota) { alert(window.i18n.getMessage('storageFull')); return; }
+		if (u.bytes > u.quota) { alert(window.i18n.getMessage('storageFull')); return; }
 		await this.#commitPatch(patch, { type: r.type });
 	}
 
@@ -335,7 +336,7 @@ class MenuImportDialog extends LitElement {
 	async #confirmBundle() {
 		const chosen = this.#bundleChosen;
 		const patch = this.#patchFor(chosen);
-		if (!chosen.length || this.#blockedFor(chosen, this.#projectedUsage(patch))) return;
+		if (this.#blockedFor(chosen, this.#projectedUsage(patch))) return;
 		const provided = this.#providedEngineIds();
 		if (chosen.some(r => r.result.type === 'menu' && this.#missingEngines(r.result.value, provided).length)) return;
 		await this.#commitPatch(patch, { count: chosen.length });
@@ -434,12 +435,6 @@ class MenuImportDialog extends LitElement {
 		}
 	}
 
-	#rowSelectable(row, provided) {
-		if (!row.result.ok) return false;
-		if (row.result.type !== 'menu') return true;
-		return !this.#missingEngines(row.result.value, provided).length;
-	}
-
 	// cascade=false, wenn der Aufrufer gleich selbst #dropDependentMenus() ruft -
 	// in einer Schleife über bis zu 200 Zeilen wäre das sonst quadratisch. Ein
 	// wieder angehaktes Engine zieht die zuvor abgeworfenen Menüs bewusst NICHT
@@ -465,14 +460,18 @@ class MenuImportDialog extends LitElement {
 				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 		}
 		const chosen = this.#bundleChosen;
-		const patch = chosen.length ? this.#patchFor(chosen) : null;
-		const projected = patch ? this.#projectedUsage(patch) : null;
+		const projected = this.#projectedUsage(this.#patchFor(chosen));
 		const blocked = this.#blockedFor(chosen, projected);
 		const provided = this.#providedEngineIds();
+		// Einmal je Render feststellen, welche Zeile auf eine Engine zeigt, die es
+		// nirgends gibt. Die Zahl in der Kopfzeile und jede einzelne Zeile stellen
+		// dieselbe Frage; getrennt beantwortet, könnten sie verschieden ausfallen.
+		const missingBy = new Map(rows.map(r => [r,
+			r.result.ok && r.result.type === 'menu' ? this.#missingEngines(r.result.value, provided) : []]));
 		// Auswählbar ist weniger als gültig: ein Menü mit fehlender Engine ist
 		// tadellos validiert und trotzdem gesperrt. Die Zahl bewegt sich mit, wenn
 		// der Nutzer eine Engine an- oder abwählt — das ist gewollt.
-		const valid = rows.filter(r => this.#rowSelectable(r, provided)).length;
+		const valid = rows.filter(r => r.result.ok && !missingBy.get(r).length).length;
 		const allOn = valid > 0 && chosen.length === valid;
 		return html`
 			<div class="bsum">
@@ -492,7 +491,7 @@ class MenuImportDialog extends LitElement {
 					<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
 				</label>
 			</div>
-			${rows.map(row => this.#renderBundleRow(row, i18n, lang, provided))}
+			${rows.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}
 			${blocked === 'script' ? html`<p class="bhint">${i18n.getMessage('exchangeBundleScriptPending')}</p>` : ''}
 			${blocked === 'storage' ? html`<p class="bhint notice">${i18n.getMessage('storageImportTooLarge')}</p>` : ''}
 			<div class="actions">
@@ -503,11 +502,10 @@ class MenuImportDialog extends LitElement {
 			</div>`;
 	}
 
-	#renderBundleRow(row, i18n, lang, provided) {
+	#renderBundleRow(row, i18n, lang, missing) {
 		const ok = row.result.ok;
 		const v = row.result.value;
-		const missing = ok && row.result.type === 'menu' ? this.#missingEngines(v, provided) : [];
-		const selectable = this.#rowSelectable(row, provided);
+		const selectable = ok && !missing.length;
 		const script = ok && row.result.type === 'engine' && X().hasTransform(v);
 		const firstLink = ok && row.result.type === 'menu' ? v.items.find(it => it.customUrl || it.url) : null;
 		const iconUrl = !ok ? null

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import '../js/storage-usage.js';
-const S = globalThis.FlowMouseStorageUsage;
+import * as S from '../js/storage-usage.js';
 
 describe('usageOf', () => {
 	it('zählt Schlüssel und Wert zusammen', () => {

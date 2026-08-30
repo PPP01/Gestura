@@ -828,7 +828,7 @@ class ActionSelect extends LitElement {
 
 	#renderNamedRow(detail) {
 		const name = displayName(this.value, this.config);
-		const mismatch = domainMismatch(this.value, this.config, name);
+		const mismatch = domainMismatch(this.value, this.config);
 		return html`
 			<span class="trigger-icon" .tooltip=${tooltip(actionName(this.value))}>
 				${unsafeHTML(icon(ACTION_ICONS[this.value] || 'minus', { size: 14 }))}

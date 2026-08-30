@@ -40,13 +40,13 @@ export function displayName(action, cfg) {
 // Ein Name in Domainform, der eine andere Domain nennt als das Ziel, ist einen
 // Hinweis wert — mehr nicht: erlaubt bleibt er. Zeile und Aktionsauswahl fragen
 // hier, damit der Rahmen der Zeile und das Symbol darin nicht auseinanderlaufen.
-export function domainMismatch(action, cfg, name = displayName(action, cfg)) {
+export function domainMismatch(action, cfg) {
 	if (action !== 'openCustomUrl') return null;
-	return window.FlowMouseMenuPatterns.nameUrlMismatch(name, cfg?.customUrl || '');
+	return window.FlowMouseMenuPatterns.nameUrlMismatch(displayName(action, cfg), cfg?.customUrl || '');
 }
 
 // Der Name des Menüs, dem `addSiteToMenu` die Seite hinzufügt.
-export function siteMenuName(menuId) {
+function siteMenuName(menuId) {
 	if (!menuId) return null;
 	const base = window.FlowMouseMenuModel.getBaseMenu(
 		window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, settingsStore.current.siteMenus, menuId);

@@ -4,6 +4,8 @@ import { icon } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
+import { renderStorageLine } from './storage-line.js';
+import { AVG_FALLBACK } from '../storage-usage.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -113,14 +115,6 @@ class SiteMenuManager extends LitElement {
 			.import-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
 			.import-url { flex: 1; min-width: 160px; font: inherit; font-size: 12px; padding: 5px 8px;
 				border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: inherit; }
-			.storage-line { font-size: 11.5px; color: var(--text-muted); }
-			/* Voll-Zustand (ab 100 %): eigene Optik statt des amber .notice, das
-			   ab 75 % läuft - der Fehler soll sich von der Hervorhebung abheben. */
-			.storage-full {
-				color: var(--danger-color);
-				background: color-mix(in srgb, var(--danger-color) 8%, transparent);
-				box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 40%, transparent);
-			}
 		`,
 	];
 
@@ -206,26 +200,9 @@ class SiteMenuManager extends LitElement {
 		`;
 	}
 
-	// Knapper Hinweis unter der Liste: Prozent und geschätzte Restanzahl. Bytes
-	// stehen bewusst nur in der Datenverwaltung - für die meisten Nutzer ist die
-	// Byte-Zahl keine brauchbare Größe. Unauffällig, solange Platz ist.
 	#renderStorageLine(i18n) {
-		const S = window.FlowMouseStorageUsage;
-		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
 		const cur = settingsStore.current.siteMenus || {};
-		const u = S.usageOf('siteMenus', cur, quota);
-		if (u.percent >= 100) {
-			return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}</div>`;
-		}
-		const left = S.remainingEntries(u.quota - u.bytes, Object.values(cur.custom || {}), S.AVG_FALLBACK.menu);
-		// Bei 0 passt kein weiterer Eintrag mehr - "noch etwa 0 Menüs" wäre nur
-		// verwirrend, deshalb entfällt die Restanzahl dann.
-		const text = left > 0
-			? i18n.getMessage('storageUsed').replace('{percent}', u.percent) + ' · ' + i18n.getMessage('storageRemaining').replace('{count}', left)
-			: i18n.getMessage('storageUsed').replace('{percent}', u.percent);
-		return u.percent >= 75
-			? html`<div class="notice">${text}</div>`
-			: html`<div class="storage-line">${text}</div>`;
+		return renderStorageLine(i18n, 'siteMenus', cur, Object.values(cur.custom || {}), AVG_FALLBACK.menu);
 	}
 
 	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }

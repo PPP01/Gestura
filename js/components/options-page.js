@@ -3,6 +3,7 @@ import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
+import { usageOf, entryBytes, percentOf, TOTAL_QUOTA } from '../storage-usage.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -1299,17 +1300,14 @@ class OptionsPage extends LitElement {
 	// zeigt dagegen immer den aktuellen Wert; das erneute Rendern nach dem Import besorgt
 	// der 'action-catalog-changed'-Listener in connectedCallback().
 	#renderStorageRows(i18n) {
-		const S = window.FlowMouseStorageUsage;
 		const cur = this._store.current;
-		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
-		const total = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES) || 102400;
 		const branches = [
 			['siteMenus', i18n.getMessage('siteMenusTitle')],
 			['searchEngines', i18n.getMessage('sectionSearchEngines')],
 			['mouseGestures', i18n.getMessage('basicSettings')],
 		];
 		const rows = branches.map(([key, label]) => {
-			const u = S.usageOf(key, cur[key], quota);
+			const u = usageOf(key, cur[key]);
 			return html`
 				<div class="setting-row">
 					<div class="setting-label"><span>${label}</span></div>
@@ -1326,15 +1324,15 @@ class OptionsPage extends LitElement {
 		// drei wachsenden Zweige.
 		let sum = 0;
 		for (const [key, value] of Object.entries(cur)) {
-			sum += S.usageOf(key, value, quota).bytes;
+			sum += entryBytes(key, value);
 		}
-		const totalPercent = Math.round((100 * sum) / total);
+		const totalPercent = percentOf(sum, TOTAL_QUOTA);
 		return html`
 			<div class="setting-row">
 				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
 				<span class="storage-value">
 					${i18n.getMessage('storageDetail')
-						.replace('{used}', sum).replace('{total}', total).replace('{percent}', totalPercent)}
+						.replace('{used}', sum).replace('{total}', TOTAL_QUOTA).replace('{percent}', totalPercent)}
 				</span>
 			</div>
 			${rows}`;

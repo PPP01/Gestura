@@ -115,11 +115,6 @@ class SiteMenuEditor extends LitElement {
 		return `item_${crypto.randomUUID().replace(/-/g, '').slice(0, 10)}`;
 	}
 
-	#resolvedLabel(item) {
-		if (item.type === 'separator') return '';
-		return displayName(item.action, item);
-	}
-
 	render() {
 		const i18n = window.i18n;
 		const rows = this.rows || [];
@@ -247,10 +242,10 @@ class SiteMenuEditor extends LitElement {
 				</div>
 			`;
 		}
-		const label = this.#resolvedLabel(item);
+		const label = displayName(item.action, item);
 		// Der Rahmen der ganzen Zeile trägt den Hinweis mit — das Symbol allein
 		// ist im hellen Thema leicht zu übersehen.
-		const hinted = !!domainMismatch(item.action, item, label);
+		const hinted = !!domainMismatch(item.action, item);
 		return html`
 			<div class="item-row ${hinted ? 'hinted' : ''}" @dragover=${(e) => this.#onItemDragOver(e, idx)}>
 				${grip}
@@ -291,7 +286,7 @@ class SiteMenuEditor extends LitElement {
 				${this._showHidden ? this.hiddenItems.map(item => html`
 					<div class="item-row hidden-row">
 						<span class="item-action" style="font-size:12px; padding:4px 2px;">
-							${item.type === 'separator' ? html`<span class="separator-line"></span>` : this.#resolvedLabel(item)}
+							${item.type === 'separator' ? html`<span class="separator-line"></span>` : displayName(item.action, item)}
 						</span>
 						<div class="item-buttons">
 							<button class="item-btn" @click=${() => this.#emit('item-restore', { itemId: item.id })}
