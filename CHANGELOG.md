@@ -9,6 +9,17 @@
 
 **New Features:**
 
+- **Imports report back:** after the import dialog closes, the manager shows what
+  arrived, jumps to the first new entry and marks it with a "New" badge that pulses
+  once when it scrolls into view. The marking lives in `sessionStorage` — it
+  survives a reload of the options page, ends with the tab, and costs none of the
+  scarce sync quota.
+- **The handing-over page learns the outcome:** a page that used the inline hand-off
+  now hears a `gestura:import-result` event carrying `status` (`imported` /
+  `cancelled` / `failed`) and the counts, so it can close its own export window
+  instead of waiting. The event can legitimately fail to arrive (tab closed,
+  navigated away), so a page must keep its own timeout — see
+  `docs/index-import-rueckmeldung.md`.
 - **Import several menus and engines at once:** the import dialog understands a
   `gesturaBundle` wrapper. Every entry is validated on its own and listed with its
   own checkbox, its own "replace the standard entry / add as new" choice and, for
@@ -23,6 +34,10 @@
 
 **Fixes & Improvements:**
 
+- **Imported menus landed above the whole built-in catalog.** `siteMenus.order` is a
+  precedence list, not a full ordering, and the import wrote the new id into it. New
+  menus now appear at the end of the list, like imported search engines and
+  hand-made entries already did.
 - **A menu can no longer be imported without the search engine it needs:** a menu
   item may point at an engine by id, and until now an id the user did not have
   simply vanished from the finished menu — no error, no gap, the entry was just

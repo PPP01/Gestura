@@ -1,5 +1,9 @@
 # Bericht an das gestura-index-Team
 
+> **Nachtrag:** Der Übergabe-Vertrag hat seit diesem Bericht ein Gegenstück bekommen —
+> die Erweiterung meldet der Seite, was aus dem Import geworden ist. Siehe
+> [index-import-rueckmeldung.md](index-import-rueckmeldung.md).
+
 **Stand: 30. August 2026** · Absender: Gestura-Extension-Repo (`main`-Linie)
 
 Dieser Bericht fasst zusammen, was in der Extension für die Live-Übergabe

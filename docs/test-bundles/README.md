@@ -70,6 +70,24 @@ Zusatzprobe: im Bundle die **Engine abwählen**. Das Menü muss sich daraufhin m
 
 **`07-menue-ohne-engine.json`** — Einzel-Menü, das auf `com.example.gibtesnicht` zeigt. Erwartet: Vorschau erscheint, Import-Button ist **gesperrt**, und die Meldung nennt die fehlende Engine.
 
+## Nach dem Import
+
+Diese drei gehören zu jedem Import oben mitgeprüft, nicht als eigener Durchgang:
+
+1. **Meldung.** Über der Liste steht zehn Sekunden lang *„Importiert — Website-Menüs: 2 · Suchmaschinen: 1"*. Die Zahlen müssen zur Auswahl passen, auch wenn du im Bundle Zeilen abgewählt hast.
+2. **Reihenfolge.** Das neue Menü steht **unten**, nicht über dem Katalog. Bei mehreren Importen in der Reihenfolge, in der sie kamen.
+3. **Markierung.** Der Manager springt zum ersten neuen Eintrag, die Zeile pulst einmal und trägt ein *Neu*-Abzeichen. Seite neu laden: das Abzeichen ist noch da, die Meldung nicht. Eintrag zum Bearbeiten öffnen: das Abzeichen verschwindet. Tab schließen und neu öffnen: alles weg.
+
+## Rückmeldung an die Seite
+
+Nur für den Inline-Weg. Die Testseite aus Punkt 7 der Prüfliste um einen Empfänger ergänzen:
+
+```js
+document.addEventListener('gestura:import-result', (e) => console.log(JSON.parse(e.detail)));
+```
+
+Erwartet: nach dem Import `{status:'imported', menus:3, engines:0}`, nach *Abbrechen* `{status:'cancelled', menus:0, engines:0}`. Bei einem Import über *Aus Datei importieren…* darf **nichts** kommen — dort gibt es keine Seite, die wartet.
+
 ## Aufräumen
 
 Die angelegten Menüs heißen *Klein*, *Mittel*, *Groß*, *Alpha*, *Beta*, *Gamma*, *Zu viel*, *Mit eigener Suche* und lassen sich im Menü-Manager einzeln löschen. Wer alles auf einmal loswerden will, in der DevTools-Konsole der Optionsseite:
