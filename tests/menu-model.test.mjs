@@ -499,3 +499,36 @@ describe('itemOpenConfig — Präzedenz Link → Menü → global', () => {
 		expect(M.itemOpenConfig(it_, '', 'standardReverse', 0)).toEqual({ position: 'current', active: true });
 	});
 });
+
+describe('nameUrlMismatch', () => {
+	it('returns null when the name is not domain-shaped', () => {
+		expect(M.nameUrlMismatch('Posteingang', 'https://mail.google.com/mail/u/0/#inbox')).toBe(null);
+	});
+	it('returns null when name and host are the same domain', () => {
+		expect(M.nameUrlMismatch('Spiegel.de', 'https://spiegel.de/')).toBe(null);
+	});
+	it('ignores a www prefix on either side', () => {
+		expect(M.nameUrlMismatch('Spiegel.de', 'https://www.spiegel.de/')).toBe(null);
+		expect(M.nameUrlMismatch('www.spiegel.de', 'https://spiegel.de/')).toBe(null);
+	});
+	it('accepts a subdomain of the named domain', () => {
+		expect(M.nameUrlMismatch('Spiegel.de', 'https://magazin.spiegel.de/')).toBe(null);
+	});
+	it('reports both domains when they differ', () => {
+		expect(M.nameUrlMismatch('Spiegel.de', 'https://spon.de')).toEqual({ name: 'spiegel.de', url: 'spon.de' });
+		expect(M.nameUrlMismatch('amazon.de', 'https://alibaba.cn/x')).toEqual({ name: 'amazon.de', url: 'alibaba.cn' });
+	});
+	it('strips a scheme and path the user typed into the name', () => {
+		expect(M.nameUrlMismatch('https://amazon.de/gp', 'https://alibaba.cn')).toEqual({ name: 'amazon.de', url: 'alibaba.cn' });
+	});
+	it('returns null for a multi-word name that merely contains a dot', () => {
+		expect(M.nameUrlMismatch('Spiegel.de lesen', 'https://spon.de')).toBe(null);
+	});
+	it('returns null when the last label is not alphabetic', () => {
+		expect(M.nameUrlMismatch('192.168.1.1', 'https://spon.de')).toBe(null);
+	});
+	it('returns null for an unparseable or placeholder url', () => {
+		expect(M.nameUrlMismatch('amazon.de', '')).toBe(null);
+		expect(M.nameUrlMismatch('amazon.de', 'https://www.{domain}/cart')).toBe(null);
+	});
+})
