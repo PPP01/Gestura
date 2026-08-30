@@ -203,13 +203,13 @@ class MenuImportDialog extends LitElement {
 	// Reine Transformation: nimmt den aktuellen siteMenus-Zustand und gibt den
 	// nächsten zurück, ohne zu speichern. Einzel- und Sammel-Import gehen beide
 	// hierdurch, damit sie garantiert dasselbe schreiben.
-	#applyMenu(cur, result, source, lang, mode, matchId) {
+	#applyMenu(cur, result, source, lang, mode, matchId, engineIdMap) {
 		if (mode === 'replace' && matchId) {
 			// Standard-Menü ersetzen → verhält sich wie ein bearbeitetes Katalog-Menü.
-			const def = X().toStandardMenu(result.value, lang);
+			const def = X().toStandardMenu(result.value, lang, engineIdMap);
 			return { ...cur, edited: { ...cur.edited, [matchId]: def } };
 		}
-		const { id, def } = X().toCustomMenu(result.value, source, undefined, lang);
+		const { id, def } = X().toCustomMenu(result.value, source, undefined, lang, engineIdMap);
 		return { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
 	}
 
@@ -223,10 +223,10 @@ class MenuImportDialog extends LitElement {
 		};
 		if (mode === 'replace' && matchId) {
 			const ov = strip(X().toEngineOverride(result.value, lang));
-			return { ...cur, overrides: { ...cur.overrides, [matchId]: ov } };
+			return { next: { ...cur, overrides: { ...cur.overrides, [matchId]: ov } }, id: matchId };
 		}
 		const engine = strip(X().toCustomEngine(result.value, source, undefined, lang));
-		return { ...cur, custom: [...(cur.custom || []), engine] };
+		return { next: { ...cur, custom: [...(cur.custom || []), engine] }, id: engine.id };
 	}
 
 	// Gemeinsamer Abschluss beider Import-Wege: speichern, Fehler melden,
@@ -259,7 +259,7 @@ class MenuImportDialog extends LitElement {
 		const matchId = this._catalogMatch ? this._catalogMatch.id : null;
 		const patch = r.type === 'menu'
 			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || emptySiteMenus(), r, source, lang, mode, matchId) }
-			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId) };
+			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId).next };
 		await this.#commitPatch(patch, { type: r.type });
 	}
 
@@ -276,16 +276,25 @@ class MenuImportDialog extends LitElement {
 		let engines = settingsStore.current.searchEngines || emptyEngines();
 		let touchedMenus = false;
 		let touchedEngines = false;
+		const src = (row) => ({ ...this._source, version: row.result.value.version || '1.0.0' });
+		const mid = (row) => (row.match ? row.match.id : null);
+
+		// Engines zuerst, und zwar in einem eigenen Durchgang: toCustomEngine vergibt
+		// eine neue ID, die von der im Bundle abweicht. Erst wenn alle gespeicherten
+		// IDs feststehen, lassen sich die Menü-Verweise darauf umbiegen - sonst zeigt
+		// ein mitimportiertes Menü ins Leere und sein Eintrag verschwindet still.
+		const engineIdMap = {};
 		for (const row of chosen) {
-			const source = { ...this._source, version: row.result.value.version || '1.0.0' };
-			const matchId = row.match ? row.match.id : null;
-			if (row.result.type === 'menu') {
-				siteMenus = this.#applyMenu(siteMenus, row.result, source, lang, row.mode, matchId);
-				touchedMenus = true;
-			} else {
-				engines = this.#applyEngine(engines, row.result, source, lang, row.mode, matchId);
-				touchedEngines = true;
-			}
+			if (row.result.type !== 'engine') continue;
+			const applied = this.#applyEngine(engines, row.result, src(row), lang, row.mode, mid(row));
+			engines = applied.next;
+			engineIdMap[row.result.value.id] = applied.id;
+			touchedEngines = true;
+		}
+		for (const row of chosen) {
+			if (row.result.type !== 'menu') continue;
+			siteMenus = this.#applyMenu(siteMenus, row.result, src(row), lang, row.mode, mid(row), engineIdMap);
+			touchedMenus = true;
 		}
 		const patch = {};
 		if (touchedMenus) patch.siteMenus = siteMenus;
@@ -351,6 +360,7 @@ class MenuImportDialog extends LitElement {
 		const catalog = (window.FlowMouseEngineCatalogApi && window.FlowMouseEngineCatalogApi.ENGINE_CATALOG) || [];
 		const se = settingsStore.current.searchEngines || emptyEngines();
 		const reg = window.FlowMouseEngineRegistry;
+		if (!reg) return ids;   // ohne Registry lässt sich nichts auflösen: im Zweifel sperren
 		return ids.filter(id => !(provided && provided.has(id)) && !reg.getEngineById(catalog, se, id));
 	}
 
@@ -381,10 +391,14 @@ class MenuImportDialog extends LitElement {
 		return !this.#missingEngines(row.result.value, provided).length;
 	}
 
-	#selectRow(row, selected) {
+	// cascade=false, wenn der Aufrufer gleich selbst #dropDependentMenus() ruft -
+	// in einer Schleife über bis zu 200 Zeilen wäre das sonst quadratisch. Ein
+	// wieder angehaktes Engine zieht die zuvor abgeworfenen Menüs bewusst NICHT
+	// zurück: was der Nutzer abgewählt bekam, wählt er selbst wieder an.
+	#selectRow(row, selected, cascade = true) {
 		row.selected = selected;
 		if (selected && this.#rowNeedsAck(row)) row.expanded = true;
-		if (!selected && row.result.ok && row.result.type === 'engine') this.#dropDependentMenus();
+		if (cascade && !selected && row.result.ok && row.result.type === 'engine') this.#dropDependentMenus();
 	}
 
 	#renderBundle(i18n) {
@@ -408,7 +422,7 @@ class MenuImportDialog extends LitElement {
 		// tadellos validiert und trotzdem gesperrt. Die Zahl bewegt sich mit, wenn
 		// der Nutzer eine Engine an- oder abwählt — das ist gewollt.
 		const valid = rows.filter(r => this.#rowSelectable(r, provided)).length;
-		const allOn = chosen.length === valid;
+		const allOn = valid > 0 && chosen.length === valid;
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
@@ -419,7 +433,7 @@ class MenuImportDialog extends LitElement {
 							// Erst alles setzen, dann die Abhängigkeiten prüfen: beim Anhaken
 							// wird eine Engine erst im Lauf der Schleife verfügbar, die Reihenfolge
 							// der Zeilen darf darüber nicht entscheiden.
-							for (const r of rows) { if (r.result.ok) this.#selectRow(r, e.target.checked); }
+							for (const r of rows) { if (r.result.ok) this.#selectRow(r, e.target.checked, false); }
 							this.#dropDependentMenus();
 							this.requestUpdate();
 						}}>

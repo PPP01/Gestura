@@ -185,24 +185,28 @@
 	// Map one format item to a runtime menu item. idFn(it) decides the item id
 	// (fresh for a new custom menu, or the file's own id when replacing a
 	// standard menu). Labels collapse to the runtime `customName` string.
-	function mapImportItem(it, idFn, lg) {
+	function mapImportItem(it, idFn, lg, engineIdMap) {
 		if (it.type === 'separator') return { id: idFn(it), type: 'separator' };
 		const out = { id: idFn(it), action: it.action };
 		const nm = pickLabel(it.label, lg); if (nm) out.customName = nm;
 		if (it.icon != null) out.icon = it.icon;
 		if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
 		if (it.action === 'searchLink') {
-			if (it.engineId) out.engineId = it.engineId;
+			// Eine mitimportierte Engine wird unter einer anderen ID gespeichert als
+			// der, die im Austauschformat steht. engineIdMap biegt den Verweis darauf
+			// um - ohne das zeigt das Menü nach dem Import ins Leere und der Eintrag
+			// verschwindet stillschweigend aus dem fertigen Menü.
+			if (it.engineId) out.engineId = (engineIdMap && engineIdMap[it.engineId]) || it.engineId;
 			if (it.url) out.url = it.url;
 		}
 		return out;
 	}
 
-	function toCustomMenu(menuValue, source, genId, lang) {
+	function toCustomMenu(menuValue, source, genId, lang, engineIdMap) {
 		const lg = lang || 'en';
 		const g = genId || newId;
 		const menuId = g('menu');   // generate the menu id before item ids (stable order)
-		const items = (menuValue.items || []).map(it => mapImportItem(it, () => g('item'), lg));
+		const items = (menuValue.items || []).map(it => mapImportItem(it, () => g('item'), lg, engineIdMap));
 		const def = {
 			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',
@@ -216,9 +220,9 @@
 	// Build the "edited copy" def used to REPLACE a standard (catalog) menu.
 	// Keeps the file's own item ids so the result aligns with the catalog entry
 	// it overrides (stored at siteMenus.edited[catalogId]).
-	function toStandardMenu(menuValue, lang) {
+	function toStandardMenu(menuValue, lang, engineIdMap) {
 		const lg = lang || 'en';
-		const items = (menuValue.items || []).map(it => mapImportItem(it, (x) => x.id, lg));
+		const items = (menuValue.items || []).map(it => mapImportItem(it, (x) => x.id, lg, engineIdMap));
 		return {
 			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',

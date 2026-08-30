@@ -53,3 +53,45 @@ describe('menuEngineIds', () => {
 		expect(X.menuEngineIds(engine)).toEqual([]);
 	});
 });
+
+// Eine eigene Engine bekommt beim Import eine frisch vergebene ID; das Menü im
+// selben Bundle zeigt aber noch auf die ID aus der Datei. Ohne Umschreiben liefe
+// der Verweis nach dem Import ins Leere — genau der Fehler, den die Prüfung
+// eigentlich verhindern soll.
+describe('engineId-Umschreibung beim Import', () => {
+	const menu = (engineId) => ({
+		gesturaMenu: 1, id: 'com.example.m', version: '1.0.0', name: { en: 'M' },
+		items: [
+			{ id: 'a', label: { en: 'A' }, action: 'searchLink', engineId },
+			{ id: 'b', label: { en: 'B' }, action: 'openCustomUrl', customUrl: 'https://example.com/b' },
+		],
+	});
+	const source = { type: 'site', url: 'https://x.tld', version: '1.0.0' };
+
+	it('biegt toCustomMenu auf die gespeicherte Engine-ID um', () => {
+		const { def } = X.toCustomMenu(menu('com.example.foo'), source, undefined, 'en', { 'com.example.foo': 'eng_abc123' });
+		expect(def.items[0].engineId).toBe('eng_abc123');
+	});
+
+	it('biegt toStandardMenu genauso um', () => {
+		const def = X.toStandardMenu(menu('com.example.foo'), 'en', { 'com.example.foo': 'eng_abc123' });
+		expect(def.items[0].engineId).toBe('eng_abc123');
+	});
+
+	it('lässt eine ID unangetastet, für die es keine Zuordnung gibt', () => {
+		const { def } = X.toCustomMenu(menu('google'), source, undefined, 'en', { 'com.example.foo': 'eng_abc123' });
+		expect(def.items[0].engineId).toBe('google');
+	});
+
+	it('ändert ohne Zuordnung nichts (Verhalten des Einzel-Imports)', () => {
+		const { def } = X.toCustomMenu(menu('google'), source, undefined, 'en');
+		expect(def.items[0].engineId).toBe('google');
+		expect(X.toStandardMenu(menu('google'), 'en').items[0].engineId).toBe('google');
+	});
+
+	it('rührt Einträge ohne engineId nicht an', () => {
+		const { def } = X.toCustomMenu(menu('com.example.foo'), source, undefined, 'en', { 'com.example.foo': 'eng_abc123' });
+		expect(def.items[1].engineId).toBeUndefined();
+		expect(def.items[1].customUrl).toBe('https://example.com/b');
+	});
+});
