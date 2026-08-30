@@ -478,7 +478,8 @@ class MenuImportDialog extends LitElement {
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
-				<span class="bstorage">${projected ? i18n.getMessage('storageAfterImport').replace('{percent}', projected.percent) : ''}</span>
+				<span class="bstorage">${projected && projected.percent < 75
+					? i18n.getMessage('storageAfterImport').replace('{percent}', projected.percent) : ''}</span>
 				<span class="spacer"></span>
 				<label class="mode-opt">
 					<input type="checkbox" .checked=${allOn}
@@ -495,13 +496,26 @@ class MenuImportDialog extends LitElement {
 			</div>
 			${rows.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}
 			${blocked === 'script' ? html`<p class="bhint">${i18n.getMessage('exchangeBundleScriptPending')}</p>` : ''}
-			${blocked === 'storage' ? html`<p class="bhint notice">${i18n.getMessage('storageImportTooLarge')}</p>` : ''}
+			${this.#renderStorageHint(i18n, blocked, projected)}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${!!blocked} @click=${() => this.#confirmBundle()}>
 					${i18n.getMessage('exchangeBundleImport').replace('{count}', chosen.length)}
 				</button>
 			</div>`;
+	}
+
+	// Die Belegung steht auch oben in der Kopfzeile - bei einer langen Liste scrollt
+	// die aber aus dem Bild, und dann fehlt die Zahl genau dort, wo entschieden wird.
+	// Ab 75 % steht sie deshalb zusätzlich unten, direkt über dem Knopf. Dieselbe
+	// Schwelle wie unter den Listen im Menü- und Engine-Manager: ab wann es eng
+	// wird, soll überall dasselbe heißen.
+	#renderStorageHint(i18n, blocked, projected) {
+		if (!projected || projected.percent < 75) return '';
+		const after = i18n.getMessage('storageAfterImport').replace('{percent}', projected.percent);
+		return blocked === 'storage'
+			? html`<p class="bhint notice">${i18n.getMessage('storageImportTooLarge')} · ${after}</p>`
+			: html`<p class="bhint notice">${after}</p>`;
 	}
 
 	#renderBundleRow(row, i18n, lang, missing) {

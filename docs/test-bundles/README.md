@@ -70,6 +70,12 @@ Zusatzprobe: im Bundle die **Engine abwählen**. Das Menü muss sich daraufhin m
 
 **`07-menue-ohne-engine.json`** — Einzel-Menü, das auf `com.example.gibtesnicht` zeigt. Erwartet: Vorschau erscheint, Import-Button ist **gesperrt**, und die Meldung nennt die fehlende Engine.
 
+## Die Prozentzahl im Bundle-Dialog
+
+Sie steht an genau einem Ort, und der wechselt bei 75 %: darunter in der Kopfzeile, darüber unten über dem Import-Knopf. Grund ist die lange Liste - bei 16 Menüs ist die Kopfzeile aus dem Bild gescrollt, und dort wird nicht entschieden.
+
+Zu prüfen: mit einem großen Bundle so viele Zeilen anhaken, dass die Anzeige von oben nach unten springt. Ist der Import gesperrt, steht die Zahl hinter der Begründung in derselben orangen Zeile.
+
 ## Nach dem Import
 
 Diese drei gehören zu jedem Import oben mitgeprüft, nicht als eigener Durchgang:
