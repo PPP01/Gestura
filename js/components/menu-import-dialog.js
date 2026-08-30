@@ -247,13 +247,17 @@ class MenuImportDialog extends LitElement {
 	// Gemeinsamer Abschluss beider Import-Wege: speichern, Fehler melden,
 	// Katalog-Neuaufbau anstoßen, Dialog schließen.
 	//
-	// Die Sync-Quote (8 KB je Item, und beide Zweige sind je EIN Item) prüft
-	// chrome.storage.sync selbst: reicht der Platz nicht, lehnt set() ab,
-	// settingsStore.save() nimmt seinen Zustand zurück und liefert false, und
-	// der Nutzer sieht dieselbe Meldung. Eine eigene Vorab-Rechnung hier wäre
-	// eine zweite Kopie der Quoten-Regel, die von der echten Buchführung des
-	// Browsers abweichen kann - die Bundle-Limits (200 Einträge, 1 MB) sind
-	// ohnehin der Transport-Vertrag mit dem Index-Backend, nicht diese Grenze.
+	// Die eigentliche Absage sitzt vorgelagert in #blockedFor()/#confirm(): die
+	// Auswahl soll scheitern, bevor der Nutzer sich für sie entschieden hat, nicht
+	// erst nach einem fehlgeschlagenen Schreibversuch. settingsStore.save() hier
+	// bleibt trotzdem die zweite Instanz, kein toter Rest: die Vorausrechnung
+	// sieht nur die Größe des einzelnen Branches, nicht das QUOTA_BYTES-Budget
+	// über alle Einstellungs-Keys hinweg, und nicht ein gleichzeitiges Schreiben
+	// von einem anderen Gerät, das zwischen Vorausrechnung und save() landet.
+	// Schlägt set() aus einem dieser Gründe fehl, nimmt settingsStore.save()
+	// seinen Zustand zurück, liefert false, und der Nutzer sieht dieselbe Meldung.
+	// Die Bundle-Limits (200 Einträge, 1 MB) sind ohnehin der Transport-Vertrag
+	// mit dem Index-Backend, eine andere Grenze als diese.
 	async #commitPatch(patch, detail) {
 		const ok = await settingsStore.save(patch);
 		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
