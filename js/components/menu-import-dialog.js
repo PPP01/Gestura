@@ -62,6 +62,7 @@ class MenuImportDialog extends LitElement {
 		.bsum { font-size: 12px; color: var(--text-muted); margin: 0 0 10px; display: flex;
 			align-items: center; gap: 10px; }
 		.bsum .spacer { flex: 1 1 auto; }
+		.bstorage { font-size: 11.5px; color: var(--text-muted); }
 		.brow { padding: 8px 0; }
 		.brow + .brow { border-top: 1px solid var(--border-color); }
 		.bhead { display: flex; align-items: center; gap: 8px; font-size: 13px; }
@@ -195,6 +196,20 @@ class MenuImportDialog extends LitElement {
 
 	#lang() { try { return (window.i18n.getCurrentLanguage() || 'en').split('_')[0]; } catch { return 'en'; } }
 
+	// Belegung, die nach dem Import bestünde - dieselbe Zahl, die der Manager
+	// danach anzeigt. Bewusst NICHT der Anteil der Auswahl am freien Platz:
+	// derselbe Prozentwert soll an beiden Orten dasselbe bedeuten.
+	#projectedUsage(patch) {
+		const S = window.FlowMouseStorageUsage;
+		const quota = (chrome.storage.sync && chrome.storage.sync.QUOTA_BYTES_PER_ITEM) || 8192;
+		let worst = null;
+		for (const [key, value] of Object.entries(patch)) {
+			const u = S.usageOf(key, value, quota);
+			if (!worst || u.percent > worst.percent) worst = u;
+		}
+		return worst;
+	}
+
 	get #needsScriptAck() {
 		const r = this._result;
 		return !!(r && r.ok && r.type === 'engine' && X().hasTransform(r.value));
@@ -260,17 +275,15 @@ class MenuImportDialog extends LitElement {
 		const patch = r.type === 'menu'
 			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || emptySiteMenus(), r, source, lang, mode, matchId) }
 			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId).next };
+		const u = this.#projectedUsage(patch);
+		if (u && u.bytes > u.quota) { alert(window.i18n.getMessage('storageImportTooLarge')); return; }
 		await this.#commitPatch(patch, { type: r.type });
 	}
 
-	// Schreibt alle gewählten Einträge in EINEM settingsStore.save(). Nicht je
-	// Eintrag speichern: das wären n Sync-Schreibzugriffe und n Gelegenheiten
-	// für einen Sync-Konflikt.
-	async #confirmBundle() {
-		const chosen = this.#bundleChosen;
-		if (!chosen.length || this.#blockedFor(chosen)) return;
-		const provided = this.#providedEngineIds();
-		if (chosen.some(r => r.result.type === 'menu' && this.#missingEngines(r.result.value, provided).length)) return;
+	// Baut den Patch, den ein Import der gewählten Zeilen schreiben würde.
+	// Rein - schreibt nichts. Von #confirmBundle() und von der Vorschau genutzt,
+	// damit die angezeigte Belegung und die tatsächliche nie auseinanderlaufen.
+	#patchFor(chosen) {
 		const lang = this.#lang();
 		let siteMenus = settingsStore.current.siteMenus || emptySiteMenus();
 		let engines = settingsStore.current.searchEngines || emptyEngines();
@@ -299,6 +312,18 @@ class MenuImportDialog extends LitElement {
 		const patch = {};
 		if (touchedMenus) patch.siteMenus = siteMenus;
 		if (touchedEngines) patch.searchEngines = engines;
+		return patch;
+	}
+
+	// Schreibt alle gewählten Einträge in EINEM settingsStore.save(). Nicht je
+	// Eintrag speichern: das wären n Sync-Schreibzugriffe und n Gelegenheiten
+	// für einen Sync-Konflikt.
+	async #confirmBundle() {
+		const chosen = this.#bundleChosen;
+		const patch = this.#patchFor(chosen);
+		if (!chosen.length || this.#blockedFor(chosen, this.#projectedUsage(patch))) return;
+		const provided = this.#providedEngineIds();
+		if (chosen.some(r => r.result.type === 'menu' && this.#missingEngines(r.result.value, provided).length)) return;
 		await this.#commitPatch(patch, { count: chosen.length });
 	}
 
@@ -322,13 +347,23 @@ class MenuImportDialog extends LitElement {
 	get #bundleChosen() { return this.#bundleRows.filter(r => r.selected && r.result.ok); }
 
 	// null = importierbar, 'empty' = nichts gewählt, 'script' = eine gewählte
-	// Zeile führt ein Skript aus und ist noch nicht bestätigt. Nimmt die
+	// Zeile führt ein Skript aus und ist noch nicht bestätigt, 'storage' = die
+	// Auswahl passt nach dem Import nicht mehr in den Speicher. Nimmt die
 	// gewählten Zeilen entgegen, statt sie selbst zu filtern: ein Render-Durchgang
 	// braucht sie ohnehin und würde sonst bis zu 200 Zeilen mehrfach durchlaufen.
-	#blockedFor(chosen) {
+	//
+	// `projected` kommt vom Aufrufer, statt hier selbst gerechnet zu werden:
+	// #patchFor() baut den kompletten nächsten Einstellungszustand, und ein
+	// Render-Durchgang braucht ihn ohnehin für die Anzeige. Selbst rechnen hieße,
+	// ihn bei bis zu 200 Zeilen zweimal je Render zu bauen.
+	#blockedFor(chosen, projected) {
 		if (!chosen.length) return 'empty';
 		const pending = chosen.some(r => r.result.type === 'engine' && X().hasTransform(r.result.value) && !r.scriptAck);
-		return pending ? 'script' : null;
+		if (pending) return 'script';
+		// Passt die Auswahl nicht mehr in den Speicher, ist das kein Fehler beim
+		// Schreiben mehr, sondern eine Entscheidung davor.
+		if (projected && projected.bytes > projected.quota) return 'storage';
+		return null;
 	}
 
 	#rowName(row, lang) {
@@ -416,7 +451,9 @@ class MenuImportDialog extends LitElement {
 				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 		}
 		const chosen = this.#bundleChosen;
-		const blocked = this.#blockedFor(chosen);
+		const patch = chosen.length ? this.#patchFor(chosen) : null;
+		const projected = patch ? this.#projectedUsage(patch) : null;
+		const blocked = this.#blockedFor(chosen, projected);
 		const provided = this.#providedEngineIds();
 		// Auswählbar ist weniger als gültig: ein Menü mit fehlender Engine ist
 		// tadellos validiert und trotzdem gesperrt. Die Zahl bewegt sich mit, wenn
@@ -426,6 +463,7 @@ class MenuImportDialog extends LitElement {
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
+				<span class="bstorage">${projected ? i18n.getMessage('storageUsed').replace('{percent}', projected.percent) : ''}</span>
 				<span class="spacer"></span>
 				<label class="mode-opt">
 					<input type="checkbox" .checked=${allOn}
@@ -442,6 +480,7 @@ class MenuImportDialog extends LitElement {
 			</div>
 			${rows.map(row => this.#renderBundleRow(row, i18n, lang, provided))}
 			${blocked === 'script' ? html`<p class="bhint">${i18n.getMessage('exchangeBundleScriptPending')}</p>` : ''}
+			${blocked === 'storage' ? html`<p class="bhint notice">${i18n.getMessage('storageImportTooLarge')}</p>` : ''}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${!!blocked} @click=${() => this.#confirmBundle()}>
