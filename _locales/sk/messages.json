@@ -2907,7 +2907,7 @@
 	"storageUsageLabel": { "message": "Využité úložisko" },
 	"storageDetail": { "message": "{used} z {total} bajtov ({percent}%)" },
 	"storageUsed": { "message": "využité {percent}%" },
-	"storageRemaining": { "message": "miesto pre približne {count} ďalších" },
+	"storageRemaining": { "message": "miesto pre približne {count}" },
 	"storageFull": { "message": "Plné — ukladanie zlyhá, kým neodstránite položky." },
 	"storageImportTooLarge": { "message": "Tento výber sa už nezmestí. Zrušte výber položiek alebo importujte menej naraz." }
 }
