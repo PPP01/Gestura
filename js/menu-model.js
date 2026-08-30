@@ -366,28 +366,6 @@
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), removed: hit };
 	}
 
-	// Ein Name, der selbst wie eine Domain aussieht, weckt eine Erwartung an das
-	// Ziel. Nennt er eine andere als die geöffnete, ist das einen Hinweis wert —
-	// verboten ist es nicht. Namen ohne Domainform ("Posteingang") bleiben stumm.
-	function toDomain(value) {
-		const host = String(value || '').trim().toLowerCase()
-			.replace(/^[a-z][a-z0-9+.-]*:\/\//, '')
-			.replace(/[/?#].*$/, '')
-			.replace(/^www\./, '');
-		return /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(host) ? host : null;
-	}
-	function nameUrlMismatch(name, url) {
-		const named = toDomain(name);
-		if (!named) return null;
-		let host;
-		try { host = new URL(url).hostname; } catch { return null; }
-		const target = toDomain(host);
-		if (!target || named === target) return null;
-		// Sub- und Hauptdomain zählen als dasselbe Ziel.
-		if (target.endsWith('.' + named) || named.endsWith('.' + target)) return null;
-		return { name: named, url: target };
-	}
-
 	const api = {
 		getBaseMenu, listMenus, listActiveMenus,
 		emptyFork, resolveFork,
@@ -397,7 +375,6 @@
 		menuFlag, menuFlagRaw, withMenuFlag, withDefaultMenu, itemOpenConfig,
 		addPatternToMenu, removePatternFromMenu, patternsMatchingUrl,
 		addLinkToMenu, findLinkInMenu, removeLinkFromMenu,
-		nameUrlMismatch,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuModel = api;

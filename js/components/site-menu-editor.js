@@ -2,7 +2,7 @@ import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { tooltip } from '../tooltip.js';
-import { settingsStore } from '../settings-store.js';
+import { displayName } from './action-labels.js';
 
 // Editor für EINE Menüdefinition. Hält keinen Settings-Zustand: rendert die
 // übergebenen Rows und meldet jede Operation als Event; der Parent
@@ -115,23 +115,8 @@ class SiteMenuEditor extends LitElement {
 	}
 
 	#resolvedLabel(item) {
-		const i18n = window.i18n;
 		if (item.type === 'separator') return '';
-		if (item.customName) return item.customName;
-		if (item.labelKey) {
-			const m = i18n.getMessage(item.labelKey);
-			if (m) return m;
-		}
-		if (item.action === 'searchLink' && window.FlowMouseEngineRegistry && window.FlowMouseEngineCatalogApi) {
-			const link = window.FlowMouseEngineRegistry.resolveMenuItemLink(
-				window.FlowMouseEngineCatalogApi.ENGINE_CATALOG,
-				settingsStore.current.searchEngines,
-				item,
-			);
-			if (link?.name) return link.name;
-		}
-		const key = window.GestureConstants.ACTION_KEYS[item.action];
-		return key ? i18n.getMessage(key) : (item.action || '');
+		return displayName(item.action, item);
 	}
 
 	render() {
