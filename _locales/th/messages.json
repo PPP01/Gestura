@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "ใช้ไป {percent}%" },
 	"storageRemaining": { "message": "มีที่ว่างสำหรับเพิ่มอีกประมาณ {count} รายการ" },
 	"storageFull": { "message": "เต็ม — การบันทึกจะล้มเหลวจนกว่าคุณจะนำรายการออก" },
-	"storageImportTooLarge": { "message": "การเลือกนี้ไม่พอดีแล้ว ยกเลิกการเลือกบางรายการ หรือนำเข้าครั้งละน้อยลง" }
+	"storageImportTooLarge": { "message": "การเลือกนี้ไม่พอดีแล้ว ยกเลิกการเลือกบางรายการ หรือนำเข้าครั้งละน้อยลง" },
+	"storageAfterImport": { "message": "ใช้ไป {percent}% หลังจากนำเข้า" }
 }

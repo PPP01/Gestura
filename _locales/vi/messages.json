@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "đã dùng {percent}%" },
 	"storageRemaining": { "message": "còn chỗ cho khoảng {count} mục nữa" },
 	"storageFull": { "message": "Đầy — việc lưu sẽ thất bại cho đến khi bạn xóa bớt mục." },
-	"storageImportTooLarge": { "message": "Lựa chọn này không còn vừa nữa. Bỏ chọn bớt mục hoặc nhập ít hơn mỗi lần." }
+	"storageImportTooLarge": { "message": "Lựa chọn này không còn vừa nữa. Bỏ chọn bớt mục hoặc nhập ít hơn mỗi lần." },
+	"storageAfterImport": { "message": "Đã dùng {percent}% sau khi nhập" }
 }

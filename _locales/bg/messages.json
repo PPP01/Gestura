@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "{percent}% използвани" },
 	"storageRemaining": { "message": "място за още около {count}" },
 	"storageFull": { "message": "Пълно — запазването не успява, докато не премахнете записи." },
-	"storageImportTooLarge": { "message": "Този избор вече не се побира. Премахнете отметки или импортирайте по-малко наведнъж." }
+	"storageImportTooLarge": { "message": "Този избор вече не се побира. Премахнете отметки или импортирайте по-малко наведнъж." },
+	"storageAfterImport": { "message": "{percent}% използвани след импортиране" }
 }

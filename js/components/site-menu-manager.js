@@ -114,6 +114,13 @@ class SiteMenuManager extends LitElement {
 			.import-url { flex: 1; min-width: 160px; font: inherit; font-size: 12px; padding: 5px 8px;
 				border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: inherit; }
 			.storage-line { font-size: 11.5px; color: var(--text-muted); }
+			/* Voll-Zustand (ab 100 %): eigene Optik statt des amber .notice, das
+			   ab 75 % läuft - der Fehler soll sich von der Hervorhebung abheben. */
+			.storage-full {
+				color: var(--danger-color);
+				background: color-mix(in srgb, var(--danger-color) 8%, transparent);
+				box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 40%, transparent);
+			}
 		`,
 	];
 
@@ -208,11 +215,14 @@ class SiteMenuManager extends LitElement {
 		const cur = settingsStore.current.siteMenus || {};
 		const u = S.usageOf('siteMenus', cur, quota);
 		if (u.percent >= 100) {
-			return html`<div class="notice">${i18n.getMessage('storageFull')}</div>`;
+			return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}</div>`;
 		}
 		const left = S.remainingEntries(u.quota - u.bytes, Object.values(cur.custom || {}), S.AVG_FALLBACK.menu);
-		const text = i18n.getMessage('storageUsed').replace('{percent}', u.percent)
-			+ ' · ' + i18n.getMessage('storageRemaining').replace('{count}', left);
+		// Bei 0 passt kein weiterer Eintrag mehr - "noch etwa 0 Menüs" wäre nur
+		// verwirrend, deshalb entfällt die Restanzahl dann.
+		const text = left > 0
+			? i18n.getMessage('storageUsed').replace('{percent}', u.percent) + ' · ' + i18n.getMessage('storageRemaining').replace('{count}', left)
+			: i18n.getMessage('storageUsed').replace('{percent}', u.percent);
 		return u.percent >= 75
 			? html`<div class="notice">${text}</div>`
 			: html`<div class="storage-line">${text}</div>`;

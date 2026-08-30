@@ -1308,10 +1308,8 @@ class OptionsPage extends LitElement {
 			['searchEngines', i18n.getMessage('sectionSearchEngines')],
 			['mouseGestures', i18n.getMessage('basicSettings')],
 		];
-		let sum = 0;
 		const rows = branches.map(([key, label]) => {
 			const u = S.usageOf(key, cur[key], quota);
-			sum += u.bytes;
 			return html`
 				<div class="setting-row">
 					<div class="setting-label"><span>${label}</span></div>
@@ -1321,6 +1319,15 @@ class OptionsPage extends LitElement {
 					</span>
 				</div>`;
 		});
+		// Die Summenzeile zählt über ALLE gespeicherten Schlüssel, nicht nur die
+		// drei angezeigten Zweige - sonst meldet sie eine viel zu niedrige Gesamt-
+		// belegung (die übrigen 60-plus Schlüssel sind zwar einzeln klein, in
+		// Summe aber nicht null). Die Zeilen darunter zeigen weiterhin nur die
+		// drei wachsenden Zweige.
+		let sum = 0;
+		for (const [key, value] of Object.entries(cur)) {
+			sum += S.usageOf(key, value, quota).bytes;
+		}
 		const totalPercent = Math.round((100 * sum) / total);
 		return html`
 			<div class="setting-row">

@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "已使用 {percent}%" },
 	"storageRemaining": { "message": "還能容納約 {count} 筆" },
 	"storageFull": { "message": "已滿 — 在你刪除項目之前，儲存會失敗。" },
-	"storageImportTooLarge": { "message": "這個選擇已經放不下了。請取消勾選部分項目，或一次匯入更少的項目。" }
+	"storageImportTooLarge": { "message": "這個選擇已經放不下了。請取消勾選部分項目，或一次匯入更少的項目。" },
+	"storageAfterImport": { "message": "匯入後已使用 {percent}%" }
 }

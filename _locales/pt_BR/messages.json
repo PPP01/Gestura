@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "{percent}% usado" },
 	"storageRemaining": { "message": "espaço para mais cerca de {count}" },
 	"storageFull": { "message": "Cheio — o salvamento falha até você remover entradas." },
-	"storageImportTooLarge": { "message": "Esta seleção não cabe mais. Desmarque entradas ou importe menos de cada vez." }
+	"storageImportTooLarge": { "message": "Esta seleção não cabe mais. Desmarque entradas ou importe menos de cada vez." },
+	"storageAfterImport": { "message": "{percent}% usado após a importação" }
 }

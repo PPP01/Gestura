@@ -3073,5 +3073,6 @@
 	"storageUsed": { "message": "{percent}% used" },
 	"storageRemaining": { "message": "room for about {count} more" },
 	"storageFull": { "message": "Full — saving fails until you remove entries." },
-	"storageImportTooLarge": { "message": "This selection no longer fits. Deselect entries or import fewer at once." }
+	"storageImportTooLarge": { "message": "This selection no longer fits. Deselect entries or import fewer at once." },
+	"storageAfterImport": { "message": "{percent}% used after import" }
 }

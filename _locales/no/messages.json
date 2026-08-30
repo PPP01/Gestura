@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "{percent} % brukt" },
 	"storageRemaining": { "message": "plass til omtrent {count} til" },
 	"storageFull": { "message": "Full — lagring mislykkes til du fjerner oppføringer." },
-	"storageImportTooLarge": { "message": "Dette utvalget får ikke lenger plass. Fjern merkingen av oppføringer, eller importer færre om gangen." }
+	"storageImportTooLarge": { "message": "Dette utvalget får ikke lenger plass. Fjern merkingen av oppføringer, eller importer færre om gangen." },
+	"storageAfterImport": { "message": "{percent} % brukt etter import" }
 }

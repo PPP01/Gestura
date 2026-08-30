@@ -46,6 +46,15 @@
   domain but opens another one — `spiegel.de` pointing at `spon.de` — a small info
   icon appears in the row and a note in the dialog. Nothing is blocked or refused;
   names that are not domains ("Inbox") never trigger it.
+- **A storage-usage indicator for website menus and search engines:** each of
+  those settings lives in one synced storage item with an 8192-byte cap, and
+  until now the only way to learn that was a failed save. The menu and engine
+  managers now show a percentage of that cap plus a rough count of how many
+  more entries fit, highlighted once space gets tight and flagged as full when
+  it runs out; a new Storage section in Data Management lists the exact bytes
+  for every growing branch and the overall total. The import dialog previews
+  the occupancy an import would leave behind and now refuses a selection that
+  would not fit, instead of letting the save fail afterwards.
 
 ### v2.7.0 (2026-08-29)
 

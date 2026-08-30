@@ -76,6 +76,10 @@ class MenuImportDialog extends LitElement {
 		.bbody { padding: 6px 0 2px 26px; }
 		.brow.invalid .bname { color: var(--text-muted); }
 		.bhint { font-size: 12px; color: var(--text-muted); margin: 8px 0 0; }
+		/* .bhint kommt hinter .notice in derselben Stylesheet-Kaskade und gewinnt
+		   bei gleicher Spezifität - ohne diese Regel bliebe der Text grau, obwohl
+		   Hintergrund und Rahmen von .notice amber sind. */
+		.bhint.notice { color: var(--attention-color); }
 	`];
 
 	constructor() {
@@ -205,7 +209,10 @@ class MenuImportDialog extends LitElement {
 		let worst = null;
 		for (const [key, value] of Object.entries(patch)) {
 			const u = S.usageOf(key, value, quota);
-			if (!worst || u.percent > worst.percent) worst = u;
+			// Nach Bytes vergleichen, nicht nach Prozent: usageOf() rundet unterhalb
+			// des Deckels auf höchstens 99, ein Bytevergleich hat diese Deckelung nicht
+			// und entscheidet bei einem Gleichstand nahe 100 % zuverlässig.
+			if (!worst || u.bytes > worst.bytes) worst = u;
 		}
 		return worst;
 	}
@@ -280,7 +287,10 @@ class MenuImportDialog extends LitElement {
 			? { siteMenus: this.#applyMenu(settingsStore.current.siteMenus || emptySiteMenus(), r, source, lang, mode, matchId) }
 			: { searchEngines: this.#applyEngine(settingsStore.current.searchEngines || emptyEngines(), r, source, lang, mode, matchId).next };
 		const u = this.#projectedUsage(patch);
-		if (u && u.bytes > u.quota) { alert(window.i18n.getMessage('storageImportTooLarge')); return; }
+		// Einzel-Import: es gibt genau einen Eintrag und nichts zum Abwählen -
+		// storageImportTooLarge ("Auswahl verkleinern") passt hier nicht, storageFull
+		// ("Speichern schlägt fehl, bis du Einträge entfernst") beschreibt die Lage.
+		if (u && u.bytes > u.quota) { alert(window.i18n.getMessage('storageFull')); return; }
 		await this.#commitPatch(patch, { type: r.type });
 	}
 
@@ -467,7 +477,7 @@ class MenuImportDialog extends LitElement {
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
-				<span class="bstorage">${projected ? i18n.getMessage('storageUsed').replace('{percent}', projected.percent) : ''}</span>
+				<span class="bstorage">${projected ? i18n.getMessage('storageAfterImport').replace('{percent}', projected.percent) : ''}</span>
 				<span class="spacer"></span>
 				<label class="mode-opt">
 					<input type="checkbox" .checked=${allOn}

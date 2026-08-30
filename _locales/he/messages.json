@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "{percent}% בשימוש" },
 	"storageRemaining": { "message": "מקום לעוד כ-{count} נוספים" },
 	"storageFull": { "message": "מלא — השמירה נכשלת עד שתסיר פריטים." },
-	"storageImportTooLarge": { "message": "הבחירה הזו כבר לא נכנסת. בטל בחירה של פריטים או ייבא פחות בכל פעם." }
+	"storageImportTooLarge": { "message": "הבחירה הזו כבר לא נכנסת. בטל בחירה של פריטים או ייבא פחות בכל פעם." },
+	"storageAfterImport": { "message": "{percent}% בשימוש אחרי הייבוא" }
 }

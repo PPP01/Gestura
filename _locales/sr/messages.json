@@ -2909,5 +2909,6 @@
 	"storageUsed": { "message": "искоришћено {percent}%" },
 	"storageRemaining": { "message": "места за још приближно {count}" },
 	"storageFull": { "message": "Пуно — чување неће успети док не уклоните ставке." },
-	"storageImportTooLarge": { "message": "Овај избор више не стаје. Поништите избор ставки или увезите мање одједном." }
+	"storageImportTooLarge": { "message": "Овај избор више не стаје. Поништите избор ставки или увезите мање одједном." },
+	"storageAfterImport": { "message": "Након увоза искоришћено {percent}%" }
 }

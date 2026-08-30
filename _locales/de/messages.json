@@ -3011,5 +3011,6 @@
 	"storageUsed": { "message": "{percent} % belegt" },
 	"storageRemaining": { "message": "Platz für etwa {count} weitere" },
 	"storageFull": { "message": "Voll — Speichern schlägt fehl, bis du Einträge entfernst." },
-	"storageImportTooLarge": { "message": "Diese Auswahl passt nicht mehr. Wähle Einträge ab oder importiere weniger auf einmal." }
+	"storageImportTooLarge": { "message": "Diese Auswahl passt nicht mehr. Wähle Einträge ab oder importiere weniger auf einmal." },
+	"storageAfterImport": { "message": "Nach dem Import belegt: {percent} %" }
 }
