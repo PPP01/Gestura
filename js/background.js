@@ -1272,17 +1272,50 @@ async function handleAction(request, sender) {
 
 		case 'importInline':
 			return await importInline(request, sender);
+
+		case 'importResult':
+			return await reportImportResult(request);
 	}
 }
 
 // Hand-off to the options page: stash the parsed JSON in session storage and
 // open/focus the options page, which picks it up in #checkPendingImport().
 // Shared by both import paths (fetched href, and inline hand-off).
-async function stashPendingImport(json, url) {
+async function stashPendingImport(json, url, sender) {
 	await chrome.storage.session.set({
-		pendingImport: { json, url, ts: Date.now() },
+		// tabId/frameId reisen mit, damit die Optionsseite der auslösenden Seite
+		// hinterher melden kann, was aus der Übergabe geworden ist. Sie stehen hier
+		// und nicht in der gespeicherten Menü-Definition: eine Tab-ID ist kein
+		// Herkunftsnachweis, sie ist nach dem nächsten Neustart bedeutungslos.
+		pendingImport: {
+			json, url, ts: Date.now(),
+			tabId: sender && sender.tab ? sender.tab.id : null,
+			frameId: sender && typeof sender.frameId === 'number' ? sender.frameId : 0,
+		},
 	});
 	await openOptionsPage('');
+	return { success: true };
+}
+
+// Der Rückweg: die Optionsseite darf chrome.tabs nicht anfassen, der Worker schon.
+// Gezielt an den Frame, der die Übergabe ausgelöst hat - ohne frameId bekämen alle
+// Frames der Seite das Ereignis, auch fremde Werbe-iframes.
+//
+// Scheitert der Versand, ist das kein Fehler: der Tab kann geschlossen oder
+// weiternavigiert sein. Die Seite darf sich ohnehin nicht darauf verlassen, dass
+// die Meldung kommt (siehe docs/index-import-rueckmeldung.md).
+async function reportImportResult(request) {
+	const tabId = request && request.tabId;
+	if (typeof tabId !== 'number') return { success: false, error: 'No tab' };
+	try {
+		await chrome.tabs.sendMessage(
+			tabId,
+			{ action: 'gesturaImportResult', result: request.result || {} },
+			{ frameId: typeof request.frameId === 'number' ? request.frameId : 0 },
+		);
+	} catch {
+		return { success: false, error: 'Tab unreachable' };
+	}
 	return { success: true };
 }
 
@@ -1331,7 +1364,7 @@ async function importFromSite(request, sender) {
 		}
 		const json = JSON.parse(text);
 
-		return await stashPendingImport(json, url.href);
+		return await stashPendingImport(json, url.href, sender);
 	} catch (e) {
 		return { success: false, error: String(e?.message || e) };
 	}
@@ -1356,7 +1389,7 @@ async function importInline(request, sender) {
 	} catch {
 		return { success: false, error: 'Invalid JSON' };
 	}
-	return await stashPendingImport(json, sender.url || sender.tab?.url || '');
+	return await stashPendingImport(json, sender.url || sender.tab?.url || '', sender);
 }
 
 // ---- Favicon resolution (cross-browser; replaces Chrome-only /_favicon/) ----

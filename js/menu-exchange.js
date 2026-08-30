@@ -322,11 +322,90 @@
 		return out;
 	}
 
+	// --- Zusammenführung eines geprüften Imports mit dem, was schon da ist -------
+	// Lag bis zuletzt in <menu-import-dialog> und war damit ungetestet. Genau hier
+	// entstanden nacheinander zwei stille Fehler: ein Menü behielt die Engine-ID
+	// aus der Datei statt der neu vergebenen, und ein neues Menü landete über dem
+	// ganzen Katalog. Beides fällt jetzt in tests/menu-exchange-apply.test.mjs auf.
+
+	function applyMenuTo(cur, value, source, lang, mode, matchId, engineIdMap) {
+		if (mode === 'replace' && matchId) {
+			// Standard-Menü ersetzen -> verhält sich wie ein bearbeitetes Katalog-Menü.
+			const def = toStandardMenu(value, lang, engineIdMap);
+			return { next: { ...cur, edited: { ...cur.edited, [matchId]: def } }, id: matchId, isNew: false };
+		}
+		const { id, def } = toCustomMenu(value, source, undefined, lang, engineIdMap);
+		// siteMenus.order bleibt bewusst unangetastet: listMenus() liest order ZUERST
+		// und danach erst den Katalog, ein Eintrag dort bedeutet also "ganz nach oben".
+		// Ohne order hängt listMenus() das Menü hinter Katalog und bestehende eigene
+		// Menüs - also dorthin, wo ein neuer Eintrag hingehört. Spart nebenbei Bytes.
+		return { next: { ...cur, custom: { ...cur.custom, [id]: def } }, id, isNew: true };
+	}
+
+	// Wie applyMenuTo, für searchEngines. stripTransform kommt vom Aufrufer statt aus
+	// einer Browserweiche hier: in Firefox laufen Transform-Skripte nicht, also wird
+	// das Skript beim Import entfernt - außer die Engine besteht darauf.
+	function applyEngineTo(cur, value, source, lang, mode, matchId, stripTransform) {
+		const strip = (e) => {
+			if (stripTransform && !value.transformRequired) { e.transformEnabled = false; e.transformCode = ''; }
+			return e;
+		};
+		if (mode === 'replace' && matchId) {
+			const ov = strip(toEngineOverride(value, lang));
+			return { next: { ...cur, overrides: { ...cur.overrides, [matchId]: ov } }, id: matchId, isNew: false };
+		}
+		const engine = strip(toCustomEngine(value, source, undefined, lang));
+		return { next: { ...cur, custom: [...(cur.custom || []), engine] }, id: engine.id, isNew: true };
+	}
+
+	// Baut den Patch, den ein Import der übergebenen Zeilen schreiben würde. Rein -
+	// schreibt nichts. Einzel- und Sammel-Import gehen beide hierdurch, damit sie
+	// garantiert dasselbe schreiben; die Vorschau nutzt denselben Weg, damit die
+	// angezeigte Belegung und die tatsächliche nie auseinanderlaufen.
+	//
+	// rows: [{ type, value, source, mode, matchId }]
+	// liefert { patch, imported: [{ kind, id, isNew }] }
+	function buildImportPatch(rows, current, opts) {
+		const lang = (opts && opts.lang) || 'en';
+		const stripTransform = !!(opts && opts.stripTransform);
+		let siteMenus = (current && current.siteMenus) || null;
+		let engines = (current && current.searchEngines) || null;
+		let touchedMenus = false;
+		let touchedEngines = false;
+		const imported = [];
+
+		// Engines zuerst, und zwar in einem eigenen Durchgang: toCustomEngine vergibt
+		// eine neue ID, die von der in der Datei abweicht. Erst wenn alle gespeicherten
+		// IDs feststehen, lassen sich die Menü-Verweise darauf umbiegen - sonst zeigt
+		// ein mitimportiertes Menü ins Leere und sein Eintrag verschwindet still.
+		const engineIdMap = {};
+		for (const row of rows) {
+			if (row.type !== 'engine') continue;
+			const applied = applyEngineTo(engines, row.value, row.source, lang, row.mode, row.matchId, stripTransform);
+			engines = applied.next;
+			engineIdMap[row.value.id] = applied.id;
+			touchedEngines = true;
+			imported.push({ kind: 'engine', id: applied.id, isNew: applied.isNew });
+		}
+		for (const row of rows) {
+			if (row.type !== 'menu') continue;
+			const applied = applyMenuTo(siteMenus, row.value, row.source, lang, row.mode, row.matchId, engineIdMap);
+			siteMenus = applied.next;
+			touchedMenus = true;
+			imported.push({ kind: 'menu', id: applied.id, isNew: applied.isNew });
+		}
+		const patch = {};
+		if (touchedMenus) patch.siteMenus = siteMenus;
+		if (touchedEngines) patch.searchEngines = engines;
+		return { patch, imported };
+	}
+
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
 		detectType, isHttpsUrl, pickLabel, validate, validateBundle, hasTransform, menuEngineIds,
 		newId, toCustomMenu, toCustomEngine, toStandardMenu, toEngineOverride,
 		menuToExchange, engineToExchange,
+		applyMenuTo, applyEngineTo, buildImportPatch,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;

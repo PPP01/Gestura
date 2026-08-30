@@ -103,6 +103,26 @@
 		inlineTimer = setTimeout(closeInlineWindow, INLINE_WINDOW_MS);
 	}
 
+	// The way back: once the user has decided in the import dialog, the options page
+	// reports through the service worker, which sends it to exactly this frame. The
+	// page hears a 'gestura:import-result' event whose detail is again a *string* —
+	// same reason as on the way there, and it keeps the page from having to reach
+	// into an object that crossed the realm boundary.
+	//
+	// The page must not rely on this arriving: a closed tab, a navigation, or an
+	// options page dismissed without touching the dialog all leave it silent. It
+	// shortens the wait, it does not replace the page's own timeout.
+	try {
+		chrome.runtime.onMessage.addListener((request) => {
+			if (!request || request.action !== 'gesturaImportResult') return;
+			document.dispatchEvent(new CustomEvent('gestura:import-result', {
+				detail: JSON.stringify(request.result || {}),
+			}));
+		});
+	} catch {
+		// extension context may be invalidated; nothing to report to then.
+	}
+
 	document.addEventListener('click', (e) => {
 		if (!e.isTrusted) return;
 

@@ -2,6 +2,7 @@ import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { settingsStore } from '../settings-store.js';
 import { usageOf } from '../storage-usage.js';
+import { markImported } from './import-marker.js';
 
 const X = () => window.FlowMouseMenuExchange;
 const isFirefox = navigator.userAgent.includes('Firefox');
@@ -97,8 +98,12 @@ class MenuImportDialog extends LitElement {
 	// Verzweigt auf den Formattyp: ein Bundle bekommt die Sammel-Vorschau, alles
 	// andere den bisherigen Einzelpfad. Gerendert wird nie das rohe JSON, sondern
 	// immer nur der normalisierte value aus der Validierung.
-	openWith(rawObject, source) {
+	// reply: {tabId, frameId} der Seite, die den Import angestoßen hat. Bewusst NICHT
+	// Teil von `source` - das wandert als Herkunftsnachweis in die gespeicherte
+	// Menü-Definition, und eine Tab-ID hat dort weder Bedeutung noch Haltbarkeit.
+	openWith(rawObject, source, reply) {
 		this._source = source || { type: 'file' };
+		this._replyTo = reply && typeof reply.tabId === 'number' ? reply : null;
 		this._scriptAck = false;
 		this._result = null;
 		this._bundle = null;
@@ -134,7 +139,12 @@ class MenuImportDialog extends LitElement {
 		return result.type === 'menu' ? this.#catalogMenuMatch(result.value) : this.#catalogEngineMatch(result.value);
 	}
 
-	#close() { this._open = false; this._result = null; this._bundle = null; this._catalogMatch = null; }
+	#close() {
+		// Ohne Commit ist ein Schließen ein Abbruch - die Seite wartet sonst ewig.
+		// Nach #commitPatch() ist _replyTo bereits geleert und das hier ein No-op.
+		this.#reportToPage('cancelled', []);
+		this._open = false; this._result = null; this._bundle = null; this._catalogMatch = null;
+	}
 
 	#faviconCache = new Map(); // origin -> dataURL
 
@@ -221,35 +231,6 @@ class MenuImportDialog extends LitElement {
 		return !!(r && r.ok && r.type === 'engine' && X().hasTransform(r.value));
 	}
 
-	// Reine Transformation: nimmt den aktuellen siteMenus-Zustand und gibt den
-	// nächsten zurück, ohne zu speichern. Einzel- und Sammel-Import gehen beide
-	// hierdurch, damit sie garantiert dasselbe schreiben.
-	#applyMenu(cur, result, source, lang, mode, matchId, engineIdMap) {
-		if (mode === 'replace' && matchId) {
-			// Standard-Menü ersetzen → verhält sich wie ein bearbeitetes Katalog-Menü.
-			const def = X().toStandardMenu(result.value, lang, engineIdMap);
-			return { ...cur, edited: { ...cur.edited, [matchId]: def } };
-		}
-		const { id, def } = X().toCustomMenu(result.value, source, undefined, lang, engineIdMap);
-		return { ...cur, custom: { ...cur.custom, [id]: def }, order: [...(cur.order || []), id] };
-	}
-
-	// Wie #applyMenu, für searchEngines. Die Firefox-Sonderbehandlung sitzt hier,
-	// damit sie auf beiden Wegen greift: dort laufen Transform-Skripte nicht,
-	// also wird das Skript beim Import entfernt — außer die Engine besteht darauf.
-	#applyEngine(cur, result, source, lang, mode, matchId) {
-		const strip = (e) => {
-			if (isFirefox && !result.value.transformRequired) { e.transformEnabled = false; e.transformCode = ''; }
-			return e;
-		};
-		if (mode === 'replace' && matchId) {
-			const ov = strip(X().toEngineOverride(result.value, lang));
-			return { next: { ...cur, overrides: { ...cur.overrides, [matchId]: ov } }, id: matchId };
-		}
-		const engine = strip(X().toCustomEngine(result.value, source, undefined, lang));
-		return { next: { ...cur, custom: [...(cur.custom || []), engine] }, id: engine.id };
-	}
-
 	// Gemeinsamer Abschluss beider Import-Wege: speichern, Fehler melden,
 	// Katalog-Neuaufbau anstoßen, Dialog schließen.
 	//
@@ -264,12 +245,45 @@ class MenuImportDialog extends LitElement {
 	// seinen Zustand zurück, liefert false, und der Nutzer sieht dieselbe Meldung.
 	// Die Bundle-Limits (200 Einträge, 1 MB) sind ohnehin der Transport-Vertrag
 	// mit dem Index-Backend, eine andere Grenze als diese.
-	async #commitPatch(patch, detail) {
+	async #commitPatch(patch, imported) {
 		const ok = await settingsStore.save(patch);
-		if (!ok) { alert(window.i18n.getMessage('menuSyncSaveError')); return; }
+		if (!ok) {
+			alert(window.i18n.getMessage('menuSyncSaveError'));
+			this.#reportToPage('failed', []);
+			return;
+		}
+		markImported(imported);
 		window.dispatchEvent(new Event('action-catalog-changed'));
-		this.dispatchEvent(new CustomEvent('import-done', { detail, bubbles: true, composed: true }));
+		this.dispatchEvent(new CustomEvent('import-done', { detail: imported, bubbles: true, composed: true }));
+		this.#reportToPage('imported', imported);
 		this.#close();
+	}
+
+	// Rückmeldung an die Seite, die den Import angestoßen hat - nur beim Inline-Weg
+	// und beim Betreiber-Knopf, ein Datei- oder URL-Import hat niemanden zu
+	// benachrichtigen. Genau eine Meldung je Übergabe: _replyTo wird dabei geleert,
+	// sonst schickte das anschließende #close() noch ein "abgebrochen" hinterher.
+	//
+	// Der Weg führt über den Worker, weil nur der chrome.tabs.sendMessage darf.
+	#reportToPage(status, imported) {
+		const reply = this._replyTo;
+		if (!reply) return;
+		this._replyTo = null;
+		const list = imported || [];
+		try {
+			chrome.runtime.sendMessage({
+				action: 'importResult',
+				tabId: reply.tabId,
+				frameId: reply.frameId,
+				result: {
+					status,
+					menus: list.filter(e => e.kind === 'menu').length,
+					engines: list.filter(e => e.kind === 'engine').length,
+				},
+			});
+		} catch {
+			// Erweiterungskontext kann ungültig sein (Reload mitten im Vorgang).
+		}
 	}
 
 	async #confirm() {
@@ -282,7 +296,7 @@ class MenuImportDialog extends LitElement {
 		// Einzel-Import hat nichts mitzubringen, worauf ein Menü zeigen könnte,
 		// also bleibt die ID-Zuordnung leer. Zwei eigene Zusammenbauten desselben
 		// Patches wären zwei Gelegenheiten, künftig auseinanderzulaufen.
-		const patch = this.#patchFor([{
+		const { patch, imported } = this.#patchFor([{
 			result: r,
 			match: this._catalogMatch,
 			mode: this._catalogMatch ? this._importMode : 'new',
@@ -292,42 +306,26 @@ class MenuImportDialog extends LitElement {
 		// storageImportTooLarge ("Auswahl verkleinern") passt hier nicht, storageFull
 		// ("Speichern schlägt fehl, bis du Einträge entfernst") beschreibt die Lage.
 		if (u.bytes > u.quota) { alert(window.i18n.getMessage('storageFull')); return; }
-		await this.#commitPatch(patch, { type: r.type });
+		await this.#commitPatch(patch, imported);
 	}
 
-	// Baut den Patch, den ein Import der gewählten Zeilen schreiben würde.
-	// Rein - schreibt nichts. Von #confirmBundle() und von der Vorschau genutzt,
-	// damit die angezeigte Belegung und die tatsächliche nie auseinanderlaufen.
+	// Übersetzt die Zeilen des Dialogs in die Form, die menu-exchange erwartet, und
+	// lässt dort rechnen. Rein - schreibt nichts. Einzel-Import, Sammel-Import und
+	// die Vorschau gehen alle hierdurch: so kann die angezeigte Belegung nicht von
+	// der tatsächlichen abweichen, und nur eine Fassung muss getestet werden.
 	#patchFor(chosen) {
-		const lang = this.#lang();
-		let siteMenus = settingsStore.current.siteMenus || emptySiteMenus();
-		let engines = settingsStore.current.searchEngines || emptyEngines();
-		let touchedMenus = false;
-		let touchedEngines = false;
-		const src = (row) => ({ ...this._source, version: row.result.value.version || '1.0.0' });
-		const mid = (row) => (row.match ? row.match.id : null);
-
-		// Engines zuerst, und zwar in einem eigenen Durchgang: toCustomEngine vergibt
-		// eine neue ID, die von der im Bundle abweicht. Erst wenn alle gespeicherten
-		// IDs feststehen, lassen sich die Menü-Verweise darauf umbiegen - sonst zeigt
-		// ein mitimportiertes Menü ins Leere und sein Eintrag verschwindet still.
-		const engineIdMap = {};
-		for (const row of chosen) {
-			if (row.result.type !== 'engine') continue;
-			const applied = this.#applyEngine(engines, row.result, src(row), lang, row.mode, mid(row));
-			engines = applied.next;
-			engineIdMap[row.result.value.id] = applied.id;
-			touchedEngines = true;
-		}
-		for (const row of chosen) {
-			if (row.result.type !== 'menu') continue;
-			siteMenus = this.#applyMenu(siteMenus, row.result, src(row), lang, row.mode, mid(row), engineIdMap);
-			touchedMenus = true;
-		}
-		const patch = {};
-		if (touchedMenus) patch.siteMenus = siteMenus;
-		if (touchedEngines) patch.searchEngines = engines;
-		return patch;
+		const rows = chosen.map(row => ({
+			type: row.result.type,
+			value: row.result.value,
+			source: { ...this._source, version: row.result.value.version || '1.0.0' },
+			mode: row.mode,
+			matchId: row.match ? row.match.id : null,
+		}));
+		const current = {
+			siteMenus: settingsStore.current.siteMenus || emptySiteMenus(),
+			searchEngines: settingsStore.current.searchEngines || emptyEngines(),
+		};
+		return X().buildImportPatch(rows, current, { lang: this.#lang(), stripTransform: isFirefox });
 	}
 
 	// Schreibt alle gewählten Einträge in EINEM settingsStore.save(). Nicht je
@@ -335,11 +333,11 @@ class MenuImportDialog extends LitElement {
 	// für einen Sync-Konflikt.
 	async #confirmBundle() {
 		const chosen = this.#bundleChosen;
-		const patch = this.#patchFor(chosen);
+		const { patch, imported } = this.#patchFor(chosen);
 		if (this.#blockedFor(chosen, this.#projectedUsage(patch))) return;
 		const provided = this.#providedEngineIds();
 		if (chosen.some(r => r.result.type === 'menu' && this.#missingEngines(r.result.value, provided).length)) return;
-		await this.#commitPatch(patch, { count: chosen.length });
+		await this.#commitPatch(patch, imported);
 	}
 
 	render() {
@@ -460,7 +458,7 @@ class MenuImportDialog extends LitElement {
 				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 		}
 		const chosen = this.#bundleChosen;
-		const projected = this.#projectedUsage(this.#patchFor(chosen));
+		const projected = this.#projectedUsage(this.#patchFor(chosen).patch);
 		const blocked = this.#blockedFor(chosen, projected);
 		const provided = this.#providedEngineIds();
 		// Einmal je Render feststellen, welche Zeile auf eine Engine zeigt, die es
