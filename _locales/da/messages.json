@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Navnet angiver {name}, men {url} åbnes."
-	}
+	},
+	"storageUsageLabel": { "message": "Brugt lagerplads" },
+	"storageDetail": { "message": "{used} af {total} bytes ({percent} %)" },
+	"storageUsed": { "message": "{percent} % brugt" },
+	"storageRemaining": { "message": "plads til omkring {count} mere" },
+	"storageFull": { "message": "Fuld — det kan ikke gemmes, før du fjerner poster." },
+	"storageImportTooLarge": { "message": "Dette valg passer ikke længere. Fravælg poster, eller importér færre ad gangen." }
 }

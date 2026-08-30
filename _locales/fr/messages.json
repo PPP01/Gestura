@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Le nom indique {name}, mais c’est {url} qui s’ouvre."
-	}
+	},
+	"storageUsageLabel": { "message": "Stockage utilisé" },
+	"storageDetail": { "message": "{used} sur {total} octets ({percent} %)" },
+	"storageUsed": { "message": "{percent} % utilisé" },
+	"storageRemaining": { "message": "de la place pour environ {count} de plus" },
+	"storageFull": { "message": "Plein — l'enregistrement échoue tant que vous ne supprimez pas d'entrées." },
+	"storageImportTooLarge": { "message": "Cette sélection ne tient plus. Désélectionnez des entrées ou importez-en moins à la fois." }
 }

@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Název uvádí {name}, ale otevře se {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Využité úložiště" },
+	"storageDetail": { "message": "{used} z {total} bajtů ({percent}%)" },
+	"storageUsed": { "message": "Využito {percent}%" },
+	"storageRemaining": { "message": "místo pro přibližně {count} dalších" },
+	"storageFull": { "message": "Plné — ukládání selže, dokud neodstraníte položky." },
+	"storageImportTooLarge": { "message": "Tento výběr se už nevejde. Zrušte výběr některých položek nebo importujte méně najednou." }
 }

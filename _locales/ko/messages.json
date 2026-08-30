@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "이름은 {name}이지만 열리는 곳은 {url}입니다."
-	}
+	},
+	"storageUsageLabel": { "message": "사용된 저장공간" },
+	"storageDetail": { "message": "{total}바이트 중 {used}바이트 사용 ({percent}%)" },
+	"storageUsed": { "message": "{percent}% 사용됨" },
+	"storageRemaining": { "message": "약 {count}개 더 저장할 공간 있음" },
+	"storageFull": { "message": "가득 참 — 항목을 제거할 때까지 저장에 실패합니다." },
+	"storageImportTooLarge": { "message": "이 선택 항목이 더 이상 들어가지 않습니다. 일부 항목의 선택을 해제하거나 한 번에 더 적게 가져오세요." }
 }

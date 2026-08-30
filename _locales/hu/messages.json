@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "A név {name} címet említ, de {url} nyílik meg."
-	}
+	},
+	"storageUsageLabel": { "message": "Felhasznált tárhely" },
+	"storageDetail": { "message": "{used} / {total} bájt ({percent}%)" },
+	"storageUsed": { "message": "{percent}% felhasználva" },
+	"storageRemaining": { "message": "hely még kb. {count} továbbihoz" },
+	"storageFull": { "message": "Megtelt — a mentés sikertelen, amíg nem távolítasz el bejegyzéseket." },
+	"storageImportTooLarge": { "message": "Ez a kijelölés már nem fér el. Szüntesd meg néhány bejegyzés kijelölését, vagy importálj kevesebbet egyszerre." }
 }

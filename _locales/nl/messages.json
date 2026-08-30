@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "De naam noemt {name}, maar {url} wordt geopend."
-	}
+	},
+	"storageUsageLabel": { "message": "Gebruikte opslag" },
+	"storageDetail": { "message": "{used} van {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% gebruikt" },
+	"storageRemaining": { "message": "ruimte voor nog ongeveer {count}" },
+	"storageFull": { "message": "Vol — opslaan mislukt totdat je items verwijdert." },
+	"storageImportTooLarge": { "message": "Deze selectie past niet meer. Deselecteer items of importeer er minder tegelijk." }
 }

@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "השם מציין {name}, אך נפתח {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "אחסון בשימוש" },
+	"storageDetail": { "message": "{used} מתוך {total} בייטים ({percent}%)" },
+	"storageUsed": { "message": "{percent}% בשימוש" },
+	"storageRemaining": { "message": "מקום לעוד כ-{count} נוספים" },
+	"storageFull": { "message": "מלא — השמירה נכשלת עד שתסיר פריטים." },
+	"storageImportTooLarge": { "message": "הבחירה הזו כבר לא נכנסת. בטל בחירה של פריטים או ייבא פחות בכל פעם." }
 }

@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Име наводи {name}, али се отвара {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Искоришћен простор" },
+	"storageDetail": { "message": "{used} од {total} бајтова ({percent}%)" },
+	"storageUsed": { "message": "искоришћено {percent}%" },
+	"storageRemaining": { "message": "места за још приближно {count}" },
+	"storageFull": { "message": "Пуно — чување неће успети док не уклоните ставке." },
+	"storageImportTooLarge": { "message": "Овај избор више не стаје. Поништите избор ставки или увезите мање одједном." }
 }

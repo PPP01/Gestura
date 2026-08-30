@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "नाम में {name} है, लेकिन {url} खुलता है।"
-	}
+	},
+	"storageUsageLabel": { "message": "उपयोग किया गया संग्रहण" },
+	"storageDetail": { "message": "{total} बाइट में से {used} ({percent}%)" },
+	"storageUsed": { "message": "{percent}% उपयोग हुआ" },
+	"storageRemaining": { "message": "लगभग {count} और के लिए जगह" },
+	"storageFull": { "message": "भरा हुआ — जब तक आप प्रविष्टियाँ न हटाएँ, सेव नहीं होगा।" },
+	"storageImportTooLarge": { "message": "यह चयन अब फ़िट नहीं होता। कुछ प्रविष्टियाँ अचयनित करें या एक बार में कम आयात करें।" }
 }

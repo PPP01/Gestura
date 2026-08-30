@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "নামে {name} বলা হয়েছে, কিন্তু খোলা হয় {url}।"
-	}
+	},
+	"storageUsageLabel": { "message": "ব্যবহৃত স্টোরেজ" },
+	"storageDetail": { "message": "{total} বাইটের মধ্যে {used} ব্যবহৃত ({percent}%)" },
+	"storageUsed": { "message": "{percent}% ব্যবহৃত" },
+	"storageRemaining": { "message": "আরও প্রায় {count}টির জন্য জায়গা আছে" },
+	"storageFull": { "message": "পূর্ণ — এন্ট্রি সরানো না পর্যন্ত সংরক্ষণ ব্যর্থ হবে।" },
+	"storageImportTooLarge": { "message": "এই নির্বাচন আর ধরছে না। কিছু এন্ট্রি বাদ দিন বা একবারে কম আমদানি করুন।" }
 }

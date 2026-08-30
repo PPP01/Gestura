@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Numele indică {name}, dar se deschide {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Stocare Utilizată" },
+	"storageDetail": { "message": "{used} din {total} octeți ({percent}%)" },
+	"storageUsed": { "message": "{percent}% utilizat" },
+	"storageRemaining": { "message": "loc pentru încă aproximativ {count}" },
+	"storageFull": { "message": "Plin — salvarea eșuează până când elimini intrări." },
+	"storageImportTooLarge": { "message": "Această selecție nu mai încape. Deselectează intrări sau importă mai puține odată." }
 }

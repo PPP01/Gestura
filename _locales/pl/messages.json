@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Nazwa wskazuje {name}, ale otwierany jest {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Wykorzystane miejsce" },
+	"storageDetail": { "message": "{used} z {total} bajtów ({percent}%)" },
+	"storageUsed": { "message": "wykorzystano {percent}%" },
+	"storageRemaining": { "message": "miejsce na jeszcze około {count}" },
+	"storageFull": { "message": "Pełne — zapis się nie powiedzie, dopóki nie usuniesz wpisów." },
+	"storageImportTooLarge": { "message": "Ten wybór już się nie mieści. Odznacz część wpisów lub importuj mniej naraz." }
 }

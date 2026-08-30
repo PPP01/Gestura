@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "يشير الاسم إلى {name}، لكن الذي يُفتح هو {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "التخزين المستخدم" },
+	"storageDetail": { "message": "{used} من {total} بايت ({percent}%)" },
+	"storageUsed": { "message": "{percent}% مستخدم" },
+	"storageRemaining": { "message": "متسع لنحو {count} أخرى" },
+	"storageFull": { "message": "ممتلئ — يفشل الحفظ حتى تحذف بعض العناصر." },
+	"storageImportTooLarge": { "message": "لم يعد هذا التحديد يتّسع. ألغِ تحديد بعض العناصر أو استورد عددًا أقل دفعة واحدة." }
 }

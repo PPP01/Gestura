@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Το όνομα αναφέρει {name}, αλλά ανοίγει το {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Χρησιμοποιούμενος Χώρος" },
+	"storageDetail": { "message": "{used} από {total} byte ({percent}%)" },
+	"storageUsed": { "message": "{percent}% σε χρήση" },
+	"storageRemaining": { "message": "χώρος για περίπου {count} ακόμα" },
+	"storageFull": { "message": "Πλήρες — η αποθήκευση αποτυγχάνει έως ότου αφαιρέσετε καταχωρίσεις." },
+	"storageImportTooLarge": { "message": "Αυτή η επιλογή δεν χωράει πια. Καταργήστε την επιλογή καταχωρίσεων ή εισαγάγετε λιγότερες κάθε φορά." }
 }

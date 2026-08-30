@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Nimi viittaa kohteeseen {name}, mutta avataan {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Käytetty tallennustila" },
+	"storageDetail": { "message": "{used}/{total} tavua ({percent} %)" },
+	"storageUsed": { "message": "{percent} % käytetty" },
+	"storageRemaining": { "message": "tilaa noin {count} lisää varten" },
+	"storageFull": { "message": "Täynnä — tallennus epäonnistuu, kunnes poistat merkintöjä." },
+	"storageImportTooLarge": { "message": "Tämä valinta ei enää mahdu. Poista valintoja tai tuo kerralla vähemmän." }
 }

@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Názov uvádza {name}, ale otvorí sa {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Využité úložisko" },
+	"storageDetail": { "message": "{used} z {total} bajtov ({percent}%)" },
+	"storageUsed": { "message": "využité {percent}%" },
+	"storageRemaining": { "message": "miesto pre približne {count} ďalších" },
+	"storageFull": { "message": "Plné — ukladanie zlyhá, kým neodstránite položky." },
+	"storageImportTooLarge": { "message": "Tento výber sa už nezmestí. Zrušte výber položiek alebo importujte menej naraz." }
 }

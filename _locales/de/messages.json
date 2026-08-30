@@ -3005,5 +3005,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Der Name nennt {name}, geöffnet wird aber {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Belegter Speicher" },
+	"storageDetail": { "message": "{used} von {total} Bytes ({percent} %)" },
+	"storageUsed": { "message": "{percent} % belegt" },
+	"storageRemaining": { "message": "Platz für etwa {count} weitere" },
+	"storageFull": { "message": "Voll — Speichern schlägt fehl, bis du Einträge entfernst." },
+	"storageImportTooLarge": { "message": "Diese Auswahl passt nicht mehr. Wähle Einträge ab oder importiere weniger auf einmal." }
 }

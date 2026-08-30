@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "ชื่อระบุ {name} แต่จะเปิด {url}"
-	}
+	},
+	"storageUsageLabel": { "message": "พื้นที่จัดเก็บที่ใช้ไป" },
+	"storageDetail": { "message": "ใช้ไป {used} จาก {total} ไบต์ ({percent}%)" },
+	"storageUsed": { "message": "ใช้ไป {percent}%" },
+	"storageRemaining": { "message": "มีที่ว่างสำหรับเพิ่มอีกประมาณ {count} รายการ" },
+	"storageFull": { "message": "เต็ม — การบันทึกจะล้มเหลวจนกว่าคุณจะนำรายการออก" },
+	"storageImportTooLarge": { "message": "การเลือกนี้ไม่พอดีแล้ว ยกเลิกการเลือกบางรายการ หรือนำเข้าครั้งละน้อยลง" }
 }

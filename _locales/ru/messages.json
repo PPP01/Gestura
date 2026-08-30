@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "В имени указано {name}, но открывается {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Использовано места" },
+	"storageDetail": { "message": "{used} из {total} байт ({percent}%)" },
+	"storageUsed": { "message": "использовано {percent}%" },
+	"storageRemaining": { "message": "место ещё примерно для {count}" },
+	"storageFull": { "message": "Заполнено — сохранение не работает, пока вы не удалите записи." },
+	"storageImportTooLarge": { "message": "Этот выбор больше не помещается. Снимите отметку с некоторых записей или импортируйте меньше за раз." }
 }

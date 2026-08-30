@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Tên ghi {name}, nhưng {url} mới là trang được mở."
-	}
+	},
+	"storageUsageLabel": { "message": "Dung lượng đã dùng" },
+	"storageDetail": { "message": "{used} trên {total} byte ({percent}%)" },
+	"storageUsed": { "message": "đã dùng {percent}%" },
+	"storageRemaining": { "message": "còn chỗ cho khoảng {count} mục nữa" },
+	"storageFull": { "message": "Đầy — việc lưu sẽ thất bại cho đến khi bạn xóa bớt mục." },
+	"storageImportTooLarge": { "message": "Lựa chọn này không còn vừa nữa. Bỏ chọn bớt mục hoặc nhập ít hơn mỗi lần." }
 }

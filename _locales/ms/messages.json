@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Nama menyebut {name}, tetapi {url} yang dibuka."
-	}
+	},
+	"storageUsageLabel": { "message": "Storan Digunakan" },
+	"storageDetail": { "message": "{used} daripada {total} bait ({percent}%)" },
+	"storageUsed": { "message": "{percent}% digunakan" },
+	"storageRemaining": { "message": "ruang untuk kira-kira {count} lagi" },
+	"storageFull": { "message": "Penuh — penyimpanan gagal sehingga anda mengalih keluar entri." },
+	"storageImportTooLarge": { "message": "Pilihan ini tidak lagi muat. Nyahpilih entri atau import lebih sedikit pada satu masa." }
 }

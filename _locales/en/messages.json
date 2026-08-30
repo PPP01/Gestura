@@ -3067,5 +3067,11 @@
 	"siteMenuItemDomainHint": {
 		"message": "The name says {name}, but {url} is opened.",
 		"description": "Hint when a menu entry name names a different domain than its URL"
-	}
+	},
+	"storageUsageLabel": { "message": "Storage used" },
+	"storageDetail": { "message": "{used} of {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% used" },
+	"storageRemaining": { "message": "room for about {count} more" },
+	"storageFull": { "message": "Full — saving fails until you remove entries." },
+	"storageImportTooLarge": { "message": "This selection no longer fits. Deselect entries or import fewer at once." }
 }

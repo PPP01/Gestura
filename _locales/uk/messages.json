@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "У назві вказано {name}, але відкривається {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Використане сховище" },
+	"storageDetail": { "message": "{used} з {total} байт ({percent}%)" },
+	"storageUsed": { "message": "використано {percent}%" },
+	"storageRemaining": { "message": "місця ще приблизно на {count}" },
+	"storageFull": { "message": "Заповнено — збереження не вдається, поки ви не видалите записи." },
+	"storageImportTooLarge": { "message": "Цей вибір більше не вміщується. Зніміть позначки з деяких записів або імпортуйте менше за раз." }
 }

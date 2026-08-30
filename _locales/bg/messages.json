@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Името сочи {name}, но се отваря {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Използвано хранилище" },
+	"storageDetail": { "message": "{used} от {total} байта ({percent}%)" },
+	"storageUsed": { "message": "{percent}% използвани" },
+	"storageRemaining": { "message": "място за още около {count}" },
+	"storageFull": { "message": "Пълно — запазването не успява, докато не премахнете записи." },
+	"storageImportTooLarge": { "message": "Този избор вече не се побира. Премахнете отметки или импортирайте по-малко наведнъж." }
 }

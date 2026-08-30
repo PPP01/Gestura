@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Navnet oppgir {name}, men {url} åpnes."
-	}
+	},
+	"storageUsageLabel": { "message": "Brukt lagringsplass" },
+	"storageDetail": { "message": "{used} av {total} byte ({percent} %)" },
+	"storageUsed": { "message": "{percent} % brukt" },
+	"storageRemaining": { "message": "plass til omtrent {count} til" },
+	"storageFull": { "message": "Full — lagring mislykkes til du fjerner oppføringer." },
+	"storageImportTooLarge": { "message": "Dette utvalget får ikke lenger plass. Fjern merkingen av oppføringer, eller importer færre om gangen." }
 }

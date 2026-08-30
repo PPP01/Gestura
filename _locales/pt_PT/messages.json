@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "O nome indica {name}, mas {url} é aberto."
-	}
+	},
+	"storageUsageLabel": { "message": "Armazenamento Utilizado" },
+	"storageDetail": { "message": "{used} de {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% utilizado" },
+	"storageRemaining": { "message": "espaço para mais cerca de {count}" },
+	"storageFull": { "message": "Cheio — a gravação falha até remover entradas." },
+	"storageImportTooLarge": { "message": "Esta seleção já não cabe. Remova a seleção de entradas ou importe menos de cada vez." }
 }

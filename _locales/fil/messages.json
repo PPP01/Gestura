@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Nakasaad sa pangalan ang {name}, ngunit {url} ang bubuksan."
-	}
+	},
+	"storageUsageLabel": { "message": "Nagamit na Imbakan" },
+	"storageDetail": { "message": "{used} sa {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% nagamit" },
+	"storageRemaining": { "message": "may puwang para sa humigit-kumulang {count} pa" },
+	"storageFull": { "message": "Puno — mabibigo ang pag-save hangga't hindi mo inaalis ang mga entry." },
+	"storageImportTooLarge": { "message": "Hindi na kasya ang napiling ito. Alisin sa pagpili ang ilang entry o mag-import ng mas kaunti nang sabay-sabay." }
 }

@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "名称写的是 {name}，但打开的是 {url}。"
-	}
+	},
+	"storageUsageLabel": { "message": "已用存储" },
+	"storageDetail": { "message": "已用 {used} / {total} 字节（{percent}%）" },
+	"storageUsed": { "message": "已使用 {percent}%" },
+	"storageRemaining": { "message": "还能容纳约 {count} 条" },
+	"storageFull": { "message": "已满 — 在你删除条目之前，保存会失败。" },
+	"storageImportTooLarge": { "message": "此选择已放不下。请取消勾选部分条目，或一次导入更少的条目。" }
 }

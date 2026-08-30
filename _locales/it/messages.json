@@ -2903,5 +2903,11 @@
 	},
 	"siteMenuItemDomainHint": {
 		"message": "Il nome indica {name}, ma viene aperto {url}."
-	}
+	},
+	"storageUsageLabel": { "message": "Archiviazione Utilizzata" },
+	"storageDetail": { "message": "{used} di {total} byte ({percent}%)" },
+	"storageUsed": { "message": "{percent}% utilizzato" },
+	"storageRemaining": { "message": "spazio per altri {count} circa" },
+	"storageFull": { "message": "Pieno — il salvataggio fallisce finché non rimuovi delle voci." },
+	"storageImportTooLarge": { "message": "Questa selezione non entra più. Deseleziona alcune voci o importane meno alla volta." }
 }
