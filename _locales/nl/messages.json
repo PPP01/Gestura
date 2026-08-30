@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Vereist de zoekmachine \"{id}\", die niet is geïnstalleerd en geen deel uitmaakt van deze import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label van dit item in het menu. Laat leeg om de vooraf ingestelde naam te gebruiken."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "De naam noemt {name}, maar {url} wordt geopend."
 	}
 }

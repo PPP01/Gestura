@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "דורש את מנוע החיפוש „{id}“, שאינו מותקן ואינו חלק מייבוא זה."
+	},
+	"siteMenuItemNameHint": {
+		"message": "התווית של פריט זה בתפריט. השאר ריק כדי להשתמש בשם שהוגדר מראש."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "השם מציין {name}, אך נפתח {url}."
 	}
 }

@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Nécessite le moteur de recherche « {id} », qui n’est ni installé ni inclus dans cet import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Libellé de cette entrée dans le menu. Laissez vide pour utiliser le nom prédéfini."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Le nom indique {name}, mais c’est {url} qui s’ouvre."
 	}
 }

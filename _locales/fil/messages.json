@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Kailangan ang search engine na \"{id}\", na hindi naka-install at wala rin sa import na ito."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label ng entry na ito sa menu. Iwanang blangko upang gamitin ang paunang pangalan."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nakasaad sa pangalan ang {name}, ngunit {url} ang bubuksan."
 	}
 }

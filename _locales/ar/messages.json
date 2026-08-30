@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "يتطلب محرك البحث «{id}» غير المثبَّت وغير المضمَّن في هذا الاستيراد."
+	},
+	"siteMenuItemNameHint": {
+		"message": "تسمية هذا العنصر في القائمة. اتركه فارغًا لاستخدام الاسم الافتراضي."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "يشير الاسم إلى {name}، لكن الذي يُفتح هو {url}."
 	}
 }

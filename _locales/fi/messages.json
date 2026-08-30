@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Vaatii hakukoneen ”{id}”, jota ei ole asennettu eikä se sisälly tähän tuontiin."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Tämän kohteen otsikko valikossa. Jätä tyhjäksi, jos haluat käyttää oletusnimeä."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nimi viittaa kohteeseen {name}, mutta avataan {url}."
 	}
 }

@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "需要搜尋引擎「{id}」，但它既未安裝，也不在此次匯入中。"
+	},
+	"siteMenuItemNameHint": {
+		"message": "此項目在選單中顯示的名稱。留空則使用預設名稱。"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "名稱寫的是 {name}，但開啟的是 {url}。"
 	}
 }

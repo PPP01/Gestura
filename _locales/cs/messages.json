@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Vyžaduje vyhledávač „{id}“, který není nainstalován ani není součástí tohoto importu."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Popisek této položky v nabídce. Ponechte prázdné, chcete-li použít přednastavený název."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Název uvádí {name}, ale otevře se {url}."
 	}
 }

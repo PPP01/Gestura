@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Requer o mecanismo de pesquisa \"{id}\", que não está instalado nem faz parte desta importação."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Rótulo desta entrada no menu. Deixe vazio para usar o nome predefinido."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "O nome indica {name}, mas {url} é aberto."
 	}
 }

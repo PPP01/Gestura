@@ -2999,5 +2999,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Benötigt die Suchmaschine »{id}«, die weder installiert noch Teil dieses Imports ist."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Beschriftung dieses Eintrags im Menü. Leer lassen, um den vorgegebenen Namen zu verwenden."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Der Name nennt {name}, geöffnet wird aber {url}."
 	}
 }

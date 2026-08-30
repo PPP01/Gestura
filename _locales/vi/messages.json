@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Cần công cụ tìm kiếm \"{id}\", vốn chưa được cài đặt và cũng không có trong lần nhập này."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Nhãn của mục này trong menu. Để trống để dùng tên mặc định."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Tên ghi {name}, nhưng {url} mới là trang được mở."
 	}
 }

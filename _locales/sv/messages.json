@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Kräver sökmotorn ”{id}”, som varken är installerad eller ingår i den här importen."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etikett för den här posten i menyn. Lämna tomt för att använda det förinställda namnet."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Namnet anger {name}, men {url} öppnas."
 	}
 }

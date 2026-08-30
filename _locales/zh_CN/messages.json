@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "需要搜索引擎“{id}”，但它既未安装，也不在此次导入中。"
+	},
+	"siteMenuItemNameHint": {
+		"message": "此条目在菜单中显示的名称。留空则使用预设名称。"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "名称写的是 {name}，但打开的是 {url}。"
 	}
 }

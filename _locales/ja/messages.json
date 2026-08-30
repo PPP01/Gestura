@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "検索エンジン「{id}」が必要ですが、インストールされておらず、このインポートにも含まれていません。"
+	},
+	"siteMenuItemNameHint": {
+		"message": "メニューでのこの項目のラベル。空欄のままにすると既定の名前を使用します。"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "名前は {name} ですが、開かれるのは {url} です。"
 	}
 }

@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Necesită motorul de căutare „{id}”, care nu este instalat și nu face parte din acest import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Eticheta acestei intrări în meniu. Lăsați gol pentru a folosi numele predefinit."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Numele indică {name}, dar se deschide {url}."
 	}
 }

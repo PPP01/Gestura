@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Krever søkemotoren «{id}», som verken er installert eller del av denne importen."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etikett for denne oppføringen i menyen. La feltet stå tomt for å bruke det forhåndsdefinerte navnet."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Navnet oppgir {name}, men {url} åpnes."
 	}
 }

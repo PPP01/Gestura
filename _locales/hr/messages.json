@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Zahtijeva tražilicu „{id}“, koja nije instalirana niti je dio ovog uvoza."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Oznaka ove stavke u izborniku. Ostavite prazno za upotrebu zadanog naziva."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Naziv navodi {name}, ali otvara se {url}."
 	}
 }

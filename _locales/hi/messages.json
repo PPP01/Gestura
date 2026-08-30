@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "\"{id}\" खोज इंजन आवश्यक है, जो न तो इंस्टॉल है और न ही इस आयात का हिस्सा है।"
+	},
+	"siteMenuItemNameHint": {
+		"message": "मेनू में इस प्रविष्टि का लेबल। पूर्वनिर्धारित नाम उपयोग करने के लिए खाली छोड़ें।"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "नाम में {name} है, लेकिन {url} खुलता है।"
 	}
 }

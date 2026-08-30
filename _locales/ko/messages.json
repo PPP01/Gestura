@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "\"{id}\" 검색 엔진이 필요하지만 설치되어 있지 않으며 이 가져오기에도 포함되어 있지 않습니다."
+	},
+	"siteMenuItemNameHint": {
+		"message": "메뉴에 표시할 이 항목의 이름입니다. 비워 두면 기본 이름을 사용합니다."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "이름은 {name}이지만 열리는 곳은 {url}입니다."
 	}
 }

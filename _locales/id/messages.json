@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Membutuhkan mesin pencari \"{id}\", yang tidak terpasang dan tidak termasuk dalam impor ini."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label entri ini di menu. Kosongkan untuk memakai nama bawaan."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nama menyebut {name}, tetapi yang dibuka adalah {url}."
 	}
 }

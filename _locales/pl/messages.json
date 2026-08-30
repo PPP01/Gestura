@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Wymaga wyszukiwarki „{id}”, która nie jest zainstalowana ani nie należy do tego importu."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etykieta tego elementu w menu. Pozostaw puste, aby użyć nazwy domyślnej."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nazwa wskazuje {name}, ale otwierany jest {url}."
 	}
 }

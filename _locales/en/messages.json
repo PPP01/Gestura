@@ -3059,5 +3059,13 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Requires the search engine \"{id}\", which is not installed and not part of this import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label for this entry in the menu. Leave empty to use the preset name.",
+		"description": "Hint under the name field of a website-menu entry"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "The name says {name}, but {url} is opened.",
+		"description": "Hint when a menu entry name names a different domain than its URL"
 	}
 }

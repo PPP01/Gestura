@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "\"{id}\" arama motorunu gerektirir; bu motor ne yüklü ne de bu içe aktarmanın parçası."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Bu girişin menüdeki etiketi. Önceden tanımlı adı kullanmak için boş bırakın."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Ad {name} diyor ancak {url} açılıyor."
 	}
 }

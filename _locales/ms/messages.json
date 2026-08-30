@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "Memerlukan enjin carian \"{id}\", yang tidak dipasang dan tiada dalam import ini."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label untuk entri ini dalam menu. Biarkan kosong untuk menggunakan nama lalai."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nama menyebut {name}, tetapi {url} yang dibuka."
 	}
 }

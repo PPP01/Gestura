@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "A(z) „{id}” keresőmotort igényli, amely nincs telepítve és nem része ennek az importnak."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Ennek a bejegyzésnek a felirata a menüben. Hagyja üresen az előre megadott név használatához."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "A név {name} címet említ, de {url} nyílik meg."
 	}
 }

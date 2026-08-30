@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "به موتور جستجوی «{id}» نیاز دارد که نه نصب شده و نه بخشی از این درون‌ریزی است."
+	},
+	"siteMenuItemNameHint": {
+		"message": "برچسب این مورد در منو. برای استفاده از نام پیش‌فرض خالی بگذارید."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "نام به {name} اشاره دارد، اما {url} باز می‌شود."
 	}
 }

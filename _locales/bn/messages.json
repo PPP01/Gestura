@@ -2897,5 +2897,11 @@
 	},
 	"exchangeMissingEngine": {
 		"message": "\"{id}\" সার্চ ইঞ্জিন প্রয়োজন, যা ইনস্টল করা নেই এবং এই ইম্পোর্টেও নেই।"
+	},
+	"siteMenuItemNameHint": {
+		"message": "মেনুতে এই আইটেমের লেবেল। পূর্বনির্ধারিত নাম ব্যবহার করতে খালি রাখুন।"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "নামে {name} বলা হয়েছে, কিন্তু খোলা হয় {url}।"
 	}
 }
