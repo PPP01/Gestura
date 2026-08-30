@@ -179,16 +179,14 @@ class ActionSelect extends LitElement {
 				align-items: center;
 				opacity: 0.4;
 			}
-			.trigger-icon,
-			.trigger-hint {
+			.trigger-icon {
 				flex-shrink: 0;
 				display: flex;
 				align-items: center;
 				color: var(--text-muted);
-			}
-			.trigger-icon {
 				margin-inline-end: 6px;
 			}
+			/* Farbe und Größe kommen aus .notice-mark in common.css. */
 			.trigger-hint {
 				margin-inline-start: 6px;
 			}
@@ -872,7 +870,7 @@ class ActionSelect extends LitElement {
 				<span class="trigger-name">${this.#displayName(this.value)}</span>
 				${detail ? html`<span class="trigger-detail" .tooltip=${tooltip(detail)}>${detail}</span>` : ''}
 				${mismatch ? html`
-					<span class="trigger-hint" .tooltip=${tooltip(this.#domainHintText(mismatch))}>
+					<span class="trigger-hint notice-mark" .tooltip=${tooltip(this.#domainHintText(mismatch))}>
 						${unsafeHTML(icon('info', { size: 14 }))}
 					</span>
 				` : ''}
@@ -974,7 +972,12 @@ class ActionSelect extends LitElement {
 					@input=${(e) => { this._pendingConfig = { ...this._pendingConfig, customName: e.target.value }; }}
 				>
 				<div class="action-config-hint">${hint}</div>
-				${mismatch ? html`<div class="action-config-info">${this.#domainHintText(mismatch)}</div>` : ''}
+				${mismatch ? html`
+					<div class="notice">
+						${unsafeHTML(icon('info', { size: 14 }))}
+						<span>${this.#domainHintText(mismatch)}</span>
+					</div>
+				` : ''}
 			</div>
 		`;
 	}
