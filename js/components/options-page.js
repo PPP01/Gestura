@@ -480,14 +480,14 @@ class OptionsPage extends LitElement {
 									</div>
 									<div class="inline-setting-item">
 										<label>
-											<input type="checkbox" id="showTrailArrow" .checked=${this._settings.showTrailArrow !== false} @change=${e => this.#updateSetting('showTrailArrow', e.target.checked)}>
-											<span>${i18n.getMessage('showTrailArrow')}</span>
-										</label>
-									</div>
-									<div class="inline-setting-item">
-										<label>
 											<input type="checkbox" id="enableTrailGlow" .checked=${this._settings.enableTrailGlow !== false} @change=${e => this.#updateSetting('enableTrailGlow', e.target.checked)}>
 											<span>${i18n.getMessage('enableTrailGlow')}</span>
+										</label>
+									</div>
+									<div class="inline-setting-item advanced-setting">
+										<label>
+											<input type="checkbox" id="enableTrailSmooth" .checked=${this._settings.enableTrailSmooth} @change=${e => this.#updateSetting('enableTrailSmooth', e.target.checked)}>
+											<span>${i18n.getMessage('enableTrailSmooth')}</span>
 										</label>
 									</div>
 									<div class="inline-setting-item advanced-setting">
@@ -496,10 +496,10 @@ class OptionsPage extends LitElement {
 											<span>${i18n.getMessage('showTrailOrigin')}</span>
 										</label>
 									</div>
-									<div class="inline-setting-item advanced-setting">
+									<div class="inline-setting-item">
 										<label>
-											<input type="checkbox" id="enableTrailSmooth" .checked=${this._settings.enableTrailSmooth} @change=${e => this.#updateSetting('enableTrailSmooth', e.target.checked)}>
-											<span>${i18n.getMessage('enableTrailSmooth')}</span>
+											<input type="checkbox" id="showTrailArrow" .checked=${this._settings.showTrailArrow !== false} @change=${e => this.#updateSetting('showTrailArrow', e.target.checked)}>
+											<span>${i18n.getMessage('showTrailArrow')}</span>
 										</label>
 									</div>
 								</div>
