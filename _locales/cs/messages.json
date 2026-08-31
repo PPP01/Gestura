@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Importováno" },
 	"importBadgeNew": { "message": "Nové" },
 	"exchangeUpdateExisting": { "message": "Aktualizovat stávající „{name}“" },
-	"exchangeBadgeExisting": { "message": "Již přidáno" }
+	"exchangeBadgeExisting": { "message": "Již přidáno" },
+	"trailColorEnd": { "message": "Koncová barva" },
+	"enableTrailGradient": { "message": "Barevný přechod" },
+	"showTrailArrow": { "message": "Šipka" },
+	"enableTrailGlow": { "message": "Záře" }
 }

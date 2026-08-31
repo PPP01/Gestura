@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "已匯入" },
 	"importBadgeNew": { "message": "新" },
 	"exchangeUpdateExisting": { "message": "更新現有的「{name}」" },
-	"exchangeBadgeExisting": { "message": "已新增" }
+	"exchangeBadgeExisting": { "message": "已新增" },
+	"trailColorEnd": { "message": "結束顏色" },
+	"enableTrailGradient": { "message": "顏色漸層" },
+	"showTrailArrow": { "message": "箭頭" },
+	"enableTrailGlow": { "message": "發光" }
 }

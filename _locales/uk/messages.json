@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Імпортовано" },
 	"importBadgeNew": { "message": "Нове" },
 	"exchangeUpdateExisting": { "message": "Оновити наявний «{name}»" },
-	"exchangeBadgeExisting": { "message": "Уже додано" }
+	"exchangeBadgeExisting": { "message": "Уже додано" },
+	"trailColorEnd": { "message": "Кінцевий колір" },
+	"enableTrailGradient": { "message": "Градієнт" },
+	"showTrailArrow": { "message": "Наконечник стрілки" },
+	"enableTrailGlow": { "message": "Сяйво" }
 }

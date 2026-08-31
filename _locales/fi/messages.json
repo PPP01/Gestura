@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Tuotu" },
 	"importBadgeNew": { "message": "Uusi" },
 	"exchangeUpdateExisting": { "message": "Päivitä olemassa oleva ”{name}”" },
-	"exchangeBadgeExisting": { "message": "Jo lisätty" }
+	"exchangeBadgeExisting": { "message": "Jo lisätty" },
+	"trailColorEnd": { "message": "Loppuväri" },
+	"enableTrailGradient": { "message": "Väriliuku" },
+	"showTrailArrow": { "message": "Nuolenkärki" },
+	"enableTrailGlow": { "message": "Hehku" }
 }

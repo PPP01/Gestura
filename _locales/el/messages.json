@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Έγινε εισαγωγή" },
 	"importBadgeNew": { "message": "Νέο" },
 	"exchangeUpdateExisting": { "message": "Ενημέρωση του υπάρχοντος «{name}»" },
-	"exchangeBadgeExisting": { "message": "Υπάρχει" }
+	"exchangeBadgeExisting": { "message": "Υπάρχει" },
+	"trailColorEnd": { "message": "Χρώμα τέλους" },
+	"enableTrailGradient": { "message": "Διαβάθμιση" },
+	"showTrailArrow": { "message": "Αιχμή βέλους" },
+	"enableTrailGlow": { "message": "Λάμψη" }
 }

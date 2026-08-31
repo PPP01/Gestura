@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Importato" },
 	"importBadgeNew": { "message": "Nuovo" },
 	"exchangeUpdateExisting": { "message": "Aggiorna «{name}» esistente" },
-	"exchangeBadgeExisting": { "message": "Già aggiunto" }
+	"exchangeBadgeExisting": { "message": "Già aggiunto" },
+	"trailColorEnd": { "message": "Colore finale" },
+	"enableTrailGradient": { "message": "Sfumatura" },
+	"showTrailArrow": { "message": "Punta di freccia" },
+	"enableTrailGlow": { "message": "Bagliore" }
 }

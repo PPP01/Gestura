@@ -449,7 +449,7 @@ class OptionsPage extends LitElement {
 					<div class="section-body">
 						<div class="setting-row first-row">
 							<div class="setting-label">
-								<span class="setting-title">${i18n.getMessage('showTrail')}${this.#renderInlineReset(['enableTrail', 'trailColor', 'trailWidth', 'showTrailOrigin', 'enableTrailSmooth'], { confirm: true })}</span>
+								<span class="setting-title">${i18n.getMessage('showTrail')}${this.#renderInlineReset(['enableTrail', 'trailColor', 'trailColorEnd', 'enableTrailGradient', 'showTrailArrow', 'enableTrailGlow', 'trailWidth', 'showTrailOrigin', 'enableTrailSmooth'], { confirm: true })}</span>
 								<span>${i18n.getMessage('showTrailDesc')}</span>
 							</div>
 							<label class="toggle">
@@ -463,9 +463,31 @@ class OptionsPage extends LitElement {
 									<span>${i18n.getMessage('color')}</span>
 									<color-picker id="trailColor" .value=${this._settings.trailColor} alpha .defaultValue=${defaults.trailColor} @change=${e => this.#updateSetting('trailColor', e.detail.value)} @input=${e => this.#debounceSetting('trailColor', e.detail.value)}></color-picker>
 								</div>
+								<div class="inline-setting-item" style="display:${this._settings.enableTrailGradient !== false ? '' : 'none'}">
+									<span>${i18n.getMessage('trailColorEnd')}</span>
+									<color-picker id="trailColorEnd" .value=${this._settings.trailColorEnd} alpha .defaultValue=${defaults.trailColorEnd} @change=${e => this.#updateSetting('trailColorEnd', e.detail.value)} @input=${e => this.#debounceSetting('trailColorEnd', e.detail.value)}></color-picker>
+								</div>
 								<div class="inline-setting-item">
 									<span>${i18n.getMessage('width')}</span>
 									<input type="number" id="trailWidth" .value=${String(this._settings.trailWidth)} min="1" max="20" @change=${e => this.#updateSetting('trailWidth', e.target.value)} @input=${e => this.#debounceSetting('trailWidth', e.target.value)}>
+								</div>
+								<div class="inline-setting-item">
+									<label>
+										<input type="checkbox" id="enableTrailGradient" .checked=${this._settings.enableTrailGradient !== false} @change=${e => this.#updateSetting('enableTrailGradient', e.target.checked)}>
+										<span>${i18n.getMessage('enableTrailGradient')}</span>
+									</label>
+								</div>
+								<div class="inline-setting-item">
+									<label>
+										<input type="checkbox" id="showTrailArrow" .checked=${this._settings.showTrailArrow !== false} @change=${e => this.#updateSetting('showTrailArrow', e.target.checked)}>
+										<span>${i18n.getMessage('showTrailArrow')}</span>
+									</label>
+								</div>
+								<div class="inline-setting-item">
+									<label>
+										<input type="checkbox" id="enableTrailGlow" .checked=${this._settings.enableTrailGlow !== false} @change=${e => this.#updateSetting('enableTrailGlow', e.target.checked)}>
+										<span>${i18n.getMessage('enableTrailGlow')}</span>
+									</label>
 								</div>
 								<div class="inline-setting-item advanced-setting">
 									<label>

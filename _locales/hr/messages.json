@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Uvezeno" },
 	"importBadgeNew": { "message": "Novo" },
 	"exchangeUpdateExisting": { "message": "Ažuriraj postojeći „{name}“" },
-	"exchangeBadgeExisting": { "message": "Već dodano" }
+	"exchangeBadgeExisting": { "message": "Već dodano" },
+	"trailColorEnd": { "message": "Završna boja" },
+	"enableTrailGradient": { "message": "Prijelaz boja" },
+	"showTrailArrow": { "message": "Vrh strelice" },
+	"enableTrailGlow": { "message": "Sjaj" }
 }

@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "ইম্পোর্ট করা হয়েছে" },
 	"importBadgeNew": { "message": "নতুন" },
 	"exchangeUpdateExisting": { "message": "বিদ্যমান \"{name}\" আপডেট করুন" },
-	"exchangeBadgeExisting": { "message": "বিদ্যমান" }
+	"exchangeBadgeExisting": { "message": "বিদ্যমান" },
+	"trailColorEnd": { "message": "শেষের রঙ" },
+	"enableTrailGradient": { "message": "রঙের গ্রেডিয়েন্ট" },
+	"showTrailArrow": { "message": "তিরচিহ্ন" },
+	"enableTrailGlow": { "message": "দ্যুতি" }
 }

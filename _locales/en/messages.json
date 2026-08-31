@@ -3078,5 +3078,9 @@
 	"importDoneTitle": { "message": "Imported" },
 	"importBadgeNew": { "message": "New" },
 	"exchangeUpdateExisting": { "message": "Update your existing \"{name}\"" },
-	"exchangeBadgeExisting": { "message": "Already added" }
+	"exchangeBadgeExisting": { "message": "Already added" },
+	"trailColorEnd": { "message": "End colour" },
+	"enableTrailGradient": { "message": "Colour gradient" },
+	"showTrailArrow": { "message": "Arrowhead" },
+	"enableTrailGlow": { "message": "Glow" }
 }

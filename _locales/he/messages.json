@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "יובא" },
 	"importBadgeNew": { "message": "חדש" },
 	"exchangeUpdateExisting": { "message": "עדכון \"{name}\" הקיים" },
-	"exchangeBadgeExisting": { "message": "קיים" }
+	"exchangeBadgeExisting": { "message": "קיים" },
+	"trailColorEnd": { "message": "צבע סיום" },
+	"enableTrailGradient": { "message": "מעבר צבע" },
+	"showTrailArrow": { "message": "ראש חץ" },
+	"enableTrailGlow": { "message": "זוהר" }
 }

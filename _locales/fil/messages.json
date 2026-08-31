@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Na-import" },
 	"importBadgeNew": { "message": "Bago" },
 	"exchangeUpdateExisting": { "message": "I-update ang kasalukuyang \"{name}\"" },
-	"exchangeBadgeExisting": { "message": "Naidagdag na" }
+	"exchangeBadgeExisting": { "message": "Naidagdag na" },
+	"trailColorEnd": { "message": "Panghuling kulay" },
+	"enableTrailGradient": { "message": "Gradient ng kulay" },
+	"showTrailArrow": { "message": "Dulo ng arrow" },
+	"enableTrailGlow": { "message": "Glow" }
 }

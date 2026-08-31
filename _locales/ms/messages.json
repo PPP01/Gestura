@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Diimport" },
 	"importBadgeNew": { "message": "Baharu" },
 	"exchangeUpdateExisting": { "message": "Kemas kini \"{name}\" sedia ada" },
-	"exchangeBadgeExisting": { "message": "Sudah ditambah" }
+	"exchangeBadgeExisting": { "message": "Sudah ditambah" },
+	"trailColorEnd": { "message": "Warna akhir" },
+	"enableTrailGradient": { "message": "Kecerunan warna" },
+	"showTrailArrow": { "message": "Hujung anak panah" },
+	"enableTrailGlow": { "message": "Cahaya" }
 }

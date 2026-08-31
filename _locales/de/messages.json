@@ -3016,5 +3016,9 @@
 	"importDoneTitle": { "message": "Importiert" },
 	"importBadgeNew": { "message": "Neu" },
 	"exchangeUpdateExisting": { "message": "Vorhandenen Eintrag „{name}“ aktualisieren" },
-	"exchangeBadgeExisting": { "message": "Vorhanden" }
+	"exchangeBadgeExisting": { "message": "Vorhanden" },
+	"trailColorEnd": { "message": "Zielfarbe" },
+	"enableTrailGradient": { "message": "Farbverlauf" },
+	"showTrailArrow": { "message": "Pfeilspitze" },
+	"enableTrailGlow": { "message": "Leuchten" }
 }

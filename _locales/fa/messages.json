@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "وارد شد" },
 	"importBadgeNew": { "message": "جدید" },
 	"exchangeUpdateExisting": { "message": "به‌روزرسانی «{name}» موجود" },
-	"exchangeBadgeExisting": { "message": "موجود" }
+	"exchangeBadgeExisting": { "message": "موجود" },
+	"trailColorEnd": { "message": "رنگ پایان" },
+	"enableTrailGradient": { "message": "گرادیان رنگ" },
+	"showTrailArrow": { "message": "نوک پیکان" },
+	"enableTrailGlow": { "message": "درخشش" }
 }

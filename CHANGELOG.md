@@ -9,6 +9,15 @@
 
 **New Features:**
 
+- **The gesture trail can run as a colour gradient**, with an arrowhead at the cursor
+  and a soft glow. All three are on by default and switch off individually under
+  *Appearance*; both gradient colours are pickable, the existing trail colour is the
+  starting one. The middle of the gradient is mixed through HSL rather than RGB — a
+  straight RGB path from blue to pink runs through a muddy grey, the way around the
+  colour wheel stays vivid. The glow is a CSS filter on the canvas, not
+  `ctx.shadowBlur`: one GPU pass over the finished frame instead of a real blur per
+  draw call.
+
 - **Imports report back:** after the import dialog closes, the manager shows what
   arrived, jumps to the first new entry and marks it with a "New" badge that pulses
   once when it scrolls into view. The marking lives in `sessionStorage` — it
@@ -18,8 +27,7 @@
   now hears a `gestura:import-result` event carrying `status` (`imported` /
   `cancelled` / `failed`) and the counts, so it can close its own export window
   instead of waiting. The event can legitimately fail to arrive (tab closed,
-  navigated away), so a page must keep its own timeout — see
-  `docs/index-import-rueckmeldung.md`.
+  navigated away), so a page must keep its own timeout.
 - **Import several menus and engines at once:** the import dialog understands a
   `gesturaBundle` wrapper. Every entry is validated on its own and listed with its
   own checkbox, its own "replace the standard entry / add as new" choice and, for

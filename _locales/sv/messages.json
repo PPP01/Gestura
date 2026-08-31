@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Importerad" },
 	"importBadgeNew": { "message": "Ny" },
 	"exchangeUpdateExisting": { "message": "Uppdatera befintlig ”{name}”" },
-	"exchangeBadgeExisting": { "message": "Redan tillagd" }
+	"exchangeBadgeExisting": { "message": "Redan tillagd" },
+	"trailColorEnd": { "message": "Slutfärg" },
+	"enableTrailGradient": { "message": "Färgövergång" },
+	"showTrailArrow": { "message": "Pilspets" },
+	"enableTrailGlow": { "message": "Sken" }
 }

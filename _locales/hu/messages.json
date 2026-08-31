@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Importálva" },
 	"importBadgeNew": { "message": "Új" },
 	"exchangeUpdateExisting": { "message": "A meglévő „{name}” frissítése" },
-	"exchangeBadgeExisting": { "message": "Már hozzáadva" }
+	"exchangeBadgeExisting": { "message": "Már hozzáadva" },
+	"trailColorEnd": { "message": "Záró szín" },
+	"enableTrailGradient": { "message": "Színátmenet" },
+	"showTrailArrow": { "message": "Nyílhegy" },
+	"enableTrailGlow": { "message": "Ragyogás" }
 }

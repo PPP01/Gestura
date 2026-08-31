@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Đã nhập" },
 	"importBadgeNew": { "message": "Mới" },
 	"exchangeUpdateExisting": { "message": "Cập nhật \"{name}\" hiện có" },
-	"exchangeBadgeExisting": { "message": "Đã thêm" }
+	"exchangeBadgeExisting": { "message": "Đã thêm" },
+	"trailColorEnd": { "message": "Màu kết thúc" },
+	"enableTrailGradient": { "message": "Chuyển màu" },
+	"showTrailArrow": { "message": "Đầu mũi tên" },
+	"enableTrailGlow": { "message": "Ánh sáng" }
 }

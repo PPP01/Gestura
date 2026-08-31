@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "가져오기 완료" },
 	"importBadgeNew": { "message": "신규" },
 	"exchangeUpdateExisting": { "message": "기존 \"{name}\" 업데이트" },
-	"exchangeBadgeExisting": { "message": "이미 추가됨" }
+	"exchangeBadgeExisting": { "message": "이미 추가됨" },
+	"trailColorEnd": { "message": "끝 색상" },
+	"enableTrailGradient": { "message": "색상 그라데이션" },
+	"showTrailArrow": { "message": "화살표 머리" },
+	"enableTrailGlow": { "message": "광채" }
 }

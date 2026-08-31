@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "आयात किया गया" },
 	"importBadgeNew": { "message": "नया" },
 	"exchangeUpdateExisting": { "message": "मौजूदा \"{name}\" अपडेट करें" },
-	"exchangeBadgeExisting": { "message": "पहले से मौजूद" }
+	"exchangeBadgeExisting": { "message": "पहले से मौजूद" },
+	"trailColorEnd": { "message": "अंतिम रंग" },
+	"enableTrailGradient": { "message": "रंग ग्रेडिएंट" },
+	"showTrailArrow": { "message": "तीर का सिरा" },
+	"enableTrailGlow": { "message": "चमक" }
 }

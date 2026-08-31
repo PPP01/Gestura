@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Importeret" },
 	"importBadgeNew": { "message": "Ny" },
 	"exchangeUpdateExisting": { "message": "Opdatér eksisterende \"{name}\"" },
-	"exchangeBadgeExisting": { "message": "Findes" }
+	"exchangeBadgeExisting": { "message": "Findes" },
+	"trailColorEnd": { "message": "Slutfarve" },
+	"enableTrailGradient": { "message": "Farveovergang" },
+	"showTrailArrow": { "message": "Pilespids" },
+	"enableTrailGlow": { "message": "Glød" }
 }

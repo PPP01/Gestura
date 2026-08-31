@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Importat" },
 	"importBadgeNew": { "message": "Nou" },
 	"exchangeUpdateExisting": { "message": "Actualizează „{name}” existent" },
-	"exchangeBadgeExisting": { "message": "Deja adăugat" }
+	"exchangeBadgeExisting": { "message": "Deja adăugat" },
+	"trailColorEnd": { "message": "Culoare finală" },
+	"enableTrailGradient": { "message": "Degrade" },
+	"showTrailArrow": { "message": "Vârf de săgeată" },
+	"enableTrailGlow": { "message": "Strălucire" }
 }

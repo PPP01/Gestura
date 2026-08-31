@@ -349,6 +349,58 @@ function colorWithAlpha(color, defaultAlpha = 1) {
 	return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+// Die Mitte eines Verlaufs über HSL mischen, nicht über RGB. Der gerade RGB-Weg
+// von Blau nach Rosa führt quer durch die Mitte des Farbraums und ergibt ein
+// stumpfes Grau-Violett; über den Farbkreis bleibt die Mitte kräftig - genau der
+// Violett-Ton, der den Verlauf ausmacht. Canvas interpoliert zwischen zwei
+// Stopps selbst in sRGB, dieser Stopp muss also gesetzt werden.
+//
+// Liefert null, wenn eine der beiden Farben kein Hex ist: der Farbwähler kann
+// auch oklch() ausgeben. Dann bleibt der Verlauf zweistufig statt falsch.
+function hexToRgba(color) {
+	if (typeof color !== 'string' || !color.startsWith('#')) return null;
+	let hex = color.slice(1);
+	if (hex.length === 3 || hex.length === 4) hex = hex.split('').map(c => c + c).join('');
+	if (hex.length !== 6 && hex.length !== 8) return null;
+	const n = parseInt(hex.slice(0, 6), 16);
+	if (Number.isNaN(n)) return null;
+	return {
+		r: (n >> 16) & 255,
+		g: (n >> 8) & 255,
+		b: n & 255,
+		a: hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1,
+	};
+}
+
+function rgbToHsl({ r, g, b }) {
+	const rn = r / 255, gn = g / 255, bn = b / 255;
+	const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+	const l = (max + min) / 2;
+	if (max === min) return { h: 0, s: 0, l };
+	const d = max - min;
+	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+	let h;
+	if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0));
+	else if (max === gn) h = (bn - rn) / d + 2;
+	else h = (rn - gn) / d + 4;
+	return { h: h * 60, s, l };
+}
+
+function midColor(c1, c2) {
+	const a = hexToRgba(c1), b = hexToRgba(c2);
+	if (!a || !b) return null;
+	const A = rgbToHsl(a), B = rgbToHsl(b);
+	// Den kürzeren Weg über den Farbkreis nehmen - sonst läuft ein Verlauf von
+	// Rot nach Violett einmal quer durch Grün.
+	let dh = B.h - A.h;
+	if (dh > 180) dh -= 360;
+	if (dh < -180) dh += 360;
+	const h = (A.h + dh / 2 + 360) % 360;
+	const s = ((A.s + B.s) / 2) * 100;
+	const l = ((A.l + B.l) / 2) * 100;
+	return `hsla(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%, ${((a.a + b.a) / 2).toFixed(3)})`;
+}
+
 function colorHasAlpha(color) {
 	if (!color || typeof color !== 'string') return false;
 	if (color.startsWith('oklch(')) {
@@ -392,6 +444,10 @@ class GestureOverlay {
 			hudBlurRadius: 5,
 			enableHudShadow: true,
 			trailColor: '#4285f4',
+			trailColorEnd: '#ec4899',
+			enableTrailGradient: true,
+			showTrailArrow: true,
+			enableTrailGlow: true,
 			trailWidth: 5,
 			showTrailOrigin: true,
 			showRawTrail: false,
@@ -433,11 +489,6 @@ class GestureOverlay {
 
 		this.canvas = this.host.createElement('canvas');
 		this.canvas.className = 'fm-gesture-trail';
-		// QUICKSHOT: Das Leuchten kommt als CSS-Filter auf das Canvas-Element, nicht
-		// als ctx.shadowBlur. shadowBlur ist eine echte Unschärfe JE Zeichenaufruf;
-		// drop-shadow ist ein einziger, GPU-komponierter Durchgang über das fertige
-		// Bild - unabhängig davon, wie viele Striche darunter liegen. Deshalb steht
-		// in #draw() weiterhin shadowBlur = 0.
 		this.canvas.style.cssText = `
 			position: absolute;
 			top: 0;
@@ -446,8 +497,8 @@ class GestureOverlay {
 			height: 100%;
 			pointer-events: none;
 			display: none;
-			filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.55)) drop-shadow(0 0 12px rgba(236, 72, 153, 0.3));
 		`;
+		this.updateGlow();
 
 		this.resizeHandler = () => {
 			if (!this.canvas) return;
@@ -641,6 +692,7 @@ class GestureOverlay {
 		if (settings.customCss !== undefined) {
 			this.host.setCustomCss(this.settings.customCss);
 		}
+		this.updateGlow();
 		this.updateHudStyle();
 	}
 
@@ -848,28 +900,53 @@ class GestureOverlay {
 		}
 	}
 
-	// QUICKSHOT: Verlauf, Startpunkt und Pfeilspitze sind noch fest verdrahtet.
-	// Sobald sie unter "Darstellung" schaltbar werden, wird QUICKSHOT_COLORS[0] zu
-	// settings.trailColor und die drei Zutaten bekommen je einen eigenen Schalter.
-	static QUICKSHOT_COLORS = ['#4285f4', '#a855f7', '#ec4899'];
+	// Ein linearer Verlauf vom ersten zum letzten Punkt, weiterhin EIN stroke() für
+	// die ganze Spur. #draw() zeichnet den Pfad ohnehin je Bild komplett neu, der
+	// Verlauf kostet also nur ein Gradient-Objekt je Bild.
+	//
+	// Die Farben laufen dadurch entlang der Verbindung Anfang-Ende, nicht entlang
+	// der Pfadlänge. Bei Strichen, Winkeln und Bögen ist das nicht zu
+	// unterscheiden; bei einer Schleife schon - dafür der Rückfall unten.
+	// Das Leuchten ist ein CSS-Filter auf dem Canvas-Element, nicht ctx.shadowBlur.
+	// shadowBlur ist eine echte Unschärfe JE Zeichenaufruf; drop-shadow ist ein
+	// einziger, GPU-komponierter Durchgang über das fertige Bild - unabhängig
+	// davon, wie viele Striche darunter liegen. Deshalb steht in #draw()
+	// weiterhin shadowBlur = 0.
+	//
+	// Der enge Radius trägt die Anfangsfarbe, der weite die Zielfarbe: so wandert
+	// der Schein mit dem Verlauf mit, statt ihn mit einer Fremdfarbe zu übertönen.
+	updateGlow() {
+		if (!this.canvas) return;
+		if (!this.settings.enableTrailGlow) {
+			this.canvas.style.filter = '';
+			return;
+		}
+		const near = colorWithAlpha(this.settings.trailColor, 0.55);
+		const far = colorWithAlpha(
+			this.settings.enableTrailGradient ? this.#trailEndColor() : this.settings.trailColor, 0.3);
+		this.canvas.style.filter = `drop-shadow(0 0 4px ${near}) drop-shadow(0 0 12px ${far})`;
+	}
 
-	// Bauart A: ein linearer Verlauf vom ersten zum letzten Punkt, weiterhin EIN
-	// stroke() für die ganze Spur. Die Farben laufen damit entlang der Verbindung
-	// Anfang-Ende, nicht entlang der Pfadlänge - bei Strichen, Winkeln und Bögen
-	// ist das nicht zu unterscheiden, bei einer Schleife schon.
+	#trailEndColor() {
+		return this.settings.trailColorEnd || this.settings.trailColor;
+	}
+
 	#trailStrokeStyle(ctx) {
-		const C = GestureOverlay.QUICKSHOT_COLORS;
+		const start = this.settings.trailColor;
+		if (!this.settings.enableTrailGradient) return start;
+		const end = this.#trailEndColor();
 		const first = this.trail[0];
 		const last = this.trail[this.trail.length - 1];
 		const dx = last.x - first.x;
 		const dy = last.y - first.y;
 		// Ein Verlauf ohne Länge färbt nichts. Endet die Geste dort, wo sie begann,
 		// gibt es keine sinnvolle Achse - dann die Anfangsfarbe massiv.
-		if (dx * dx + dy * dy < 4) return C[0];
+		if (dx * dx + dy * dy < 4) return start;
 		const g = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
-		g.addColorStop(0, C[0]);
-		g.addColorStop(0.5, C[1]);
-		g.addColorStop(1, C[2]);
+		g.addColorStop(0, start);
+		const mid = midColor(start, end);
+		if (mid) g.addColorStop(0.5, mid);
+		g.addColorStop(1, end);
 		return g;
 	}
 
@@ -877,6 +954,7 @@ class GestureOverlay {
 	// letzten beiden fallen bei langsamer Bewegung fast aufeinander, und aus einem
 	// Nullvektor lässt sich keine Spitze bauen - sie würde zappeln.
 	#drawArrowHead(ctx, width) {
+		if (!this.settings.showTrailArrow) return;
 		const last = this.trail[this.trail.length - 1];
 		let ref = null;
 		for (let i = this.trail.length - 2; i >= 0; i--) {
@@ -890,7 +968,7 @@ class GestureOverlay {
 		const len = Math.max(width * 2.6, 11);
 		const spread = 0.62;
 		ctx.beginPath();
-		ctx.strokeStyle = GestureOverlay.QUICKSHOT_COLORS[2];
+		ctx.strokeStyle = this.settings.enableTrailGradient ? this.#trailEndColor() : this.settings.trailColor;
 		ctx.lineWidth = width;
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
@@ -974,10 +1052,9 @@ class GestureOverlay {
 			}
 
 			ctx.beginPath();
-			// QUICKSHOT: der vorhandene Ursprungspunkt (showTrailOrigin, an per
-			// Vorgabe) übernimmt die Anfangsfarbe des Verlaufs, statt daneben einen
-			// zweiten Punkt zu zeichnen.
-			ctx.fillStyle = GestureOverlay.QUICKSHOT_COLORS[0];
+			// trailColor ist zugleich die Anfangsfarbe des Verlaufs - der vorhandene
+			// Ursprungspunkt passt damit von selbst, ohne einen zweiten daneben.
+			ctx.fillStyle = color;
 			ctx.arc(ox, oy, originRadius, 0, Math.PI * 2);
 			ctx.fill();
 		}
@@ -1157,6 +1234,10 @@ class ToastOverlay {
 	}
 }
 
+// Die Farbmischung des Spurverlaufs steht bewusst nach außen: sie ist reine
+// Rechnung, und ein falscher Weg über den Farbkreis fällt am Bildschirm nicht
+// auf - er sieht nur "irgendwie komisch" aus. Siehe tests/trail-colors.test.mjs.
+window.GestureTrailColors = { hexToRgba, rgbToHsl, midColor };
 window.ShadowHost = ShadowHost;
 window.GestureOverlay = GestureOverlay;
 window.ToastOverlay = ToastOverlay;

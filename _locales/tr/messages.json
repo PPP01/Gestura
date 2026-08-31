@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "İçe aktarıldı" },
 	"importBadgeNew": { "message": "Yeni" },
 	"exchangeUpdateExisting": { "message": "Mevcut \"{name}\" ögesini güncelle" },
-	"exchangeBadgeExisting": { "message": "Zaten eklendi" }
+	"exchangeBadgeExisting": { "message": "Zaten eklendi" },
+	"trailColorEnd": { "message": "Bitiş rengi" },
+	"enableTrailGradient": { "message": "Renk geçişi" },
+	"showTrailArrow": { "message": "Ok ucu" },
+	"enableTrailGlow": { "message": "Parıltı" }
 }

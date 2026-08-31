@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "Geïmporteerd" },
 	"importBadgeNew": { "message": "Nieuw" },
 	"exchangeUpdateExisting": { "message": "Bestaande \"{name}\" bijwerken" },
-	"exchangeBadgeExisting": { "message": "Al toegevoegd" }
+	"exchangeBadgeExisting": { "message": "Al toegevoegd" },
+	"trailColorEnd": { "message": "Eindkleur" },
+	"enableTrailGradient": { "message": "Kleurverloop" },
+	"showTrailArrow": { "message": "Pijlpunt" },
+	"enableTrailGlow": { "message": "Gloed" }
 }

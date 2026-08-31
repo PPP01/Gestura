@@ -2914,5 +2914,9 @@
 	"importDoneTitle": { "message": "นำเข้าแล้ว" },
 	"importBadgeNew": { "message": "ใหม่" },
 	"exchangeUpdateExisting": { "message": "อัปเดต \"{name}\" ที่มีอยู่" },
-	"exchangeBadgeExisting": { "message": "เพิ่มแล้ว" }
+	"exchangeBadgeExisting": { "message": "เพิ่มแล้ว" },
+	"trailColorEnd": { "message": "สีปลาย" },
+	"enableTrailGradient": { "message": "ไล่ระดับสี" },
+	"showTrailArrow": { "message": "หัวลูกศร" },
+	"enableTrailGlow": { "message": "แสงเรือง" }
 }
