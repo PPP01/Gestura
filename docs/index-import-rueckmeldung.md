@@ -58,3 +58,21 @@ Wir nennen es hier, damit ihr euch bewusst dafür entscheidet, es zu nutzen oder
 Ein importiertes Menü landete bisher **über** dem gesamten eingebauten Katalog, eine importierte Suchmaschine dagegen unten. Ursache war `siteMenus.order`: die Liste ist eine Vorrang-Liste, keine vollständige Sortierung, und der Import trug die neue ID dort ein.
 
 Neu erscheinen beide Arten **am Ende ihrer Liste**, in der Reihenfolge des Imports. Für euch ändert das nichts am Vertrag — aber wenn eure Anleitung Schritte wie „scrolle zum neuen Menü" beschreibt, stimmt die Richtung jetzt.
+
+## Nachtrag 2: `source.indexId` ist jetzt gesetzt
+
+Eure Analyse war richtig, in allen vier Punkten. Das Feld wurde an zwei Stellen gelesen und nirgends geschrieben; die Spec sah es vor. **Ihr müsst dafür nichts als offenen Punkt festhalten — es ist auf Extension-Seite behoben.** Im Index war tatsächlich nichts zu ändern.
+
+Eine Ursache hattet ihr noch nicht gesehen, und sie war die schwerere: der Import-Dialog verglich einen ankommenden Eintrag **ausschließlich mit dem eingebauten Katalog**. Ein Eintrag, den derselbe Nutzer schon einmal importiert hatte, liegt unter `custom` und wurde nie gefunden — es gab also gar keine Wahl „ersetzen", der Dialog kannte nur „als neuen Eintrag hinzufügen". Deshalb standen vier Perplexity-Einträge nebeneinander, bis der Speicher voll war. Selbst mit gesetzter `indexId` hätte sich daran nichts geändert.
+
+Was sich für euch ändert:
+
+- **Re-Export trägt wieder eure ID.** Wer ein Index-Menü importiert, anpasst und exportiert, bekommt jetzt `id: "com.whatsapp.menu"` statt `menu_a1b2c3d4e5f6`. Reicht er das ein, ist es ein Update am Original — nicht mehr ein neuer Eintrag.
+- **Der Update-Check wird möglich.** `source` trägt jetzt `indexId` **und** `version`, das Paar, das euer `UpdateCheckController` erwartet. Gebaut ist die Abfrage auf unserer Seite noch nicht; die Daten liegen jetzt aber vor.
+- **Ein zweiter Import desselben Eintrags aktualisiert.** Er wird in der Vorschau als *Vorhanden* gekennzeichnet und aktualisiert vorbelegt. Der Nutzer kann weiterhin bewusst eine zweite Kopie anlegen.
+
+Zwei Einschränkungen, damit ihr nicht darauf baut:
+
+**`type` bleibt `'site'`, nicht `'index'`.** Die Spec listet beide, aber die Übergabe sagt uns nicht, ob die Seite der Index ist oder irgendein anderer Betreiber — wir könnten es nur raten. Falls euch die Unterscheidung wichtig ist, wäre ein Feld im Payload der ehrliche Weg; sagt Bescheid.
+
+**Altbestand bleibt unerkannt.** Einträge, die vor dieser Änderung importiert wurden, tragen kein `indexId`. Sie gelten als unbekannt und müssen einmal von Hand gelöscht werden. Erkannt wird bewusst nur an der ID, nicht an Name oder URL: beide darf der Nutzer geändert haben, ohne dass daraus ein anderer Eintrag wird.
