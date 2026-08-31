@@ -1301,20 +1301,24 @@ async function stashPendingImport(json, url, sender) {
 // Gezielt an den Frame, der die Übergabe ausgelöst hat - ohne frameId bekämen alle
 // Frames der Seite das Ereignis, auch fremde Werbe-iframes.
 //
-// Scheitert der Versand, ist das kein Fehler: der Tab kann geschlossen oder
-// weiternavigiert sein. Die Seite darf sich ohnehin nicht darauf verlassen, dass
-// die Meldung kommt (siehe docs/index-import-rueckmeldung.md).
+// Der Grund des Scheiterns geht an den Aufrufer zurück, statt hier verschluckt zu
+// werden. "Kein Empfänger" ist der Normalfall (Tab zu, weiternavigiert, kein
+// Content-Skript mehr) und keine Warnung wert - aber unterscheidbar muss er sein,
+// sonst sieht man einem stummen Kanal nicht an, ob er gearbeitet hat.
+const NO_RECEIVER = /Receiving end does not exist|Could not establish connection|No frame with id|No tab with id/i;
+
 async function reportImportResult(request) {
 	const tabId = request && request.tabId;
-	if (typeof tabId !== 'number') return { success: false, error: 'No tab' };
+	if (typeof tabId !== 'number') return { success: false, error: 'noTab' };
 	try {
 		await chrome.tabs.sendMessage(
 			tabId,
 			{ action: 'gesturaImportResult', result: request.result || {} },
 			{ frameId: typeof request.frameId === 'number' ? request.frameId : 0 },
 		);
-	} catch {
-		return { success: false, error: 'Tab unreachable' };
+	} catch (e) {
+		const message = String((e && e.message) || e);
+		return { success: false, error: NO_RECEIVER.test(message) ? 'noReceiver' : message };
 	}
 	return { success: true };
 }

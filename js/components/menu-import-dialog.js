@@ -332,28 +332,41 @@ class MenuImportDialog extends LitElement {
 
 	// Rückmeldung an die Seite, die den Import angestoßen hat - nur beim Inline-Weg
 	// und beim Betreiber-Knopf, ein Datei- oder URL-Import hat niemanden zu
-	// benachrichtigen. Genau eine Meldung je Übergabe: _replyTo wird dabei geleert,
+	// benachrichtigen. Genau eine Meldung je Übergabe: _replyTo wird sofort geleert,
 	// sonst schickte das anschließende #close() noch ein "abgebrochen" hinterher.
+	// Das Leeren steht vor dem await, damit dazwischen keine zweite Meldung passt.
 	//
 	// Der Weg führt über den Worker, weil nur der chrome.tabs.sendMessage darf.
-	#reportToPage(status, imported) {
+	//
+	// Beide Ausgänge landen in der Konsole DIESER Seite. Ein stiller Kanal lässt sich
+	// sonst nicht von einem kaputten unterscheiden - man sieht ihm nicht an, ob er
+	// gearbeitet hat. "noReceiver" ist dabei kein Fehler, sondern der dokumentierte
+	// Normalfall: der Tab ist zu oder weitergezogen.
+	async #reportToPage(status, imported) {
 		const reply = this._replyTo;
 		if (!reply) return;
 		this._replyTo = null;
 		const list = imported || [];
+		const result = {
+			status,
+			menus: list.filter(e => e.kind === 'menu').length,
+			engines: list.filter(e => e.kind === 'engine').length,
+		};
+		let res;
 		try {
-			chrome.runtime.sendMessage({
-				action: 'importResult',
-				tabId: reply.tabId,
-				frameId: reply.frameId,
-				result: {
-					status,
-					menus: list.filter(e => e.kind === 'menu').length,
-					engines: list.filter(e => e.kind === 'engine').length,
-				},
+			res = await chrome.runtime.sendMessage({
+				action: 'importResult', tabId: reply.tabId, frameId: reply.frameId, result,
 			});
-		} catch {
+		} catch (e) {
 			// Erweiterungskontext kann ungültig sein (Reload mitten im Vorgang).
+			console.warn('[Gestura] Rückmeldung an die Seite nicht absendbar:', e);
+			return;
+		}
+		if (res && res.success) {
+			console.debug('[Gestura] Rückmeldung zugestellt an Tab %o, Frame %o:', reply.tabId, reply.frameId, result);
+		} else {
+			console.warn('[Gestura] Rückmeldung nicht zugestellt (%s), Tab %o, Frame %o:',
+				(res && res.error) || 'keine Antwort', reply.tabId, reply.frameId, result);
 		}
 	}
 

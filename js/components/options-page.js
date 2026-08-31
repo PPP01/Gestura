@@ -374,6 +374,14 @@ class OptionsPage extends LitElement {
 			await chrome.storage.session.remove('pendingImport');
 		} catch { }
 
+		// Ohne Tab-Kennung kann der Dialog der Seite hinterher nichts melden. Das ist
+		// bei einem Zwischenspeicher aus einer älteren Fassung der Erweiterung so und
+		// sonst nie - und ohne diese Zeile unterscheidet man es nicht davon, dass die
+		// Meldung unterwegs verloren geht.
+		if (typeof pending.tabId !== 'number') {
+			console.debug('[Gestura] Übergabe ohne Tab-Kennung — es wird keine Rückmeldung geben.');
+		}
+
 		await customElements.whenDefined('menu-import-dialog');
 		let dialog = this.shadowRoot.querySelector('menu-import-dialog');
 		if (!dialog) {
