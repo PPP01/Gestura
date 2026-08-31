@@ -5,6 +5,15 @@ import { usageOf } from '../storage-usage.js';
 import { markImported } from './import-marker.js';
 
 const X = () => window.FlowMouseMenuExchange;
+
+// Die beiden Zweige, die ein Import beschreiben kann, mit ihrer Zeilenart und der
+// Überschrift, unter der sie im Dialog stehen. An einer Stelle, weil Gruppierung,
+// Belegung und Blockade sonst je eine eigene Liste hätten - und die dritte davon
+// beim nächsten Zweig vergessen würde.
+const BRANCHES = [
+	{ key: 'siteMenus', type: 'menu', labelKey: 'siteMenusTitle' },
+	{ key: 'searchEngines', type: 'engine', labelKey: 'sectionSearchEngines' },
+];
 const isFirefox = navigator.userAgent.includes('Firefox');
 
 // Leerzustände, falls die Einstellungen die Zweige noch nicht kennen. Die Form
@@ -82,6 +91,16 @@ class MenuImportDialog extends LitElement {
 		   bei gleicher Spezifität - ohne diese Regel bliebe der Text grau, obwohl
 		   Hintergrund und Rahmen von .notice amber sind. */
 		.bhint.notice { color: var(--attention-color); }
+		.bhint.notice p { margin: 0; }
+		/* Abschnitts-Überschrift je Art, wie der Korb auf der Seite sie zeigt. */
+		.bgroup { display: flex; align-items: center; gap: 6px; margin: 14px 0 2px;
+			font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); }
+		.bgroup:first-of-type { margin-top: 4px; }
+		.bgroup .spacer { flex: 1 1 auto; }
+		.bgroup-count { padding: 0 6px; border-radius: 999px; font-size: 10px; font-weight: 600;
+			background: var(--bg-secondary); color: var(--text-secondary); }
+		/* Zahl und Kontrollkästchen sind keine Überschrift und erben ihre Optik nicht. */
+		.bgroup .bstorage, .bgroup .mode-opt { text-transform: none; letter-spacing: normal; }
 	`];
 
 	constructor() {
@@ -211,19 +230,50 @@ class MenuImportDialog extends LitElement {
 
 	#lang() { try { return (window.i18n.getCurrentLanguage() || 'en').split('_')[0]; } catch { return 'en'; } }
 
-	// Belegung, die nach dem Import bestünde - dieselbe Zahl, die der Manager
-	// danach anzeigt. Bewusst NICHT der Anteil der Auswahl am freien Platz:
+	// Belegung je Zweig, die nach dem Import bestünde - dieselbe Zahl, die der
+	// Manager danach anzeigt. Bewusst NICHT der Anteil der Auswahl am freien Platz:
 	// derselbe Prozentwert soll an beiden Orten dasselbe bedeuten.
+	//
+	// Menüs und Suchmaschinen haben je einen eigenen 8192-Byte-Deckel; eine
+	// gemeinsame Zahl verschwiege, welcher der beiden eng wird. Ein Zweig, den die
+	// Auswahl gar nicht berührt, wird mit seinem heutigen Inhalt gerechnet - sonst
+	// bliebe die Zahl leer, sobald der Nutzer alle Menüs abwählt, und "leer" liest
+	// sich wie "unbekannt" statt wie "unverändert". `touched` hält fest, welcher
+	// Fall vorliegt.
 	#projectedUsage(patch) {
-		let worst = null;
-		for (const [key, value] of Object.entries(patch)) {
-			const u = usageOf(key, value);
-			// Nach Bytes vergleichen, nicht nach Prozent: usageOf() rundet unterhalb
-			// des Deckels auf höchstens 99, ein Bytevergleich hat diese Deckelung nicht
-			// und entscheidet bei einem Gleichstand nahe 100 % zuverlässig.
-			if (!worst || u.bytes > worst.bytes) worst = u;
+		const cur = settingsStore.current;
+		const out = {};
+		for (const { key } of BRANCHES) {
+			const touched = key in patch;
+			const value = touched ? patch[key] : cur[key];
+			out[key] = value === undefined ? null : { ...usageOf(key, value), touched };
 		}
-		return worst;
+		return out;
+	}
+
+	// Zweige, die dieser Import beschreibt und die danach nicht mehr passen.
+	// Unberührte zählen nicht mit: ein anderweitig volles searchEngines darf keinen
+	// Menü-Import blockieren.
+	//
+	// Nach Bytes vergleichen, nicht nach Prozent: usageOf() rundet unterhalb des
+	// Deckels auf höchstens 99, ein Bytevergleich hat diese Deckelung nicht.
+	// Zweige, deren Zahl unten über den Knopf gehört statt in die Abschnitts-
+	// Überschrift: der Import beschreibt sie, und es wird eng. Ein Zweig, den er gar
+	// nicht anfasst, bleibt oben stehen - unten wäre er eine Warnung, gegen die der
+	// Nutzer in diesem Dialog nichts tun kann. So verschwindet keine Zahl: was nicht
+	// unten steht, steht oben.
+	#tightBranches(projected) {
+		return BRANCHES.filter(({ key }) => {
+			const u = projected[key];
+			return u && u.touched && u.percent >= 75;
+		});
+	}
+
+	#overflowing(projected) {
+		return BRANCHES.filter(({ key }) => {
+			const u = projected[key];
+			return u && u.touched && u.bytes > u.quota;
+		});
 	}
 
 	get #needsScriptAck() {
@@ -305,11 +355,13 @@ class MenuImportDialog extends LitElement {
 			match: this._catalogMatch,
 			mode: this._catalogMatch ? this._importMode : 'new',
 		}]);
-		const u = this.#projectedUsage(patch);
 		// Einzel-Import: es gibt genau einen Eintrag und nichts zum Abwählen -
 		// storageImportTooLarge ("Auswahl verkleinern") passt hier nicht, storageFull
 		// ("Speichern schlägt fehl, bis du Einträge entfernst") beschreibt die Lage.
-		if (u.bytes > u.quota) { alert(window.i18n.getMessage('storageFull')); return; }
+		if (this.#overflowing(this.#projectedUsage(patch)).length) {
+			alert(window.i18n.getMessage('storageFull'));
+			return;
+		}
 		await this.#commitPatch(patch, imported);
 	}
 
@@ -379,7 +431,7 @@ class MenuImportDialog extends LitElement {
 		if (pending) return 'script';
 		// Passt die Auswahl nicht mehr in den Speicher, ist das kein Fehler beim
 		// Schreiben mehr, sondern eine Entscheidung davor.
-		if (projected && projected.bytes > projected.quota) return 'storage';
+		if (this.#overflowing(projected).length) return 'storage';
 		return null;
 	}
 
@@ -473,28 +525,60 @@ class MenuImportDialog extends LitElement {
 		// Auswählbar ist weniger als gültig: ein Menü mit fehlender Engine ist
 		// tadellos validiert und trotzdem gesperrt. Die Zahl bewegt sich mit, wenn
 		// der Nutzer eine Engine an- oder abwählt — das ist gewollt.
-		const valid = rows.filter(r => r.result.ok && !missingBy.get(r).length).length;
+		const selectable = (r) => r.result.ok && !missingBy.get(r).length;
+		const valid = rows.filter(selectable).length;
 		const allOn = valid > 0 && chosen.length === valid;
+
+		// Erst alles setzen, dann die Abhängigkeiten prüfen: beim Anhaken wird eine
+		// Engine erst im Lauf der Schleife verfügbar, die Reihenfolge der Zeilen darf
+		// darüber nicht entscheiden.
+		const setAll = (list, on) => {
+			for (const r of list) { if (r.result.ok) this.#selectRow(r, on, false); }
+			this.#dropDependentMenus();
+			this.requestUpdate();
+		};
+
+		// Nach Art gruppieren, wie der Korb auf der Seite sie zeigt. Eine Zeile,
+		// deren Art nicht einmal erkennbar war, gehört in keine Gruppe und steht ohne
+		// Überschrift am Ende - sichtbar bleiben soll sie trotzdem.
+		const KNOWN = BRANCHES.map(b => b.type);
+		const loose = rows.filter(r => !KNOWN.includes(r.result.type));
+
+		const tight = this.#tightBranches(projected);
+		const section = (branch) => {
+			const { key, type, labelKey } = branch;
+			const list = rows.filter(r => r.result.type === type);
+			if (!list.length) return '';
+			const pick = list.filter(selectable);
+			const u = tight.includes(branch) ? null : projected[key];
+			return html`
+				<div class="bgroup">
+					<span class="bgroup-title">${i18n.getMessage(labelKey)}</span>
+					<span class="bgroup-count">${list.length}</span>
+					<span class="spacer"></span>
+					${u ? html`<span class="bstorage">${i18n.getMessage('storageAfterImport')
+						.replace('{percent}', u.percent)}</span>` : ''}
+					<label class="mode-opt">
+						<input type="checkbox" ?disabled=${!pick.length}
+							.checked=${pick.length > 0 && pick.every(r => r.selected)}
+							@change=${(e) => setAll(list, e.target.checked)}>
+						<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
+					</label>
+				</div>
+				${list.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}`;
+		};
+
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
-				<span class="bstorage">${projected && projected.percent < 75
-					? i18n.getMessage('storageAfterImport').replace('{percent}', projected.percent) : ''}</span>
 				<span class="spacer"></span>
 				<label class="mode-opt">
-					<input type="checkbox" .checked=${allOn}
-						@change=${(e) => {
-							// Erst alles setzen, dann die Abhängigkeiten prüfen: beim Anhaken
-							// wird eine Engine erst im Lauf der Schleife verfügbar, die Reihenfolge
-							// der Zeilen darf darüber nicht entscheiden.
-							for (const r of rows) { if (r.result.ok) this.#selectRow(r, e.target.checked, false); }
-							this.#dropDependentMenus();
-							this.requestUpdate();
-						}}>
+					<input type="checkbox" .checked=${allOn} @change=${(e) => setAll(rows, e.target.checked)}>
 					<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
 				</label>
 			</div>
-			${rows.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}
+			${BRANCHES.map(section)}
+			${loose.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}
 			${blocked === 'script' ? html`<p class="bhint">${i18n.getMessage('exchangeBundleScriptPending')}</p>` : ''}
 			${this.#renderStorageHint(i18n, blocked, projected)}
 			<div class="actions">
@@ -511,11 +595,15 @@ class MenuImportDialog extends LitElement {
 	// Schwelle wie unter den Listen im Menü- und Engine-Manager: ab wann es eng
 	// wird, soll überall dasselbe heißen.
 	#renderStorageHint(i18n, blocked, projected) {
-		if (!projected || projected.percent < 75) return '';
-		const after = i18n.getMessage('storageAfterImport').replace('{percent}', projected.percent);
-		return blocked === 'storage'
-			? html`<p class="bhint notice">${i18n.getMessage('storageImportTooLarge')} · ${after}</p>`
-			: html`<p class="bhint notice">${after}</p>`;
+		const tight = this.#tightBranches(projected);
+		if (!tight.length) return '';
+		return html`
+			<div class="bhint notice">
+				${blocked === 'storage' ? html`<p>${i18n.getMessage('storageImportTooLarge')}</p>` : ''}
+				${tight.map(({ key, labelKey }) => html`
+					<p>${i18n.getMessage(labelKey)} · ${i18n.getMessage('storageAfterImport')
+						.replace('{percent}', projected[key].percent)}</p>`)}
+			</div>`;
 	}
 
 	#renderBundleRow(row, i18n, lang, missing) {
