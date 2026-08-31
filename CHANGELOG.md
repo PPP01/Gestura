@@ -34,6 +34,15 @@
 
 **Fixes & Improvements:**
 
+- **Importing the same entry twice no longer creates a second copy.** The import
+  preview only ever compared against the built-in catalog, so an entry the user had
+  imported before was never recognised — every repeat import added another copy
+  until sync storage was full. Imported entries now carry the id the file gave them
+  (`source.indexId`), a repeat import is marked *Already added* and defaults to
+  updating the existing entry, and an export carries that id back out so the origin
+  sees an update rather than a new submission. Entries imported before this change
+  do not carry the id and have to be de-duplicated by hand once.
+
 - **Imported menus landed above the whole built-in catalog.** `siteMenus.order` is a
   precedence list, not a full ordering, and the import wrote the new id into it. New
   menus now appear at the end of the list, like imported search engines and

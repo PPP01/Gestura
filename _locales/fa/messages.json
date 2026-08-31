@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "این انتخاب دیگر جا نمی‌شود. برخی موارد را از انتخاب خارج کنید یا تعداد کمتری را یک‌جا وارد کنید." },
 	"storageAfterImport": { "message": "{percent}% استفاده‌شده پس از وارد کردن" },
 	"importDoneTitle": { "message": "وارد شد" },
-	"importBadgeNew": { "message": "جدید" }
+	"importBadgeNew": { "message": "جدید" },
+	"exchangeUpdateExisting": { "message": "به‌روزرسانی «{name}» موجود" },
+	"exchangeBadgeExisting": { "message": "موجود" }
 }

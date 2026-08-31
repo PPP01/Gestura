@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "この選択はもう収まりません。項目の選択を解除するか、一度にインポートする数を減らしてください。" },
 	"storageAfterImport": { "message": "インポート後は{percent}% 使用済み" },
 	"importDoneTitle": { "message": "インポート完了" },
-	"importBadgeNew": { "message": "新規" }
+	"importBadgeNew": { "message": "新規" },
+	"exchangeUpdateExisting": { "message": "既存の「{name}」を更新" },
+	"exchangeBadgeExisting": { "message": "追加済み" }
 }

@@ -84,6 +84,20 @@ Zu prüfen mit `04-bundle-3er.json` (nur Menüs) und `06-menue-mit-engine.json` 
 - Gesperrter Import: die Begründung steht als eigene Zeile über den Zahlen, im selben orangen Kasten.
 - Eine Gruppe ganz abwählen: nur deren Kontrollkästchen geht aus, das der anderen bleibt.
 
+## Zweimal dasselbe importieren
+
+Der Fall, an dem vier Perplexity-Einträge nebeneinander entstanden sind.
+
+`06-menue-mit-engine.json` zweimal hintereinander importieren. Beim **zweiten** Mal erwartet:
+
+- die Zeilen tragen das Abzeichen *Vorhanden*,
+- aufgeklappt steht die Vorbelegung auf *Vorhandenen Eintrag „…" aktualisieren*, nicht auf *Als neuen Eintrag hinzufügen*,
+- nach dem Import ist die Anzahl der Einträge **unverändert**, und die Prozentzahl bleibt stehen.
+
+Gegenprobe: im Dialog bewusst auf *Als neuen Eintrag hinzufügen* umschalten. Dann darf sehr wohl eine zweite Kopie entstehen — die Wahl bleibt beim Nutzer.
+
+Erkannt wird an `source.indexId`, der ID aus der Datei. Einträge, die vor dieser Änderung importiert wurden, tragen das Feld nicht und gelten deshalb als unbekannt: sie müssen einmal von Hand gelöscht werden, danach greift die Erkennung.
+
 ## Nach dem Import
 
 Diese drei gehören zu jedem Import oben mitgeprüft, nicht als eigener Durchgang:

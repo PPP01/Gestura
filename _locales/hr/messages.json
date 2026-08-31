@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Ovaj odabir više ne stane. Poništite odabir unosa ili uvezite manje odjednom." },
 	"storageAfterImport": { "message": "Nakon uvoza iskorišteno {percent}%" },
 	"importDoneTitle": { "message": "Uvezeno" },
-	"importBadgeNew": { "message": "Novo" }
+	"importBadgeNew": { "message": "Novo" },
+	"exchangeUpdateExisting": { "message": "Ažuriraj postojeći „{name}“" },
+	"exchangeBadgeExisting": { "message": "Već dodano" }
 }

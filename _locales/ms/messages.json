@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Pilihan ini tidak lagi muat. Nyahpilih entri atau import lebih sedikit pada satu masa." },
 	"storageAfterImport": { "message": "{percent}% digunakan selepas import" },
 	"importDoneTitle": { "message": "Diimport" },
-	"importBadgeNew": { "message": "Baharu" }
+	"importBadgeNew": { "message": "Baharu" },
+	"exchangeUpdateExisting": { "message": "Kemas kini \"{name}\" sedia ada" },
+	"exchangeBadgeExisting": { "message": "Sudah ditambah" }
 }

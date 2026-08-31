@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Dette utvalget får ikke lenger plass. Fjern merkingen av oppføringer, eller importer færre om gangen." },
 	"storageAfterImport": { "message": "{percent} % brukt etter import" },
 	"importDoneTitle": { "message": "Importert" },
-	"importBadgeNew": { "message": "Ny" }
+	"importBadgeNew": { "message": "Ny" },
+	"exchangeUpdateExisting": { "message": "Oppdater eksisterende «{name}»" },
+	"exchangeBadgeExisting": { "message": "Finnes" }
 }

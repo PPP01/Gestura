@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Deze selectie past niet meer. Deselecteer items of importeer er minder tegelijk." },
 	"storageAfterImport": { "message": "{percent}% gebruikt na het importeren" },
 	"importDoneTitle": { "message": "Geïmporteerd" },
-	"importBadgeNew": { "message": "Nieuw" }
+	"importBadgeNew": { "message": "Nieuw" },
+	"exchangeUpdateExisting": { "message": "Bestaande \"{name}\" bijwerken" },
+	"exchangeBadgeExisting": { "message": "Al toegevoegd" }
 }

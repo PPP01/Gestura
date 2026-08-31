@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "이 선택 항목이 더 이상 들어가지 않습니다. 일부 항목의 선택을 해제하거나 한 번에 더 적게 가져오세요." },
 	"storageAfterImport": { "message": "가져오기 후 {percent}% 사용됨" },
 	"importDoneTitle": { "message": "가져오기 완료" },
-	"importBadgeNew": { "message": "신규" }
+	"importBadgeNew": { "message": "신규" },
+	"exchangeUpdateExisting": { "message": "기존 \"{name}\" 업데이트" },
+	"exchangeBadgeExisting": { "message": "이미 추가됨" }
 }

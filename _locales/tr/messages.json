@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Bu seçim artık sığmıyor. Bazı girişlerin seçimini kaldırın veya bir seferde daha azını içe aktarın." },
 	"storageAfterImport": { "message": "İçe aktarma sonrasında %{percent} kullanıldı" },
 	"importDoneTitle": { "message": "İçe aktarıldı" },
-	"importBadgeNew": { "message": "Yeni" }
+	"importBadgeNew": { "message": "Yeni" },
+	"exchangeUpdateExisting": { "message": "Mevcut \"{name}\" ögesini güncelle" },
+	"exchangeBadgeExisting": { "message": "Zaten eklendi" }
 }

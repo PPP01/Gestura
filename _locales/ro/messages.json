@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Această selecție nu mai încape. Deselectează intrări sau importă mai puține odată." },
 	"storageAfterImport": { "message": "{percent}% utilizat după import" },
 	"importDoneTitle": { "message": "Importat" },
-	"importBadgeNew": { "message": "Nou" }
+	"importBadgeNew": { "message": "Nou" },
+	"exchangeUpdateExisting": { "message": "Actualizează „{name}” existent" },
+	"exchangeBadgeExisting": { "message": "Deja adăugat" }
 }

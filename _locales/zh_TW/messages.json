@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "這個選擇已經放不下了。請取消勾選部分項目，或一次匯入更少的項目。" },
 	"storageAfterImport": { "message": "匯入後已使用 {percent}%" },
 	"importDoneTitle": { "message": "已匯入" },
-	"importBadgeNew": { "message": "新" }
+	"importBadgeNew": { "message": "新" },
+	"exchangeUpdateExisting": { "message": "更新現有的「{name}」" },
+	"exchangeBadgeExisting": { "message": "已新增" }
 }

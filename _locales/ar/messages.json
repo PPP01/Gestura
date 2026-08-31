@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "لم يعد هذا التحديد يتّسع. ألغِ تحديد بعض العناصر أو استورد عددًا أقل دفعة واحدة." },
 	"storageAfterImport": { "message": "{percent}% مستخدم بعد الاستيراد" },
 	"importDoneTitle": { "message": "تم الاستيراد" },
-	"importBadgeNew": { "message": "جديد" }
+	"importBadgeNew": { "message": "جديد" },
+	"exchangeUpdateExisting": { "message": "تحديث «{name}» الموجود" },
+	"exchangeBadgeExisting": { "message": "موجود" }
 }

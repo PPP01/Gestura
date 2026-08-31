@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Hindi na kasya ang napiling ito. Alisin sa pagpili ang ilang entry o mag-import ng mas kaunti nang sabay-sabay." },
 	"storageAfterImport": { "message": "{percent}% nagamit pagkatapos mag-import" },
 	"importDoneTitle": { "message": "Na-import" },
-	"importBadgeNew": { "message": "Bago" }
+	"importBadgeNew": { "message": "Bago" },
+	"exchangeUpdateExisting": { "message": "I-update ang kasalukuyang \"{name}\"" },
+	"exchangeBadgeExisting": { "message": "Naidagdag na" }
 }

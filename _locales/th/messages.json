@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "การเลือกนี้ไม่พอดีแล้ว ยกเลิกการเลือกบางรายการ หรือนำเข้าครั้งละน้อยลง" },
 	"storageAfterImport": { "message": "ใช้ไป {percent}% หลังจากนำเข้า" },
 	"importDoneTitle": { "message": "นำเข้าแล้ว" },
-	"importBadgeNew": { "message": "ใหม่" }
+	"importBadgeNew": { "message": "ใหม่" },
+	"exchangeUpdateExisting": { "message": "อัปเดต \"{name}\" ที่มีอยู่" },
+	"exchangeBadgeExisting": { "message": "เพิ่มแล้ว" }
 }

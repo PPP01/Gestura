@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Dette valg passer ikke længere. Fravælg poster, eller importér færre ad gangen." },
 	"storageAfterImport": { "message": "{percent} % brugt efter import" },
 	"importDoneTitle": { "message": "Importeret" },
-	"importBadgeNew": { "message": "Ny" }
+	"importBadgeNew": { "message": "Ny" },
+	"exchangeUpdateExisting": { "message": "Opdatér eksisterende \"{name}\"" },
+	"exchangeBadgeExisting": { "message": "Findes" }
 }

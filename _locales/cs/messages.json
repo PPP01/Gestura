@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Tento výběr se už nevejde. Zrušte výběr některých položek nebo importujte méně najednou." },
 	"storageAfterImport": { "message": "Po importu využito {percent}%" },
 	"importDoneTitle": { "message": "Importováno" },
-	"importBadgeNew": { "message": "Nové" }
+	"importBadgeNew": { "message": "Nové" },
+	"exchangeUpdateExisting": { "message": "Aktualizovat stávající „{name}“" },
+	"exchangeBadgeExisting": { "message": "Již přidáno" }
 }

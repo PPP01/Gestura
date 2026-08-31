@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "यह चयन अब फ़िट नहीं होता। कुछ प्रविष्टियाँ अचयनित करें या एक बार में कम आयात करें।" },
 	"storageAfterImport": { "message": "आयात के बाद {percent}% उपयोग हुआ" },
 	"importDoneTitle": { "message": "आयात किया गया" },
-	"importBadgeNew": { "message": "नया" }
+	"importBadgeNew": { "message": "नया" },
+	"exchangeUpdateExisting": { "message": "मौजूदा \"{name}\" अपडेट करें" },
+	"exchangeBadgeExisting": { "message": "पहले से मौजूद" }
 }

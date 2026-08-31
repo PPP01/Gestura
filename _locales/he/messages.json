@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "הבחירה הזו כבר לא נכנסת. בטל בחירה של פריטים או ייבא פחות בכל פעם." },
 	"storageAfterImport": { "message": "{percent}% בשימוש אחרי הייבוא" },
 	"importDoneTitle": { "message": "יובא" },
-	"importBadgeNew": { "message": "חדש" }
+	"importBadgeNew": { "message": "חדש" },
+	"exchangeUpdateExisting": { "message": "עדכון \"{name}\" הקיים" },
+	"exchangeBadgeExisting": { "message": "קיים" }
 }

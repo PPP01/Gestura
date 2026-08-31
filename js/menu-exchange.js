@@ -202,6 +202,19 @@
 		return out;
 	}
 
+	// Der gespeicherte Herkunftsnachweis, ergänzt um die ID, unter der die Datei den
+	// Eintrag führt (com.perplexity.ask). Ohne sie lässt sich ein zweiter Import
+	// desselben Eintrags nicht als derselbe erkennen - er landet als weitere Kopie
+	// daneben. Und ein Re-Export trüge die lokale ID (eng_a1b2c3) nach draußen, wo
+	// sie beim Index einen neuen fremden Eintrag erzeugt statt das Original zu
+	// aktualisieren. site-menu-manager.js und engine-manager.js lesen das Feld beim
+	// Export längst.
+	function storedSource(source, formatId) {
+		const out = source ? JSON.parse(JSON.stringify(source)) : {};
+		if (formatId) out.indexId = formatId;
+		return Object.keys(out).length ? out : null;
+	}
+
 	function toCustomMenu(menuValue, source, genId, lang, engineIdMap) {
 		const lg = lang || 'en';
 		const g = genId || newId;
@@ -212,7 +225,7 @@
 			icon: menuValue.icon || 'menu',
 			patterns: Array.isArray(menuValue.patterns) ? menuValue.patterns.slice() : [],
 			items,
-			source: source ? JSON.parse(JSON.stringify(source)) : null,
+			source: storedSource(source, menuValue.id),
 		};
 		return { id: menuId, def };
 	}
@@ -248,7 +261,7 @@
 			rawResult: !!engineValue.rawResult,
 			builtin: false,
 			type: engineValue.type === 'image' ? 'image' : 'text',
-			source: source ? JSON.parse(JSON.stringify(source)) : null,
+			source: storedSource(source, engineValue.id),
 		};
 	}
 
@@ -330,7 +343,15 @@
 
 	function applyMenuTo(cur, value, source, lang, mode, matchId, engineIdMap) {
 		if (mode === 'replace' && matchId) {
-			// Standard-Menü ersetzen -> verhält sich wie ein bearbeitetes Katalog-Menü.
+			// Woran der Verweis hängt, entscheidet, wohin geschrieben wird. Ein eigenes
+			// Menü wird an Ort und Stelle überschrieben; für ein Katalog-Menü entsteht
+			// eine bearbeitete Fassung. Ohne diese Unterscheidung legte der zweite
+			// Import desselben Index-Menüs die "bearbeitete Fassung" eines Katalog-
+			// Menüs an, das es gar nicht gibt - und das eigene bliebe unberührt daneben.
+			if (cur.custom && cur.custom[matchId]) {
+				const { def } = toCustomMenu(value, source, undefined, lang, engineIdMap);
+				return { next: { ...cur, custom: { ...cur.custom, [matchId]: def } }, id: matchId, isNew: false };
+			}
 			const def = toStandardMenu(value, lang, engineIdMap);
 			return { next: { ...cur, edited: { ...cur.edited, [matchId]: def } }, id: matchId, isNew: false };
 		}
@@ -351,6 +372,17 @@
 			return e;
 		};
 		if (mode === 'replace' && matchId) {
+			// Wie bei den Menüs: eine eigene Suchmaschine wird ersetzt, eine aus dem
+			// Katalog überschrieben. Der Platz in der Liste bleibt - ein Update soll
+			// den Eintrag nicht ans Ende springen lassen.
+			const list = cur.custom || [];
+			const at = list.findIndex(e => e && e.id === matchId);
+			if (at !== -1) {
+				const engine = strip(toCustomEngine(value, source, () => matchId, lang));
+				const next = list.slice();
+				next[at] = engine;
+				return { next: { ...cur, custom: next }, id: matchId, isNew: false };
+			}
 			const ov = strip(toEngineOverride(value, lang));
 			return { next: { ...cur, overrides: { ...cur.overrides, [matchId]: ov } }, id: matchId, isNew: false };
 		}

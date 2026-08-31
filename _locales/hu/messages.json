@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Ez a kijelölés már nem fér el. Szüntesd meg néhány bejegyzés kijelölését, vagy importálj kevesebbet egyszerre." },
 	"storageAfterImport": { "message": "{percent}% felhasználva importálás után" },
 	"importDoneTitle": { "message": "Importálva" },
-	"importBadgeNew": { "message": "Új" }
+	"importBadgeNew": { "message": "Új" },
+	"exchangeUpdateExisting": { "message": "A meglévő „{name}” frissítése" },
+	"exchangeBadgeExisting": { "message": "Már hozzáadva" }
 }

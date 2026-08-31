@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "এই নির্বাচন আর ধরছে না। কিছু এন্ট্রি বাদ দিন বা একবারে কম আমদানি করুন।" },
 	"storageAfterImport": { "message": "আমদানির পরে {percent}% ব্যবহৃত" },
 	"importDoneTitle": { "message": "ইম্পোর্ট করা হয়েছে" },
-	"importBadgeNew": { "message": "নতুন" }
+	"importBadgeNew": { "message": "নতুন" },
+	"exchangeUpdateExisting": { "message": "বিদ্যমান \"{name}\" আপডেট করুন" },
+	"exchangeBadgeExisting": { "message": "বিদ্যমান" }
 }

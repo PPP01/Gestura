@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Lựa chọn này không còn vừa nữa. Bỏ chọn bớt mục hoặc nhập ít hơn mỗi lần." },
 	"storageAfterImport": { "message": "Đã dùng {percent}% sau khi nhập" },
 	"importDoneTitle": { "message": "Đã nhập" },
-	"importBadgeNew": { "message": "Mới" }
+	"importBadgeNew": { "message": "Mới" },
+	"exchangeUpdateExisting": { "message": "Cập nhật \"{name}\" hiện có" },
+	"exchangeBadgeExisting": { "message": "Đã thêm" }
 }

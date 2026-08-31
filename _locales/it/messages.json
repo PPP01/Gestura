@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Questa selezione non entra più. Deseleziona alcune voci o importane meno alla volta." },
 	"storageAfterImport": { "message": "{percent}% utilizzato dopo l'importazione" },
 	"importDoneTitle": { "message": "Importato" },
-	"importBadgeNew": { "message": "Nuovo" }
+	"importBadgeNew": { "message": "Nuovo" },
+	"exchangeUpdateExisting": { "message": "Aggiorna «{name}» esistente" },
+	"exchangeBadgeExisting": { "message": "Già aggiunto" }
 }

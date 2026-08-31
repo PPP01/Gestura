@@ -143,3 +143,55 @@ describe('buildImportPatch', () => {
 		expect(imported).toEqual([]);
 	});
 });
+
+describe('Herkunfts-ID und Aktualisieren eines eigenen Eintrags', () => {
+	it('merkt sich die ID aus der Datei in source.indexId', () => {
+		// Ohne sie ist ein zweiter Import desselben Eintrags nicht als derselbe zu
+		// erkennen, und ein Re-Export trüge die lokale ID nach draußen.
+		const { next, id } = X.applyMenuTo(emptyMenus(), menuValue(), { type: 'site' }, 'de', 'new', null);
+		expect(next.custom[id].source.indexId).toBe('com.example.menu');
+		expect(next.custom[id].source.type).toBe('site');
+	});
+
+	it('merkt sie sich auch für eine Suchmaschine', () => {
+		const { next, id } = X.applyEngineTo(emptyEngines(), engineValue(), { type: 'site' }, 'de', 'new', null, false);
+		expect(next.custom.find(e => e.id === id).source.indexId).toBe('com.example.engine');
+	});
+
+	it('überschreibt ein vorhandenes eigenes Menü an Ort und Stelle', () => {
+		const first = X.applyMenuTo(emptyMenus(), menuValue(), { type: 'site' }, 'de', 'new', null);
+		const again = X.applyMenuTo(first.next, menuValue({ name: { en: 'Neuer Name' } }),
+			{ type: 'site' }, 'de', 'replace', first.id);
+		expect(again.id).toBe(first.id);
+		expect(again.isNew).toBe(false);
+		expect(Object.keys(again.next.custom)).toEqual([first.id]);
+		expect(again.next.custom[first.id].name).toBe('Neuer Name');
+		// NICHT als bearbeitete Fassung eines Katalog-Menüs ablegen: das Menü ist
+		// eigenes, es gibt kein Katalog-Original, das es überschreiben könnte.
+		expect(again.next.edited).toEqual({});
+	});
+
+	it('legt für ein Katalog-Menü weiterhin eine bearbeitete Fassung an', () => {
+		const { next } = X.applyMenuTo(emptyMenus(), menuValue(), { type: 'site' }, 'de', 'replace', 'gh');
+		expect(next.edited.gh).toBeTruthy();
+		expect(Object.keys(next.custom)).toEqual([]);
+	});
+
+	it('ersetzt eine vorhandene eigene Suchmaschine an ihrer Stelle', () => {
+		const cur = { ...emptyEngines(), custom: [{ id: 'eng_a', name: 'A' }] };
+		const first = X.applyEngineTo(cur, engineValue(), { type: 'site' }, 'de', 'new', null, false);
+		const again = X.applyEngineTo(first.next, engineValue({ name: { en: 'Neu' } }),
+			{ type: 'site' }, 'de', 'replace', first.id, false);
+		expect(again.id).toBe(first.id);
+		expect(again.isNew).toBe(false);
+		// Reihenfolge bleibt: der Eintrag springt nicht ans Ende der Liste.
+		expect(again.next.custom.map(e => e.id)).toEqual(['eng_a', first.id]);
+		expect(again.next.custom[1].name).toBe('Neu');
+	});
+
+	it('legt für eine Katalog-Suchmaschine weiterhin eine Überschreibung an', () => {
+		const { next } = X.applyEngineTo(emptyEngines(), engineValue(), { type: 'site' }, 'de', 'replace', 'google', false);
+		expect(next.overrides.google).toBeTruthy();
+		expect(next.custom).toEqual([]);
+	});
+});

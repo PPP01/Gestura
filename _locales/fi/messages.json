@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Tämä valinta ei enää mahdu. Poista valintoja tai tuo kerralla vähemmän." },
 	"storageAfterImport": { "message": "{percent} % käytetty tuonnin jälkeen" },
 	"importDoneTitle": { "message": "Tuotu" },
-	"importBadgeNew": { "message": "Uusi" }
+	"importBadgeNew": { "message": "Uusi" },
+	"exchangeUpdateExisting": { "message": "Päivitä olemassa oleva ”{name}”" },
+	"exchangeBadgeExisting": { "message": "Jo lisätty" }
 }

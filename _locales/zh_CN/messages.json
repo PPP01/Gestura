@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "此选择已放不下。请取消勾选部分条目，或一次导入更少的条目。" },
 	"storageAfterImport": { "message": "导入后已使用 {percent}%" },
 	"importDoneTitle": { "message": "已导入" },
-	"importBadgeNew": { "message": "新" }
+	"importBadgeNew": { "message": "新" },
+	"exchangeUpdateExisting": { "message": "更新现有的「{name}」" },
+	"exchangeBadgeExisting": { "message": "已添加" }
 }

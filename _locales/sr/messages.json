@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Овај избор више не стаје. Поништите избор ставки или увезите мање одједном." },
 	"storageAfterImport": { "message": "Након увоза искоришћено {percent}%" },
 	"importDoneTitle": { "message": "Увезено" },
-	"importBadgeNew": { "message": "Ново" }
+	"importBadgeNew": { "message": "Ново" },
+	"exchangeUpdateExisting": { "message": "Ажурирај постојећи „{name}“" },
+	"exchangeBadgeExisting": { "message": "Већ додато" }
 }

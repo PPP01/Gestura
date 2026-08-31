@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Този избор вече не се побира. Премахнете отметки или импортирайте по-малко наведнъж." },
 	"storageAfterImport": { "message": "{percent}% използвани след импортиране" },
 	"importDoneTitle": { "message": "Импортирано" },
-	"importBadgeNew": { "message": "Ново" }
+	"importBadgeNew": { "message": "Ново" },
+	"exchangeUpdateExisting": { "message": "Актуализиране на съществуващия „{name}“" },
+	"exchangeBadgeExisting": { "message": "Съществува" }
 }

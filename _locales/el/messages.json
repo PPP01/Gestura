@@ -2912,5 +2912,7 @@
 	"storageImportTooLarge": { "message": "Αυτή η επιλογή δεν χωράει πια. Καταργήστε την επιλογή καταχωρίσεων ή εισαγάγετε λιγότερες κάθε φορά." },
 	"storageAfterImport": { "message": "{percent}% σε χρήση μετά την εισαγωγή" },
 	"importDoneTitle": { "message": "Έγινε εισαγωγή" },
-	"importBadgeNew": { "message": "Νέο" }
+	"importBadgeNew": { "message": "Νέο" },
+	"exchangeUpdateExisting": { "message": "Ενημέρωση του υπάρχοντος «{name}»" },
+	"exchangeBadgeExisting": { "message": "Υπάρχει" }
 }

@@ -34,7 +34,7 @@ class MenuImportDialog extends LitElement {
 		_result: { state: true },   // { ok, type, errors, value }
 		_source: { state: true },
 		_scriptAck: { state: true },
-		_catalogMatch: { state: true },   // matching catalog menu / built-in engine, or null
+		_match: { state: true },   // eigener, bereits importierter Eintrag oder Katalog-Eintrag; sonst null
 		_importMode: { state: true },     // 'replace' | 'new'
 		_bundle: { state: true },   // { errors: string[], rows: Row[] } | null
 	};
@@ -109,7 +109,7 @@ class MenuImportDialog extends LitElement {
 		this._result = null;
 		this._source = null;
 		this._scriptAck = false;
-		this._catalogMatch = null;
+		this._match = null;
 		this._importMode = 'new';
 		this._bundle = null;
 	}
@@ -126,7 +126,7 @@ class MenuImportDialog extends LitElement {
 		this._scriptAck = false;
 		this._result = null;
 		this._bundle = null;
-		this._catalogMatch = null;
+		this._match = null;
 		this._importMode = 'new';
 
 		if (X().detectType(rawObject) === 'bundle') {
@@ -134,7 +134,7 @@ class MenuImportDialog extends LitElement {
 			this._bundle = {
 				errors: res.errors,
 				rows: res.entries.map((result, i) => {
-					const match = result.ok ? this.#catalogMatch(result) : null;
+					const match = result.ok ? this.#findMatch(result) : null;
 					const row = { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false, idx: i };
 					// Ein Eintrag mit Skript ist per Vorbelegung schon ausgewählt (s.o.) -
 					// ohne das hier nachzuholen, zeigt der Blocker von Anfang an auf einen
@@ -148,21 +148,21 @@ class MenuImportDialog extends LitElement {
 			this.#dropDependentMenus();
 		} else {
 			this._result = X().validate(rawObject);
-			this._catalogMatch = this._result.ok ? this.#catalogMatch(this._result) : null;
-			this._importMode = this._catalogMatch ? 'replace' : 'new';
+			this._match = this._result.ok ? this.#findMatch(this._result) : null;
+			this._importMode = this._match ? 'replace' : 'new';
 		}
 		this._open = true;
 	}
 
-	#catalogMatch(result) {
-		return result.type === 'menu' ? this.#catalogMenuMatch(result.value) : this.#catalogEngineMatch(result.value);
+	#findMatch(result) {
+		return result.type === 'menu' ? this.#menuMatch(result.value) : this.#engineMatch(result.value);
 	}
 
 	#close() {
 		// Ohne Commit ist ein Schließen ein Abbruch - die Seite wartet sonst ewig.
 		// Nach #commitPatch() ist _replyTo bereits geleert und das hier ein No-op.
 		this.#reportToPage('cancelled', []);
-		this._open = false; this._result = null; this._bundle = null; this._catalogMatch = null;
+		this._open = false; this._result = null; this._bundle = null; this._match = null;
 	}
 
 	#faviconCache = new Map(); // origin -> dataURL
@@ -188,12 +188,28 @@ class MenuImportDialog extends LitElement {
 		return window.FlowMouseFavicon.monogramDataUri(name || url || '?');
 	}
 
-	#catalogMenuMatch(v) {
+	// Zuerst die eigenen Einträge, dann der Katalog. Ohne den ersten Schritt kennt
+	// der Dialog nur "als neuen Eintrag hinzufügen", und jeder erneute Import
+	// desselben Eintrags legt eine weitere Kopie an - so entstehen vier Perplexity
+	// nebeneinander, bis der Speicher voll ist.
+	//
+	// Erkannt wird an source.indexId, nicht an Name oder URL: beide darf der Nutzer
+	// geändert haben, ohne dass daraus ein anderer Eintrag wird. Einträge, die vor
+	// der Einführung dieses Feldes importiert wurden, tragen es nicht und gelten
+	// deshalb als unbekannt - die müssen von Hand aufgeräumt werden.
+	#menuMatch(v) {
+		const custom = (settingsStore.current.siteMenus || {}).custom || {};
+		for (const [id, def] of Object.entries(custom)) {
+			if (def && def.source && def.source.indexId === v.id) return { id, name: def.name, own: true };
+		}
 		const cat = (window.FlowMouseMenuCatalog && window.FlowMouseMenuCatalog.SITE_MENU_CATALOG) || [];
 		return cat.find(m => m.id === v.id) || null;
 	}
 
-	#catalogEngineMatch(v) {
+	#engineMatch(v) {
+		const own = ((settingsStore.current.searchEngines || {}).custom || [])
+			.find(e => e && e.source && e.source.indexId === v.id);
+		if (own) return { id: own.id, name: own.name, own: true };
 		const cat = (window.FlowMouseEngineCatalogApi && window.FlowMouseEngineCatalogApi.ENGINE_CATALOG) || [];
 		return cat.find(e => e.id === v.id) || null;
 	}
@@ -218,7 +234,8 @@ class MenuImportDialog extends LitElement {
 				<label class="mode-opt">
 					<input type="radio" name="importmode-${scope}${match.id}" .checked=${mode === 'replace'}
 						@change=${() => onMode('replace')}>
-					<span>${i18n.getMessage('exchangeReplaceStandard').replace('{name}', name)}</span>
+					<span>${i18n.getMessage(match.own ? 'exchangeUpdateExisting' : 'exchangeReplaceStandard')
+						.replace('{name}', name)}</span>
 				</label>
 				<label class="mode-opt">
 					<input type="radio" name="importmode-${scope}${match.id}" .checked=${mode === 'new'}
@@ -352,8 +369,8 @@ class MenuImportDialog extends LitElement {
 		// Patches wären zwei Gelegenheiten, künftig auseinanderzulaufen.
 		const { patch, imported } = this.#patchFor([{
 			result: r,
-			match: this._catalogMatch,
-			mode: this._catalogMatch ? this._importMode : 'new',
+			match: this._match,
+			mode: this._match ? this._importMode : 'new',
 		}]);
 		// Einzel-Import: es gibt genau einen Eintrag und nichts zum Abwählen -
 		// storageImportTooLarge ("Auswahl verkleinern") passt hier nicht, storageFull
@@ -627,6 +644,7 @@ class MenuImportDialog extends LitElement {
 							? html`<span class="bmeta">${i18n.getMessage(row.result.type === 'menu' ? 'exchangePreviewMenu' : 'exchangePreviewEngine')}</span>`
 							: ''}
 					</span>
+					${row.match && row.match.own ? html`<span class="badge">${i18n.getMessage('exchangeBadgeExisting')}</span>` : ''}
 					${script ? html`<span class="badge bad">${i18n.getMessage('exchangeScriptWarnTitle')}</span>` : ''}
 					${ok ? '' : html`<span class="badge bad">${i18n.getMessage('exchangeBundleInvalid')}</span>`}
 					<button class="bcaret" @click=${() => { row.expanded = !row.expanded; this.requestUpdate(); }}>
@@ -716,7 +734,7 @@ class MenuImportDialog extends LitElement {
 		return html`
 			${this.#renderMenuBody(v, i18n)}
 			${missing.length ? html`<p class="err">${this.#missingEngineText(missing, i18n)}</p>` : ''}
-			${this.#renderModeChoice(i18n, this._catalogMatch, 'menu', this._importMode, (m) => { this._importMode = m; })}
+			${this.#renderModeChoice(i18n, this._match, 'menu', this._importMode, (m) => { this._importMode = m; })}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${!!missing.length} @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
@@ -727,7 +745,7 @@ class MenuImportDialog extends LitElement {
 		const script = this.#needsScriptAck;
 		return html`
 			${this.#renderEngineBody(v, i18n, this._scriptAck, (c) => { this._scriptAck = c; })}
-			${this.#renderModeChoice(i18n, this._catalogMatch, 'engine', this._importMode, (m) => { this._importMode = m; })}
+			${this.#renderModeChoice(i18n, this._match, 'engine', this._importMode, (m) => { this._importMode = m; })}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
 				<button class="btn btn-primary" ?disabled=${script && !this._scriptAck} @click=${() => this.#confirm()}>${i18n.getMessage('exchangeConfirmImport')}</button>
