@@ -379,7 +379,7 @@ class OptionsPage extends LitElement {
 		// sonst nie - und ohne diese Zeile unterscheidet man es nicht davon, dass die
 		// Meldung unterwegs verloren geht.
 		if (typeof pending.tabId !== 'number') {
-			console.debug('[Gestura] Übergabe ohne Tab-Kennung — es wird keine Rückmeldung geben.');
+			console.warn('[Gestura] Übergabe ohne Tab-Kennung — es wird keine Rückmeldung geben.');
 		}
 
 		await customElements.whenDefined('menu-import-dialog');

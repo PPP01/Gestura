@@ -344,7 +344,16 @@ class MenuImportDialog extends LitElement {
 	// Normalfall: der Tab ist zu oder weitergezogen.
 	async #reportToPage(status, imported) {
 		const reply = this._replyTo;
-		if (!reply) return;
+		if (!reply) {
+			// Bei Datei- und URL-Import ist das der Normalfall und keine Zeile wert.
+			// Kam der Import dagegen von einer Seite, hätte hier ein Ziel stehen
+			// müssen - und ohne diese Meldung sähe "nichts geloggt" genauso aus wie
+			// "Meldung unterwegs verloren".
+			if (this._source && this._source.type === 'site') {
+				console.warn('[Gestura] Übergabe von einer Seite, aber kein Ziel für die Rückmeldung.');
+			}
+			return;
+		}
 		this._replyTo = null;
 		const list = imported || [];
 		const result = {
@@ -363,7 +372,11 @@ class MenuImportDialog extends LitElement {
 			return;
 		}
 		if (res && res.success) {
-			console.debug('[Gestura] Rückmeldung zugestellt an Tab %o, Frame %o:', reply.tabId, reply.frameId, result);
+			// info, nicht debug: debug ist in Chrome die Stufe "Verbose" und
+			// standardmäßig ausgeblendet - eine Zeile, die den Kanal beobachtbar
+			// machen soll, wäre dort unsichtbar. Die Konsole der Optionsseite öffnet
+			// ohnehin nur, wer nachsieht.
+			console.info('[Gestura] Rückmeldung zugestellt an Tab %o, Frame %o:', reply.tabId, reply.frameId, result);
 		} else {
 			console.warn('[Gestura] Rückmeldung nicht zugestellt (%s), Tab %o, Frame %o:',
 				(res && res.error) || 'keine Antwort', reply.tabId, reply.frameId, result);
