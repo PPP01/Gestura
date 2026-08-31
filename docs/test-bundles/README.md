@@ -70,11 +70,19 @@ Zusatzprobe: im Bundle die **Engine abwählen**. Das Menü muss sich daraufhin m
 
 **`07-menue-ohne-engine.json`** — Einzel-Menü, das auf `com.example.gibtesnicht` zeigt. Erwartet: Vorschau erscheint, Import-Button ist **gesperrt**, und die Meldung nennt die fehlende Engine.
 
-## Die Prozentzahl im Bundle-Dialog
+## Gruppen und Prozentzahlen im Bundle-Dialog
 
-Sie steht an genau einem Ort, und der wechselt bei 75 %: darunter in der Kopfzeile, darüber unten über dem Import-Knopf. Grund ist die lange Liste - bei 16 Menüs ist die Kopfzeile aus dem Bild gescrollt, und dort wird nicht entschieden.
+Die Vorschau trennt nach *Website-Menüs* und *Suchmaschinen*, jede Gruppe mit Anzahl, eigenem „Alle auswählen" und **eigener** Prozentzahl — die beiden Zweige haben je einen eigenen 8192-Byte-Deckel, eine gemeinsame Zahl verschwiege, welcher eng wird.
 
-Zu prüfen: mit einem großen Bundle so viele Zeilen anhaken, dass die Anzeige von oben nach unten springt. Ist der Import gesperrt, steht die Zahl hinter der Begründung in derselben orangen Zeile.
+Jede Zahl steht an genau einem Ort, und der wechselt bei 75 %: darunter rechts in der Gruppen-Überschrift, darüber unten über dem Import-Knopf, dort mit dem Namen des Zweigs. Grund ist die lange Liste — bei 16 Einträgen ist die Überschrift aus dem Bild gescrollt, und dort wird nicht entschieden.
+
+Zu prüfen mit `04-bundle-3er.json` (nur Menüs) und `06-menue-mit-engine.json` (beides):
+
+- Häkchen setzen und entfernen: **beide** Zahlen müssen sich sofort mitbewegen.
+- Alle Menüs abwählen: die Menü-Zahl bleibt stehen und zeigt den heutigen Stand — nicht leer, nicht 0 %.
+- So viel anhaken, dass ein Zweig über 75 % geht: seine Zahl verschwindet oben und erscheint unten mit Namen. Der andere Zweig bleibt oben.
+- Gesperrter Import: die Begründung steht als eigene Zeile über den Zahlen, im selben orangen Kasten.
+- Eine Gruppe ganz abwählen: nur deren Kontrollkästchen geht aus, das der anderen bleibt.
 
 ## Nach dem Import
 
