@@ -404,10 +404,13 @@ color-picker {
 	padding-inline-start: 12px;
 }
 
-/* Schalter als eigene Spalte rechts. Fünf Kästchen in derselben Zeile wie die
-   Farbwähler brechen um und lassen die letzten zwei verwaist in einer zweiten
-   Reihe stehen - je nachdem, ob die erweiterten Einstellungen offen sind, sind
-   es drei oder fünf, die Umbruchstelle wandert also auch noch.
+/* Schalter als eigene Spalte, direkt neben den Eingabefeldern. Fünf Kästchen in
+   derselben Zeile wie die Farbwähler brechen um und lassen die letzten zwei
+   verwaist in einer zweiten Reihe stehen - je nachdem, ob die erweiterten
+   Einstellungen offen sind, sind es drei oder fünf, die Umbruchstelle wandert
+   also auch noch.
+   Bewusst ohne margin-inline-start: auto - das schöbe die Spalte an den rechten
+   Rand und risse dazwischen eine leere Fläche auf.
    .inline-settings selbst bleibt unangetastet: die Klasse tragen ein Dutzend
    andere Gruppen, die weiter in einer Zeile laufen sollen. */
 .inline-settings.has-checks {
@@ -419,7 +422,6 @@ color-picker {
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 8px;
-	margin-inline-start: auto;
 }
 
 .inline-setting-item {
