@@ -115,8 +115,13 @@
 	try {
 		chrome.runtime.onMessage.addListener((request) => {
 			if (!request || request.action !== 'gesturaImportResult') return;
+			// bubbles so a listener on `window` hears it too. The contract names
+			// `document`; a page that guessed `window` would otherwise see nothing
+			// while the extension reports a successful delivery — the exact pair of
+			// symptoms that is hardest to tell apart from a broken channel.
 			document.dispatchEvent(new CustomEvent('gestura:import-result', {
 				detail: JSON.stringify(request.result || {}),
+				bubbles: true,
 			}));
 		});
 	} catch {

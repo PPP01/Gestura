@@ -123,6 +123,7 @@ class MenuImportDialog extends LitElement {
 	openWith(rawObject, source, reply) {
 		this._source = source || { type: 'file' };
 		this._replyTo = reply && typeof reply.tabId === 'number' ? reply : null;
+		this._reported = false;
 		this._scriptAck = false;
 		this._result = null;
 		this._bundle = null;
@@ -345,16 +346,17 @@ class MenuImportDialog extends LitElement {
 	async #reportToPage(status, imported) {
 		const reply = this._replyTo;
 		if (!reply) {
-			// Bei Datei- und URL-Import ist das der Normalfall und keine Zeile wert.
-			// Kam der Import dagegen von einer Seite, hätte hier ein Ziel stehen
-			// müssen - und ohne diese Meldung sähe "nichts geloggt" genauso aus wie
-			// "Meldung unterwegs verloren".
-			if (this._source && this._source.type === 'site') {
+			// Nach einer erfolgreichen Meldung ruft #commitPatch() noch #close(), und
+			// das meldet ein zweites Mal - dieser Durchlauf ist gewollt folgenlos.
+			// Warnen darf nur der Fall, in dem NIE ein Ziel da war: bei Datei- und
+			// URL-Import der Normalfall, bei einer Übergabe von einer Seite ein Defekt.
+			if (!this._reported && this._source && this._source.type === 'site') {
 				console.warn('[Gestura] Übergabe von einer Seite, aber kein Ziel für die Rückmeldung.');
 			}
 			return;
 		}
 		this._replyTo = null;
+		this._reported = true;
 		const list = imported || [];
 		const result = {
 			status,

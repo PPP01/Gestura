@@ -19,6 +19,8 @@ document.addEventListener('gestura:import-result', (e) => {
 
 `detail` ist aus demselben Grund ein String wie beim Hinweg: ein Objekt aus dem Erweiterungs-Realm bräuchte in Firefox Sonderbehandlung, ein String überquert die Grenze ohne.
 
+**Der Listener muss an `document` oder `window` hängen.** Das Ereignis wird auf `document` ausgelöst und steigt auf, beides funktioniert also. Was *nicht* funktioniert: ein Listener an einem Element innerhalb eurer Komponente. Und er muss den Klick überleben — wird die Komponente, die ihn registriert hat, beim Öffnen des Export-Fensters neu gerendert, ist er weg, bevor die Meldung kommt. Bei SvelteKit ist das der Klassiker; der Listener gehört außerhalb des Komponenten-Lebenszyklus.
+
 | `status` | bedeutet |
 | --- | --- |
 | `imported` | gespeichert. `menus` und `engines` sagen, wie viel davon ankam. |
