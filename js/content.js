@@ -119,8 +119,15 @@
 			// `document`; a page that guessed `window` would otherwise see nothing
 			// while the extension reports a successful delivery — the exact pair of
 			// symptoms that is hardest to tell apart from a broken channel.
+			const detail = JSON.stringify(request.result || {});
+			// Logged in the page's own console, which is the only place that can prove
+			// the event reached this document. The options page can only report that it
+			// handed the message to the tab; whether anything here listened is a
+			// different question, and an operator building against this contract needs
+			// to tell the two apart. Fires only after a hand-off from this very tab.
+			console.info('[Gestura] gestura:import-result', detail);
 			document.dispatchEvent(new CustomEvent('gestura:import-result', {
-				detail: JSON.stringify(request.result || {}),
+				detail,
 				bubbles: true,
 			}));
 		});
