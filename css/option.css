@@ -409,12 +409,12 @@ color-picker {
    verwaist in einer zweiten Reihe stehen - je nachdem, ob die erweiterten
    Einstellungen offen sind, sind es drei oder fünf, die Umbruchstelle wandert
    also auch noch.
-   Drei Zeilen, dann eine neue Spalte: eine Einer-Spalte aus fünf Kästchen wird
-   unnötig hoch. Über grid-auto-flow statt über eine feste Höhe, weil die Zahl der
-   sichtbaren Kästchen wechselt - display:none nimmt die erweiterten aus dem
-   Raster, und aus fünf werden drei, ohne dass eine Höhenangabe nachgeführt
-   werden müsste. Nebenbei stehen die drei Spur-Schalter dadurch beisammen und
-   die beiden erweiterten in der zweiten Spalte.
+   Drei Spalten, zeilenweise gefüllt: eine Einer-Spalte aus fünf Kästchen wird
+   unnötig hoch. Über die Spaltenzahl statt über eine feste Höhe, weil die Zahl
+   der sichtbaren Kästchen wechselt - display:none nimmt die erweiterten aus dem
+   Raster, und aus fünf werden drei, ohne dass etwas nachgeführt werden müsste.
+   Nebenbei stehen die drei Spur-Schalter dadurch in der ersten Zeile und die
+   beiden erweiterten darunter.
    Bewusst ohne margin-inline-start: auto - das schöbe den Block an den rechten
    Rand und risse dazwischen eine leere Fläche auf.
    .inline-settings selbst bleibt unangetastet: die Klasse tragen ein Dutzend
@@ -425,8 +425,7 @@ color-picker {
 
 .inline-checks {
 	display: grid;
-	grid-template-rows: repeat(3, auto);
-	grid-auto-flow: column;
+	grid-template-columns: repeat(3, auto);
 	gap: 8px 20px;
 	justify-items: start;
 }
