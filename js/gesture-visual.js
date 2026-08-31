@@ -433,6 +433,11 @@ class GestureOverlay {
 
 		this.canvas = this.host.createElement('canvas');
 		this.canvas.className = 'fm-gesture-trail';
+		// QUICKSHOT: Das Leuchten kommt als CSS-Filter auf das Canvas-Element, nicht
+		// als ctx.shadowBlur. shadowBlur ist eine echte Unschärfe JE Zeichenaufruf;
+		// drop-shadow ist ein einziger, GPU-komponierter Durchgang über das fertige
+		// Bild - unabhängig davon, wie viele Striche darunter liegen. Deshalb steht
+		// in #draw() weiterhin shadowBlur = 0.
 		this.canvas.style.cssText = `
 			position: absolute;
 			top: 0;
@@ -441,6 +446,7 @@ class GestureOverlay {
 			height: 100%;
 			pointer-events: none;
 			display: none;
+			filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.55)) drop-shadow(0 0 12px rgba(236, 72, 153, 0.3));
 		`;
 
 		this.resizeHandler = () => {
@@ -842,6 +848,58 @@ class GestureOverlay {
 		}
 	}
 
+	// QUICKSHOT: Verlauf, Startpunkt und Pfeilspitze sind noch fest verdrahtet.
+	// Sobald sie unter "Darstellung" schaltbar werden, wird QUICKSHOT_COLORS[0] zu
+	// settings.trailColor und die drei Zutaten bekommen je einen eigenen Schalter.
+	static QUICKSHOT_COLORS = ['#4285f4', '#a855f7', '#ec4899'];
+
+	// Bauart A: ein linearer Verlauf vom ersten zum letzten Punkt, weiterhin EIN
+	// stroke() für die ganze Spur. Die Farben laufen damit entlang der Verbindung
+	// Anfang-Ende, nicht entlang der Pfadlänge - bei Strichen, Winkeln und Bögen
+	// ist das nicht zu unterscheiden, bei einer Schleife schon.
+	#trailStrokeStyle(ctx) {
+		const C = GestureOverlay.QUICKSHOT_COLORS;
+		const first = this.trail[0];
+		const last = this.trail[this.trail.length - 1];
+		const dx = last.x - first.x;
+		const dy = last.y - first.y;
+		// Ein Verlauf ohne Länge färbt nichts. Endet die Geste dort, wo sie begann,
+		// gibt es keine sinnvolle Achse - dann die Anfangsfarbe massiv.
+		if (dx * dx + dy * dy < 4) return C[0];
+		const g = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
+		g.addColorStop(0, C[0]);
+		g.addColorStop(0.5, C[1]);
+		g.addColorStop(1, C[2]);
+		return g;
+	}
+
+	// Die Richtung kommt vom letzten Punkt, der weit genug entfernt liegt: die
+	// letzten beiden fallen bei langsamer Bewegung fast aufeinander, und aus einem
+	// Nullvektor lässt sich keine Spitze bauen - sie würde zappeln.
+	#drawArrowHead(ctx, width) {
+		const last = this.trail[this.trail.length - 1];
+		let ref = null;
+		for (let i = this.trail.length - 2; i >= 0; i--) {
+			const p = this.trail[i];
+			const dx = last.x - p.x;
+			const dy = last.y - p.y;
+			if (dx * dx + dy * dy >= 100) { ref = p; break; }
+		}
+		if (!ref) return;
+		const a = Math.atan2(last.y - ref.y, last.x - ref.x);
+		const len = Math.max(width * 2.6, 11);
+		const spread = 0.62;
+		ctx.beginPath();
+		ctx.strokeStyle = GestureOverlay.QUICKSHOT_COLORS[2];
+		ctx.lineWidth = width;
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.moveTo(last.x - Math.cos(a - spread) * len, last.y - Math.sin(a - spread) * len);
+		ctx.lineTo(last.x, last.y);
+		ctx.lineTo(last.x - Math.cos(a + spread) * len, last.y - Math.sin(a + spread) * len);
+		ctx.stroke();
+	}
+
 	#draw() {
 		if (!this.ctx) return;
 
@@ -860,7 +918,7 @@ class GestureOverlay {
 
 		if (this.trail.length >= 2) {
 			ctx.beginPath();
-			ctx.strokeStyle = color;
+			ctx.strokeStyle = this.#trailStrokeStyle(ctx);
 			ctx.lineWidth = width;
 			ctx.lineCap = 'round';
 			ctx.lineJoin = 'round';
@@ -886,6 +944,7 @@ class GestureOverlay {
 				);
 			}
 			ctx.stroke();
+			this.#drawArrowHead(ctx, width);
 		}
 
 		if (this.settings.showRawTrail && this.trail.length >= 2) {
@@ -915,7 +974,10 @@ class GestureOverlay {
 			}
 
 			ctx.beginPath();
-			ctx.fillStyle = color;
+			// QUICKSHOT: der vorhandene Ursprungspunkt (showTrailOrigin, an per
+			// Vorgabe) übernimmt die Anfangsfarbe des Verlaufs, statt daneben einen
+			// zweiten Punkt zu zeichnen.
+			ctx.fillStyle = GestureOverlay.QUICKSHOT_COLORS[0];
 			ctx.arc(ox, oy, originRadius, 0, Math.PI * 2);
 			ctx.fill();
 		}
