@@ -86,7 +86,28 @@ vitest suite, and add `js-yaml` as a real devDependency — it currently sits in
 `node_modules` only as an *extraneous* leftover (`npm ls` confirms: no package.json
 entry, pulled in by a since-removed eslint), so `npm ci` in CI would not have it.
 
-## Step 3 — Backfill the missing releases
+## Step 3 — Backfill the missing releases — **done**
+
+All seven missing releases exist: `v2.4`, `v2.5`, `v2.6`, `v2.7.0` with their zip built
+from the tag, and — decided since — the AMO line `ff-v2.5.1`, `ff-v2.6.1`, `ff-v2.7.0`
+as well. The Firefox releases carry **no attachment** on purpose: Firefox installs only
+what Mozilla signed, so an unsigned zip on GitHub would be a trap. They link to the AMO
+listing instead and state that they are feature-identical to the matching `v` release.
+
+**"Oldest-first" does not work.** GitHub picks "Latest" by the *tag's* date, not by the
+order releases are published, and `ff-v2.7.0` is 40 minutes younger than `v2.7.0` — so
+the Firefox line would have taken the release badge in both READMEs. Every release was
+therefore created with `--latest=false` and `v2.7.0` published last with an explicit
+`--latest`. Verified: `gh api repos/PPP01/Gestura/releases/latest` returns `v2.7.0` with
+`gestura-2.7.0-chrome.zip` attached.
+
+The changelog sections were extracted with an awk matcher anchored on an exact heading,
+because `### v2.3` otherwise swallows `### v2.3.1`, and the inherited
+`### FlowMouse v2.3` sections must never read as a Gestura release. The same matcher is
+now in the release workflow. Each zip was checked before publishing: manifest version
+equals the tag, `version_name` bare, 39 locales present.
+
+The original sketch, for reference:
 
 Four tags have no GitHub Release: `v2.4`, `v2.5`, `v2.6`, `v2.7.0`. For each, build the
 zip from the **tag** (not `HEAD`) and publish with the matching `CHANGELOG.md` section
@@ -106,7 +127,35 @@ open question, since AMO already hosts the signed build.
 **Verification:** the release badge in `README.md` / `README.de.md` shows 2.7.0, and
 each release's zip loads unpacked and reports its own version in `chrome://extensions`.
 
-## Step 4 — Release workflow
+## Step 4 — Release workflow — **done**
+
+`.github/workflows/release.yml` exists on `main`, exactly as sketched below, plus one
+addition: `gh release create` passes an explicit `--latest`, for the reason step 3 ran
+into — the `ff-*` tags live in the same repo and are sometimes younger, and GitHub
+resolves "Latest" by tag date, so leaving it implicit would eventually hand the badge
+back to the Firefox line.
+
+**Verified by a deliberate negative dry-run.** The sketch below suggests pushing a
+`v2.7.1-test` tag, but that can never reach the happy path: guard 1 compares the tag
+against `manifest.json`, which says `2.7.0`. That is what the run was used for instead —
+tag pushed, workflow triggered, checkout and version resolution green, then:
+
+```text
+manifest.json version (2.7.0) does not match the tag (v2.7.1-test).
+Bump manifest.json and re-tag; do not move the tag onto a mismatched commit.
+```
+
+and the CHANGELOG guard, the package build and the publish step all reported `skipped` —
+so a mismatched tag cannot produce a release. Tag, test run and (unneeded) release
+cleanup are done; `releases/latest` still resolves to `v2.7.0`. The guards were also
+exercised locally beforehand against a stamped `version_name` and against a missing
+changelog section, both of which fail the job.
+
+Still unverified: the publish path itself (`git archive` → `gh release create` with the
+job token). It runs for the first time at the next real tag. If it fails there, the tag
+is already public — fix the workflow, delete the tag and re-push it.
+
+The original sketch, for reference:
 
 `.github/workflows/release.yml`, triggered on `push` of tag `v*` (explicitly **not**
 `ff-v*`):
@@ -186,3 +235,9 @@ better contact link than an email address.
 Steps 1 → 2 first (cheapest, immediately useful, and step 4's guards reuse step 2's
 checks). Step 3 next, because a stale "Latest" is what a visitor actually sees. Then 4,
 5, 6. Each step is independently shippable; none of them touch extension code.
+
+**Where this stands now:** 1, 3 and 4 are done. Step 2 was skipped over rather than
+dropped — step 4 ended up carrying its own inline guards (manifest-vs-tag, changelog
+section), so the release path is covered, but the rules still have no *local* check and
+`importScripts` vs `background.scripts` remains the one that can break `firefox-build`
+silently. That, plus steps 5 and 6, is what is left.
