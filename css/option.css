@@ -426,9 +426,22 @@ color-picker {
 .inline-checks {
 	display: grid;
 	grid-template-columns: repeat(3, auto);
+	grid-template-areas:
+		"gradient glow  smooth"
+		"origin   arrow .";
 	gap: 8px 20px;
 	justify-items: start;
 }
+
+/* Feste Plätze statt Fließen. Die Spurglättung ist die einzige erweiterte
+   Einstellung hier; ohne benannte Flächen rückte beim Zuklappen der
+   Ursprungspunkt in ihre Lücke nach, und die Anordnung änderte sich je nach
+   Zustand. So bleibt ihr Platz leer und alles andere steht still. */
+.inline-checks .check-gradient { grid-area: gradient; }
+.inline-checks .check-glow { grid-area: glow; }
+.inline-checks .check-smooth { grid-area: smooth; }
+.inline-checks .check-origin { grid-area: origin; }
+.inline-checks .check-arrow { grid-area: arrow; }
 
 .inline-setting-item {
 	display: flex;

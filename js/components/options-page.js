@@ -472,31 +472,31 @@ class OptionsPage extends LitElement {
 									<input type="number" id="trailWidth" .value=${String(this._settings.trailWidth)} min="1" max="20" @change=${e => this.#updateSetting('trailWidth', e.target.value)} @input=${e => this.#debounceSetting('trailWidth', e.target.value)}>
 								</div>
 								<div class="inline-checks">
-									<div class="inline-setting-item">
+									<div class="inline-setting-item check-gradient">
 										<label>
 											<input type="checkbox" id="enableTrailGradient" .checked=${this._settings.enableTrailGradient !== false} @change=${e => this.#updateSetting('enableTrailGradient', e.target.checked)}>
 											<span>${i18n.getMessage('enableTrailGradient')}</span>
 										</label>
 									</div>
-									<div class="inline-setting-item">
+									<div class="inline-setting-item check-glow">
 										<label>
 											<input type="checkbox" id="enableTrailGlow" .checked=${this._settings.enableTrailGlow !== false} @change=${e => this.#updateSetting('enableTrailGlow', e.target.checked)}>
 											<span>${i18n.getMessage('enableTrailGlow')}</span>
 										</label>
 									</div>
-									<div class="inline-setting-item advanced-setting">
+									<div class="inline-setting-item check-smooth advanced-setting">
 										<label>
 											<input type="checkbox" id="enableTrailSmooth" .checked=${this._settings.enableTrailSmooth} @change=${e => this.#updateSetting('enableTrailSmooth', e.target.checked)}>
 											<span>${i18n.getMessage('enableTrailSmooth')}</span>
 										</label>
 									</div>
-									<div class="inline-setting-item">
+									<div class="inline-setting-item check-origin">
 										<label>
 											<input type="checkbox" id="showTrailOrigin" .checked=${this._settings.showTrailOrigin} @change=${e => this.#updateSetting('showTrailOrigin', e.target.checked)}>
 											<span>${i18n.getMessage('showTrailOrigin')}</span>
 										</label>
 									</div>
-									<div class="inline-setting-item">
+									<div class="inline-setting-item check-arrow">
 										<label>
 											<input type="checkbox" id="showTrailArrow" .checked=${this._settings.showTrailArrow !== false} @change=${e => this.#updateSetting('showTrailArrow', e.target.checked)}>
 											<span>${i18n.getMessage('showTrailArrow')}</span>
