@@ -1,6 +1,11 @@
-// ff:release — bump the version, then sign + submit the Firefox build to AMO.
-// Pass --no-bump (npm run ff:release -- --no-bump) to sign the version that is
-// already in the manifest.
+// ff:release — sign the Firefox build at AMO, then attach the signed xpi to the
+// GitHub release that already carries this version's Chrome package.
+//
+// One version means one release holding every browser's package, so this script
+// does NOT bump: the version comes from `main` through the merge and has to stay
+// put, or the xpi lands on a release that does not exist. Pass --bump only to
+// escape a burnt number — AMO refuses a version it has already signed, and that
+// costs the number on every browser, not just Firefox.
 //
 // Credentials: reads WEB_EXT_API_KEY (JWT issuer) and WEB_EXT_API_SECRET from the
 // environment. If either is missing, it prompts for it interactively (paste when
@@ -8,6 +13,18 @@
 // environment — never on the command line — so they don't land in shell history.
 import { spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline';
+import { readFileSync, readdirSync, statSync, renameSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+const REPO = 'PPP01/Gestura';
+const ARTIFACTS = 'web-ext-artifacts';
+
+const manifestUrl = new URL('../manifest.json', import.meta.url);
+const version = JSON.parse(readFileSync(manifestUrl, 'utf8')).version;
+if (!version) {
+	console.error('ff:release: no "version" in manifest.json');
+	process.exit(1);
+}
 
 // One readline interface for all prompts — creating a second one on stdin after
 // closing the first would not receive further input.
@@ -49,13 +66,73 @@ function run(command) {
 	if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-// AMO refuses a version number it has already signed, and we cannot tell from
-// here whether the current one went out — so bump by default. Pass --no-bump
-// when you set the version yourself (typically taken from `main` during the
-// merge) and want it shipped unchanged.
-if (process.argv.slice(2).includes('--no-bump')) {
-	console.log('ff:release: --no-bump — keeping the current manifest version');
-} else {
+const args = process.argv.slice(2);
+if (args.includes('--bump')) {
+	console.log('ff:release: --bump — taking the next version instead of the one from main');
 	run('npm run ff:bump');
+} else {
+	console.log(`ff:release: signing version ${version} as it stands (use --bump to override)`);
 }
+
+// Noted before signing so the xpi can be identified by age afterwards. Older
+// downloads and builds live in the same directory — picking "the newest xpi"
+// unconditionally would happily grab one of those.
+const signStart = Date.now();
 run('npm run ff:sign');
+
+// --- Everything past this point runs AFTER a successful signature. ---
+// Signing is the expensive, non-repeatable half: AMO has now consumed this
+// version number. Whatever fails below is a failed *upload*, which is free to
+// retry by hand — so it must never read as "the release failed", or someone will
+// re-run ff:release and burn the next number too.
+
+function fail(message, hint) {
+	console.error('');
+	console.error(`ff:release: ${message}`);
+	console.error(`The xpi IS signed — do NOT re-run ff:release, that would burn version ${version}.`);
+	console.error('Finish by hand:');
+	console.error(`  ${hint}`);
+	process.exit(1);
+}
+
+// web-ext names the signed file after the add-on, not after us. Take the xpi it
+// just wrote — anything older than this run is a leftover — and give it the name
+// the release convention expects.
+const signed = existsSync(ARTIFACTS)
+	? readdirSync(ARTIFACTS)
+		.filter((f) => f.endsWith('.xpi'))
+		.map((f) => ({ f, mtime: statSync(join(ARTIFACTS, f)).mtimeMs }))
+		.filter((e) => e.mtime >= signStart)
+		.sort((a, b) => b.mtime - a.mtime)[0]?.f
+	: undefined;
+
+if (!signed) {
+	fail(`no freshly signed .xpi in ${ARTIFACTS}/ — web-ext reported success but wrote nothing.`,
+		`gh release upload v${version} <path-to-xpi> --repo ${REPO} --clobber`);
+}
+
+const asset = `gestura-${version}-firefox.xpi`;
+const assetPath = join(ARTIFACTS, asset);
+if (signed !== asset) renameSync(join(ARTIFACTS, signed), assetPath);
+console.log(`ff:release: signed package -> ${assetPath}`);
+
+const uploadHint = `gh release upload v${version} ${assetPath} --repo ${REPO} --clobber`;
+
+if (spawnSync('gh --version', { shell: true, stdio: 'ignore' }).status !== 0) {
+	fail('the GitHub CLI (gh) is not available here.', uploadHint);
+}
+
+// A missing release means the `v<version>` tag was never pushed, so the Chrome
+// side of this version does not exist yet. Say that plainly rather than letting
+// `gh release upload` fail with its own wording.
+if (spawnSync(`gh release view v${version} --repo ${REPO}`, { shell: true, stdio: 'ignore' }).status !== 0) {
+	fail(`there is no release v${version} to attach to — push the tag from main first.`,
+		`git push gestura v${version}   # then: ${uploadHint}`);
+}
+
+if (spawnSync(uploadHint, { shell: true, stdio: 'inherit' }).status !== 0) {
+	fail('uploading the xpi to the release failed.', uploadHint);
+}
+
+console.log('');
+console.log(`ff:release: done — ${asset} is attached to release v${version}.`);
