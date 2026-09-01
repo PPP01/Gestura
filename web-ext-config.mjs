@@ -9,12 +9,15 @@ export default {
 		'scripts', 'scripts/**',
 		'.superpowers', '.superpowers/**',
 		'node_modules', 'node_modules/**',
+		// Untracked working material that crosses the WSL2/Windows boundary. It is
+		// git-ignored, so nothing else keeps it out of the package.
+		'exchange', 'exchange/**',
 		'web-ext-artifacts', 'web-ext-artifacts/**',
 		'package.json', 'package-lock.json',
 		'web-ext-config.mjs',
 		'updates.json',
-		'README.md', 'README.zh_CN.md',
-		'CHANGELOG.md', 'CHANGELOG.zh_CN.md',
+		'README.md', 'README.de.md',
+		'CHANGELOG.md',
 		'FORK-NOTES.md', 'THIRD_PARTY_LICENSES.md',
 		'CLAUDE.md', 'AGENTS.md',
 		// README/store screenshots, promo tiles and Lucide source SVGs. None are
