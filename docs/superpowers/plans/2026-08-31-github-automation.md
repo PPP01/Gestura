@@ -155,6 +155,22 @@ Still unverified: the publish path itself (`git archive` → `gh release create`
 job token). It runs for the first time at the next real tag. If it fails there, the tag
 is already public — fix the workflow, delete the tag and re-push it.
 
+**Superseded in one respect: one release now holds every browser's package.** Splitting
+Chrome and Firefox across two releases was a step backwards for anyone trying to install
+the thing — upstream FlowMouse puts all packages on one tag, and that is the better
+shape. Firefox therefore shares the Chrome version number, the `ff-v*` namespace is
+retired, and `scripts/ff-release.mjs` uploads `gestura-<version>-firefox.xpi` onto the
+existing `v<version>` release after AMO signs it. The workflow itself did not change
+beyond its release text; what changed is that its release is no longer the Chrome
+release but *the* release. The price is written down in `CLAUDE.md`: a burnt AMO version
+number now costs a version on every browser.
+
+That also settles the "automate the AMO upload?" question below — no. The three problems
+listed there (the bump has to reach git, `--approval-timeout 0`, a half-finished upload
+cannot resume) all still hold, and a shared version number raises the stakes: a failed
+automated run would burn a number for Chrome too. Signing stays a deliberate manual act;
+only the upload that follows it is now automatic.
+
 The original sketch, for reference:
 
 `.github/workflows/release.yml`, triggered on `push` of tag `v*` (explicitly **not**
