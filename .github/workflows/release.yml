@@ -1,0 +1,115 @@
+# Publishes the Chrome/Edge release when a `v*` tag is pushed.
+#
+# Deliberately scoped to the `vX.Y[.Z]` namespace on `main`. The AMO line uses
+# `ff-vX.Y[.Z]` on `firefox-build` and is NOT handled here — a Firefox release is
+# signed by Mozilla through `npm run ff:release`, run by hand. Pushing an `ff-*`
+# tag therefore does nothing, which is the intended behaviour: nobody should be
+# able to assume a tag ships to AMO.
+#
+# The two guards below exist because shipping a zip whose manifest disagrees with
+# its tag is the one mistake that reaches a store and cannot be taken back.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # `${GITHUB_REF_NAME}` is the tag, e.g. `v2.7.0` -> VERSION=2.7.0.
+      - name: Resolve version from the tag
+        id: v
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Tag ${GITHUB_REF_NAME} -> version $version"
+
+      # Guard 1: the tag and the shipped manifest must agree. CI has no
+      # `fmversion` filter configured, so `version_name` is read straight from the
+      # committed tree and must still be bare — the same rule ci.yml enforces.
+      - name: Guard - manifest version matches the tag
+        env:
+          EXPECTED: ${{ steps.v.outputs.version }}
+        run: |
+          node -e '
+            const m = JSON.parse(require("fs").readFileSync("manifest.json", "utf8"));
+            const expected = process.env.EXPECTED;
+            if (m.version !== expected) {
+              console.error("manifest.json version (" + m.version + ") does not match the tag (v" + expected + ").");
+              console.error("Bump manifest.json and re-tag; do not move the tag onto a mismatched commit.");
+              process.exit(1);
+            }
+            if (m.version_name && m.version_name !== m.version) {
+              console.error("manifest.json version_name (" + m.version_name + ") is stamped. The committed value must be bare.");
+              process.exit(1);
+            }
+            console.log("manifest ok: " + m.version);
+          '
+
+      # Guard 2: every release needs its changelog entry. Anchored on an exact
+      # match so `v2.3` cannot swallow `v2.3.1`, and so the upstream
+      # `### FlowMouse v2.3` sections never match a Gestura release.
+      - name: Guard - extract the CHANGELOG section
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          awk -v ver="$VERSION" '
+            BEGIN { want = "### v" ver; printing = 0 }
+            /^### / {
+              if (printing) { exit }
+              line = $0
+              sub(/ \(.*$/, "", line)
+              if (line == want) { printing = 1 }
+              next
+            }
+            printing { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "CHANGELOG.md has no '### v$VERSION' section (or it is empty)."
+            echo "Add the entry before tagging - it is the body of the release."
+            exit 1
+          fi
+          {
+            echo
+            echo '---'
+            echo
+            echo "**Install:** download \`gestura-$VERSION-chrome.zip\`, unpack it, then load the folder at \`chrome://extensions\` with Developer mode → *Load unpacked*. Works in Chrome and Edge."
+            echo
+            echo 'Firefox users: install the signed build from [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/gestura-mouse-gestures/).'
+          } >> release-notes.md
+          echo "--- release notes ---"
+          cat release-notes.md
+
+      # Same file list as the manual `git archive` in CLAUDE.md. Built from the
+      # tag rather than a working tree, so it cannot pick up uncommitted files.
+      - name: Build the Chrome/Edge package
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          mkdir -p web-ext-artifacts
+          git archive --format=zip -o "web-ext-artifacts/gestura-$VERSION-chrome.zip" "$GITHUB_REF_NAME" \
+            manifest.json js _locales icons pages css LICENSE NOTICE THIRD_PARTY_LICENSES.md
+          unzip -l "web-ext-artifacts/gestura-$VERSION-chrome.zip" | tail -1
+
+      # `--latest` is explicit: the `ff-*` tags sit on the same repo and are
+      # sometimes newer by a few minutes, and GitHub picks "Latest" by tag date.
+      # Without this the Firefox line would take over the release badge in the
+      # READMEs, which point at the Chrome/Edge build.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "web-ext-artifacts/gestura-$VERSION-chrome.zip" \
+            --title "Gestura v$VERSION" \
+            --notes-file release-notes.md \
+            --verify-tag \
+            --latest
