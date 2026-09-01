@@ -490,7 +490,7 @@ class OptionsPage extends LitElement {
 											<span>${i18n.getMessage('enableTrailSmooth')}</span>
 										</label>
 									</div>
-									<div class="inline-setting-item advanced-setting">
+									<div class="inline-setting-item">
 										<label>
 											<input type="checkbox" id="showTrailOrigin" .checked=${this._settings.showTrailOrigin} @change=${e => this.#updateSetting('showTrailOrigin', e.target.checked)}>
 											<span>${i18n.getMessage('showTrailOrigin')}</span>
