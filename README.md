@@ -6,6 +6,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/PPP01/Gestura)](https://github.com/PPP01/Gestura/releases)
 [![License](https://img.shields.io/github/license/PPP01/Gestura)](https://github.com/PPP01/Gestura/blob/main/LICENSE)
 
+**English** · [Deutsch](README.de.md)
+
 Gestura is an open-source extension that turns quick mouse movements into browser commands — draw a gesture, drag a link or some text, flick the wheel, and the action happens right away, no keyboard needed.
 
 Gesture navigation, smart per-site **website menus**, super drag, area selection, wheel and rocker gestures, and command chains — all of it is yours to customize.

@@ -14,7 +14,7 @@ The repo root **is** the unpacked extension. Nothing compiles — no bundler, no
 
 ```bash
 npm install                                     # only for tests / Firefox tooling
-npm test                                        # vitest, 17 suites
+npm test                                        # vitest, 21 suites
 npx vitest run tests/menu-model.test.mjs        # a single file
 npx vitest run -t "edited copy wins over catalog"   # a single test by name
 ```
@@ -123,3 +123,5 @@ In both cases **stored settings hold deltas, not full copies** — a menu the us
 - Edge and Firefox are detected by user-agent sniffing (`Edg/`, `Firefox`), surfaced to pages as `window.i18n.isEdge` / `window.i18n.isFirefox`; several actions are gated on it.
 - Prefer `optional_permissions` requested on demand over widening the required set — privacy is a stated project value (see [README.md](README.md) and `PRIVACY.md`).
 - Design docs and implementation plans belong in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+- **Reports and hand-overs from other environments go into `exchange/` — never into `docs/`, never into git.** The folder is in `.gitignore` and holds working material that crosses the WSL2 ↔ Windows boundary in both directions (status reports, hand-over contracts, notes from a sibling project). It is not product documentation and must not be committed, referenced from tracked files, or packaged. If something in such a report has to survive, restate it in a tracked doc under `docs/` instead of pointing at `exchange/`.
+- **The repo language is English.** [README.md](README.md) is canonical, `README.de.md` is its German translation — change both together. `docs/` is still partly German (historical) and is being migrated; write new docs in English.
