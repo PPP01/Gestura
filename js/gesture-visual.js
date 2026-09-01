@@ -401,6 +401,15 @@ function midColor(c1, c2) {
 	return `hsla(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%, ${((a.a + b.a) / 2).toFixed(3)})`;
 }
 
+// Maße des Leuchtens, relativ zur Strichbreite. Sie hängen zusammen: ein
+// breiterer Strich unter einer schwachen Unschärfe wirkt wie ein zweiter,
+// fetterer Strich, eine starke Unschärfe unter einem schmalen Strich verpufft.
+// Die Werte sind so gewählt, dass der Schein bei der Standardbreite etwa eine
+// Strichbreite weit über die Spur hinausreicht.
+const GLOW_WIDTH = 1.9;
+const GLOW_BLUR = 6;
+const GLOW_ALPHA = 0.55;
+
 function colorHasAlpha(color) {
 	if (!color || typeof color !== 'string') return false;
 	if (color.startsWith('oklch(')) {
@@ -498,7 +507,6 @@ class GestureOverlay {
 			pointer-events: none;
 			display: none;
 		`;
-		this.updateGlow();
 
 		this.resizeHandler = () => {
 			if (!this.canvas) return;
@@ -692,7 +700,6 @@ class GestureOverlay {
 		if (settings.customCss !== undefined) {
 			this.host.setCustomCss(this.settings.customCss);
 		}
-		this.updateGlow();
 		this.updateHudStyle();
 	}
 
@@ -907,26 +914,6 @@ class GestureOverlay {
 	// Die Farben laufen dadurch entlang der Verbindung Anfang-Ende, nicht entlang
 	// der Pfadlänge. Bei Strichen, Winkeln und Bögen ist das nicht zu
 	// unterscheiden; bei einer Schleife schon - dafür der Rückfall unten.
-	// Das Leuchten ist ein CSS-Filter auf dem Canvas-Element, nicht ctx.shadowBlur.
-	// shadowBlur ist eine echte Unschärfe JE Zeichenaufruf; drop-shadow ist ein
-	// einziger, GPU-komponierter Durchgang über das fertige Bild - unabhängig
-	// davon, wie viele Striche darunter liegen. Deshalb steht in #draw()
-	// weiterhin shadowBlur = 0.
-	//
-	// Der enge Radius trägt die Anfangsfarbe, der weite die Zielfarbe: so wandert
-	// der Schein mit dem Verlauf mit, statt ihn mit einer Fremdfarbe zu übertönen.
-	updateGlow() {
-		if (!this.canvas) return;
-		if (!this.settings.enableTrailGlow) {
-			this.canvas.style.filter = '';
-			return;
-		}
-		const near = colorWithAlpha(this.settings.trailColor, 0.55);
-		const far = colorWithAlpha(
-			this.settings.enableTrailGradient ? this.#trailEndColor() : this.settings.trailColor, 0.3);
-		this.canvas.style.filter = `drop-shadow(0 0 4px ${near}) drop-shadow(0 0 12px ${far})`;
-	}
-
 	#trailEndColor() {
 		return this.settings.trailColorEnd || this.settings.trailColor;
 	}
@@ -953,7 +940,12 @@ class GestureOverlay {
 	// Die Richtung kommt vom letzten Punkt, der weit genug entfernt liegt: die
 	// letzten beiden fallen bei langsamer Bewegung fast aufeinander, und aus einem
 	// Nullvektor lässt sich keine Spitze bauen - sie würde zappeln.
-	#drawArrowHead(ctx, width) {
+	//
+	// Größe und Strichstärke sind getrennt, weil der Glühdurchgang nur letztere
+	// aufdicken darf. Aus einer gemeinsamen Größe entstünde dort ein größerer
+	// Pfeil, der über die echte Spitze hinausragt - kein Schein, sondern ein
+	// zweiter, verschobener Pfeil.
+	#drawArrowHead(ctx, width, lineWidth = width) {
 		if (!this.settings.showTrailArrow) return;
 		const last = this.trail[this.trail.length - 1];
 		let ref = null;
@@ -969,13 +961,74 @@ class GestureOverlay {
 		const spread = 0.62;
 		ctx.beginPath();
 		ctx.strokeStyle = this.settings.enableTrailGradient ? this.#trailEndColor() : this.settings.trailColor;
-		ctx.lineWidth = width;
+		ctx.lineWidth = lineWidth;
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
 		ctx.moveTo(last.x - Math.cos(a - spread) * len, last.y - Math.sin(a - spread) * len);
 		ctx.lineTo(last.x, last.y);
 		ctx.lineTo(last.x - Math.cos(a + spread) * len, last.y - Math.sin(a + spread) * len);
 		ctx.stroke();
+	}
+
+	// Der Spurverlauf als Pfad, ohne jede Farbe. Ausgelagert, weil ihn Leuchten
+	// und Spur beide brauchen und ein zweiter, per Hand nachgezogener Pfad
+	// unweigerlich irgendwann vom ersten abweicht.
+	#tracePath(ctx) {
+		ctx.moveTo(this.trail[0].x, this.trail[0].y);
+
+		if (this.trail.length < 3 || !this.settings.enablePathInterpolation) {
+			for (let i = 1; i < this.trail.length; i++) {
+				ctx.lineTo(this.trail[i].x, this.trail[i].y);
+			}
+			return;
+		}
+
+		let i;
+		for (i = 1; i < this.trail.length - 2; i++) {
+			const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
+			const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
+			ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
+		}
+		ctx.quadraticCurveTo(
+			this.trail[i].x,
+			this.trail[i].y,
+			this.trail[i + 1].x,
+			this.trail[i + 1].y
+		);
+	}
+
+	// Das Leuchten ist die Spur selbst: derselbe Pfad, derselbe Verlauf, nur
+	// breiter, blasser und weichgezeichnet - deshalb trägt der Schein die Farbe
+	// der Stelle, über der er liegt.
+	//
+	// Vorher lag hier ein CSS-drop-shadow auf dem Canvas-Element. Das konnte
+	// grundsätzlich nicht mehrfarbig werden: drop-shadow färbt die Silhouette,
+	// und in der Silhouette steckt keine Farbe mehr. Zwei gestaffelte Schatten in
+	// Anfangs- und Zielfarbe deuteten die Richtung nur an.
+	//
+	// Nicht ctx.shadowBlur nehmen: das ist eine Unschärfe JE Zeichenaufruf und
+	// würde bei jedem Segment erneut anfallen. Hier ist es ein einziger stroke()
+	// für die ganze Spur, plus einer für die Pfeilspitze.
+	#drawGlow(ctx, width, stroke) {
+		ctx.save();
+		// Der Radius gilt im Koordinatenraum des Canvas; ob der DPR-Faktor aus
+		// ctx.scale() darauf durchschlägt, handhaben die Browser verschieden. Auf
+		// einem hochauflösenden Bildschirm kann der Schein dadurch etwas enger
+		// ausfallen - schmuckhaft, nicht tragend.
+		ctx.filter = `blur(${GLOW_BLUR}px)`;
+		ctx.globalAlpha = GLOW_ALPHA;
+		ctx.strokeStyle = stroke;
+		ctx.lineWidth = width * GLOW_WIDTH;
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.beginPath();
+		this.#tracePath(ctx);
+		ctx.stroke();
+		// Die Spitze leuchtet in ihrer eigenen Farbe mit; ohne sie säße sie als
+		// scharfer Fleck am Ende einer leuchtenden Spur. Gleiche Größe, nur
+		// dicker - siehe #drawArrowHead().
+		this.#drawArrowHead(ctx, width, width * GLOW_WIDTH);
+		ctx.restore();
 	}
 
 	#draw() {
@@ -995,32 +1048,18 @@ class GestureOverlay {
 		ctx.shadowOffsetY = 0;
 
 		if (this.trail.length >= 2) {
+			// Einmal berechnen, zweimal benutzen: das Leuchten trägt denselben
+			// Verlauf wie die Spur - sonst wäre es kein Schein der Spur, sondern
+			// eine zweite Farbe darunter.
+			const stroke = this.#trailStrokeStyle(ctx);
+			if (this.settings.enableTrailGlow) this.#drawGlow(ctx, width, stroke);
+
 			ctx.beginPath();
-			ctx.strokeStyle = this.#trailStrokeStyle(ctx);
+			ctx.strokeStyle = stroke;
 			ctx.lineWidth = width;
 			ctx.lineCap = 'round';
 			ctx.lineJoin = 'round';
-
-			if (this.trail.length < 3 || !this.settings.enablePathInterpolation) {
-				ctx.moveTo(this.trail[0].x, this.trail[0].y);
-				for (let i = 1; i < this.trail.length; i++) {
-					ctx.lineTo(this.trail[i].x, this.trail[i].y);
-				}
-			} else {
-				ctx.moveTo(this.trail[0].x, this.trail[0].y);
-				let i;
-				for (i = 1; i < this.trail.length - 2; i++) {
-					const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
-					const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
-					ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
-				}
-				ctx.quadraticCurveTo(
-					this.trail[i].x,
-					this.trail[i].y,
-					this.trail[i + 1].x,
-					this.trail[i + 1].y
-				);
-			}
+			this.#tracePath(ctx);
 			ctx.stroke();
 			this.#drawArrowHead(ctx, width);
 		}

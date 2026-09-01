@@ -14,9 +14,12 @@
   *Appearance*; both gradient colours are pickable, the existing trail colour is the
   starting one. The middle of the gradient is mixed through HSL rather than RGB — a
   straight RGB path from blue to pink runs through a muddy grey, the way around the
-  colour wheel stays vivid. The glow is a CSS filter on the canvas, not
-  `ctx.shadowBlur`: one GPU pass over the finished frame instead of a real blur per
-  draw call.
+  colour wheel stays vivid. The glow carries the gradient too: it is the trail
+  itself, stroked once more underneath — wider, paler and blurred — so the halo
+  shows the colour of the spot it lies under. A CSS `drop-shadow` could not do
+  that; it tints the silhouette, and a silhouette holds no colour. Deliberately not
+  `ctx.shadowBlur` either, which is a real blur per draw call — this is one stroke
+  for the whole path.
 
 - **Imports report back:** after the import dialog closes, the manager shows what
   arrived, jumps to the first new entry and marks it with a "New" badge that pulses
