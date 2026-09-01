@@ -1,0 +1,90 @@
+# Runs the test suite on both product branches, and — where the Firefox tooling
+# exists — lints and packages the unsigned Firefox build.
+#
+# One file for both branches on purpose: `firefox-build` is kept current by
+# merging `main` into it (never rebasing), so a workflow added here arrives there
+# on its own. The Firefox steps are guarded on `web-ext-config.mjs`, which is part
+# of the `firefox-build` patch set only — on `main` they skip, on `firefox-build`
+# they run. Nothing here needs a secret.
+name: CI
+
+on:
+  push:
+    branches: [main, firefox-build]
+  pull_request:
+    branches: [main, firefox-build]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      # `manifest.json` runs through the `fmversion` clean filter, so the
+      # committed value must carry the bare version — never `<version>+<hash>`.
+      # The filter is configured per clone (see CLAUDE.md), so a clone that
+      # skipped the setup can commit a stamped manifest. CI has no filter
+      # configured at all, which makes it the honest place to check.
+      - name: Guard - committed version_name is unstamped
+        run: |
+          node -e '
+            const m = JSON.parse(require("fs").readFileSync("manifest.json", "utf8"));
+            if (m.version_name && m.version_name !== m.version) {
+              console.error("manifest.json: version_name (" + m.version_name + ") does not match version (" + m.version + ").");
+              console.error("The fmversion clean filter is probably not configured in the clone that committed this.");
+              process.exit(1);
+            }
+            console.log("version_name ok: " + (m.version_name ?? "(absent)"));
+          '
+
+      # Present on `firefox-build` only. Everything below is a no-op on `main`.
+      - name: Detect Firefox tooling
+        id: ff
+        run: |
+          if [ -f web-ext-config.mjs ]; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+            echo 'No web-ext-config.mjs - skipping the Firefox steps (expected on main).'
+          fi
+
+      # Must report 0 errors; web-ext exits non-zero on errors, warnings pass.
+      - name: web-ext lint
+        if: steps.ff.outputs.present == 'true'
+        run: npx web-ext lint --source-dir . --config web-ext-config.mjs
+
+      - name: Build unsigned Firefox package
+        if: steps.ff.outputs.present == 'true'
+        run: npm run ff:build
+
+      # Unsigned - for testing only. A Firefox release is signed by AMO through
+      # `npm run ff:release`, which is deliberately not automated here.
+      - name: Upload unsigned Firefox package
+        if: steps.ff.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gestura-firefox-unsigned-${{ github.sha }}
+          path: |
+            web-ext-artifacts/*.zip
+            web-ext-artifacts/*.xpi
+          if-no-files-found: error
+          retention-days: 14
