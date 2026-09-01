@@ -1,0 +1,64 @@
+name: Fehlerbericht (Deutsch)
+description: Einen Fehler oder unerwartetes Verhalten in Gestura melden
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Danke, dass du dir die Zeit nimmst, einen Fehler zu melden!**
+        Damit wir das Problem finden und beheben können, füll bitte alle Pflichtfelder aus. Unvollständige Meldungen werden womöglich geschlossen.
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Version der Erweiterung
+      description: Steht unten links auf der Gestura-Optionsseite.
+      placeholder: "z. B. 1.3"
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser & Version
+      description: Name und Versionsnummer deines Browsers.
+      placeholder: "z. B. Chrome 146.0.1234.10"
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: Betriebssystem & Version
+      placeholder: "z. B. Windows 11 23H2 (26000.1234)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Fehlerbeschreibung
+      description: Beschreibe klar und knapp, worin der Fehler besteht.
+      placeholder: Was ist passiert, und was hättest du stattdessen erwartet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Nachstellen
+      description: Wie können wir das Problem reproduzieren?
+      placeholder: |
+        1. Gehe auf '...'
+        2. Führe die Geste '...' aus
+        3. Fehler tritt auf
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Weitere Angaben
+      description: Screenshots, Bildschirmaufnahmen, Fehlermeldungen oder alles andere, was hilft.
+    validations:
+      required: false

@@ -1,0 +1,27 @@
+name: Funktionswunsch (Deutsch)
+description: Eine neue Funktion oder Verbesserung für Gestura vorschlagen
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung der Funktion
+      description: Beschreibe klar und knapp, welche gestenbezogene Funktion du dir wünschst.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Anwendungsfall
+      description: Warum wäre diese Funktion nützlich? Welches Problem löst sie?
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Weitere Angaben
+      description: Entwürfe, Screenshots oder Beispiele aus anderen Werkzeugen.
+    validations:
+      required: false
