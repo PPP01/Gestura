@@ -7,6 +7,10 @@
 // escape a burnt number — AMO refuses a version it has already signed, and that
 // costs the number on every browser, not just Firefox.
 //
+// The release has to exist before this runs: it is opened by release.yml when the
+// `v<version>` tag is pushed from `main`. That is checked up front — signing is
+// irreversible, so a missing tag must cost nothing.
+//
 // Credentials: reads WEB_EXT_API_KEY (JWT issuer) and WEB_EXT_API_SECRET from the
 // environment. If either is missing, it prompts for it interactively (paste when
 // asked; the secret is not echoed). Credentials are passed to web-ext only via the
@@ -24,6 +28,38 @@ const version = JSON.parse(readFileSync(manifestUrl, 'utf8')).version;
 if (!version) {
 	console.error('ff:release: no "version" in manifest.json');
 	process.exit(1);
+}
+
+const args = process.argv.slice(2);
+const bump = args.includes('--bump');
+
+// --- Pre-flight: nothing here has touched AMO yet. ---
+// Signing consumes the version number for good, so whatever can be known
+// beforehand is checked beforehand. It sits ahead of the credential prompt on
+// purpose: no reason to make someone paste a secret into a run that cannot end
+// well.
+function preflight(message, hint) {
+	console.error(`ff:release: ${message}`);
+	console.error('Nothing has been signed — fix this and run ff:release again.');
+	console.error(`  ${hint}`);
+	process.exit(1);
+}
+
+const ghMissing = spawnSync('gh --version', { shell: true, stdio: 'ignore' }).status !== 0;
+
+if (bump) {
+	// --bump leaves the shared version line, so by definition no release exists for
+	// the number it picks. There is nothing to check for, only something to warn about.
+	console.log(`ff:release: --bump — taking the next version instead of ${version} from main.`);
+	console.log('ff:release: no release will exist for it; attach the xpi by hand afterwards.');
+} else if (ghMissing) {
+	preflight('the GitHub CLI (gh) is not available here, so the signed xpi could not be attached to the release.',
+		'install gh — or, if that is what you want, sign alone with: npm run ff:sign');
+} else if (spawnSync(`gh release view v${version} --repo ${REPO}`, { shell: true, stdio: 'ignore' }).status !== 0) {
+	preflight(`there is no release v${version} to attach to — the tag has not been pushed from main.`,
+		`git push gestura v${version}   # release.yml opens the release, then run ff:release again`);
+} else {
+	console.log(`ff:release: release v${version} is there — signing that version as it stands (use --bump to override).`);
 }
 
 // One readline interface for all prompts — creating a second one on stdin after
@@ -66,13 +102,7 @@ function run(command) {
 	if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-const args = process.argv.slice(2);
-if (args.includes('--bump')) {
-	console.log('ff:release: --bump — taking the next version instead of the one from main');
-	run('npm run ff:bump');
-} else {
-	console.log(`ff:release: signing version ${version} as it stands (use --bump to override)`);
-}
+if (bump) run('npm run ff:bump');
 
 // Noted before signing so the xpi can be identified by age afterwards. Older
 // downloads and builds live in the same directory — picking "the newest xpi"
@@ -118,13 +148,13 @@ console.log(`ff:release: signed package -> ${assetPath}`);
 
 const uploadHint = `gh release upload v${version} ${assetPath} --repo ${REPO} --clobber`;
 
+// Both were settled in the pre-flight for a normal run; they are still checked
+// here because --bump skips that, and because the release could in principle have
+// gone away while AMO was reviewing.
 if (spawnSync('gh --version', { shell: true, stdio: 'ignore' }).status !== 0) {
 	fail('the GitHub CLI (gh) is not available here.', uploadHint);
 }
 
-// A missing release means the `v<version>` tag was never pushed, so the Chrome
-// side of this version does not exist yet. Say that plainly rather than letting
-// `gh release upload` fail with its own wording.
 if (spawnSync(`gh release view v${version} --repo ${REPO}`, { shell: true, stdio: 'ignore' }).status !== 0) {
 	fail(`there is no release v${version} to attach to — push the tag from main first.`,
 		`git push gestura v${version}   # then: ${uploadHint}`);

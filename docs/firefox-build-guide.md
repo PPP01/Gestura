@@ -91,9 +91,12 @@ ff:release: done — gestura-<version>-firefox.xpi is attached to release v<vers
 **Geht nach dem Signieren etwas schief, `ff:release` NICHT erneut starten.** Der
 teure Teil ist dann durch, AMO hat die Nummer verbraucht — ein zweiter Lauf
 verbrennt die nächste. Das Skript sagt das selbst und gibt den
-`gh release upload …`-Befehl aus, mit dem du den Rest von Hand nachziehst. Ob
-das Release überhaupt existiert, prüft es erst nach dem Signieren — also den
-Tag vorher von `main` pushen.
+`gh release upload …`-Befehl aus, mit dem du den Rest von Hand nachziehst.
+
+Vor dem Signieren prüft `ff:release`, ob es `gh` gibt und ob das Release
+`v<version>` schon existiert, und bricht sonst ab, bevor irgendetwas passiert —
+ein vergessener Tag kostet also keine Nummer. Die Abfrage nach Key und Secret
+kommt erst danach.
 
 Sobald die signierte `.xpi` da ist, ist die Version **öffentlich** — kein
 weiterer Schritt im Developer Hub nötig, installierte Instanzen ziehen sie per
