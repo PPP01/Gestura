@@ -33,9 +33,9 @@ Umgebungsvariablen `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET` setzen.
 |---|---|
 | `npm run ff:run` | Startet Firefox mit der Erweiterung, lädt bei jeder Änderung neu. Nur zum Entwickeln — kein Signieren, kein Versions-Bump. |
 | `npm run ff:build` | Baut ein **unsigniertes** `.zip` nach `web-ext-artifacts/` (nur Laufzeit-Dateien). |
-| `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.6` → `2.6.1`, dann `2.6.2`, …). Ruft `ff:release` selbst auf; direkt brauchst du es selten. |
+| `npm run ff:bump` | Erhöht die `manifest.json`-Version (`2.7.0` → `2.7.1`). Nur der Notnagel hinter `ff:release -- --bump`; direkt brauchst du es nicht. |
 | `npm run ff:sign` | Reicht die Version bei **AMO** ein (Kanal `listed`), wartet die Prüfung ab und lädt die signierte `.xpi` herunter. Fragt **nicht** nach Credentials — nimm `ff:release`. |
-| `npm run ff:release` | **Der Release-Befehl.** `ff:bump` dann `ff:sign`, und dazwischen die interaktive Credential-Abfrage. Mit `-- --no-bump` bleibt die Version im Manifest stehen. |
+| `npm run ff:release` | **Der Release-Befehl.** Credential-Abfrage, `ff:sign`, danach hängt es die signierte Datei als `gestura-<version>-firefox.xpi` an das GitHub-Release `v<version>`. Bumpt **nicht** — die Nummer kommt über den Merge aus `main`. |
 
 ## Szenario A — nur entwickeln / ausprobieren
 
@@ -53,13 +53,19 @@ Gestura wird als **AMO-gelistetes** Add-on verteilt (Firefox Add-ons Store). AMO
 signiert, verteilt und aktualisiert automatisch — kein Self-Hosting, kein
 `update_url`, kein `updates.json`.
 
+Eine Version, ein Tag, ein Release: das Release `v<version>` gibt es bereits — es
+entsteht, sobald der Tag von `main` gepusht wird (siehe `../CLAUDE.md`). Firefox
+hängt hier nur noch sein Paket an.
+
 ```bash
-git checkout firefox-build
+git checkout -f firefox-build
 git merge main                               # den Feature-Stand von main holen
-# Konflikte: manifest.json (Firefox-Form behalten!), ggf. CHANGELOG.md
+# Konflikte: meist nur package.json; wenn manifest.json, Firefox-Form behalten!
+npm test                                     # muss durchlaufen
 npm run ff:build                             # unsigniertes zip zur Kontrolle
 npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler zeigen
-npm run ff:release -- --no-bump              # Version aus main behalten
+git push gestura firefox-build
+npm run ff:release                           # signiert und hängt die xpi ans Release
 ```
 
 **Nimm immer `ff:release`, nie `ff:sign` direkt.** Nur `ff:release` fragt Key und
@@ -69,8 +75,7 @@ Umgebung an `web-ext` weiter. `ff:sign` allein zwingt dich zu
 Shell-History. Wer die Abfrage überspringen will, setzt vorab
 `WEB_EXT_API_KEY` / `WEB_EXT_API_SECRET`.
 
-Das `--` vor `--no-bump` ist **Pflicht**: ohne es schluckt npm das Argument und
-das Skript bumpt trotzdem.
+Das `--` vor Argumenten ist **Pflicht**: ohne es schluckt npm sie.
 
 `ff:release` reicht die Version über `web-ext sign --channel=listed` bei AMO ein
 und bleibt stehen, bis die Prüfung durch ist:
@@ -79,7 +84,16 @@ und bleibt stehen, bis die Prüfung durch ist:
 Waiting for validation...
 Waiting for approval...
 Signed xpi downloaded: web-ext-artifacts/gestura_mouse_gestures-<version>.xpi
+ff:release: signed package -> web-ext-artifacts/gestura-<version>-firefox.xpi
+ff:release: done — gestura-<version>-firefox.xpi is attached to release v<version>.
 ```
+
+**Geht nach dem Signieren etwas schief, `ff:release` NICHT erneut starten.** Der
+teure Teil ist dann durch, AMO hat die Nummer verbraucht — ein zweiter Lauf
+verbrennt die nächste. Das Skript sagt das selbst und gibt den
+`gh release upload …`-Befehl aus, mit dem du den Rest von Hand nachziehst. Ob
+das Release überhaupt existiert, prüft es erst nach dem Signieren — also den
+Tag vorher von `main` pushen.
 
 Sobald die signierte `.xpi` da ist, ist die Version **öffentlich** — kein
 weiterer Schritt im Developer Hub nötig, installierte Instanzen ziehen sie per
@@ -87,32 +101,30 @@ Auto-Update. (Bei 2.6.1 lief das automatisiert durch; AMO kann eine
 veröffentlichte Version später trotzdem noch manuell nachprüfen, gerade wegen
 `<all_urls>`.)
 
-**Versionsnummer.** Beim Merge kollidiert `manifest.json` immer — dort die
-Firefox-Form behalten (kein `version_name`, kein
-`favicon`/`offscreen`/`pageCapture`, `background.scripts` statt
-`service_worker`, `browser_specific_settings`) und die Version von `main`
-übernehmen.
+**Versionsnummer — eine Nummer für alle Browser.** Firefox trägt exakt die
+Version, die über den Merge aus `main` kommt. `ff:release` bumpt deshalb nicht:
+eine eigene Nummer hätte kein Release, an das sie sich hängen könnte.
+Kollidiert `manifest.json` beim Merge, dort die Firefox-Form behalten (kein
+`version_name`, kein `favicon`/`offscreen`/`pageCapture`, `background.scripts`
+statt `service_worker`, `browser_specific_settings`) und die Version von `main`
+übernehmen. Nach dem Signieren ist nichts zu committen — der Versionsstand
+steht schon so in git.
 
-Danach hast du die Wahl:
+Das hat einen Preis: **eine misslungene AMO-Einreichung verbrennt die Nummer
+für alle.** AMO signiert jede Nummer genau einmal und lehnt eine bereits
+eingereichte ab — der nächste Anlauf muss dann als neue Version auf *jedem*
+Browser raus, Chrome eingeschlossen. Also nie bei AMO einreichen, was nicht
+release-reif ist.
 
-| Ziel | Befehl | Ergebnis bei `main` = 2.7 |
-|---|---|---|
-| Firefox trägt dieselbe Nummer wie Chrome/Edge | `npm run ff:release -- --no-bump` | 2.7 |
-| Firefox zählt seine eigene Build-Reihe weiter | `npm run ff:release` | 2.7.1 |
+`npm run ff:release -- --bump` bleibt als Notnagel: es nimmt die nächste Nummer
+(`2.7.0` → `2.7.1`) statt der aus `main`. Für die gibt es dann kein Release,
+das xpi muss von Hand an eines gehängt werden. Der saubere Weg ist eine neue
+Version auf `main`.
 
-Beides ist vertretbar. Die dritte Stelle ist der **Firefox-Build-Zähler zum
-Feature-Stand von `main`**: „2.6.1" heißt lesbar *erster Firefox-Build der
-2.6-Funktionen*, ein zweiter Anlauf wegen eines Firefox-Fehlers wäre 2.6.2,
-ohne dass `main` sich bewegt. So kam die Reihe 2.3.1 / 2.5.1 / 2.6.1 zustande.
-
-Warum überhaupt gebumpt wird: AMO signiert jede Nummer nur einmal und lehnt eine
-bereits eingereichte ab. Das Skript kann nicht wissen, ob die Nummer im Manifest
-schon draußen war, also erhöht es vorsorglich. Dass dabei `2.6` → `2.6.1` wird
-und nicht `2.6.0`, liegt daran, dass Firefox fehlende Stellen als 0 liest — `2.6`
-**ist** `2.6.0`, eine 2.6.0 wäre also gar keine Erhöhung.
-
-Nach dem Signieren den Versionsstand **committen** — sonst weicht die bei AMO
-veröffentlichte Version von der in git ab.
+Die Reihe 2.3.1 / 2.5.1 / 2.6.1 stammt aus der Zeit eigener `ff-v*`-Tags und
+eigener Firefox-Releases: die dritte Stelle war der Firefox-Build-Zähler zum
+Feature-Stand von `main`. Diese Tags und Releases bleiben als Historie stehen,
+neue kommen nicht dazu.
 
 Hinweise:
 
@@ -151,7 +163,14 @@ Konflikte gibt es zuverlässig in `manifest.json` (Version + die
 Firefox-Anpassungen) und je nach Release in `CHANGELOG.md`. Alles andere mergt
 sauber, weil die Firefox-Patches auf wenige Dateien beschränkt sind.
 
-Prüfe nach jedem Merge, ob `main` ein neues Top-Level-Skript hinzugefügt hat,
-das `js/background.js` per `importScripts` lädt — Firefox kennt kein
-`importScripts` im Hintergrundskript, jede solche Datei muss zusätzlich in
-`background.scripts` im Manifest stehen. Die beiden Listen müssen sich decken.
+Nach jedem Merge zwei Dinge prüfen:
+
+- Hat `main` ein neues Top-Level-Skript hinzugefügt, das `js/background.js` per
+  `importScripts` lädt? Firefox kennt kein `importScripts` im
+  Hintergrundskript, jede solche Datei muss zusätzlich in `background.scripts`
+  im Manifest stehen. Die beiden Listen müssen sich decken.
+- Sind neue Dateien dazugekommen, die nicht ins Paket gehören? `web-ext build`
+  packt den **Arbeitsbaum**, nicht den Git-Baum — auch git-ignorierte Ordner
+  wie `exchange/` landen im xpi, solange sie nicht in `ignoreFiles` in
+  `web-ext-config.mjs` stehen. Der Blick in `unzip -l web-ext-artifacts/*.zip`
+  nach `npm run ff:build` kostet nichts.
