@@ -1,0 +1,536 @@
+{
+	"gesturaMenu": 1,
+	"id": "com.example.zuviel",
+	"version": "1.0.0",
+	"name": {
+		"de": "Zu viel"
+	},
+	"icon": "menu",
+	"patterns": [
+		"*zuviel.example*"
+	],
+	"items": [
+		{
+			"id": "it0",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 1 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/1"
+		},
+		{
+			"id": "it1",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 2 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/2"
+		},
+		{
+			"id": "it2",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 3 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/3"
+		},
+		{
+			"id": "it3",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 4 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/4"
+		},
+		{
+			"id": "it4",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 5 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/5"
+		},
+		{
+			"id": "it5",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 6 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/6"
+		},
+		{
+			"id": "it6",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 7 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/7"
+		},
+		{
+			"id": "it7",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 8 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/8"
+		},
+		{
+			"id": "it8",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 9 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/9"
+		},
+		{
+			"id": "it9",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 10 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/10"
+		},
+		{
+			"id": "it10",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 11 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/11"
+		},
+		{
+			"id": "it11",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 12 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/12"
+		},
+		{
+			"id": "it12",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 13 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/13"
+		},
+		{
+			"id": "it13",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 14 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/14"
+		},
+		{
+			"id": "it14",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 15 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/15"
+		},
+		{
+			"id": "it15",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 16 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/16"
+		},
+		{
+			"id": "it16",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 17 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/17"
+		},
+		{
+			"id": "it17",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 18 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/18"
+		},
+		{
+			"id": "it18",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 19 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/19"
+		},
+		{
+			"id": "it19",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 20 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/20"
+		},
+		{
+			"id": "it20",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 21 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/21"
+		},
+		{
+			"id": "it21",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 22 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/22"
+		},
+		{
+			"id": "it22",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 23 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/23"
+		},
+		{
+			"id": "it23",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 24 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/24"
+		},
+		{
+			"id": "it24",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 25 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/25"
+		},
+		{
+			"id": "it25",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 26 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/26"
+		},
+		{
+			"id": "it26",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 27 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/27"
+		},
+		{
+			"id": "it27",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 28 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/28"
+		},
+		{
+			"id": "it28",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 29 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/29"
+		},
+		{
+			"id": "it29",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 30 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/30"
+		},
+		{
+			"id": "it30",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 31 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/31"
+		},
+		{
+			"id": "it31",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 32 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/32"
+		},
+		{
+			"id": "it32",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 33 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/33"
+		},
+		{
+			"id": "it33",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 34 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/34"
+		},
+		{
+			"id": "it34",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 35 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/35"
+		},
+		{
+			"id": "it35",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 36 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/36"
+		},
+		{
+			"id": "it36",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 37 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/37"
+		},
+		{
+			"id": "it37",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 38 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/38"
+		},
+		{
+			"id": "it38",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 39 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/39"
+		},
+		{
+			"id": "it39",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 40 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/40"
+		},
+		{
+			"id": "it40",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 41 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/41"
+		},
+		{
+			"id": "it41",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 42 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/42"
+		},
+		{
+			"id": "it42",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 43 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/43"
+		},
+		{
+			"id": "it43",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 44 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/44"
+		},
+		{
+			"id": "it44",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 45 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/45"
+		},
+		{
+			"id": "it45",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 46 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/46"
+		},
+		{
+			"id": "it46",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 47 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/47"
+		},
+		{
+			"id": "it47",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 48 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/48"
+		},
+		{
+			"id": "it48",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 49 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/49"
+		},
+		{
+			"id": "it49",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 50 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/50"
+		},
+		{
+			"id": "it50",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 51 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/51"
+		},
+		{
+			"id": "it51",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 52 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/52"
+		},
+		{
+			"id": "it52",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 53 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/53"
+		},
+		{
+			"id": "it53",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 54 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/54"
+		},
+		{
+			"id": "it54",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 55 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/55"
+		},
+		{
+			"id": "it55",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 56 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/56"
+		},
+		{
+			"id": "it56",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 57 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/57"
+		},
+		{
+			"id": "it57",
+			"icon": "link",
+			"label": {
+				"de": "Eintrag 58 von Zu viel"
+			},
+			"action": "openCustomUrl",
+			"customUrl": "https://zuviel.example.com/bereich/58"
+		}
+	]
+}

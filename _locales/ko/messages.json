@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count}개 항목 · {valid}개 선택 가능"
+	},
+	"exchangeBundleInvalid": {
+		"message": "잘못됨"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "모두 선택"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura에 {count}개 추가"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "계속하려면 위의 스크립트 경고를 확인하세요."
+	},
+	"exchangeBundleEmpty": {
+		"message": "이 번들에는 가져올 수 있는 항목이 없습니다."
+	},
+	"exchangeMissingEngine": {
+		"message": "\"{id}\" 검색 엔진이 필요하지만 설치되어 있지 않으며 이 가져오기에도 포함되어 있지 않습니다."
+	},
+	"siteMenuItemNameHint": {
+		"message": "메뉴에 표시할 이 항목의 이름입니다. 비워 두면 기본 이름을 사용합니다."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "이름은 {name}이지만 열리는 곳은 {url}입니다."
+	},
+	"storageUsageLabel": { "message": "사용된 저장공간" },
+	"storageDetail": { "message": "{total}바이트 중 {used}바이트 사용 ({percent}%)" },
+	"storageUsed": { "message": "{percent}% 사용됨" },
+	"storageRemaining": { "message": "약 {count}개 더 저장할 공간 있음" },
+	"storageFull": { "message": "가득 참 — 항목을 제거할 때까지 저장에 실패합니다." },
+	"storageImportTooLarge": { "message": "이 선택 항목이 더 이상 들어가지 않습니다. 일부 항목의 선택을 해제하거나 한 번에 더 적게 가져오세요." },
+	"storageAfterImport": { "message": "가져오기 후 {percent}% 사용됨" },
+	"importDoneTitle": { "message": "가져오기 완료" },
+	"importBadgeNew": { "message": "신규" },
+	"exchangeUpdateExisting": { "message": "기존 \"{name}\" 업데이트" },
+	"exchangeBadgeExisting": { "message": "이미 추가됨" },
+	"trailColorEnd": { "message": "끝 색상" },
+	"enableTrailGradient": { "message": "색상 그라데이션" },
+	"showTrailArrow": { "message": "화살표 머리" },
+	"enableTrailGlow": { "message": "광채" }
 }

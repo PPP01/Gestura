@@ -94,6 +94,26 @@ upstream one day. That stopped being true:
   new hash and tree, and "which commit was 2.6.1?" stops being answerable. The
   same now applies to `main` and the Chrome/Edge packages built from it.
 
+## Release tags
+
+Every released version carries an annotated tag on the `release:` commit, and the
+tag always matches that commit's `manifest.json` version. Two namespaces, because
+the two stores drift apart:
+
+| Tag | Branch | Marks |
+|---|---|---|
+| `vX.Y[.Z]` | `main` | the Chrome/Edge upload package |
+| `ff-vX.Y[.Z]` | `firefox-build` | the AMO-signed xpi |
+
+AMO refuses a version number it has already signed, so `ff:release` bumps before
+signing and the Firefox line runs ahead in patch numbers (2.5 → 2.5.1, 2.6 →
+2.6.1) even when the feature set is identical to `main`'s. A single shared tag
+could not point at both artifacts.
+
+`v2.4`–`v2.6` and `ff-v2.5.1`/`ff-v2.6.1` were backfilled on 2026-08-29. Older
+AMO uploads (2.2.3, 2.3.1, 2.4) are deliberately untagged — their release
+boundaries are not unambiguous in the history.
+
 ## Personal (German) search engines
 
 The neutral catalog ships without region-specific engines. Your own German

@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} pozycji · {valid} do wyboru"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Nieprawidłowe"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Zaznacz wszystko"
+	},
+	"exchangeBundleImport": {
+		"message": "Dodaj {count} do Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Potwierdź powyższe ostrzeżenie o skrypcie, aby kontynuować."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Ten pakiet nie zawiera pozycji do zaimportowania."
+	},
+	"exchangeMissingEngine": {
+		"message": "Wymaga wyszukiwarki „{id}”, która nie jest zainstalowana ani nie należy do tego importu."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etykieta tego elementu w menu. Pozostaw puste, aby użyć nazwy domyślnej."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nazwa wskazuje {name}, ale otwierany jest {url}."
+	},
+	"storageUsageLabel": { "message": "Wykorzystane miejsce" },
+	"storageDetail": { "message": "{used} z {total} bajtów ({percent}%)" },
+	"storageUsed": { "message": "wykorzystano {percent}%" },
+	"storageRemaining": { "message": "miejsce na jeszcze około {count}" },
+	"storageFull": { "message": "Pełne — zapis się nie powiedzie, dopóki nie usuniesz wpisów." },
+	"storageImportTooLarge": { "message": "Ten wybór już się nie mieści. Odznacz część wpisów lub importuj mniej naraz." },
+	"storageAfterImport": { "message": "Po imporcie wykorzystano {percent}%" },
+	"importDoneTitle": { "message": "Zaimportowano" },
+	"importBadgeNew": { "message": "Nowe" },
+	"exchangeUpdateExisting": { "message": "Zaktualizuj istniejący „{name}”" },
+	"exchangeBadgeExisting": { "message": "Już dodano" },
+	"trailColorEnd": { "message": "Kolor końcowy" },
+	"enableTrailGradient": { "message": "Gradient koloru" },
+	"showTrailArrow": { "message": "Grot strzałki" },
+	"enableTrailGlow": { "message": "Poświata" }
 }

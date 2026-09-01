@@ -3,6 +3,7 @@ import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
+import { usageOf, entryBytes, percentOf, TOTAL_QUOTA } from '../storage-usage.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -253,6 +254,10 @@ class OptionsPage extends LitElement {
 					display: none;
 				}
 			}
+
+			.storage-value { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+			.storage-value.near { color: var(--attention-color); }
+			.storage-value.over { color: var(--danger-color); }
 		`,
 	];
 
@@ -281,9 +286,16 @@ class OptionsPage extends LitElement {
 		this._boundMouseMove = (e) => this.#onDocumentMouseMove(e);
 		this._boundScroll = () => this.#updateHoveredSection();
 		this._boundNavigateSection = (e) => this.#onNavigateSection(e);
+		// Ein Import aus dem Menü-/Engine-Manager schreibt via settingsStore.save() direkt
+		// in #current, bevor chrome.storage.sync.set() feuert - handleExternalChange meldet
+		// dann keine Änderung (siehe #importSettings weiter unten). Die Speicherzeilen lesen
+		// zwar live aus settingsStore.current, aber ohne ein requestUpdate() hier würde ohne
+		// eine andere Nebenwirkung gar nicht neu gerendert.
+		this._boundCatalogChanged = () => this.requestUpdate();
 		window.addEventListener('beforeunload', this._boundBeforeUnload);
 		window.addEventListener('mousemove', this._boundMouseMove, { passive: true });
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
+		window.addEventListener('action-catalog-changed', this._boundCatalogChanged);
 		this.addEventListener('navigate-section', this._boundNavigateSection);
 		this.#init();
 		this.#checkPendingImport();
@@ -294,6 +306,7 @@ class OptionsPage extends LitElement {
 		window.removeEventListener('beforeunload', this._boundBeforeUnload);
 		window.removeEventListener('mousemove', this._boundMouseMove);
 		window.removeEventListener('scroll', this._boundScroll);
+		window.removeEventListener('action-catalog-changed', this._boundCatalogChanged);
 		this.removeEventListener('navigate-section', this._boundNavigateSection);
 	}
 
@@ -361,6 +374,14 @@ class OptionsPage extends LitElement {
 			await chrome.storage.session.remove('pendingImport');
 		} catch { }
 
+		// Ohne Tab-Kennung kann der Dialog der Seite hinterher nichts melden. Das ist
+		// bei einem Zwischenspeicher aus einer älteren Fassung der Erweiterung so und
+		// sonst nie - und ohne diese Zeile unterscheidet man es nicht davon, dass die
+		// Meldung unterwegs verloren geht.
+		if (typeof pending.tabId !== 'number') {
+			console.warn('[Gestura] Übergabe ohne Tab-Kennung — es wird keine Rückmeldung geben.');
+		}
+
 		await customElements.whenDefined('menu-import-dialog');
 		let dialog = this.shadowRoot.querySelector('menu-import-dialog');
 		if (!dialog) {
@@ -368,7 +389,8 @@ class OptionsPage extends LitElement {
 			dialog.addEventListener('import-done', () => this.requestUpdate());
 			this.shadowRoot.appendChild(dialog);
 		}
-		dialog.openWith(pending.json, { type: 'site', url: pending.url });
+		dialog.openWith(pending.json, { type: 'site', url: pending.url },
+			{ tabId: pending.tabId, frameId: pending.frameId });
 	}
 
 
@@ -427,7 +449,7 @@ class OptionsPage extends LitElement {
 					<div class="section-body">
 						<div class="setting-row first-row">
 							<div class="setting-label">
-								<span class="setting-title">${i18n.getMessage('showTrail')}${this.#renderInlineReset(['enableTrail', 'trailColor', 'trailWidth', 'showTrailOrigin', 'enableTrailSmooth'], { confirm: true })}</span>
+								<span class="setting-title">${i18n.getMessage('showTrail')}${this.#renderInlineReset(['enableTrail', 'trailColor', 'trailColorEnd', 'enableTrailGradient', 'showTrailArrow', 'enableTrailGlow', 'trailWidth', 'showTrailOrigin', 'enableTrailSmooth'], { confirm: true })}</span>
 								<span>${i18n.getMessage('showTrailDesc')}</span>
 							</div>
 							<label class="toggle">
@@ -436,26 +458,50 @@ class OptionsPage extends LitElement {
 							</label>
 						</div>
 						<div class="sub-settings ${this._settings.enableTrail ? 'show' : ''}" style="padding-block: 12px;">
-							<div class="inline-settings">
+							<div class="inline-settings has-checks">
 								<div class="inline-setting-item">
 									<span>${i18n.getMessage('color')}</span>
 									<color-picker id="trailColor" .value=${this._settings.trailColor} alpha .defaultValue=${defaults.trailColor} @change=${e => this.#updateSetting('trailColor', e.detail.value)} @input=${e => this.#debounceSetting('trailColor', e.detail.value)}></color-picker>
+								</div>
+								<div class="inline-setting-item" style="display:${this._settings.enableTrailGradient !== false ? '' : 'none'}">
+									<span>${i18n.getMessage('trailColorEnd')}</span>
+									<color-picker id="trailColorEnd" .value=${this._settings.trailColorEnd} alpha .defaultValue=${defaults.trailColorEnd} @change=${e => this.#updateSetting('trailColorEnd', e.detail.value)} @input=${e => this.#debounceSetting('trailColorEnd', e.detail.value)}></color-picker>
 								</div>
 								<div class="inline-setting-item">
 									<span>${i18n.getMessage('width')}</span>
 									<input type="number" id="trailWidth" .value=${String(this._settings.trailWidth)} min="1" max="20" @change=${e => this.#updateSetting('trailWidth', e.target.value)} @input=${e => this.#debounceSetting('trailWidth', e.target.value)}>
 								</div>
-								<div class="inline-setting-item advanced-setting">
-									<label>
-										<input type="checkbox" id="showTrailOrigin" .checked=${this._settings.showTrailOrigin} @change=${e => this.#updateSetting('showTrailOrigin', e.target.checked)}>
-										<span>${i18n.getMessage('showTrailOrigin')}</span>
-									</label>
-								</div>
-								<div class="inline-setting-item advanced-setting">
-									<label>
-										<input type="checkbox" id="enableTrailSmooth" .checked=${this._settings.enableTrailSmooth} @change=${e => this.#updateSetting('enableTrailSmooth', e.target.checked)}>
-										<span>${i18n.getMessage('enableTrailSmooth')}</span>
-									</label>
+								<div class="inline-checks">
+									<div class="inline-setting-item check-gradient">
+										<label>
+											<input type="checkbox" id="enableTrailGradient" .checked=${this._settings.enableTrailGradient !== false} @change=${e => this.#updateSetting('enableTrailGradient', e.target.checked)}>
+											<span>${i18n.getMessage('enableTrailGradient')}</span>
+										</label>
+									</div>
+									<div class="inline-setting-item check-glow">
+										<label>
+											<input type="checkbox" id="enableTrailGlow" .checked=${this._settings.enableTrailGlow !== false} @change=${e => this.#updateSetting('enableTrailGlow', e.target.checked)}>
+											<span>${i18n.getMessage('enableTrailGlow')}</span>
+										</label>
+									</div>
+									<div class="inline-setting-item check-smooth advanced-setting">
+										<label>
+											<input type="checkbox" id="enableTrailSmooth" .checked=${this._settings.enableTrailSmooth} @change=${e => this.#updateSetting('enableTrailSmooth', e.target.checked)}>
+											<span>${i18n.getMessage('enableTrailSmooth')}</span>
+										</label>
+									</div>
+									<div class="inline-setting-item check-origin">
+										<label>
+											<input type="checkbox" id="showTrailOrigin" .checked=${this._settings.showTrailOrigin} @change=${e => this.#updateSetting('showTrailOrigin', e.target.checked)}>
+											<span>${i18n.getMessage('showTrailOrigin')}</span>
+										</label>
+									</div>
+									<div class="inline-setting-item check-arrow">
+										<label>
+											<input type="checkbox" id="showTrailArrow" .checked=${this._settings.showTrailArrow !== false} @change=${e => this.#updateSetting('showTrailArrow', e.target.checked)}>
+											<span>${i18n.getMessage('showTrailArrow')}</span>
+										</label>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -1020,6 +1066,7 @@ class OptionsPage extends LitElement {
 								${this._settings.lastSyncTime ? html`<span>${this.#formatSyncTime(this._settings.lastSyncTime)}</span>` : ''}
 							</div>
 						</div>
+						${this.#renderStorageRows(i18n)}
 						<div class="setting-row actions">
 							<button class="btn btn-secondary btn-lg" @click=${this.#exportSettings}>${i18n.getMessage('export')}</button>
 							<button class="btn btn-secondary btn-lg" @click=${this.#triggerImport}>${i18n.getMessage('import')}</button>
@@ -1274,6 +1321,54 @@ class OptionsPage extends LitElement {
 			...current,
 			[section]: !current[section]
 		});
+	}
+
+	// Der einzige Ort, an dem Bytes stehen: hier schaut jemand gezielt nach oder
+	// meldet ein Problem. Überall sonst genügt der Prozentwert.
+	//
+	// Bewusst aus settingsStore.current statt this._settings gelesen: settingsStore.save()
+	// (siehe #importSettings) aktualisiert #current, bevor chrome.storage.sync.set()
+	// feuert, also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
+	// auf altem Stand, bis ein Reload sie neu zieht. Ein Lesezugriff auf den Store selbst
+	// zeigt dagegen immer den aktuellen Wert; das erneute Rendern nach dem Import besorgt
+	// der 'action-catalog-changed'-Listener in connectedCallback().
+	#renderStorageRows(i18n) {
+		const cur = this._store.current;
+		const branches = [
+			['siteMenus', i18n.getMessage('siteMenusTitle')],
+			['searchEngines', i18n.getMessage('sectionSearchEngines')],
+			['mouseGestures', i18n.getMessage('basicSettings')],
+		];
+		const rows = branches.map(([key, label]) => {
+			const u = usageOf(key, cur[key]);
+			return html`
+				<div class="setting-row">
+					<div class="setting-label"><span>${label}</span></div>
+					<span class="storage-value ${u.percent >= 100 ? 'over' : (u.percent >= 75 ? 'near' : '')}">
+						${i18n.getMessage('storageDetail')
+							.replace('{used}', u.bytes).replace('{total}', u.quota).replace('{percent}', u.percent)}
+					</span>
+				</div>`;
+		});
+		// Die Summenzeile zählt über ALLE gespeicherten Schlüssel, nicht nur die
+		// drei angezeigten Zweige - sonst meldet sie eine viel zu niedrige Gesamt-
+		// belegung (die übrigen 60-plus Schlüssel sind zwar einzeln klein, in
+		// Summe aber nicht null). Die Zeilen darunter zeigen weiterhin nur die
+		// drei wachsenden Zweige.
+		let sum = 0;
+		for (const [key, value] of Object.entries(cur)) {
+			sum += entryBytes(key, value);
+		}
+		const totalPercent = percentOf(sum, TOTAL_QUOTA);
+		return html`
+			<div class="setting-row">
+				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
+				<span class="storage-value">
+					${i18n.getMessage('storageDetail')
+						.replace('{used}', sum).replace('{total}', TOTAL_QUOTA).replace('{percent}', totalPercent)}
+				</span>
+			</div>
+			${rows}`;
 	}
 
 	#renderFeatureToggle(key, sectionId, label, first = false) {

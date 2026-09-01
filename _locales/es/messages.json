@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entradas · {valid} seleccionables"
+	},
+	"exchangeBundleInvalid": {
+		"message": "No válido"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Seleccionar todo"
+	},
+	"exchangeBundleImport": {
+		"message": "Añadir {count} a Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Confirma la advertencia de script anterior para continuar."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Este paquete no contiene entradas importables."
+	},
+	"exchangeMissingEngine": {
+		"message": "Requiere el motor de búsqueda «{id}», que no está instalado ni forma parte de esta importación."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etiqueta de esta entrada en el menú. Déjalo vacío para usar el nombre predefinido."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "El nombre indica {name}, pero se abre {url}."
+	},
+	"storageUsageLabel": { "message": "Almacenamiento usado" },
+	"storageDetail": { "message": "{used} de {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% usado" },
+	"storageRemaining": { "message": "espacio para unos {count} más" },
+	"storageFull": { "message": "Lleno — el guardado falla hasta que elimines entradas." },
+	"storageImportTooLarge": { "message": "Esta selección ya no cabe. Deselecciona entradas o importa menos a la vez." },
+	"storageAfterImport": { "message": "{percent}% usado después de la importación" },
+	"importDoneTitle": { "message": "Importado" },
+	"importBadgeNew": { "message": "Nuevo" },
+	"exchangeUpdateExisting": { "message": "Actualizar «{name}» existente" },
+	"exchangeBadgeExisting": { "message": "Ya añadido" },
+	"trailColorEnd": { "message": "Color final" },
+	"enableTrailGradient": { "message": "Degradado" },
+	"showTrailArrow": { "message": "Punta de flecha" },
+	"enableTrailGlow": { "message": "Resplandor" }
 }

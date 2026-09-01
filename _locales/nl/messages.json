@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} items · {valid} selecteerbaar"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ongeldig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Alles selecteren"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} toevoegen aan Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bevestig de scriptwaarschuwing hierboven om door te gaan."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Deze bundel bevat geen importeerbare items."
+	},
+	"exchangeMissingEngine": {
+		"message": "Vereist de zoekmachine \"{id}\", die niet is geïnstalleerd en geen deel uitmaakt van deze import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label van dit item in het menu. Laat leeg om de vooraf ingestelde naam te gebruiken."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "De naam noemt {name}, maar {url} wordt geopend."
+	},
+	"storageUsageLabel": { "message": "Gebruikte opslag" },
+	"storageDetail": { "message": "{used} van {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% gebruikt" },
+	"storageRemaining": { "message": "ruimte voor nog ongeveer {count}" },
+	"storageFull": { "message": "Vol — opslaan mislukt totdat je items verwijdert." },
+	"storageImportTooLarge": { "message": "Deze selectie past niet meer. Deselecteer items of importeer er minder tegelijk." },
+	"storageAfterImport": { "message": "{percent}% gebruikt na het importeren" },
+	"importDoneTitle": { "message": "Geïmporteerd" },
+	"importBadgeNew": { "message": "Nieuw" },
+	"exchangeUpdateExisting": { "message": "Bestaande \"{name}\" bijwerken" },
+	"exchangeBadgeExisting": { "message": "Al toegevoegd" },
+	"trailColorEnd": { "message": "Eindkleur" },
+	"enableTrailGradient": { "message": "Kleurverloop" },
+	"showTrailArrow": { "message": "Pijlpunt" },
+	"enableTrailGlow": { "message": "Gloed" }
 }

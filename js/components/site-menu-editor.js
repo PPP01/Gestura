@@ -2,7 +2,7 @@ import { LitElement, html, css, unsafeHTML } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
 import { tooltip } from '../tooltip.js';
-import { settingsStore } from '../settings-store.js';
+import { displayName, domainMismatch } from './action-labels.js';
 
 // Editor für EINE Menüdefinition. Hält keinen Settings-Zustand: rendert die
 // übergebenen Rows und meldet jede Operation als Event; der Parent
@@ -35,6 +35,7 @@ class SiteMenuEditor extends LitElement {
 				border-radius: 8px; box-shadow: 0 0 0 0.75px var(--border-color);
 				background: var(--card-bg); position: relative;
 			}
+			.item-row.hinted { box-shadow: 0 0 0 1px var(--attention-color); }
 			.item-row.drag-indicator-before::before,
 			.item-row.drag-indicator-after::after {
 				content: ''; position: absolute; left: 6px; right: 6px; height: 2px;
@@ -112,26 +113,6 @@ class SiteMenuEditor extends LitElement {
 
 	#generateItemId() {
 		return `item_${crypto.randomUUID().replace(/-/g, '').slice(0, 10)}`;
-	}
-
-	#resolvedLabel(item) {
-		const i18n = window.i18n;
-		if (item.type === 'separator') return '';
-		if (item.customName) return item.customName;
-		if (item.labelKey) {
-			const m = i18n.getMessage(item.labelKey);
-			if (m) return m;
-		}
-		if (item.action === 'searchLink' && window.FlowMouseEngineRegistry && window.FlowMouseEngineCatalogApi) {
-			const link = window.FlowMouseEngineRegistry.resolveMenuItemLink(
-				window.FlowMouseEngineCatalogApi.ENGINE_CATALOG,
-				settingsStore.current.searchEngines,
-				item,
-			);
-			if (link?.name) return link.name;
-		}
-		const key = window.GestureConstants.ACTION_KEYS[item.action];
-		return key ? i18n.getMessage(key) : (item.action || '');
 	}
 
 	render() {
@@ -261,9 +242,12 @@ class SiteMenuEditor extends LitElement {
 				</div>
 			`;
 		}
-		const label = this.#resolvedLabel(item);
+		const label = displayName(item.action, item);
+		// Der Rahmen der ganzen Zeile trägt den Hinweis mit — das Symbol allein
+		// ist im hellen Thema leicht zu übersehen.
+		const hinted = !!domainMismatch(item.action, item);
 		return html`
-			<div class="item-row" @dragover=${(e) => this.#onItemDragOver(e, idx)}>
+			<div class="item-row ${hinted ? 'hinted' : ''}" @dragover=${(e) => this.#onItemDragOver(e, idx)}>
 				${grip}
 				<icon-picker .value=${item.icon || ''}
 					@icon-change=${(e) => { e.stopPropagation(); this.#emit('item-change', { item: { ...item, icon: e.detail.value } }); }}
@@ -302,7 +286,7 @@ class SiteMenuEditor extends LitElement {
 				${this._showHidden ? this.hiddenItems.map(item => html`
 					<div class="item-row hidden-row">
 						<span class="item-action" style="font-size:12px; padding:4px 2px;">
-							${item.type === 'separator' ? html`<span class="separator-line"></span>` : this.#resolvedLabel(item)}
+							${item.type === 'separator' ? html`<span class="separator-line"></span>` : displayName(item.action, item)}
 						</span>
 						<div class="item-buttons">
 							<button class="item-btn" @click=${() => this.#emit('item-restore', { itemId: item.id })}

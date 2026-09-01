@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} записів · {valid} доступно для вибору"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Недійсно"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Вибрати все"
+	},
+	"exchangeBundleImport": {
+		"message": "Додати {count} до Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Підтвердіть попередження про скрипт вище, щоб продовжити."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Цей пакет не містить записів для імпортування."
+	},
+	"exchangeMissingEngine": {
+		"message": "Потрібна пошукова система «{id}», яка не встановлена і не входить до цього імпорту."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Підпис цього пункту в меню. Залиште порожнім, щоб використати задану назву."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "У назві вказано {name}, але відкривається {url}."
+	},
+	"storageUsageLabel": { "message": "Використане сховище" },
+	"storageDetail": { "message": "{used} з {total} байт ({percent}%)" },
+	"storageUsed": { "message": "використано {percent}%" },
+	"storageRemaining": { "message": "місця ще приблизно на {count}" },
+	"storageFull": { "message": "Заповнено — збереження не вдається, поки ви не видалите записи." },
+	"storageImportTooLarge": { "message": "Цей вибір більше не вміщується. Зніміть позначки з деяких записів або імпортуйте менше за раз." },
+	"storageAfterImport": { "message": "Після імпорту використано {percent}%" },
+	"importDoneTitle": { "message": "Імпортовано" },
+	"importBadgeNew": { "message": "Нове" },
+	"exchangeUpdateExisting": { "message": "Оновити наявний «{name}»" },
+	"exchangeBadgeExisting": { "message": "Уже додано" },
+	"trailColorEnd": { "message": "Кінцевий колір" },
+	"enableTrailGradient": { "message": "Градієнт" },
+	"showTrailArrow": { "message": "Наконечник стрілки" },
+	"enableTrailGlow": { "message": "Сяйво" }
 }

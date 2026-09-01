@@ -349,6 +349,67 @@ function colorWithAlpha(color, defaultAlpha = 1) {
 	return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+// Die Mitte eines Verlaufs über HSL mischen, nicht über RGB. Der gerade RGB-Weg
+// von Blau nach Rosa führt quer durch die Mitte des Farbraums und ergibt ein
+// stumpfes Grau-Violett; über den Farbkreis bleibt die Mitte kräftig - genau der
+// Violett-Ton, der den Verlauf ausmacht. Canvas interpoliert zwischen zwei
+// Stopps selbst in sRGB, dieser Stopp muss also gesetzt werden.
+//
+// Liefert null, wenn eine der beiden Farben kein Hex ist: der Farbwähler kann
+// auch oklch() ausgeben. Dann bleibt der Verlauf zweistufig statt falsch.
+function hexToRgba(color) {
+	if (typeof color !== 'string' || !color.startsWith('#')) return null;
+	let hex = color.slice(1);
+	if (hex.length === 3 || hex.length === 4) hex = hex.split('').map(c => c + c).join('');
+	if (hex.length !== 6 && hex.length !== 8) return null;
+	const n = parseInt(hex.slice(0, 6), 16);
+	if (Number.isNaN(n)) return null;
+	return {
+		r: (n >> 16) & 255,
+		g: (n >> 8) & 255,
+		b: n & 255,
+		a: hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1,
+	};
+}
+
+function rgbToHsl({ r, g, b }) {
+	const rn = r / 255, gn = g / 255, bn = b / 255;
+	const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+	const l = (max + min) / 2;
+	if (max === min) return { h: 0, s: 0, l };
+	const d = max - min;
+	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+	let h;
+	if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0));
+	else if (max === gn) h = (bn - rn) / d + 2;
+	else h = (rn - gn) / d + 4;
+	return { h: h * 60, s, l };
+}
+
+function midColor(c1, c2) {
+	const a = hexToRgba(c1), b = hexToRgba(c2);
+	if (!a || !b) return null;
+	const A = rgbToHsl(a), B = rgbToHsl(b);
+	// Den kürzeren Weg über den Farbkreis nehmen - sonst läuft ein Verlauf von
+	// Rot nach Violett einmal quer durch Grün.
+	let dh = B.h - A.h;
+	if (dh > 180) dh -= 360;
+	if (dh < -180) dh += 360;
+	const h = (A.h + dh / 2 + 360) % 360;
+	const s = ((A.s + B.s) / 2) * 100;
+	const l = ((A.l + B.l) / 2) * 100;
+	return `hsla(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%, ${((a.a + b.a) / 2).toFixed(3)})`;
+}
+
+// Maße des Leuchtens, relativ zur Strichbreite. Sie hängen zusammen: ein
+// breiterer Strich unter einer schwachen Unschärfe wirkt wie ein zweiter,
+// fetterer Strich, eine starke Unschärfe unter einem schmalen Strich verpufft.
+// Die Werte sind so gewählt, dass der Schein bei der Standardbreite etwa eine
+// Strichbreite weit über die Spur hinausreicht.
+const GLOW_WIDTH = 1.9;
+const GLOW_BLUR = 6;
+const GLOW_ALPHA = 0.55;
+
 function colorHasAlpha(color) {
 	if (!color || typeof color !== 'string') return false;
 	if (color.startsWith('oklch(')) {
@@ -392,6 +453,10 @@ class GestureOverlay {
 			hudBlurRadius: 5,
 			enableHudShadow: true,
 			trailColor: '#4285f4',
+			trailColorEnd: '#ec4899',
+			enableTrailGradient: true,
+			showTrailArrow: true,
+			enableTrailGlow: true,
 			trailWidth: 5,
 			showTrailOrigin: true,
 			showRawTrail: false,
@@ -842,6 +907,130 @@ class GestureOverlay {
 		}
 	}
 
+	// Ein linearer Verlauf vom ersten zum letzten Punkt, weiterhin EIN stroke() für
+	// die ganze Spur. #draw() zeichnet den Pfad ohnehin je Bild komplett neu, der
+	// Verlauf kostet also nur ein Gradient-Objekt je Bild.
+	//
+	// Die Farben laufen dadurch entlang der Verbindung Anfang-Ende, nicht entlang
+	// der Pfadlänge. Bei Strichen, Winkeln und Bögen ist das nicht zu
+	// unterscheiden; bei einer Schleife schon - dafür der Rückfall unten.
+	#trailEndColor() {
+		return this.settings.trailColorEnd || this.settings.trailColor;
+	}
+
+	#trailStrokeStyle(ctx) {
+		const start = this.settings.trailColor;
+		if (!this.settings.enableTrailGradient) return start;
+		const end = this.#trailEndColor();
+		const first = this.trail[0];
+		const last = this.trail[this.trail.length - 1];
+		const dx = last.x - first.x;
+		const dy = last.y - first.y;
+		// Ein Verlauf ohne Länge färbt nichts. Endet die Geste dort, wo sie begann,
+		// gibt es keine sinnvolle Achse - dann die Anfangsfarbe massiv.
+		if (dx * dx + dy * dy < 4) return start;
+		const g = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
+		g.addColorStop(0, start);
+		const mid = midColor(start, end);
+		if (mid) g.addColorStop(0.5, mid);
+		g.addColorStop(1, end);
+		return g;
+	}
+
+	// Die Richtung kommt vom letzten Punkt, der weit genug entfernt liegt: die
+	// letzten beiden fallen bei langsamer Bewegung fast aufeinander, und aus einem
+	// Nullvektor lässt sich keine Spitze bauen - sie würde zappeln.
+	//
+	// Größe und Strichstärke sind getrennt, weil der Glühdurchgang nur letztere
+	// aufdicken darf. Aus einer gemeinsamen Größe entstünde dort ein größerer
+	// Pfeil, der über die echte Spitze hinausragt - kein Schein, sondern ein
+	// zweiter, verschobener Pfeil.
+	#drawArrowHead(ctx, width, lineWidth = width) {
+		if (!this.settings.showTrailArrow) return;
+		const last = this.trail[this.trail.length - 1];
+		let ref = null;
+		for (let i = this.trail.length - 2; i >= 0; i--) {
+			const p = this.trail[i];
+			const dx = last.x - p.x;
+			const dy = last.y - p.y;
+			if (dx * dx + dy * dy >= 100) { ref = p; break; }
+		}
+		if (!ref) return;
+		const a = Math.atan2(last.y - ref.y, last.x - ref.x);
+		const len = Math.max(width * 2.6, 11);
+		const spread = 0.62;
+		ctx.beginPath();
+		ctx.strokeStyle = this.settings.enableTrailGradient ? this.#trailEndColor() : this.settings.trailColor;
+		ctx.lineWidth = lineWidth;
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.moveTo(last.x - Math.cos(a - spread) * len, last.y - Math.sin(a - spread) * len);
+		ctx.lineTo(last.x, last.y);
+		ctx.lineTo(last.x - Math.cos(a + spread) * len, last.y - Math.sin(a + spread) * len);
+		ctx.stroke();
+	}
+
+	// Der Spurverlauf als Pfad, ohne jede Farbe. Ausgelagert, weil ihn Leuchten
+	// und Spur beide brauchen und ein zweiter, per Hand nachgezogener Pfad
+	// unweigerlich irgendwann vom ersten abweicht.
+	#tracePath(ctx) {
+		ctx.moveTo(this.trail[0].x, this.trail[0].y);
+
+		if (this.trail.length < 3 || !this.settings.enablePathInterpolation) {
+			for (let i = 1; i < this.trail.length; i++) {
+				ctx.lineTo(this.trail[i].x, this.trail[i].y);
+			}
+			return;
+		}
+
+		let i;
+		for (i = 1; i < this.trail.length - 2; i++) {
+			const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
+			const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
+			ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
+		}
+		ctx.quadraticCurveTo(
+			this.trail[i].x,
+			this.trail[i].y,
+			this.trail[i + 1].x,
+			this.trail[i + 1].y
+		);
+	}
+
+	// Das Leuchten ist die Spur selbst: derselbe Pfad, derselbe Verlauf, nur
+	// breiter, blasser und weichgezeichnet - deshalb trägt der Schein die Farbe
+	// der Stelle, über der er liegt.
+	//
+	// Vorher lag hier ein CSS-drop-shadow auf dem Canvas-Element. Das konnte
+	// grundsätzlich nicht mehrfarbig werden: drop-shadow färbt die Silhouette,
+	// und in der Silhouette steckt keine Farbe mehr. Zwei gestaffelte Schatten in
+	// Anfangs- und Zielfarbe deuteten die Richtung nur an.
+	//
+	// Nicht ctx.shadowBlur nehmen: das ist eine Unschärfe JE Zeichenaufruf und
+	// würde bei jedem Segment erneut anfallen. Hier ist es ein einziger stroke()
+	// für die ganze Spur, plus einer für die Pfeilspitze.
+	#drawGlow(ctx, width, stroke) {
+		ctx.save();
+		// Der Radius gilt im Koordinatenraum des Canvas; ob der DPR-Faktor aus
+		// ctx.scale() darauf durchschlägt, handhaben die Browser verschieden. Auf
+		// einem hochauflösenden Bildschirm kann der Schein dadurch etwas enger
+		// ausfallen - schmuckhaft, nicht tragend.
+		ctx.filter = `blur(${GLOW_BLUR}px)`;
+		ctx.globalAlpha = GLOW_ALPHA;
+		ctx.strokeStyle = stroke;
+		ctx.lineWidth = width * GLOW_WIDTH;
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.beginPath();
+		this.#tracePath(ctx);
+		ctx.stroke();
+		// Die Spitze leuchtet in ihrer eigenen Farbe mit; ohne sie säße sie als
+		// scharfer Fleck am Ende einer leuchtenden Spur. Gleiche Größe, nur
+		// dicker - siehe #drawArrowHead().
+		this.#drawArrowHead(ctx, width, width * GLOW_WIDTH);
+		ctx.restore();
+	}
+
 	#draw() {
 		if (!this.ctx) return;
 
@@ -859,33 +1048,20 @@ class GestureOverlay {
 		ctx.shadowOffsetY = 0;
 
 		if (this.trail.length >= 2) {
+			// Einmal berechnen, zweimal benutzen: das Leuchten trägt denselben
+			// Verlauf wie die Spur - sonst wäre es kein Schein der Spur, sondern
+			// eine zweite Farbe darunter.
+			const stroke = this.#trailStrokeStyle(ctx);
+			if (this.settings.enableTrailGlow) this.#drawGlow(ctx, width, stroke);
+
 			ctx.beginPath();
-			ctx.strokeStyle = color;
+			ctx.strokeStyle = stroke;
 			ctx.lineWidth = width;
 			ctx.lineCap = 'round';
 			ctx.lineJoin = 'round';
-
-			if (this.trail.length < 3 || !this.settings.enablePathInterpolation) {
-				ctx.moveTo(this.trail[0].x, this.trail[0].y);
-				for (let i = 1; i < this.trail.length; i++) {
-					ctx.lineTo(this.trail[i].x, this.trail[i].y);
-				}
-			} else {
-				ctx.moveTo(this.trail[0].x, this.trail[0].y);
-				let i;
-				for (i = 1; i < this.trail.length - 2; i++) {
-					const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
-					const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
-					ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
-				}
-				ctx.quadraticCurveTo(
-					this.trail[i].x,
-					this.trail[i].y,
-					this.trail[i + 1].x,
-					this.trail[i + 1].y
-				);
-			}
+			this.#tracePath(ctx);
 			ctx.stroke();
+			this.#drawArrowHead(ctx, width);
 		}
 
 		if (this.settings.showRawTrail && this.trail.length >= 2) {
@@ -915,6 +1091,8 @@ class GestureOverlay {
 			}
 
 			ctx.beginPath();
+			// trailColor ist zugleich die Anfangsfarbe des Verlaufs - der vorhandene
+			// Ursprungspunkt passt damit von selbst, ohne einen zweiten daneben.
 			ctx.fillStyle = color;
 			ctx.arc(ox, oy, originRadius, 0, Math.PI * 2);
 			ctx.fill();
@@ -1095,6 +1273,10 @@ class ToastOverlay {
 	}
 }
 
+// Die Farbmischung des Spurverlaufs steht bewusst nach außen: sie ist reine
+// Rechnung, und ein falscher Weg über den Farbkreis fällt am Bildschirm nicht
+// auf - er sieht nur "irgendwie komisch" aus. Siehe tests/trail-colors.test.mjs.
+window.GestureTrailColors = { hexToRgba, rgbToHsl, midColor };
 window.ShadowHost = ShadowHost;
 window.GestureOverlay = GestureOverlay;
 window.ToastOverlay = ToastOverlay;

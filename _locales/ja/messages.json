@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} 件のエントリ · {valid} 件選択可能"
+	},
+	"exchangeBundleInvalid": {
+		"message": "無効"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "すべて選択"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} 件を Gestura に追加"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "続行するには、上のスクリプトの警告を確認してください。"
+	},
+	"exchangeBundleEmpty": {
+		"message": "このバンドルにはインポート可能なエントリがありません。"
+	},
+	"exchangeMissingEngine": {
+		"message": "検索エンジン「{id}」が必要ですが、インストールされておらず、このインポートにも含まれていません。"
+	},
+	"siteMenuItemNameHint": {
+		"message": "メニューでのこの項目のラベル。空欄のままにすると既定の名前を使用します。"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "名前は {name} ですが、開かれるのは {url} です。"
+	},
+	"storageUsageLabel": { "message": "使用済みストレージ" },
+	"storageDetail": { "message": "{total} バイト中 {used} バイト使用（{percent}%）" },
+	"storageUsed": { "message": "{percent}% 使用済み" },
+	"storageRemaining": { "message": "あと約 {count} 件分の空き" },
+	"storageFull": { "message": "容量オーバー — 項目を削除するまで保存できません。" },
+	"storageImportTooLarge": { "message": "この選択はもう収まりません。項目の選択を解除するか、一度にインポートする数を減らしてください。" },
+	"storageAfterImport": { "message": "インポート後は{percent}% 使用済み" },
+	"importDoneTitle": { "message": "インポート完了" },
+	"importBadgeNew": { "message": "新規" },
+	"exchangeUpdateExisting": { "message": "既存の「{name}」を更新" },
+	"exchangeBadgeExisting": { "message": "追加済み" },
+	"trailColorEnd": { "message": "終了色" },
+	"enableTrailGradient": { "message": "グラデーション" },
+	"showTrailArrow": { "message": "矢印" },
+	"enableTrailGlow": { "message": "グロー" }
 }

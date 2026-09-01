@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entri · {valid} boleh dipilih"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Tidak sah"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Pilih semua"
+	},
+	"exchangeBundleImport": {
+		"message": "Tambah {count} ke Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Sahkan amaran skrip di atas untuk teruskan."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Pakej ini tidak mengandungi entri yang boleh diimport."
+	},
+	"exchangeMissingEngine": {
+		"message": "Memerlukan enjin carian \"{id}\", yang tidak dipasang dan tiada dalam import ini."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label untuk entri ini dalam menu. Biarkan kosong untuk menggunakan nama lalai."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nama menyebut {name}, tetapi {url} yang dibuka."
+	},
+	"storageUsageLabel": { "message": "Storan Digunakan" },
+	"storageDetail": { "message": "{used} daripada {total} bait ({percent}%)" },
+	"storageUsed": { "message": "{percent}% digunakan" },
+	"storageRemaining": { "message": "ruang untuk kira-kira {count} lagi" },
+	"storageFull": { "message": "Penuh — penyimpanan gagal sehingga anda mengalih keluar entri." },
+	"storageImportTooLarge": { "message": "Pilihan ini tidak lagi muat. Nyahpilih entri atau import lebih sedikit pada satu masa." },
+	"storageAfterImport": { "message": "{percent}% digunakan selepas import" },
+	"importDoneTitle": { "message": "Diimport" },
+	"importBadgeNew": { "message": "Baharu" },
+	"exchangeUpdateExisting": { "message": "Kemas kini \"{name}\" sedia ada" },
+	"exchangeBadgeExisting": { "message": "Sudah ditambah" },
+	"trailColorEnd": { "message": "Warna akhir" },
+	"enableTrailGradient": { "message": "Kecerunan warna" },
+	"showTrailArrow": { "message": "Hujung anak panah" },
+	"enableTrailGlow": { "message": "Cahaya" }
 }

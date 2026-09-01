@@ -1777,9 +1777,10 @@ Gestura 採用 GPL-3.0 授權開源，是 Hmily[LCG] 與 Coxxs 開發的 FlowMou
 ## Listing metadata (all stores)
 
 - Category: Productivity / Tools
-- Languages: all 37 locales in `_locales/` provided above; English and German are canonical, the rest machine-translated (recommend native-speaker review before submission)
+- Languages: all 39 locales in `_locales/` provided above; English and German are canonical, the rest machine-translated (recommend native-speaker review before submission)
 - Icon: `icons/icon128.png`
-- Screenshots: `assets/screenshot-1.png` (EN), `assets/screenshot-zh-cn-1.png` (zh)
-  — consider adding German screenshots and 1280×800 versions before submission.
+- Screenshots: the five 1280×800 PNGs in `assets/store/chrome/` (`01…05-*.png`), in that order —
+  see [chrome-web-store-submission.md](chrome-web-store-submission.md). Edge and AMO reuse the same set.
+  — consider adding German screenshots before submission.
 - Privacy policy URL: hosted `PRIVACY.md` (GitHub Pages or raw file URL)
 - Support: contact@gestura.eu · https://github.com/PPP01/Gestura/issues

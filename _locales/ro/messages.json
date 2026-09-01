@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} intrări · {valid} selectabile"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Nevalid"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Selectează tot"
+	},
+	"exchangeBundleImport": {
+		"message": "Adaugă {count} în Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Confirmă avertismentul de script de mai sus pentru a continua."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Acest pachet nu conține intrări care pot fi importate."
+	},
+	"exchangeMissingEngine": {
+		"message": "Necesită motorul de căutare „{id}”, care nu este instalat și nu face parte din acest import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Eticheta acestei intrări în meniu. Lăsați gol pentru a folosi numele predefinit."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Numele indică {name}, dar se deschide {url}."
+	},
+	"storageUsageLabel": { "message": "Stocare Utilizată" },
+	"storageDetail": { "message": "{used} din {total} octeți ({percent}%)" },
+	"storageUsed": { "message": "{percent}% utilizat" },
+	"storageRemaining": { "message": "loc pentru încă aproximativ {count}" },
+	"storageFull": { "message": "Plin — salvarea eșuează până când elimini intrări." },
+	"storageImportTooLarge": { "message": "Această selecție nu mai încape. Deselectează intrări sau importă mai puține odată." },
+	"storageAfterImport": { "message": "{percent}% utilizat după import" },
+	"importDoneTitle": { "message": "Importat" },
+	"importBadgeNew": { "message": "Nou" },
+	"exchangeUpdateExisting": { "message": "Actualizează „{name}” existent" },
+	"exchangeBadgeExisting": { "message": "Deja adăugat" },
+	"trailColorEnd": { "message": "Culoare finală" },
+	"enableTrailGradient": { "message": "Degrade" },
+	"showTrailArrow": { "message": "Vârf de săgeată" },
+	"enableTrailGlow": { "message": "Strălucire" }
 }

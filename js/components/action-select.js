@@ -1,8 +1,7 @@
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon } from '../icons.js';
-import { getChainLabel } from './chain-panel.js';
-import { getGestureMenuLabel } from './gesture-menu-config.js';
+import { actionName, fallbackName, displayName, domainMismatch } from './action-labels.js';
 import { tooltip } from '../tooltip.js';
 import { settingsStore } from '../settings-store.js';
 import { renderCatalogEngineOptions } from './engine-options.js';
@@ -95,6 +94,28 @@ const ACTION_ICONS = {
 	'areaSelect': 'squareDashedMousePointer',
 };
 
+// Die Tastenkombination als Text. Zeile und Konfigurationsfeld müssen dieselbe
+// zeigen, sonst widerspricht sich ein Eintrag mit sich selbst.
+function keyComboText(cfg) {
+	const defaults = window.GestureConstants.ACTION_DEFAULTS.simulateKey || {};
+	const parts = [];
+	if (cfg?.modCtrl ?? defaults.modCtrl) parts.push(window.i18n.getModifierKeyName('Ctrl'));
+	if (cfg?.modShift ?? defaults.modShift) parts.push(window.i18n.getModifierKeyName('Shift'));
+	if (cfg?.modAlt ?? defaults.modAlt) parts.push(window.i18n.getModifierKeyName('Alt'));
+	if (cfg?.modMeta ?? defaults.modMeta) parts.push(window.i18n.getModifierKeyName('Meta'));
+	const keyValue = cfg?.keyValue ?? defaults.keyValue;
+	if (keyValue) parts.push(keyValue);
+	return parts.join('+');
+}
+
+// Was der aufrufende Kontext von der Auswahl erwartet. Nur die Eigenschaften,
+// die Zeile und Namensfeld brauchen; ein unbekannter Kontext gilt als 'gesture'.
+const CONTEXTS = {
+	'menu-item': { namedRow: true, nameHint: 'siteMenuItemNameHint' },
+	'chain-step': { namedRow: true, nameHint: 'customHudNameTooltip' },
+	'gesture': { namedRow: false, nameHint: 'customHudNameTooltip' },
+};
+
 const SCROLL_SMOOTHNESS = {
 	'auto': 'smoothnessAuto',
 	'smooth': 'smoothnessCustom',
@@ -166,18 +187,46 @@ class ActionSelect extends LitElement {
 				box-shadow: 0 0 0 2px var(--input-focus-border-color);
 				outline: none;
 			}
-			.trigger-label {
+			.trigger-label,
+			.trigger-name,
+			.trigger-detail {
+				min-width: 0;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				flex: 1;
-				min-width: 0;
 			}
-			.trigger-chevron {
+			.trigger-chevron,
+			.trigger-icon {
 				flex-shrink: 0;
 				display: flex;
 				align-items: center;
+			}
+			.trigger-chevron {
 				opacity: 0.4;
+			}
+			.trigger-icon {
+				color: var(--text-muted);
+				margin-inline-end: 6px;
+			}
+			/* Farbe und Größe kommen aus .notice-mark in common.css. */
+			.trigger-hint {
+				margin-inline-start: 6px;
+			}
+			.trigger-label {
+				flex: 1;
+			}
+			.trigger-name {
+				flex: 0 1 auto;
+			}
+			/* Beim Kürzen hat der Name Vorrang — die URL bekommt die Ellipse. */
+			.trigger.has-detail .trigger-name {
+				max-width: 55%;
+			}
+			.trigger-detail {
+				flex: 1 1 auto;
+				margin-inline-start: 8px;
+				font-size: 12px;
+				color: var(--text-muted);
 			}
 
 			.modal-overlay {
@@ -625,18 +674,6 @@ class ActionSelect extends LitElement {
 				border-top: 1px solid var(--border-color);
 				flex-shrink: 0;
 			}
-			.modal-footer-label {
-				font-size: 12px;
-				color: var(--text-secondary);
-				flex-shrink: 0;
-				display: inline-flex;
-				align-items: center;
-				gap: 4px;
-			}
-			input.modal-footer-name {
-				width: 180px;
-				margin-inline-end: auto;
-			}
 			.modal-footer-btn {
 				min-width: 92px;
 			}
@@ -717,67 +754,32 @@ class ActionSelect extends LitElement {
 		}
 	}
 
-	#getSiteMenuName(menuId) {
-		if (!menuId) return null;
-		const base = window.FlowMouseMenuModel.getBaseMenu(
-			window.FlowMouseMenuCatalog.SITE_MENU_CATALOG, settingsStore.current.siteMenus, menuId);
-		if (!base) return null;
-		return base.name || (base.nameKey && window.i18n.getMessage(base.nameKey)) || null;
+	// Das Detail ist der Teil, der neben dem Namen steht — die URL, der Text, die
+	// Tastenkombination. Den Namen selbst löst action-labels.js auf.
+	#getActionDetail(val) {
+		const cfg = this.config;
+		if (val === 'openCustomUrl') return cfg?.customUrl || '';
+		if (val === 'pasteContent') return (cfg?.content || '').replace(/\s+/g, ' ').trim();
+		if (val === 'delay') {
+			const delayMs = cfg?.delayMs ?? window.GestureConstants.ACTION_DEFAULTS.delay.delayMs;
+			return `${delayMs}${window.i18n.getMessage('chainDelayUnit')}`;
+		}
+		if (val === 'simulateKey') return keyComboText(cfg);
+		return '';
 	}
 
+	#domainHintText(mismatch) {
+		return window.i18n.getMessage('siteMenuItemDomainHint')
+			.replace('{name}', mismatch.name)
+			.replace('{url}', mismatch.url);
+	}
+
+	// Einzeilige Kontexte (Gesten, Rad, Drag) tragen Name und Detail in einem String.
 	#getActionLabel(val) {
-		if (this.config?.customName) return this.config.customName;
-		const ACTION_KEYS = window.GestureConstants.ACTION_KEYS;
-		const key = ACTION_KEYS[val];
-		if (!key) return val;
-		if (val === 'openCustomUrl') {
-			const baseLabel = window.i18n.getMessage('actionOpenCustomUrl');
-			const url = this.config?.customUrl || '';
-			return url
-				? `${baseLabel} (${url})`
-				: baseLabel;
-		}
-		if (val === 'pasteContent') {
-			const baseLabel = window.i18n.getMessage('actionPasteContent');
-			const content = (this.config?.content || '').replace(/\s+/g, ' ').trim();
-			return content
-				? `${baseLabel} (${content})`
-				: baseLabel;
-		}
-		if (val === 'actionChain') {
-			return getChainLabel(this.config?.chainId);
-		}
-		if (val === 'customMenu' || val === 'siteMenu') {
-			return getGestureMenuLabel(this.config, val);
-		}
-		if (val === 'addSiteToMenu') {
-			return this.config?.customName || this.#getSiteMenuName(this.config?.menuId) || window.i18n.getMessage('actionAddSiteToMenu');
-		}
-		if (val === 'searchLink') {
-			return this.config?.customName
-				|| (window.FlowMouseEngineRegistry.resolveMenuItemLink(
-					window.FlowMouseEngineCatalogApi.ENGINE_CATALOG,
-					settingsStore.current.searchEngines,
-					this.config,
-				)?.name)
-				|| window.i18n.getMessage('actionSearchLink');
-		}
-		if (val === 'delay') {
-			const delayMs = this.config?.delayMs ?? window.GestureConstants.ACTION_DEFAULTS.delay.delayMs;
-			return `${window.i18n.getMessage(key)} (${delayMs}${window.i18n.getMessage('chainDelayUnit')})`;
-		}
-		if (val === 'simulateKey') {
-			const baseLabel = window.i18n.getMessage('actionSimulateKey');
-			const keyValue = this.config?.keyValue || 'ArrowLeft';
-			const mods = [];
-			if (this.config?.modCtrl) mods.push(window.i18n.getModifierKeyName('Ctrl'));
-			if (this.config?.modShift) mods.push(window.i18n.getModifierKeyName('Shift'));
-			if (this.config?.modAlt) mods.push(window.i18n.getModifierKeyName('Alt'));
-			if (this.config?.modMeta) mods.push(window.i18n.getModifierKeyName('Meta'));
-			mods.push(keyValue);
-			return `${baseLabel} (${mods.join('+')})`;
-		}
-		return window.i18n.getMessage(key) || val;
+		const name = displayName(val, this.config);
+		if (this.config?.customName) return name;
+		const detail = this.#getActionDetail(val);
+		return detail ? `${name} (${detail})` : name;
 	}
 
 	#getFilteredCategories() {
@@ -808,12 +810,36 @@ class ActionSelect extends LitElement {
 
 	render() {
 		const hasConfigUI = this.#hasActionConfig(this.value);
+		// Menü-Einträge und Kettenschritte tragen ihren Namen selbst; die Aktionsart
+		// steckt dort im Icon, damit die Bezeichnung nicht den Platz für Name und
+		// Ziel frisst. Alle anderen Kontexte bleiben beim einzeiligen Label.
+		const named = CONTEXTS[this.context]?.namedRow;
+		const detail = named ? this.#getActionDetail(this.value) : '';
 		return html`
-			<button class="trigger" @click=${this.open} type="button">
-				<span class="trigger-label">${this.#getActionLabel(this.value)}</span>
+			<button class="trigger ${detail ? 'has-detail' : ''}" @click=${this.open} type="button">
+				${named ? this.#renderNamedRow(detail) : html`
+					<span class="trigger-label">${this.#getActionLabel(this.value)}</span>
+				`}
 				<span class="trigger-chevron">${unsafeHTML(hasConfigUI ? icon('settings', { size: 15 }) : icon('chevronDown', { size: 16 }))}</span>
 			</button>
 			${this._open ? this.#renderModal() : ''}
+		`;
+	}
+
+	#renderNamedRow(detail) {
+		const name = displayName(this.value, this.config);
+		const mismatch = domainMismatch(this.value, this.config);
+		return html`
+			<span class="trigger-icon" .tooltip=${tooltip(actionName(this.value))}>
+				${unsafeHTML(icon(ACTION_ICONS[this.value] || 'minus', { size: 14 }))}
+			</span>
+			<span class="trigger-name">${name}</span>
+			${detail ? html`<span class="trigger-detail" .tooltip=${tooltip(detail)}>${detail}</span>` : ''}
+			${mismatch ? html`
+				<span class="trigger-hint notice-mark" .tooltip=${tooltip(this.#domainHintText(mismatch))}>
+					${unsafeHTML(icon('info', { size: 14 }))}
+				</span>
+			` : ''}
 		`;
 	}
 
@@ -867,33 +893,18 @@ class ActionSelect extends LitElement {
 						<div class="modal-right">
 							${this.#renderDetailHeader(showActionConfig)}
 							<div class="detail-body">
-								${showActionConfig
-									? this.#renderActionConfig()
-									: html`
-										<div class="detail-empty">
-											${unsafeHTML(icon('circleCheck', { size: 22 }))}
-											<span>${window.i18n.getMessage('actionNoOptions')}</span>
-										</div>
-									`}
+								${showHudName ? this.#renderNameField() : ''}
+								${showActionConfig ? this.#renderActionConfig() : ''}
+								${!showActionConfig && !showHudName ? html`
+									<div class="detail-empty">
+										${unsafeHTML(icon('circleCheck', { size: 22 }))}
+										<span>${window.i18n.getMessage('actionNoOptions')}</span>
+									</div>
+								` : ''}
 							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
-						${showHudName ? html`
-							<span class="modal-footer-label">
-								${window.i18n.getMessage('customHudName')}
-								<span class="help-icon"
-									.tooltip=${tooltip(window.i18n.getMessage('customHudNameTooltip'))}>
-									${unsafeHTML(icon('circleHelp', { size: 14 }))}
-								</span>
-							</span>
-							<input class="modal-footer-name" type="text"
-								placeholder=${window.i18n.getMessage(window.GestureConstants.ACTION_KEYS[this._pendingValue]) || this._pendingValue}
-								maxlength="80"
-								.value=${this._pendingConfig.customName || ''}
-								@input=${(e) => { this._pendingConfig = { ...this._pendingConfig, customName: e.target.value }; }}
-							>
-						` : ''}
 						<button type="button" class="btn btn-lg btn-secondary modal-footer-btn" @click=${this.#cancel}>
 							${window.i18n.getMessage('buttonCancel')}
 						</button>
@@ -906,13 +917,36 @@ class ActionSelect extends LitElement {
 		`;
 	}
 
+	#renderNameField() {
+		const i18n = window.i18n;
+		const val = this._pendingValue;
+		const cfg = this._pendingConfig;
+		// Menü-Einträge beschriften einen Eintrag, alle anderen Kontexte das HUD.
+		const hint = i18n.getMessage(CONTEXTS[this.context]?.nameHint || 'customHudNameTooltip');
+		const mismatch = domainMismatch(val, cfg);
+		return html`
+			<div class="action-config-field">
+				<label class="action-config-label">${i18n.getMessage('customHudName')}</label>
+				<input class="action-config-input" type="text"
+					placeholder=${fallbackName(val, cfg)}
+					maxlength="80"
+					.value=${cfg.customName || ''}
+					@input=${(e) => { this._pendingConfig = { ...this._pendingConfig, customName: e.target.value }; }}
+				>
+				<div class="action-config-hint">${hint}</div>
+				${mismatch ? html`
+					<div class="notice">
+						${unsafeHTML(icon('info', { size: 14 }))}
+						<span>${this.#domainHintText(mismatch)}</span>
+					</div>
+				` : ''}
+			</div>
+		`;
+	}
+
 	#renderDetailHeader(showActionConfig) {
 		const val = this._pendingValue;
-		const ACTION_KEYS = window.GestureConstants.ACTION_KEYS;
-
-		const key = ACTION_KEYS[val];
-		const name = key ? window.i18n.getMessage(key) : val;
-
+		const name = actionName(val);
 		const canReset = showActionConfig && val !== 'actionChain' && val !== 'customMenu' && val !== 'siteMenu' && this.#isConfigModified();
 		return html`
 			<div class="detail-header">
@@ -1077,6 +1111,9 @@ class ActionSelect extends LitElement {
 		}
 		const customName = (pendingConfig.customName || '').trim();
 		if (customName) result.customName = customName;
+		// Der Katalog-Labelkey gehört dem Eintrag, nicht der Aktion — ohne ihn
+		// verlöre ein Katalogeintrag nach dem Bestätigen seinen übersetzten Namen.
+		if (pendingConfig.labelKey) result.labelKey = pendingConfig.labelKey;
 		return result;
 	}
 
@@ -1876,25 +1913,11 @@ class ActionSelect extends LitElement {
 		if (action === 'simulateKey') {
 			const defaults = ACTION_DEFAULTS.simulateKey || {};
 			const keyValue = this._pendingConfig.keyValue ?? defaults.keyValue;
-			const modCtrl = this._pendingConfig.modCtrl ?? defaults.modCtrl;
-			const modShift = this._pendingConfig.modShift ?? defaults.modShift;
-			const modAlt = this._pendingConfig.modAlt ?? defaults.modAlt;
-			const modMeta = this._pendingConfig.modMeta ?? defaults.modMeta;
 			const isPreset = keyValue === 'ArrowLeft' || keyValue === 'ArrowRight';
 			const presetValue = isPreset ? keyValue : '_custom';
 			const isRecording = !!this._keyRecording;
 
-			const currentMods = [];
-			if (modCtrl) currentMods.push(window.i18n.getModifierKeyName('Ctrl'));
-			if (modShift) currentMods.push(window.i18n.getModifierKeyName('Shift'));
-			if (modAlt) currentMods.push(window.i18n.getModifierKeyName('Alt'));
-			if (modMeta) currentMods.push(window.i18n.getModifierKeyName('Meta'));
-			if (keyValue && keyValue !== 'ArrowLeft' && keyValue !== 'ArrowRight') {
-				currentMods.push(keyValue);
-			} else if (keyValue === 'ArrowLeft' || keyValue === 'ArrowRight') {
-				currentMods.push(keyValue);
-			}
-			const displayKey = currentMods.length > 0 ? currentMods.join('+') : '—';
+			const displayKey = keyComboText(this._pendingConfig) || '—';
 
 			return html`
 				<div class="action-config-row">

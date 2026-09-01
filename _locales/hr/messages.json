@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} stavki · {valid} za odabir"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Nevažeće"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Odaberi sve"
+	},
+	"exchangeBundleImport": {
+		"message": "Dodaj {count} u Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Za nastavak potvrdite gore navedeno upozorenje o skripti."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Ovaj paket ne sadrži stavke za uvoz."
+	},
+	"exchangeMissingEngine": {
+		"message": "Zahtijeva tražilicu „{id}“, koja nije instalirana niti je dio ovog uvoza."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Oznaka ove stavke u izborniku. Ostavite prazno za upotrebu zadanog naziva."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Naziv navodi {name}, ali otvara se {url}."
+	},
+	"storageUsageLabel": { "message": "Iskorišteno spremište" },
+	"storageDetail": { "message": "{used} od {total} bajtova ({percent}%)" },
+	"storageUsed": { "message": "iskorišteno {percent}%" },
+	"storageRemaining": { "message": "mjesta za još otprilike {count}" },
+	"storageFull": { "message": "Puno — spremanje ne uspijeva dok ne uklonite unose." },
+	"storageImportTooLarge": { "message": "Ovaj odabir više ne stane. Poništite odabir unosa ili uvezite manje odjednom." },
+	"storageAfterImport": { "message": "Nakon uvoza iskorišteno {percent}%" },
+	"importDoneTitle": { "message": "Uvezeno" },
+	"importBadgeNew": { "message": "Novo" },
+	"exchangeUpdateExisting": { "message": "Ažuriraj postojeći „{name}“" },
+	"exchangeBadgeExisting": { "message": "Već dodano" },
+	"trailColorEnd": { "message": "Završna boja" },
+	"enableTrailGradient": { "message": "Prijelaz boja" },
+	"showTrailArrow": { "message": "Vrh strelice" },
+	"enableTrailGlow": { "message": "Sjaj" }
 }

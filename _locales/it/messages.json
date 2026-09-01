@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} voci · {valid} selezionabili"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Non valido"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Seleziona tutto"
+	},
+	"exchangeBundleImport": {
+		"message": "Aggiungi {count} a Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Conferma l'avviso sullo script qui sopra per continuare."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Questo pacchetto non contiene voci importabili."
+	},
+	"exchangeMissingEngine": {
+		"message": "Richiede il motore di ricerca «{id}», che non è installato né incluso in questa importazione."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etichetta di questa voce nel menu. Lascia vuoto per usare il nome predefinito."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Il nome indica {name}, ma viene aperto {url}."
+	},
+	"storageUsageLabel": { "message": "Archiviazione Utilizzata" },
+	"storageDetail": { "message": "{used} di {total} byte ({percent}%)" },
+	"storageUsed": { "message": "{percent}% utilizzato" },
+	"storageRemaining": { "message": "spazio per altri {count} circa" },
+	"storageFull": { "message": "Pieno — il salvataggio fallisce finché non rimuovi delle voci." },
+	"storageImportTooLarge": { "message": "Questa selezione non entra più. Deseleziona alcune voci o importane meno alla volta." },
+	"storageAfterImport": { "message": "{percent}% utilizzato dopo l'importazione" },
+	"importDoneTitle": { "message": "Importato" },
+	"importBadgeNew": { "message": "Nuovo" },
+	"exchangeUpdateExisting": { "message": "Aggiorna «{name}» esistente" },
+	"exchangeBadgeExisting": { "message": "Già aggiunto" },
+	"trailColorEnd": { "message": "Colore finale" },
+	"enableTrailGradient": { "message": "Sfumatura" },
+	"showTrailArrow": { "message": "Punta di freccia" },
+	"enableTrailGlow": { "message": "Bagliore" }
 }

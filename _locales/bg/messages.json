@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} записа · {valid} за избор"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Невалиден"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Избери всичко"
+	},
+	"exchangeBundleImport": {
+		"message": "Добави {count} към Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Потвърдете предупреждението за скрипт по-горе, за да продължите."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Този пакет не съдържа записи за импортиране."
+	},
+	"exchangeMissingEngine": {
+		"message": "Изисква търсачката „{id}“, която не е инсталирана и не е част от този импорт."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Надпис на този елемент в менюто. Оставете празно, за да се използва зададеното име."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Името сочи {name}, но се отваря {url}."
+	},
+	"storageUsageLabel": { "message": "Използвано хранилище" },
+	"storageDetail": { "message": "{used} от {total} байта ({percent}%)" },
+	"storageUsed": { "message": "{percent}% използвани" },
+	"storageRemaining": { "message": "място за още около {count}" },
+	"storageFull": { "message": "Пълно — запазването не успява, докато не премахнете записи." },
+	"storageImportTooLarge": { "message": "Този избор вече не се побира. Премахнете отметки или импортирайте по-малко наведнъж." },
+	"storageAfterImport": { "message": "{percent}% използвани след импортиране" },
+	"importDoneTitle": { "message": "Импортирано" },
+	"importBadgeNew": { "message": "Ново" },
+	"exchangeUpdateExisting": { "message": "Актуализиране на съществуващия „{name}“" },
+	"exchangeBadgeExisting": { "message": "Съществува" },
+	"trailColorEnd": { "message": "Краен цвят" },
+	"enableTrailGradient": { "message": "Преливане" },
+	"showTrailArrow": { "message": "Стрелка" },
+	"enableTrailGlow": { "message": "Сияние" }
 }

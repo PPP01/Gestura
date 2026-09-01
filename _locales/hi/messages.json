@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} प्रविष्टियाँ · {valid} चयन योग्य"
+	},
+	"exchangeBundleInvalid": {
+		"message": "अमान्य"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "सभी चुनें"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura में {count} जोड़ें"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "जारी रखने के लिए ऊपर दी गई स्क्रिप्ट चेतावनी की पुष्टि करें।"
+	},
+	"exchangeBundleEmpty": {
+		"message": "इस बंडल में आयात करने योग्य कोई प्रविष्टि नहीं है।"
+	},
+	"exchangeMissingEngine": {
+		"message": "\"{id}\" खोज इंजन आवश्यक है, जो न तो इंस्टॉल है और न ही इस आयात का हिस्सा है।"
+	},
+	"siteMenuItemNameHint": {
+		"message": "मेनू में इस प्रविष्टि का लेबल। पूर्वनिर्धारित नाम उपयोग करने के लिए खाली छोड़ें।"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "नाम में {name} है, लेकिन {url} खुलता है।"
+	},
+	"storageUsageLabel": { "message": "उपयोग किया गया संग्रहण" },
+	"storageDetail": { "message": "{total} बाइट में से {used} ({percent}%)" },
+	"storageUsed": { "message": "{percent}% उपयोग हुआ" },
+	"storageRemaining": { "message": "लगभग {count} और के लिए जगह" },
+	"storageFull": { "message": "भरा हुआ — जब तक आप प्रविष्टियाँ न हटाएँ, सेव नहीं होगा।" },
+	"storageImportTooLarge": { "message": "यह चयन अब फ़िट नहीं होता। कुछ प्रविष्टियाँ अचयनित करें या एक बार में कम आयात करें।" },
+	"storageAfterImport": { "message": "आयात के बाद {percent}% उपयोग हुआ" },
+	"importDoneTitle": { "message": "आयात किया गया" },
+	"importBadgeNew": { "message": "नया" },
+	"exchangeUpdateExisting": { "message": "मौजूदा \"{name}\" अपडेट करें" },
+	"exchangeBadgeExisting": { "message": "पहले से मौजूद" },
+	"trailColorEnd": { "message": "अंतिम रंग" },
+	"enableTrailGradient": { "message": "रंग ग्रेडिएंट" },
+	"showTrailArrow": { "message": "तीर का सिरा" },
+	"enableTrailGlow": { "message": "चमक" }
 }

@@ -6,6 +6,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/PPP01/Gestura)](https://github.com/PPP01/Gestura/releases)
 [![License](https://img.shields.io/github/license/PPP01/Gestura)](https://github.com/PPP01/Gestura/blob/main/LICENSE)
 
+**English** · [Deutsch](README.de.md)
+
 Gestura is an open-source extension that turns quick mouse movements into browser commands — draw a gesture, drag a link or some text, flick the wheel, and the action happens right away, no keyboard needed.
 
 Gesture navigation, smart per-site **website menus**, super drag, area selection, wheel and rocker gestures, and command chains — all of it is yours to customize.
@@ -68,6 +70,64 @@ All gestures can be customized in the options page.
 | `←↑` | Reopen Closed Tab | `←↓` | Close All Tabs |
 | `↑↓` | Scroll to Bottom | `↓↑` | Scroll to Top |
 | `←→` | Close Current Tab | `→←` | Reopen Closed Tab |
+
+## For site operators
+
+A website can hand a ready-made Gestura menu or search engine to the extension.
+Nothing is imported silently: every hand-off requires a real user click, the
+payload is validated against the exchange format, and the user confirms it in a
+preview dialog. Search engines that carry a transform script need a separate,
+explicit acknowledgement.
+
+**By link, for JSON you host yourself.** The link must be same-origin with the
+page — the extension will not fetch a third-party URL on a page's behalf.
+
+```html
+<a rel="gestura-menu" href="/gestura-menu.json">Add to Gestura</a>
+```
+
+**Inline, for data that lives on another origin.** A trusted click on an element
+carrying `data-gestura-inline` opens a 15-second hand-off window. Put the
+attribute on the button itself, not on a wrapping container — a click on any
+descendant has its default action suppressed, so a card- or row-level attribute
+silently breaks every link inside it. Fetch the data yourself — you are subject
+to the usual CORS rules, the extension is not involved — and dispatch it as a
+**string**:
+
+```html
+<button data-gestura-inline>Add to Gestura</button>
+<script>
+document.querySelector('[data-gestura-inline]').addEventListener('click', async () => {
+	const res = await fetch('https://api.example.com/bundle', { /* … */ });
+	document.dispatchEvent(new CustomEvent('gestura:import', {
+		detail: JSON.stringify(await res.json()),
+	}));
+});
+</script>
+```
+
+The window accepts exactly one payload and closes on the first one. On this path
+the extension performs no request of its own.
+
+**Payload formats.** A single `gesturaMenu` or `gesturaEngine` object, or a bundle
+of them:
+
+```json
+{ "gesturaBundle": 1, "entries": [ { "gesturaMenu": 1, "…": "…" } ] }
+```
+
+Limits: 100 KB per entry, 1 MB per bundle, 200 entries — those are the hand-off
+limits; what actually fits also depends on the browser's sync storage quota.
+
+**Menus that use your own search engine must ship it too.** A menu item may point
+at a search engine by `engineId` instead of carrying a URL. That is ideal for the
+engines Gestura already bundles — they cost nothing and follow the user's own
+settings. But an `engineId` naming an engine the user does not have cannot
+resolve, so the extension refuses to import that menu and says which engine is
+missing. Put the `gesturaEngine` in the same bundle as the menu that needs it.
+Every URL inside an entry must be `https:`. The full contract is
+`js/exchange-schema.json`; the runtime validator in `js/menu-exchange.js` is
+authoritative.
 
 ## Privacy
 

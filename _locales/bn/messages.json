@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count}টি এন্ট্রি · {valid}টি নির্বাচনযোগ্য"
+	},
+	"exchangeBundleInvalid": {
+		"message": "অবৈধ"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "সব নির্বাচন করুন"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura-তে {count}টি যোগ করুন"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "চালিয়ে যেতে উপরের স্ক্রিপ্ট সতর্কতা নিশ্চিত করুন।"
+	},
+	"exchangeBundleEmpty": {
+		"message": "এই প্যাকেজে আমদানিযোগ্য কোনো এন্ট্রি নেই।"
+	},
+	"exchangeMissingEngine": {
+		"message": "\"{id}\" সার্চ ইঞ্জিন প্রয়োজন, যা ইনস্টল করা নেই এবং এই ইম্পোর্টেও নেই।"
+	},
+	"siteMenuItemNameHint": {
+		"message": "মেনুতে এই আইটেমের লেবেল। পূর্বনির্ধারিত নাম ব্যবহার করতে খালি রাখুন।"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "নামে {name} বলা হয়েছে, কিন্তু খোলা হয় {url}।"
+	},
+	"storageUsageLabel": { "message": "ব্যবহৃত স্টোরেজ" },
+	"storageDetail": { "message": "{total} বাইটের মধ্যে {used} ব্যবহৃত ({percent}%)" },
+	"storageUsed": { "message": "{percent}% ব্যবহৃত" },
+	"storageRemaining": { "message": "আরও প্রায় {count}টির জন্য জায়গা আছে" },
+	"storageFull": { "message": "পূর্ণ — এন্ট্রি সরানো না পর্যন্ত সংরক্ষণ ব্যর্থ হবে।" },
+	"storageImportTooLarge": { "message": "এই নির্বাচন আর ধরছে না। কিছু এন্ট্রি বাদ দিন বা একবারে কম আমদানি করুন।" },
+	"storageAfterImport": { "message": "আমদানির পরে {percent}% ব্যবহৃত" },
+	"importDoneTitle": { "message": "ইম্পোর্ট করা হয়েছে" },
+	"importBadgeNew": { "message": "নতুন" },
+	"exchangeUpdateExisting": { "message": "বিদ্যমান \"{name}\" আপডেট করুন" },
+	"exchangeBadgeExisting": { "message": "বিদ্যমান" },
+	"trailColorEnd": { "message": "শেষের রঙ" },
+	"enableTrailGradient": { "message": "রঙের গ্রেডিয়েন্ট" },
+	"showTrailArrow": { "message": "তিরচিহ্ন" },
+	"enableTrailGlow": { "message": "দ্যুতি" }
 }

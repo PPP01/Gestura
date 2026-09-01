@@ -14,7 +14,7 @@ The repo root **is** the unpacked extension. Nothing compiles — no bundler, no
 
 ```bash
 npm install                                     # only for tests / Firefox tooling
-npm test                                        # vitest, 17 suites
+npm test                                        # vitest, 21 suites
 npx vitest run tests/menu-model.test.mjs        # a single file
 npx vitest run -t "edited copy wins over catalog"   # a single test by name
 ```
@@ -48,7 +48,30 @@ Load the repo folder at `chrome://extensions` (Developer mode → "Load unpacked
 
 ## Releasing
 
-Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then build the package. Chrome and Edge upload the *same* zip. Firefox is signed and published from `firefox-build` with **`npm run ff:release`**, which prompts for the AMO credentials and hands them to `web-ext` via the environment — never call `ff:sign` with `--api-key=` on the command line, that puts the secret in the shell history. `ff:release` bumps the version first (AMO refuses a number it already signed); add `-- --no-bump` when you already took the version from `main`. Step-by-step store guides live in [docs/store/](docs/store/); the Firefox build/sign mechanics are in `docs/firefox-build-guide.md` on the `firefox-build` branch.
+**One version, one tag, one release — every browser's package is attached to it.**
+
+```text
+v2.8.0
+  gestura-2.8.0-chrome.zip     Chrome and Edge, the same package for both
+  gestura-2.8.0-firefox.xpi    signed by Mozilla, added when AMO is done
+```
+
+Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then tag the `release:` commit itself, annotated, and push the tag:
+
+```sh
+git tag -a v2.8.0 <release-commit> -m "Gestura v2.8.0"
+git push gestura v2.8.0
+```
+
+[.github/workflows/release.yml](.github/workflows/release.yml) takes it from there: it refuses the tag unless `manifest.json` agrees with it and `CHANGELOG.md` has a `### v2.8.0` section, then builds the zip from the tag and opens the release with that section as its text. There is no manual `git archive` step any more.
+
+Firefox follows from `firefox-build`, which carries **the same version number** — merge `main` in first, do not bump on top. **`npm run ff:release`** signs it at AMO and uploads `gestura-<version>-firefox.xpi` onto the existing release. It prompts for the AMO credentials and hands them to `web-ext` via the environment — never call `ff:sign` with `--api-key=` on the command line, that puts the secret in the shell history. Signing is asynchronous, so the release lives with only the Chrome package for as long as the review takes; that is expected, and the release text says so.
+
+The shared version number is what keeps both packages in one release, and it has a price: **a failed AMO upload burns the number for everyone.** AMO refuses a version it has already signed, so the next attempt has to go out as a new version on *all* browsers, Chrome included. Never upload to AMO from a version you are not ready to release.
+
+Step-by-step store guides live in [docs/store/](docs/store/); the Firefox build/sign mechanics are in `docs/firefox-build-guide.md` on the `firefox-build` branch.
+
+**The retired `ff-vX.Y[.Z]` namespace.** Firefox used to be released on its own tags, because AMO's refusal to re-sign a number made that line drift (2.5 → 2.5.1, 2.6 → 2.6.1). Those tags and the `ff-v2.5.1` / `ff-v2.6.1` releases stay as history — do not create new ones. Tags before `v2.4` were backfilled after the fact.
 
 ### `version_name` is generated — never edit it
 
@@ -111,3 +134,5 @@ In both cases **stored settings hold deltas, not full copies** — a menu the us
 - Edge and Firefox are detected by user-agent sniffing (`Edg/`, `Firefox`), surfaced to pages as `window.i18n.isEdge` / `window.i18n.isFirefox`; several actions are gated on it.
 - Prefer `optional_permissions` requested on demand over widening the required set — privacy is a stated project value (see [README.md](README.md) and `PRIVACY.md`).
 - Design docs and implementation plans belong in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+- **Reports and hand-overs from other environments go into `exchange/` — never into `docs/`, never into git.** The folder is in `.gitignore` and holds working material that crosses the WSL2 ↔ Windows boundary in both directions (status reports, hand-over contracts, notes from a sibling project). It is not product documentation and must not be committed, referenced from tracked files, or packaged. If something in such a report has to survive, restate it in a tracked doc under `docs/` instead of pointing at `exchange/`.
+- **The repo language is English.** [README.md](README.md) is canonical, `README.de.md` is its German translation — change both together. `docs/` is still partly German (historical) and is being migrated; write new docs in English.

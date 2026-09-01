@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} 個項目 · {valid} 個可選取"
+	},
+	"exchangeBundleInvalid": {
+		"message": "無效"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "全選"
+	},
+	"exchangeBundleImport": {
+		"message": "將 {count} 個加入 Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "請確認上方的指令碼警告以繼續。"
+	},
+	"exchangeBundleEmpty": {
+		"message": "此套件不包含可匯入的項目。"
+	},
+	"exchangeMissingEngine": {
+		"message": "需要搜尋引擎「{id}」，但它既未安裝，也不在此次匯入中。"
+	},
+	"siteMenuItemNameHint": {
+		"message": "此項目在選單中顯示的名稱。留空則使用預設名稱。"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "名稱寫的是 {name}，但開啟的是 {url}。"
+	},
+	"storageUsageLabel": { "message": "已用儲存空間" },
+	"storageDetail": { "message": "已用 {used} / {total} 位元組（{percent}%）" },
+	"storageUsed": { "message": "已使用 {percent}%" },
+	"storageRemaining": { "message": "還能容納約 {count} 筆" },
+	"storageFull": { "message": "已滿 — 在你刪除項目之前，儲存會失敗。" },
+	"storageImportTooLarge": { "message": "這個選擇已經放不下了。請取消勾選部分項目，或一次匯入更少的項目。" },
+	"storageAfterImport": { "message": "匯入後已使用 {percent}%" },
+	"importDoneTitle": { "message": "已匯入" },
+	"importBadgeNew": { "message": "新" },
+	"exchangeUpdateExisting": { "message": "更新現有的「{name}」" },
+	"exchangeBadgeExisting": { "message": "已新增" },
+	"trailColorEnd": { "message": "結束顏色" },
+	"enableTrailGradient": { "message": "顏色漸層" },
+	"showTrailArrow": { "message": "箭頭" },
+	"enableTrailGlow": { "message": "發光" }
 }

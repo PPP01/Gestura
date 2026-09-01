@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} položiek · {valid} na výber"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Neplatné"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Vybrať všetko"
+	},
+	"exchangeBundleImport": {
+		"message": "Pridať {count} do Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Na pokračovanie potvrďte hore uvedené upozornenie na skript."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Tento balík neobsahuje žiadne položky na import."
+	},
+	"exchangeMissingEngine": {
+		"message": "Vyžaduje vyhľadávač „{id}“, ktorý nie je nainštalovaný ani nie je súčasťou tohto importu."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Popis tejto položky v ponuke. Nechajte prázdne, ak chcete použiť predvolený názov."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Názov uvádza {name}, ale otvorí sa {url}."
+	},
+	"storageUsageLabel": { "message": "Využité úložisko" },
+	"storageDetail": { "message": "{used} z {total} bajtov ({percent}%)" },
+	"storageUsed": { "message": "využité {percent}%" },
+	"storageRemaining": { "message": "miesto pre približne {count}" },
+	"storageFull": { "message": "Plné — ukladanie zlyhá, kým neodstránite položky." },
+	"storageImportTooLarge": { "message": "Tento výber sa už nezmestí. Zrušte výber položiek alebo importujte menej naraz." },
+	"storageAfterImport": { "message": "Po importe využité {percent}%" },
+	"importDoneTitle": { "message": "Importované" },
+	"importBadgeNew": { "message": "Nové" },
+	"exchangeUpdateExisting": { "message": "Aktualizovať existujúci „{name}“" },
+	"exchangeBadgeExisting": { "message": "Už pridané" },
+	"trailColorEnd": { "message": "Koncová farba" },
+	"enableTrailGradient": { "message": "Farebný prechod" },
+	"showTrailArrow": { "message": "Šípka" },
+	"enableTrailGlow": { "message": "Žiara" }
 }

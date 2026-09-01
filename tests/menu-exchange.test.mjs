@@ -157,7 +157,9 @@ describe('toCustomMenu', () => {
 		expect(def.items[0].customName).toBe('Orders');
 		expect(def.items[0].label).toBeUndefined();
 		expect(def.items[1].type).toBe('separator');
-		expect(def.source).toEqual(source);
+		// Der Herkunftsnachweis wird um die ID ergänzt, unter der die Datei den
+		// Eintrag führt - daran erkennt ein zweiter Import ihn wieder.
+		expect(def.source).toEqual({ ...source, indexId: 'com.example.shop' });
 	});
 });
 

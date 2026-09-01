@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} oppføringer · {valid} valgbare"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ugyldig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Velg alle"
+	},
+	"exchangeBundleImport": {
+		"message": "Legg til {count} i Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bekreft skriptvarselet ovenfor for å fortsette."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Denne pakken inneholder ingen importerbare oppføringer."
+	},
+	"exchangeMissingEngine": {
+		"message": "Krever søkemotoren «{id}», som verken er installert eller del av denne importen."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etikett for denne oppføringen i menyen. La feltet stå tomt for å bruke det forhåndsdefinerte navnet."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Navnet oppgir {name}, men {url} åpnes."
+	},
+	"storageUsageLabel": { "message": "Brukt lagringsplass" },
+	"storageDetail": { "message": "{used} av {total} byte ({percent} %)" },
+	"storageUsed": { "message": "{percent} % brukt" },
+	"storageRemaining": { "message": "plass til omtrent {count} til" },
+	"storageFull": { "message": "Full — lagring mislykkes til du fjerner oppføringer." },
+	"storageImportTooLarge": { "message": "Dette utvalget får ikke lenger plass. Fjern merkingen av oppføringer, eller importer færre om gangen." },
+	"storageAfterImport": { "message": "{percent} % brukt etter import" },
+	"importDoneTitle": { "message": "Importert" },
+	"importBadgeNew": { "message": "Ny" },
+	"exchangeUpdateExisting": { "message": "Oppdater eksisterende «{name}»" },
+	"exchangeBadgeExisting": { "message": "Finnes" },
+	"trailColorEnd": { "message": "Sluttfarge" },
+	"enableTrailGradient": { "message": "Fargeovergang" },
+	"showTrailArrow": { "message": "Pilspiss" },
+	"enableTrailGlow": { "message": "Glød" }
 }

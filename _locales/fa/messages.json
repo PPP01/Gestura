@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} مورد · {valid} قابل انتخاب"
+	},
+	"exchangeBundleInvalid": {
+		"message": "نامعتبر"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "انتخاب همه"
+	},
+	"exchangeBundleImport": {
+		"message": "افزودن {count} به Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "برای ادامه، هشدار اسکریپت بالا را تأیید کنید."
+	},
+	"exchangeBundleEmpty": {
+		"message": "این بسته حاوی هیچ موردی برای وارد کردن نیست."
+	},
+	"exchangeMissingEngine": {
+		"message": "به موتور جستجوی «{id}» نیاز دارد که نه نصب شده و نه بخشی از این درون‌ریزی است."
+	},
+	"siteMenuItemNameHint": {
+		"message": "برچسب این مورد در منو. برای استفاده از نام پیش‌فرض خالی بگذارید."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "نام به {name} اشاره دارد، اما {url} باز می‌شود."
+	},
+	"storageUsageLabel": { "message": "فضای ذخیره‌سازی استفاده‌شده" },
+	"storageDetail": { "message": "{used} از {total} بایت ({percent}%)" },
+	"storageUsed": { "message": "{percent}% استفاده‌شده" },
+	"storageRemaining": { "message": "جا برای حدود {count} مورد دیگر" },
+	"storageFull": { "message": "پر — تا زمانی که مواردی را حذف نکنید، ذخیره‌سازی انجام نمی‌شود." },
+	"storageImportTooLarge": { "message": "این انتخاب دیگر جا نمی‌شود. برخی موارد را از انتخاب خارج کنید یا تعداد کمتری را یک‌جا وارد کنید." },
+	"storageAfterImport": { "message": "{percent}% استفاده‌شده پس از وارد کردن" },
+	"importDoneTitle": { "message": "وارد شد" },
+	"importBadgeNew": { "message": "جدید" },
+	"exchangeUpdateExisting": { "message": "به‌روزرسانی «{name}» موجود" },
+	"exchangeBadgeExisting": { "message": "موجود" },
+	"trailColorEnd": { "message": "رنگ پایان" },
+	"enableTrailGradient": { "message": "گرادیان رنگ" },
+	"showTrailArrow": { "message": "نوک پیکان" },
+	"enableTrailGlow": { "message": "درخشش" }
 }

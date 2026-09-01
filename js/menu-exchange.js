@@ -4,7 +4,7 @@
 	// Options-UI) identisch nutzbar. Eingaben werden nie verändert.
 
 	const CURRENT_FORMAT_VERSION = 1;
-	const FORMAT_TYPES = { menu: 'gesturaMenu', engine: 'gesturaEngine' };
+	const FORMAT_TYPES = { menu: 'gesturaMenu', engine: 'gesturaEngine', bundle: 'gesturaBundle' };
 
 	// Whitelist der Aktionen, die in importierten Menüeinträgen erlaubt sind.
 	// Bewusst konservativ: nur Links, Suche, Scrollen, einfache Navigation.
@@ -22,6 +22,10 @@
 		idMax: 128, nameMax: 200, descMax: 2000, iconMax: 64,
 		urlMax: 2000, patternMax: 200, patternsMax: 50,
 		itemsMax: 100, blobMax: 100 * 1024, transformCodeMax: 10 * 1024,
+		// Bundle-Wrapper: Deckel für das Gesamtpaket auf dem Übergabeweg. Die
+		// Per-Eintrag-Kappe bleibt blobMax. bundleEntriesMax ist deckungsgleich
+		// mit dem 200-ID-Cap des Index-Backends (BundleController::MAX_IDS).
+		bundleEntriesMax: 200, bundleBlobMax: 1024 * 1024,
 	};
 
 	const SEMVER_RE = /^\d{1,5}\.\d{1,5}\.\d{1,5}$/;
@@ -31,6 +35,7 @@
 		if (!obj || typeof obj !== 'object') return null;
 		if (typeof obj[FORMAT_TYPES.menu] === 'number') return 'menu';
 		if (typeof obj[FORMAT_TYPES.engine] === 'number') return 'engine';
+		if (typeof obj[FORMAT_TYPES.bundle] === 'number') return 'bundle';
 		return null;
 	}
 
@@ -62,6 +67,23 @@
 
 	function byteLength(obj) {
 		try { return new TextEncoder().encode(JSON.stringify(obj)).length; } catch { return Infinity; }
+	}
+
+	// Alle engineId-Verweise eines Menüs, dedupliziert und in der Reihenfolge der
+	// ersten Nennung. Rein: ob eine ID auflösbar ist, weiß nur der Aufrufer mit
+	// Katalog und Nutzer-Engines — hier steht nur, worauf das Menü zeigt. Ein
+	// searchLink mit eigener url trägt keine Abhängigkeit und zählt nicht mit.
+	function menuEngineIds(menuValue) {
+		const out = [];
+		const items = menuValue && menuValue.items;
+		if (!Array.isArray(items)) return out;
+		for (const it of items) {
+			if (!it || it.action !== 'searchLink') continue;
+			const id = it.engineId;
+			if (typeof id !== 'string' || !id || out.includes(id)) continue;
+			out.push(id);
+		}
+		return out;
 	}
 
 	function hasTransform(engine) {
@@ -126,11 +148,31 @@
 		const type = detectType(obj);
 		const errors = [];
 		if (!type) return { ok: false, type: null, errors: ['notGesturaFormat'], value: null };
+		// Bundles gehören zu validateBundle(). Ohne diese Zeile liefe ein Bundle
+		// durch validate(), ohne dass validateMenu/validateEngine je greifen —
+		// und käme mit leerer Fehlerliste als ok:true heraus.
+		if (type === 'bundle') return { ok: false, type: 'bundle', errors: ['notSingleFormat'], value: null };
 		if (byteLength(obj) > LIMITS.blobMax) errors.push('tooLarge');
 		if (type === 'menu') validateMenu(obj, errors);
 		if (type === 'engine') validateEngine(obj, errors);
 		const ok = errors.length === 0;
 		return { ok, type, errors, value: ok ? JSON.parse(JSON.stringify(obj)) : null };
+	}
+
+	// Prüft den Bundle-Wrapper und danach jeden Eintrag einzeln durch validate().
+	// Bricht bewusst nicht beim ersten kaputten Eintrag ab: die Sammel-Vorschau
+	// zeigt Teil-Ergebnisse, damit ein Fehler die übrigen nicht blockiert.
+	// `ok` beschreibt ausschließlich den Wrapper; ob ein Eintrag brauchbar ist,
+	// steht in entries[i].ok.
+	function validateBundle(obj) {
+		const fail = (err) => ({ ok: false, type: 'bundle', errors: [err], entries: [] });
+		if (detectType(obj) !== 'bundle') return fail('notGesturaFormat');
+		if (obj[FORMAT_TYPES.bundle] !== CURRENT_FORMAT_VERSION) return fail('unsupportedFormatVersion');
+		if (byteLength(obj) > LIMITS.bundleBlobMax) return fail('tooLarge');
+		const list = obj.entries;
+		if (!Array.isArray(list) || list.length < 1) return fail('entries');
+		if (list.length > LIMITS.bundleEntriesMax) return fail('tooManyEntries');
+		return { ok: true, type: 'bundle', errors: [], entries: list.map((e) => validate(e)) };
 	}
 
 	function newId(prefix) {
@@ -143,30 +185,47 @@
 	// Map one format item to a runtime menu item. idFn(it) decides the item id
 	// (fresh for a new custom menu, or the file's own id when replacing a
 	// standard menu). Labels collapse to the runtime `customName` string.
-	function mapImportItem(it, idFn, lg) {
+	function mapImportItem(it, idFn, lg, engineIdMap) {
 		if (it.type === 'separator') return { id: idFn(it), type: 'separator' };
 		const out = { id: idFn(it), action: it.action };
 		const nm = pickLabel(it.label, lg); if (nm) out.customName = nm;
 		if (it.icon != null) out.icon = it.icon;
 		if (it.action === 'openCustomUrl') out.customUrl = it.customUrl;
 		if (it.action === 'searchLink') {
-			if (it.engineId) out.engineId = it.engineId;
+			// Eine mitimportierte Engine wird unter einer anderen ID gespeichert als
+			// der, die im Austauschformat steht. engineIdMap biegt den Verweis darauf
+			// um - ohne das zeigt das Menü nach dem Import ins Leere und der Eintrag
+			// verschwindet stillschweigend aus dem fertigen Menü.
+			if (it.engineId) out.engineId = (engineIdMap && engineIdMap[it.engineId]) || it.engineId;
 			if (it.url) out.url = it.url;
 		}
 		return out;
 	}
 
-	function toCustomMenu(menuValue, source, genId, lang) {
+	// Der gespeicherte Herkunftsnachweis, ergänzt um die ID, unter der die Datei den
+	// Eintrag führt (com.perplexity.ask). Ohne sie lässt sich ein zweiter Import
+	// desselben Eintrags nicht als derselbe erkennen - er landet als weitere Kopie
+	// daneben. Und ein Re-Export trüge die lokale ID (eng_a1b2c3) nach draußen, wo
+	// sie beim Index einen neuen fremden Eintrag erzeugt statt das Original zu
+	// aktualisieren. site-menu-manager.js und engine-manager.js lesen das Feld beim
+	// Export längst.
+	function storedSource(source, formatId) {
+		const out = source ? JSON.parse(JSON.stringify(source)) : {};
+		if (formatId) out.indexId = formatId;
+		return Object.keys(out).length ? out : null;
+	}
+
+	function toCustomMenu(menuValue, source, genId, lang, engineIdMap) {
 		const lg = lang || 'en';
 		const g = genId || newId;
 		const menuId = g('menu');   // generate the menu id before item ids (stable order)
-		const items = (menuValue.items || []).map(it => mapImportItem(it, () => g('item'), lg));
+		const items = (menuValue.items || []).map(it => mapImportItem(it, () => g('item'), lg, engineIdMap));
 		const def = {
 			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',
 			patterns: Array.isArray(menuValue.patterns) ? menuValue.patterns.slice() : [],
 			items,
-			source: source ? JSON.parse(JSON.stringify(source)) : null,
+			source: storedSource(source, menuValue.id),
 		};
 		return { id: menuId, def };
 	}
@@ -174,9 +233,9 @@
 	// Build the "edited copy" def used to REPLACE a standard (catalog) menu.
 	// Keeps the file's own item ids so the result aligns with the catalog entry
 	// it overrides (stored at siteMenus.edited[catalogId]).
-	function toStandardMenu(menuValue, lang) {
+	function toStandardMenu(menuValue, lang, engineIdMap) {
 		const lg = lang || 'en';
-		const items = (menuValue.items || []).map(it => mapImportItem(it, (x) => x.id, lg));
+		const items = (menuValue.items || []).map(it => mapImportItem(it, (x) => x.id, lg, engineIdMap));
 		return {
 			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',
@@ -202,7 +261,7 @@
 			rawResult: !!engineValue.rawResult,
 			builtin: false,
 			type: engineValue.type === 'image' ? 'image' : 'text',
-			source: source ? JSON.parse(JSON.stringify(source)) : null,
+			source: storedSource(source, engineValue.id),
 		};
 	}
 
@@ -276,11 +335,109 @@
 		return out;
 	}
 
+	// --- Zusammenführung eines geprüften Imports mit dem, was schon da ist -------
+	// Lag bis zuletzt in <menu-import-dialog> und war damit ungetestet. Genau hier
+	// entstanden nacheinander zwei stille Fehler: ein Menü behielt die Engine-ID
+	// aus der Datei statt der neu vergebenen, und ein neues Menü landete über dem
+	// ganzen Katalog. Beides fällt jetzt in tests/menu-exchange-apply.test.mjs auf.
+
+	function applyMenuTo(cur, value, source, lang, mode, matchId, engineIdMap) {
+		if (mode === 'replace' && matchId) {
+			// Woran der Verweis hängt, entscheidet, wohin geschrieben wird. Ein eigenes
+			// Menü wird an Ort und Stelle überschrieben; für ein Katalog-Menü entsteht
+			// eine bearbeitete Fassung. Ohne diese Unterscheidung legte der zweite
+			// Import desselben Index-Menüs die "bearbeitete Fassung" eines Katalog-
+			// Menüs an, das es gar nicht gibt - und das eigene bliebe unberührt daneben.
+			if (cur.custom && cur.custom[matchId]) {
+				const { def } = toCustomMenu(value, source, undefined, lang, engineIdMap);
+				return { next: { ...cur, custom: { ...cur.custom, [matchId]: def } }, id: matchId, isNew: false };
+			}
+			const def = toStandardMenu(value, lang, engineIdMap);
+			return { next: { ...cur, edited: { ...cur.edited, [matchId]: def } }, id: matchId, isNew: false };
+		}
+		const { id, def } = toCustomMenu(value, source, undefined, lang, engineIdMap);
+		// siteMenus.order bleibt bewusst unangetastet: listMenus() liest order ZUERST
+		// und danach erst den Katalog, ein Eintrag dort bedeutet also "ganz nach oben".
+		// Ohne order hängt listMenus() das Menü hinter Katalog und bestehende eigene
+		// Menüs - also dorthin, wo ein neuer Eintrag hingehört. Spart nebenbei Bytes.
+		return { next: { ...cur, custom: { ...cur.custom, [id]: def } }, id, isNew: true };
+	}
+
+	// Wie applyMenuTo, für searchEngines. stripTransform kommt vom Aufrufer statt aus
+	// einer Browserweiche hier: in Firefox laufen Transform-Skripte nicht, also wird
+	// das Skript beim Import entfernt - außer die Engine besteht darauf.
+	function applyEngineTo(cur, value, source, lang, mode, matchId, stripTransform) {
+		const strip = (e) => {
+			if (stripTransform && !value.transformRequired) { e.transformEnabled = false; e.transformCode = ''; }
+			return e;
+		};
+		if (mode === 'replace' && matchId) {
+			// Wie bei den Menüs: eine eigene Suchmaschine wird ersetzt, eine aus dem
+			// Katalog überschrieben. Der Platz in der Liste bleibt - ein Update soll
+			// den Eintrag nicht ans Ende springen lassen.
+			const list = cur.custom || [];
+			const at = list.findIndex(e => e && e.id === matchId);
+			if (at !== -1) {
+				const engine = strip(toCustomEngine(value, source, () => matchId, lang));
+				const next = list.slice();
+				next[at] = engine;
+				return { next: { ...cur, custom: next }, id: matchId, isNew: false };
+			}
+			const ov = strip(toEngineOverride(value, lang));
+			return { next: { ...cur, overrides: { ...cur.overrides, [matchId]: ov } }, id: matchId, isNew: false };
+		}
+		const engine = strip(toCustomEngine(value, source, undefined, lang));
+		return { next: { ...cur, custom: [...(cur.custom || []), engine] }, id: engine.id, isNew: true };
+	}
+
+	// Baut den Patch, den ein Import der übergebenen Zeilen schreiben würde. Rein -
+	// schreibt nichts. Einzel- und Sammel-Import gehen beide hierdurch, damit sie
+	// garantiert dasselbe schreiben; die Vorschau nutzt denselben Weg, damit die
+	// angezeigte Belegung und die tatsächliche nie auseinanderlaufen.
+	//
+	// rows: [{ type, value, source, mode, matchId }]
+	// liefert { patch, imported: [{ kind, id, isNew }] }
+	function buildImportPatch(rows, current, opts) {
+		const lang = (opts && opts.lang) || 'en';
+		const stripTransform = !!(opts && opts.stripTransform);
+		let siteMenus = (current && current.siteMenus) || null;
+		let engines = (current && current.searchEngines) || null;
+		let touchedMenus = false;
+		let touchedEngines = false;
+		const imported = [];
+
+		// Engines zuerst, und zwar in einem eigenen Durchgang: toCustomEngine vergibt
+		// eine neue ID, die von der in der Datei abweicht. Erst wenn alle gespeicherten
+		// IDs feststehen, lassen sich die Menü-Verweise darauf umbiegen - sonst zeigt
+		// ein mitimportiertes Menü ins Leere und sein Eintrag verschwindet still.
+		const engineIdMap = {};
+		for (const row of rows) {
+			if (row.type !== 'engine') continue;
+			const applied = applyEngineTo(engines, row.value, row.source, lang, row.mode, row.matchId, stripTransform);
+			engines = applied.next;
+			engineIdMap[row.value.id] = applied.id;
+			touchedEngines = true;
+			imported.push({ kind: 'engine', id: applied.id, isNew: applied.isNew });
+		}
+		for (const row of rows) {
+			if (row.type !== 'menu') continue;
+			const applied = applyMenuTo(siteMenus, row.value, row.source, lang, row.mode, row.matchId, engineIdMap);
+			siteMenus = applied.next;
+			touchedMenus = true;
+			imported.push({ kind: 'menu', id: applied.id, isNew: applied.isNew });
+		}
+		const patch = {};
+		if (touchedMenus) patch.siteMenus = siteMenus;
+		if (touchedEngines) patch.searchEngines = engines;
+		return { patch, imported };
+	}
+
 	const api = {
 		CURRENT_FORMAT_VERSION, FORMAT_TYPES, ALLOWED_MENU_ITEM_ACTIONS, LIMITS,
-		detectType, isHttpsUrl, pickLabel, validate, hasTransform,
+		detectType, isHttpsUrl, pickLabel, validate, validateBundle, hasTransform, menuEngineIds,
 		newId, toCustomMenu, toCustomEngine, toStandardMenu, toEngineOverride,
 		menuToExchange, engineToExchange,
+		applyMenuTo, applyEngineTo, buildImportPatch,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;

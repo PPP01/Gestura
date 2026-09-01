@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} poster · {valid} valgbare"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ugyldig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Vælg alle"
+	},
+	"exchangeBundleImport": {
+		"message": "Tilføj {count} til Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bekræft scriptadvarslen ovenfor for at fortsætte."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Denne pakke indeholder ingen importerbare poster."
+	},
+	"exchangeMissingEngine": {
+		"message": "Kræver søgemaskinen \"{id}\", som hverken er installeret eller en del af denne import."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etiket for dette punkt i menuen. Lad feltet stå tomt for at bruge det forudindstillede navn."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Navnet angiver {name}, men {url} åbnes."
+	},
+	"storageUsageLabel": { "message": "Brugt lagerplads" },
+	"storageDetail": { "message": "{used} af {total} bytes ({percent} %)" },
+	"storageUsed": { "message": "{percent} % brugt" },
+	"storageRemaining": { "message": "plads til omkring {count} mere" },
+	"storageFull": { "message": "Fuld — det kan ikke gemmes, før du fjerner poster." },
+	"storageImportTooLarge": { "message": "Dette valg passer ikke længere. Fravælg poster, eller importér færre ad gangen." },
+	"storageAfterImport": { "message": "{percent} % brugt efter import" },
+	"importDoneTitle": { "message": "Importeret" },
+	"importBadgeNew": { "message": "Ny" },
+	"exchangeUpdateExisting": { "message": "Opdatér eksisterende \"{name}\"" },
+	"exchangeBadgeExisting": { "message": "Findes" },
+	"trailColorEnd": { "message": "Slutfarve" },
+	"enableTrailGradient": { "message": "Farveovergang" },
+	"showTrailArrow": { "message": "Pilespids" },
+	"enableTrailGlow": { "message": "Glød" }
 }

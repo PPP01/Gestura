@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} giriş · {valid} seçilebilir"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Geçersiz"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Tümünü seç"
+	},
+	"exchangeBundleImport": {
+		"message": "Gestura'ya {count} ekle"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Devam etmek için yukarıdaki komut dosyası uyarısını onaylayın."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Bu pakette içe aktarılabilir giriş yok."
+	},
+	"exchangeMissingEngine": {
+		"message": "\"{id}\" arama motorunu gerektirir; bu motor ne yüklü ne de bu içe aktarmanın parçası."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Bu girişin menüdeki etiketi. Önceden tanımlı adı kullanmak için boş bırakın."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Ad {name} diyor ancak {url} açılıyor."
+	},
+	"storageUsageLabel": { "message": "Kullanılan Depolama" },
+	"storageDetail": { "message": "{total} bayttan {used} bayt kullanıldı (%{percent})" },
+	"storageUsed": { "message": "%{percent} kullanıldı" },
+	"storageRemaining": { "message": "yaklaşık {count} tane daha için yer var" },
+	"storageFull": { "message": "Dolu — girişleri kaldırana kadar kaydetme başarısız olur." },
+	"storageImportTooLarge": { "message": "Bu seçim artık sığmıyor. Bazı girişlerin seçimini kaldırın veya bir seferde daha azını içe aktarın." },
+	"storageAfterImport": { "message": "İçe aktarma sonrasında %{percent} kullanıldı" },
+	"importDoneTitle": { "message": "İçe aktarıldı" },
+	"importBadgeNew": { "message": "Yeni" },
+	"exchangeUpdateExisting": { "message": "Mevcut \"{name}\" ögesini güncelle" },
+	"exchangeBadgeExisting": { "message": "Zaten eklendi" },
+	"trailColorEnd": { "message": "Bitiş rengi" },
+	"enableTrailGradient": { "message": "Renk geçişi" },
+	"showTrailArrow": { "message": "Ok ucu" },
+	"enableTrailGlow": { "message": "Parıltı" }
 }

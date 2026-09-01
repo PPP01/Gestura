@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} รายการ · {valid} ที่เลือกได้"
+	},
+	"exchangeBundleInvalid": {
+		"message": "ไม่ถูกต้อง"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "เลือกทั้งหมด"
+	},
+	"exchangeBundleImport": {
+		"message": "เพิ่ม {count} รายการไปยัง Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "ยืนยันคำเตือนสคริปต์ด้านบนเพื่อดำเนินการต่อ"
+	},
+	"exchangeBundleEmpty": {
+		"message": "ชุดนี้ไม่มีรายการที่นำเข้าได้"
+	},
+	"exchangeMissingEngine": {
+		"message": "ต้องใช้เครื่องมือค้นหา \"{id}\" ซึ่งยังไม่ได้ติดตั้งและไม่ได้อยู่ในการนำเข้านี้"
+	},
+	"siteMenuItemNameHint": {
+		"message": "ป้ายกำกับของรายการนี้ในเมนู เว้นว่างไว้เพื่อใช้ชื่อที่กำหนดไว้"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "ชื่อระบุ {name} แต่จะเปิด {url}"
+	},
+	"storageUsageLabel": { "message": "พื้นที่จัดเก็บที่ใช้ไป" },
+	"storageDetail": { "message": "ใช้ไป {used} จาก {total} ไบต์ ({percent}%)" },
+	"storageUsed": { "message": "ใช้ไป {percent}%" },
+	"storageRemaining": { "message": "มีที่ว่างสำหรับเพิ่มอีกประมาณ {count} รายการ" },
+	"storageFull": { "message": "เต็ม — การบันทึกจะล้มเหลวจนกว่าคุณจะนำรายการออก" },
+	"storageImportTooLarge": { "message": "การเลือกนี้ไม่พอดีแล้ว ยกเลิกการเลือกบางรายการ หรือนำเข้าครั้งละน้อยลง" },
+	"storageAfterImport": { "message": "ใช้ไป {percent}% หลังจากนำเข้า" },
+	"importDoneTitle": { "message": "นำเข้าแล้ว" },
+	"importBadgeNew": { "message": "ใหม่" },
+	"exchangeUpdateExisting": { "message": "อัปเดต \"{name}\" ที่มีอยู่" },
+	"exchangeBadgeExisting": { "message": "เพิ่มแล้ว" },
+	"trailColorEnd": { "message": "สีปลาย" },
+	"enableTrailGradient": { "message": "ไล่ระดับสี" },
+	"showTrailArrow": { "message": "หัวลูกศร" },
+	"enableTrailGlow": { "message": "แสงเรือง" }
 }

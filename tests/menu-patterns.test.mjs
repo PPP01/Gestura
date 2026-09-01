@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import '../js/menu-patterns.js';
-const { addSiteToMenuPatterns, siteToPattern, pageToPattern } = globalThis.FlowMouseMenuPatterns;
+const { addSiteToMenuPatterns, siteToPattern, pageToPattern, nameUrlMismatch } = globalThis.FlowMouseMenuPatterns;
 
 describe('siteToPattern', () => {
   it('builds *host* from a url', () => {
@@ -50,5 +50,37 @@ describe('addSiteToMenuPatterns', () => {
     const { menus, added } = addSiteToMenuPatterns(base, 'nope', 'https://a.com/');
     expect(added).toBeNull();
     expect(menus).toBe(base);
+  });
+});
+
+describe('nameUrlMismatch', () => {
+  it('returns null when the name is not domain-shaped', () => {
+    expect(nameUrlMismatch('Posteingang', 'https://mail.google.com/mail/u/0/#inbox')).toBe(null);
+  });
+  it('returns null when name and host are the same domain', () => {
+    expect(nameUrlMismatch('Spiegel.de', 'https://spiegel.de/')).toBe(null);
+  });
+  it('ignores a www prefix on either side', () => {
+    expect(nameUrlMismatch('Spiegel.de', 'https://www.spiegel.de/')).toBe(null);
+    expect(nameUrlMismatch('www.spiegel.de', 'https://spiegel.de/')).toBe(null);
+  });
+  it('accepts a subdomain of the named domain', () => {
+    expect(nameUrlMismatch('Spiegel.de', 'https://magazin.spiegel.de/')).toBe(null);
+  });
+  it('reports both domains when they differ', () => {
+    expect(nameUrlMismatch('Spiegel.de', 'https://spon.de')).toEqual({ name: 'spiegel.de', url: 'spon.de' });
+  });
+  it('strips a scheme and path the user typed into the name', () => {
+    expect(nameUrlMismatch('https://amazon.de/gp', 'https://alibaba.cn')).toEqual({ name: 'amazon.de', url: 'alibaba.cn' });
+  });
+  it('returns null for a multi-word name that merely contains a dot', () => {
+    expect(nameUrlMismatch('Spiegel.de lesen', 'https://spon.de')).toBe(null);
+  });
+  it('returns null when the last label is not alphabetic', () => {
+    expect(nameUrlMismatch('192.168.1.1', 'https://spon.de')).toBe(null);
+  });
+  it('returns null for an unparseable or placeholder url', () => {
+    expect(nameUrlMismatch('amazon.de', '')).toBe(null);
+    expect(nameUrlMismatch('amazon.de', 'https://www.{domain}/cart')).toBe(null);
   });
 });

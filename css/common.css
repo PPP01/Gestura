@@ -25,6 +25,9 @@
 	--input-focus-border-color: #5b9cf680;
 	--warning-color: #e6a117;
 	--notice-color: #60a5fa;
+	--attention-color: #e6a117;
+	--attention-bg: rgba(230, 161, 23, 0.12);
+	--attention-border: rgba(230, 161, 23, 0.30);
 	--bezier: cubic-bezier(.4, 0, .2, 1);
 	--rail-color: rgba(255, 255, 255, .20);
 	--rail-color-advanced-muted: rgba(255, 255, 255, .3);
@@ -44,6 +47,7 @@
 	--checkbox-border-color: rgba(0, 0, 0, 0.15);
 	--accent-color: #4285f4;
 	--accent-hover: #3367d6;
+	--success-color: #2e7d32;
 	--input-bg: #fff;
 	--card-bg: #ffffff;
 	--bg-color: #f5f7fa;
@@ -57,6 +61,9 @@
 	--input-focus-border-color: #4285f480;
 	--warning-color: #e6a117;
 	--notice-color: #3b82f6;
+	--attention-color: #b45309;
+	--attention-bg: rgba(230, 161, 23, 0.16);
+	--attention-border: rgba(230, 161, 23, 0.45);
 	--rail-color: rgba(0, 0, 0, .27);
 	--rail-color-advanced-muted: rgba(0, 0, 0, .3);
 	--select-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath fill='none' stroke='%23222222' stroke-opacity='0.4' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 9 6 6 6-6'/%3e%3c/svg%3e");
@@ -600,4 +607,101 @@ textarea.input-mono {
 
 .separator {
 	padding: 0 4px;
+}
+
+/* Hinweis, der auffallen soll, ohne etwas zu verbieten — dieselbe Farbfamilie
+   wie das ERFORDERLICH-Abzeichen. Für echte Warnungen bleibt --danger-color
+   zuständig. .notice ist der Textblock, .notice-mark das einzelne Icon, das
+   an einer engen Stelle für den Block einspringt (Tooltip nicht vergessen). */
+.notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	padding: 7px 9px;
+	border-radius: 6px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--attention-color);
+	background: var(--attention-bg);
+	box-shadow: inset 0 0 0 1px var(--attention-border);
+}
+
+.notice > svg {
+	flex-shrink: 0;
+	width: 14px;
+	height: 14px;
+	margin-top: 1px;
+}
+
+.notice-mark {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	color: var(--attention-color);
+}
+
+.notice-mark svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Speicherzeile unter einer Liste im Menü- und Engine-Manager. Ab 75 % greift
+   .notice, ab 100 % zusätzlich .storage-full - der Fehler soll sich von der
+   bloßen Hervorhebung abheben. Muss nach .notice stehen, um zu gewinnen. */
+.storage-line {
+	font-size: 11.5px;
+	color: var(--text-muted);
+}
+
+.storage-full {
+	color: var(--danger-color);
+	background: color-mix(in srgb, var(--danger-color) 8%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 40%, transparent);
+}
+
+/* Gerade importiert: Meldung über der Liste, Abzeichen an der Zeile, ein
+   einmaliger Puls beim Sichtbarwerden. Die Markierung ist eine Wegbeschreibung -
+   sie verschwindet, sobald der Nutzer den Eintrag anfasst, spätestens mit dem Tab. */
+.import-done {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 9px;
+	border-radius: 6px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--success-color);
+	background: color-mix(in srgb, var(--success-color) 10%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 35%, transparent);
+}
+
+.import-done > svg {
+	flex-shrink: 0;
+	width: 14px;
+	height: 14px;
+}
+
+.import-badge {
+	flex-shrink: 0;
+	padding: 1px 6px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--success-color);
+	background: color-mix(in srgb, var(--success-color) 14%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 40%, transparent);
+}
+
+@keyframes gestura-breath {
+	0%, 100% { box-shadow: 0 0 0 0 transparent; }
+	50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--success-color) 55%, transparent); }
+}
+
+.just-imported {
+	animation: gestura-breath 1.4s ease-in-out 2;
+	border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.just-imported { animation: none; }
 }

@@ -56,16 +56,106 @@
 // Operator-button import: a site can offer <a rel="gestura-menu" href="/menu.json">
 // to hand a ready-made menu/engine to the extension. Same-origin only; validation
 // happens in the trusted background context, never here.
+//
+// Second path, for sites whose data lives on another origin: an element carrying
+// [data-gestura-inline] opens a short hand-off window on a trusted click, and the
+// page then dispatches a 'gestura:import' CustomEvent whose detail is the JSON as
+// a *string*. The extension fetches nothing on this path, so there is no origin to
+// check — the page hands over data it already has. A string detail (rather than an
+// object) avoids Firefox's Xray/cloneInto handling for page-realm objects and lets
+// the size check run before parsing. Unlike the href branch, this one does not stop
+// propagation: the page's own click handler (the one that dispatches 'gestura:import')
+// is expected to run on the same click, so only the default action is suppressed.
 (function () {
 	'use strict';
 
 	if (window.__gesturaMenuLinkImport) return;
 	window.__gesturaMenuLinkImport = true;
 
+	// Mirrors LIMITS.bundleBlobMax in js/menu-exchange.js, which is authoritative.
+	const INLINE_MAX_BYTES = 1024 * 1024;
+	const INLINE_WINDOW_MS = 15000;
+	let inlineTimer = null;
+
+	function closeInlineWindow() {
+		if (inlineTimer === null) return;
+		clearTimeout(inlineTimer);
+		inlineTimer = null;
+		document.removeEventListener('gestura:import', onInlinePayload, true);
+	}
+
+	function onInlinePayload(e) {
+		// One payload per gesture: close first, so a flood of events cannot queue up.
+		closeInlineWindow();
+		const json = e && e.detail;
+		if (typeof json !== 'string' || !json) return;
+		if (new TextEncoder().encode(json).length > INLINE_MAX_BYTES) return;
+		try {
+			chrome.runtime.sendMessage({ action: 'importInline', json });
+		} catch {
+			// extension context may be invalidated (e.g. reload mid-navigation); ignore.
+		}
+	}
+
+	function openInlineWindow() {
+		closeInlineWindow();
+		document.addEventListener('gestura:import', onInlinePayload, true);
+		inlineTimer = setTimeout(closeInlineWindow, INLINE_WINDOW_MS);
+	}
+
+	// The way back: once the user has decided in the import dialog, the options page
+	// reports through the service worker, which sends it to exactly this frame. The
+	// page hears a 'gestura:import-result' event whose detail is again a *string* —
+	// same reason as on the way there, and it keeps the page from having to reach
+	// into an object that crossed the realm boundary.
+	//
+	// The page must not rely on this arriving: a closed tab, a navigation, or an
+	// options page dismissed without touching the dialog all leave it silent. It
+	// shortens the wait, it does not replace the page's own timeout.
+	try {
+		chrome.runtime.onMessage.addListener((request) => {
+			if (!request || request.action !== 'gesturaImportResult') return;
+			// bubbles so a listener on `window` hears it too. The contract names
+			// `document`; a page that guessed `window` would otherwise see nothing
+			// while the extension reports a successful delivery — the exact pair of
+			// symptoms that is hardest to tell apart from a broken channel.
+			const detail = JSON.stringify(request.result || {});
+			// Logged in the page's own console, which is the only place that can prove
+			// the event reached this document. The options page can only report that it
+			// handed the message to the tab; whether anything here listened is a
+			// different question, and an operator building against this contract needs
+			// to tell the two apart. Fires only after a hand-off from this very tab.
+			console.info('[Gestura] gestura:import-result', detail);
+			document.dispatchEvent(new CustomEvent('gestura:import-result', {
+				detail,
+				bubbles: true,
+			}));
+		});
+	} catch {
+		// extension context may be invalidated; nothing to report to then.
+	}
+
 	document.addEventListener('click', (e) => {
 		if (!e.isTrusted) return;
-		const link = e.target && e.target.closest && e.target.closest('a[rel~="gestura-menu"]');
-		if (!link) return;
+
+		// One ancestor walk for both paths: this fires on every click in every
+		// frame of every page, so the common case (a hit on neither) must bail
+		// after a single traversal. If a page contradicts itself and nests one
+		// trigger inside the other, the nearer ancestor wins.
+		const hit = e.target && e.target.closest && e.target.closest('[data-gestura-inline], a[rel~="gestura-menu"]');
+		if (!hit) return;
+
+		if (hit.matches('[data-gestura-inline]')) {
+			// No stopPropagation here: the page's own click handler is expected to run
+			// on this same click (it's the one that dispatches 'gestura:import'). This
+			// listener runs first because it's registered on the capture phase, so the
+			// window is already open by the time that handler fires.
+			e.preventDefault();
+			openInlineWindow();
+			return;
+		}
+
+		const link = hit;
 
 		let url;
 		try {
@@ -2279,6 +2369,10 @@ window.ContentContextMenu = ContentContextMenu;
 						hudBlurRadius: SETTINGS.hudBlurRadius,
 						enableHudShadow: SETTINGS.enableHudShadow,
 						trailColor: SETTINGS.trailColor,
+						trailColorEnd: SETTINGS.trailColorEnd,
+						enableTrailGradient: SETTINGS.enableTrailGradient,
+						showTrailArrow: SETTINGS.showTrailArrow,
+						enableTrailGlow: SETTINGS.enableTrailGlow,
 						trailWidth: SETTINGS.trailWidth,
 						showTrailOrigin: SETTINGS.showTrailOrigin,
 						enableInputStabilization: SETTINGS.enableTrailSmooth,

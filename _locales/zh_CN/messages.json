@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} 个条目 · {valid} 个可选择"
+	},
+	"exchangeBundleInvalid": {
+		"message": "无效"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "全选"
+	},
+	"exchangeBundleImport": {
+		"message": "将 {count} 个添加到 Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "确认上方的脚本警告以继续。"
+	},
+	"exchangeBundleEmpty": {
+		"message": "此套件不包含可导入的条目。"
+	},
+	"exchangeMissingEngine": {
+		"message": "需要搜索引擎“{id}”，但它既未安装，也不在此次导入中。"
+	},
+	"siteMenuItemNameHint": {
+		"message": "此条目在菜单中显示的名称。留空则使用预设名称。"
+	},
+	"siteMenuItemDomainHint": {
+		"message": "名称写的是 {name}，但打开的是 {url}。"
+	},
+	"storageUsageLabel": { "message": "已用存储" },
+	"storageDetail": { "message": "已用 {used} / {total} 字节（{percent}%）" },
+	"storageUsed": { "message": "已使用 {percent}%" },
+	"storageRemaining": { "message": "还能容纳约 {count} 条" },
+	"storageFull": { "message": "已满 — 在你删除条目之前，保存会失败。" },
+	"storageImportTooLarge": { "message": "此选择已放不下。请取消勾选部分条目，或一次导入更少的条目。" },
+	"storageAfterImport": { "message": "导入后已使用 {percent}%" },
+	"importDoneTitle": { "message": "已导入" },
+	"importBadgeNew": { "message": "新" },
+	"exchangeUpdateExisting": { "message": "更新现有的「{name}」" },
+	"exchangeBadgeExisting": { "message": "已添加" },
+	"trailColorEnd": { "message": "结束颜色" },
+	"enableTrailGradient": { "message": "颜色渐变" },
+	"showTrailArrow": { "message": "箭头" },
+	"enableTrailGlow": { "message": "发光" }
 }

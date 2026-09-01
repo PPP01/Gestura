@@ -5,6 +5,92 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### Unreleased
+
+**New Features:**
+
+- **The gesture trail can run as a colour gradient**, with an arrowhead at the cursor
+  and a soft glow. All three are on by default and switch off individually under
+  *Appearance*; both gradient colours are pickable, the existing trail colour is the
+  starting one. The middle of the gradient is mixed through HSL rather than RGB — a
+  straight RGB path from blue to pink runs through a muddy grey, the way around the
+  colour wheel stays vivid. The glow carries the gradient too: it is the trail
+  itself, stroked once more underneath — wider, paler and blurred — so the halo
+  shows the colour of the spot it lies under. A CSS `drop-shadow` could not do
+  that; it tints the silhouette, and a silhouette holds no colour. Deliberately not
+  `ctx.shadowBlur` either, which is a real blur per draw call — this is one stroke
+  for the whole path.
+
+- **Imports report back:** after the import dialog closes, the manager shows what
+  arrived, jumps to the first new entry and marks it with a "New" badge that pulses
+  once when it scrolls into view. The marking lives in `sessionStorage` — it
+  survives a reload of the options page, ends with the tab, and costs none of the
+  scarce sync quota.
+- **The handing-over page learns the outcome:** a page that used the inline hand-off
+  now hears a `gestura:import-result` event carrying `status` (`imported` /
+  `cancelled` / `failed`) and the counts, so it can close its own export window
+  instead of waiting. The event can legitimately fail to arrive (tab closed,
+  navigated away), so a page must keep its own timeout.
+- **Import several menus and engines at once:** the import dialog understands a
+  `gesturaBundle` wrapper. Every entry is validated on its own and listed with its
+  own checkbox, its own "replace the standard entry / add as new" choice and, for
+  engines carrying a script, its own confirmation. A broken entry is shown with
+  its reason and skipped — it no longer blocks the rest. The whole selection is
+  written in a single save.
+- **Sites on a split origin can hand over data:** a new inline hand-off lets a page
+  fetch a payload itself and pass it to the extension after a trusted click
+  (`data-gestura-inline` plus a `gestura:import` event). On this path the extension
+  performs no request of its own, so no origin exception was needed — the existing
+  same-origin link import is unchanged. See *For site operators* in the README.
+
+**Fixes & Improvements:**
+
+- **Importing the same entry twice no longer creates a second copy.** The import
+  preview only ever compared against the built-in catalog, so an entry the user had
+  imported before was never recognised — every repeat import added another copy
+  until sync storage was full. Imported entries now carry the id the file gave them
+  (`source.indexId`), a repeat import is marked *Already added* and defaults to
+  updating the existing entry, and an export carries that id back out so the origin
+  sees an update rather than a new submission. Entries imported before this change
+  do not carry the id and have to be de-duplicated by hand once.
+
+- **Imported menus landed above the whole built-in catalog.** `siteMenus.order` is a
+  precedence list, not a full ordering, and the import wrote the new id into it. New
+  menus now appear at the end of the list, like imported search engines and
+  hand-made entries already did.
+- **A menu can no longer be imported without the search engine it needs:** a menu
+  item may point at an engine by id, and until now an id the user did not have
+  simply vanished from the finished menu — no error, no gap, the entry was just
+  missing. Such a menu is now refused with the name of the engine that is absent.
+  Inside a bundle the check follows the selection: the menu is importable while
+  its engine is selected alongside it, and is dropped again if that engine is
+  unticked.
+- **Menu entries are labelled, not described:** a website-menu row used to read
+  *Open custom URL (https://…)* — the action, not the entry. It now shows the
+  action as an icon, then the entry's name, then its target in muted text. Entries
+  from the built-in catalog finally show their translated name here too ("Inbox",
+  "Compose"), the same one the menu itself uses; until now the editor showed only
+  the action behind them. The same applies to the steps of an action chain.
+- **The name field is where you look for it:** renaming an entry meant finding a
+  180-pixel box wedged into the dialog's button row, labelled with the action name
+  as its placeholder — most people never found it. It now sits at the top of the
+  configuration panel like any other field, with the preset name as its greyed-out
+  placeholder, and stays reachable for actions that have no other options. Leaving
+  it empty keeps the preset name, so catalog entries still follow the UI language.
+- **A hint when the name promises a different site:** if an entry is named after a
+  domain but opens another one — `spiegel.de` pointing at `spon.de` — a small info
+  icon appears in the row and a note in the dialog. Nothing is blocked or refused;
+  names that are not domains ("Inbox") never trigger it.
+- **A storage-usage indicator for website menus and search engines:** each of
+  those settings lives in one synced storage item with an 8192-byte cap, and
+  until now the only way to learn that was a failed save. The menu and engine
+  managers now show a percentage of that cap plus a rough count of how many
+  more entries fit, highlighted once space gets tight and flagged as full when
+  it runs out; a new Storage section in Data Management lists the exact bytes
+  for every growing branch and the overall total. The import dialog previews
+  the occupancy an import would leave behind and now refuses a selection that
+  would not fit, instead of letting the save fail afterwards.
+
 ### v2.7.0 (2026-08-29)
 
 Merged FlowMouse v2.3 and v2.3.1 (upstream sections below).

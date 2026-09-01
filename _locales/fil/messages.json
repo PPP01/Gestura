@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} entry · {valid} mapipili"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Imbalido"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Piliin lahat"
+	},
+	"exchangeBundleImport": {
+		"message": "Idagdag ang {count} sa Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Kumpirmahin ang babala sa script sa itaas para magpatuloy."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Walang maio-import na entry sa bundle na ito."
+	},
+	"exchangeMissingEngine": {
+		"message": "Kailangan ang search engine na \"{id}\", na hindi naka-install at wala rin sa import na ito."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Label ng entry na ito sa menu. Iwanang blangko upang gamitin ang paunang pangalan."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Nakasaad sa pangalan ang {name}, ngunit {url} ang bubuksan."
+	},
+	"storageUsageLabel": { "message": "Nagamit na Imbakan" },
+	"storageDetail": { "message": "{used} sa {total} bytes ({percent}%)" },
+	"storageUsed": { "message": "{percent}% nagamit" },
+	"storageRemaining": { "message": "may puwang para sa humigit-kumulang {count} pa" },
+	"storageFull": { "message": "Puno — mabibigo ang pag-save hangga't hindi mo inaalis ang mga entry." },
+	"storageImportTooLarge": { "message": "Hindi na kasya ang napiling ito. Alisin sa pagpili ang ilang entry o mag-import ng mas kaunti nang sabay-sabay." },
+	"storageAfterImport": { "message": "{percent}% nagamit pagkatapos mag-import" },
+	"importDoneTitle": { "message": "Na-import" },
+	"importBadgeNew": { "message": "Bago" },
+	"exchangeUpdateExisting": { "message": "I-update ang kasalukuyang \"{name}\"" },
+	"exchangeBadgeExisting": { "message": "Naidagdag na" },
+	"trailColorEnd": { "message": "Panghuling kulay" },
+	"enableTrailGradient": { "message": "Gradient ng kulay" },
+	"showTrailArrow": { "message": "Dulo ng arrow" },
+	"enableTrailGlow": { "message": "Glow" }
 }

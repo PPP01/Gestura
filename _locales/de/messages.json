@@ -2978,5 +2978,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Als neuen Eintrag hinzufügen"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} Einträge · {valid} auswählbar"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ungültig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Alle auswählen"
+	},
+	"exchangeBundleImport": {
+		"message": "{count} zu Gestura hinzufügen"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bestätige die Skriptwarnung oben, um fortzufahren."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Dieses Bundle enthält keine importierbaren Einträge."
+	},
+	"exchangeMissingEngine": {
+		"message": "Benötigt die Suchmaschine »{id}«, die weder installiert noch Teil dieses Imports ist."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Beschriftung dieses Eintrags im Menü. Leer lassen, um den vorgegebenen Namen zu verwenden."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Der Name nennt {name}, geöffnet wird aber {url}."
+	},
+	"storageUsageLabel": { "message": "Belegter Speicher" },
+	"storageDetail": { "message": "{used} von {total} Bytes ({percent} %)" },
+	"storageUsed": { "message": "{percent} % belegt" },
+	"storageRemaining": { "message": "Platz für etwa {count} weitere" },
+	"storageFull": { "message": "Voll — Speichern schlägt fehl, bis du Einträge entfernst." },
+	"storageImportTooLarge": { "message": "Diese Auswahl passt nicht mehr. Wähle Einträge ab oder importiere weniger auf einmal." },
+	"storageAfterImport": { "message": "Nach dem Import belegt: {percent} %" },
+	"importDoneTitle": { "message": "Importiert" },
+	"importBadgeNew": { "message": "Neu" },
+	"exchangeUpdateExisting": { "message": "Vorhandenen Eintrag „{name}“ aktualisieren" },
+	"exchangeBadgeExisting": { "message": "Vorhanden" },
+	"trailColorEnd": { "message": "Zielfarbe" },
+	"enableTrailGradient": { "message": "Farbverlauf" },
+	"showTrailArrow": { "message": "Pfeilspitze" },
+	"enableTrailGlow": { "message": "Leuchten" }
 }

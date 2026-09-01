@@ -1274,7 +1274,58 @@ async function handleAction(request, sender) {
 
 		case 'importFromSite':
 			return await importFromSite(request, sender);
+
+		case 'importInline':
+			return await importInline(request, sender);
+
+		case 'importResult':
+			return await reportImportResult(request);
 	}
+}
+
+// Hand-off to the options page: stash the parsed JSON in session storage and
+// open/focus the options page, which picks it up in #checkPendingImport().
+// Shared by both import paths (fetched href, and inline hand-off).
+async function stashPendingImport(json, url, sender) {
+	await chrome.storage.session.set({
+		// tabId/frameId reisen mit, damit die Optionsseite der auslösenden Seite
+		// hinterher melden kann, was aus der Übergabe geworden ist. Sie stehen hier
+		// und nicht in der gespeicherten Menü-Definition: eine Tab-ID ist kein
+		// Herkunftsnachweis, sie ist nach dem nächsten Neustart bedeutungslos.
+		pendingImport: {
+			json, url, ts: Date.now(),
+			tabId: sender && sender.tab ? sender.tab.id : null,
+			frameId: sender && typeof sender.frameId === 'number' ? sender.frameId : 0,
+		},
+	});
+	await openOptionsPage('');
+	return { success: true };
+}
+
+// Der Rückweg: die Optionsseite darf chrome.tabs nicht anfassen, der Worker schon.
+// Gezielt an den Frame, der die Übergabe ausgelöst hat - ohne frameId bekämen alle
+// Frames der Seite das Ereignis, auch fremde Werbe-iframes.
+//
+// Der Grund des Scheiterns geht an den Aufrufer zurück, statt hier verschluckt zu
+// werden. "Kein Empfänger" ist der Normalfall (Tab zu, weiternavigiert, kein
+// Content-Skript mehr) und keine Warnung wert - aber unterscheidbar muss er sein,
+// sonst sieht man einem stummen Kanal nicht an, ob er gearbeitet hat.
+const NO_RECEIVER = /Receiving end does not exist|Could not establish connection|No frame with id|No tab with id/i;
+
+async function reportImportResult(request) {
+	const tabId = request && request.tabId;
+	if (typeof tabId !== 'number') return { success: false, error: 'noTab' };
+	try {
+		await chrome.tabs.sendMessage(
+			tabId,
+			{ action: 'gesturaImportResult', result: request.result || {} },
+			{ frameId: typeof request.frameId === 'number' ? request.frameId : 0 },
+		);
+	} catch (e) {
+		const message = String((e && e.message) || e);
+		return { success: false, error: NO_RECEIVER.test(message) ? 'noReceiver' : message };
+	}
+	return { success: true };
 }
 
 // Operator-button import (<a rel="gestura-menu">): content.js already verified the
@@ -1322,14 +1373,32 @@ async function importFromSite(request, sender) {
 		}
 		const json = JSON.parse(text);
 
-		await chrome.storage.session.set({
-			pendingImport: { json, url: url.href, ts: Date.now() },
-		});
-		await openOptionsPage('');
-		return { success: true };
+		return await stashPendingImport(json, url.href, sender);
 	} catch (e) {
 		return { success: false, error: String(e?.message || e) };
 	}
+}
+
+// Inline hand-off (<[data-gestura-inline]> + 'gestura:import', see js/content.js):
+// the page hands over JSON it fetched itself, so the extension performs no request
+// and there is no origin to compare. The byte cap is re-checked here as defense in
+// depth — a runtime message can originate outside the content script — and the
+// parse happens in this trusted context, never in the page's.
+const IMPORT_INLINE_MAX_BYTES = 1024 * 1024; // mirrors LIMITS.bundleBlobMax in js/menu-exchange.js
+
+async function importInline(request, sender) {
+	const text = request && request.json;
+	if (typeof text !== 'string' || !text) return { success: false, error: 'Missing payload' };
+	if (new TextEncoder().encode(text).length > IMPORT_INLINE_MAX_BYTES) {
+		return { success: false, error: 'Payload too large' };
+	}
+	let json;
+	try {
+		json = JSON.parse(text);
+	} catch {
+		return { success: false, error: 'Invalid JSON' };
+	}
+	return await stashPendingImport(json, sender.url || sender.tab?.url || '', sender);
 }
 
 // ---- Favicon resolution (cross-browser; replaces Chrome-only /_favicon/) ----

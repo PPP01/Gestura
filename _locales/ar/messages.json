@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} عنصر · {valid} قابل للتحديد"
+	},
+	"exchangeBundleInvalid": {
+		"message": "غير صالح"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "تحديد الكل"
+	},
+	"exchangeBundleImport": {
+		"message": "إضافة {count} إلى Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "أكِّد تحذير النص البرمجي أعلاه للمتابعة."
+	},
+	"exchangeBundleEmpty": {
+		"message": "لا تحتوي هذه الحزمة على أي عناصر قابلة للاستيراد."
+	},
+	"exchangeMissingEngine": {
+		"message": "يتطلب محرك البحث «{id}» غير المثبَّت وغير المضمَّن في هذا الاستيراد."
+	},
+	"siteMenuItemNameHint": {
+		"message": "تسمية هذا العنصر في القائمة. اتركه فارغًا لاستخدام الاسم الافتراضي."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "يشير الاسم إلى {name}، لكن الذي يُفتح هو {url}."
+	},
+	"storageUsageLabel": { "message": "التخزين المستخدم" },
+	"storageDetail": { "message": "{used} من {total} بايت ({percent}%)" },
+	"storageUsed": { "message": "{percent}% مستخدم" },
+	"storageRemaining": { "message": "متسع لنحو {count} أخرى" },
+	"storageFull": { "message": "ممتلئ — يفشل الحفظ حتى تحذف بعض العناصر." },
+	"storageImportTooLarge": { "message": "لم يعد هذا التحديد يتّسع. ألغِ تحديد بعض العناصر أو استورد عددًا أقل دفعة واحدة." },
+	"storageAfterImport": { "message": "{percent}% مستخدم بعد الاستيراد" },
+	"importDoneTitle": { "message": "تم الاستيراد" },
+	"importBadgeNew": { "message": "جديد" },
+	"exchangeUpdateExisting": { "message": "تحديث «{name}» الموجود" },
+	"exchangeBadgeExisting": { "message": "موجود" },
+	"trailColorEnd": { "message": "لون النهاية" },
+	"enableTrailGradient": { "message": "تدرّج لوني" },
+	"showTrailArrow": { "message": "رأس السهم" },
+	"enableTrailGlow": { "message": "توهّج" }
 }

@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} poster · {valid} valbara"
+	},
+	"exchangeBundleInvalid": {
+		"message": "Ogiltig"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "Markera alla"
+	},
+	"exchangeBundleImport": {
+		"message": "Lägg till {count} i Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "Bekräfta skriptvarningen ovan för att fortsätta."
+	},
+	"exchangeBundleEmpty": {
+		"message": "Det här paketet innehåller inga importerbara poster."
+	},
+	"exchangeMissingEngine": {
+		"message": "Kräver sökmotorn ”{id}”, som varken är installerad eller ingår i den här importen."
+	},
+	"siteMenuItemNameHint": {
+		"message": "Etikett för den här posten i menyn. Lämna tomt för att använda det förinställda namnet."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "Namnet anger {name}, men {url} öppnas."
+	},
+	"storageUsageLabel": { "message": "Använt lagringsutrymme" },
+	"storageDetail": { "message": "{used} av {total} byte ({percent} %)" },
+	"storageUsed": { "message": "{percent} % använt" },
+	"storageRemaining": { "message": "plats för ungefär {count} till" },
+	"storageFull": { "message": "Fullt — det går inte att spara förrän du tar bort poster." },
+	"storageImportTooLarge": { "message": "Det här urvalet får inte längre plats. Avmarkera poster eller importera färre åt gången." },
+	"storageAfterImport": { "message": "{percent} % använt efter import" },
+	"importDoneTitle": { "message": "Importerad" },
+	"importBadgeNew": { "message": "Ny" },
+	"exchangeUpdateExisting": { "message": "Uppdatera befintlig ”{name}”" },
+	"exchangeBadgeExisting": { "message": "Redan tillagd" },
+	"trailColorEnd": { "message": "Slutfärg" },
+	"enableTrailGradient": { "message": "Färgövergång" },
+	"showTrailArrow": { "message": "Pilspets" },
+	"enableTrailGlow": { "message": "Sken" }
 }

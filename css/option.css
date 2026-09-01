@@ -404,6 +404,45 @@ color-picker {
 	padding-inline-start: 12px;
 }
 
+/* Schalter als eigene Spalte, direkt neben den Eingabefeldern. Fünf Kästchen in
+   derselben Zeile wie die Farbwähler brechen um und lassen die letzten zwei
+   verwaist in einer zweiten Reihe stehen - je nachdem, ob die erweiterten
+   Einstellungen offen sind, sind es drei oder fünf, die Umbruchstelle wandert
+   also auch noch.
+   Drei Spalten, zeilenweise gefüllt: eine Einer-Spalte aus fünf Kästchen wird
+   unnötig hoch. Über die Spaltenzahl statt über eine feste Höhe, weil die Zahl
+   der sichtbaren Kästchen wechselt - display:none nimmt die erweiterten aus dem
+   Raster, und aus fünf werden drei, ohne dass etwas nachgeführt werden müsste.
+   Nebenbei stehen die drei Spur-Schalter dadurch in der ersten Zeile und die
+   beiden erweiterten darunter.
+   Bewusst ohne margin-inline-start: auto - das schöbe den Block an den rechten
+   Rand und risse dazwischen eine leere Fläche auf.
+   .inline-settings selbst bleibt unangetastet: die Klasse tragen ein Dutzend
+   andere Gruppen, die weiter in einer Zeile laufen sollen. */
+.inline-settings.has-checks {
+	align-items: flex-start;
+}
+
+.inline-checks {
+	display: grid;
+	grid-template-columns: repeat(3, auto);
+	grid-template-areas:
+		"gradient glow  smooth"
+		"origin   arrow .";
+	gap: 8px 20px;
+	justify-items: start;
+}
+
+/* Feste Plätze statt Fließen. Die Spurglättung ist die einzige erweiterte
+   Einstellung hier; ohne benannte Flächen rückte beim Zuklappen der
+   Ursprungspunkt in ihre Lücke nach, und die Anordnung änderte sich je nach
+   Zustand. So bleibt ihr Platz leer und alles andere steht still. */
+.inline-checks .check-gradient { grid-area: gradient; }
+.inline-checks .check-glow { grid-area: glow; }
+.inline-checks .check-smooth { grid-area: smooth; }
+.inline-checks .check-origin { grid-area: origin; }
+.inline-checks .check-arrow { grid-area: arrow; }
+
 .inline-setting-item {
 	display: flex;
 	align-items: center;

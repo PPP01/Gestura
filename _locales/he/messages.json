@@ -2876,5 +2876,47 @@
 	},
 	"exchangeAddAsNew": {
 		"message": "Add as a new entry"
-	}
+	},
+	"exchangeBundleSummary": {
+		"message": "{count} רשומות · {valid} ניתנות לבחירה"
+	},
+	"exchangeBundleInvalid": {
+		"message": "לא תקין"
+	},
+	"exchangeBundleSelectAll": {
+		"message": "בחר הכול"
+	},
+	"exchangeBundleImport": {
+		"message": "הוספת {count} ל-Gestura"
+	},
+	"exchangeBundleScriptPending": {
+		"message": "אשר את אזהרת הסקריפט שלמעלה כדי להמשיך."
+	},
+	"exchangeBundleEmpty": {
+		"message": "החבילה הזו אינה מכילה רשומות שניתן לייבא."
+	},
+	"exchangeMissingEngine": {
+		"message": "דורש את מנוע החיפוש „{id}“, שאינו מותקן ואינו חלק מייבוא זה."
+	},
+	"siteMenuItemNameHint": {
+		"message": "התווית של פריט זה בתפריט. השאר ריק כדי להשתמש בשם שהוגדר מראש."
+	},
+	"siteMenuItemDomainHint": {
+		"message": "השם מציין {name}, אך נפתח {url}."
+	},
+	"storageUsageLabel": { "message": "אחסון בשימוש" },
+	"storageDetail": { "message": "{used} מתוך {total} בייטים ({percent}%)" },
+	"storageUsed": { "message": "{percent}% בשימוש" },
+	"storageRemaining": { "message": "מקום לעוד כ-{count} נוספים" },
+	"storageFull": { "message": "מלא — השמירה נכשלת עד שתסיר פריטים." },
+	"storageImportTooLarge": { "message": "הבחירה הזו כבר לא נכנסת. בטל בחירה של פריטים או ייבא פחות בכל פעם." },
+	"storageAfterImport": { "message": "{percent}% בשימוש אחרי הייבוא" },
+	"importDoneTitle": { "message": "יובא" },
+	"importBadgeNew": { "message": "חדש" },
+	"exchangeUpdateExisting": { "message": "עדכון \"{name}\" הקיים" },
+	"exchangeBadgeExisting": { "message": "קיים" },
+	"trailColorEnd": { "message": "צבע סיום" },
+	"enableTrailGradient": { "message": "מעבר צבע" },
+	"showTrailArrow": { "message": "ראש חץ" },
+	"enableTrailGlow": { "message": "זוהר" }
 }

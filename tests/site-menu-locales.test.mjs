@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 // Alle in diesem Feature eingeführten Keys müssen in JEDER Locale existieren.
-const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork'];
-const NEW_KEYS_EXPLICIT = ['customMenuOwnLabel', 'menuFallbackLabel', 'menuFallbackNone', 'editGlobalMenuHint', 'openSiteMenusSection'];
+const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage'];
+const NEW_KEYS_EXPLICIT = ['customMenuOwnLabel', 'menuFallbackLabel', 'menuFallbackNone', 'editGlobalMenuHint', 'openSiteMenusSection',
+	'importDoneTitle', 'importBadgeNew'];
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '_locales');
 const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf8'));

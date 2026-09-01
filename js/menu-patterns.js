@@ -23,7 +23,30 @@
 		const next = { ...menus, [menuId]: { ...menu, patterns: [...cur, pattern] } };
 		return { menus: next, added: pattern };
 	}
-	const api = { siteToPattern, pageToPattern, addSiteToMenuPatterns };
+	// Ein Name, der selbst wie eine Domain aussieht, weckt eine Erwartung an das
+	// Ziel. Nennt er eine andere als die geöffnete, ist das einen Hinweis wert —
+	// verboten ist es nicht. Namen ohne Domainform ("Posteingang") bleiben stumm.
+	// new URL() kann das Schema abstreifen, aber nicht die Domainform prüfen: es
+	// nähme auch "192.168.1.1" oder "Spiegel.de lesen" klaglos an.
+	function toDomain(value) {
+		const host = String(value || '').trim().toLowerCase()
+			.replace(/^\w+:\/\//, '')
+			.replace(/[/?#].*/, '')
+			.replace(/^www\./, '');
+		return /^([a-z0-9-]+\.)+[a-z]{2,}$/.test(host) ? host : null;
+	}
+	function nameUrlMismatch(name, url) {
+		const named = toDomain(name);
+		if (!named) return null;
+		let target;
+		try { target = toDomain(new URL(url).hostname); } catch { return null; }
+		if (!target || named === target) return null;
+		// Sub- und Hauptdomain zählen als dasselbe Ziel.
+		if (target.endsWith('.' + named) || named.endsWith('.' + target)) return null;
+		return { name: named, url: target };
+	}
+
+	const api = { siteToPattern, pageToPattern, addSiteToMenuPatterns, nameUrlMismatch };
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuPatterns = api;
 })(typeof self !== 'undefined' ? self : globalThis);

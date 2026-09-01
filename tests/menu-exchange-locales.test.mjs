@@ -12,6 +12,9 @@ const EXCHANGE_KEYS = [
 	'exchangeScriptChromeOnlyRequired', 'exchangeScriptConfirm',
 	'exchangeImportedMenu', 'exchangeImportedEngine', 'exchangeFromSite',
 	'exchangeImportAs', 'exchangeReplaceStandard', 'exchangeAddAsNew',
+	'exchangeBundleSummary', 'exchangeBundleInvalid', 'exchangeBundleSelectAll',
+	'exchangeBundleImport', 'exchangeBundleScriptPending', 'exchangeBundleEmpty',
+	'exchangeMissingEngine', 'exchangeUpdateExisting', 'exchangeBadgeExisting',
 ];
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '_locales');
