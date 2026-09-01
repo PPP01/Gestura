@@ -1,10 +1,12 @@
-# Publishes the Chrome/Edge release when a `v*` tag is pushed.
+# Opens the release for a version when its `vX.Y[.Z]` tag is pushed, with the
+# Chrome/Edge package attached. One release holds every browser's package.
 #
-# Deliberately scoped to the `vX.Y[.Z]` namespace on `main`. The AMO line uses
-# `ff-vX.Y[.Z]` on `firefox-build` and is NOT handled here — a Firefox release is
-# signed by Mozilla through `npm run ff:release`, run by hand. Pushing an `ff-*`
-# tag therefore does nothing, which is the intended behaviour: nobody should be
-# able to assume a tag ships to AMO.
+# The Firefox side cannot be built here: only Mozilla can sign an xpi, the review
+# is asynchronous and can take days. So `npm run ff:release` — run by hand on
+# `firefox-build` — signs the same version and uploads
+# `gestura-<version>-firefox.xpi` onto this very release afterwards. Firefox and
+# Chrome share one version number precisely so that it lands here and not in a
+# release of its own.
 #
 # The two guards below exist because shipping a zip whose manifest disagrees with
 # its tag is the one mistake that reaches a store and cannot be taken back.
@@ -81,9 +83,10 @@ jobs:
             echo
             echo '---'
             echo
-            echo "**Install:** download \`gestura-$VERSION-chrome.zip\`, unpack it, then load the folder at \`chrome://extensions\` with Developer mode → *Load unpacked*. Works in Chrome and Edge."
+            echo '**Install**'
             echo
-            echo 'Firefox users: install the signed build from [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/gestura-mouse-gestures/).'
+            echo "- **Chrome / Edge** — \`gestura-$VERSION-chrome.zip\`: unpack it, then load the folder at \`chrome://extensions\` with Developer mode → *Load unpacked*. One package for both browsers."
+            echo "- **Firefox** — \`gestura-$VERSION-firefox.xpi\` is added here once Mozilla has signed it, which can take a few days. Until then, install from [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/gestura-mouse-gestures/)."
           } >> release-notes.md
           echo "--- release notes ---"
           cat release-notes.md
@@ -99,10 +102,10 @@ jobs:
             manifest.json js _locales icons pages css LICENSE NOTICE THIRD_PARTY_LICENSES.md
           unzip -l "web-ext-artifacts/gestura-$VERSION-chrome.zip" | tail -1
 
-      # `--latest` is explicit: the `ff-*` tags sit on the same repo and are
-      # sometimes newer by a few minutes, and GitHub picks "Latest" by tag date.
-      # Without this the Firefox line would take over the release badge in the
-      # READMEs, which point at the Chrome/Edge build.
+      # `--latest` is explicit. GitHub picks "Latest" by tag date, and the retired
+      # `ff-*` tags are still in this repo — `ff-v2.7.0` is 40 minutes younger
+      # than `v2.7.0`. Leaving it implicit once handed the release badge, which
+      # both READMEs point at, to a tag that no longer has a release.
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
