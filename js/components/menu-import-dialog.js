@@ -36,6 +36,7 @@ class MenuImportDialog extends LitElement {
 		_scriptAck: { state: true },
 		_match: { state: true },   // eigener, bereits importierter Eintrag, Katalog-Eintrag oder { ambiguous: true, candidates } - sonst null
 		_importMode: { state: true },     // 'replace' | 'new'
+		_matchModified: { state: true },  // single import: the entry it would replace was edited
 		_bundle: { state: true },   // { errors: string[], rows: Row[] } | null
 	};
 
@@ -68,6 +69,7 @@ class MenuImportDialog extends LitElement {
 		.mode { display: flex; flex-direction: column; gap: 6px; margin: 10px 0;
 			padding: 10px; border-radius: 8px; background: var(--bg-secondary, rgba(128,128,128,.08)); }
 		.mode-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+		.bwarn { margin: 0 0 8px; font-size: 12.5px; line-height: 1.45; color: var(--attention-color); }
 		.mode-opt { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; cursor: pointer; }
 		.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 		.bsum { font-size: 12px; color: var(--text-muted); margin: 0 0 10px; display: flex;
@@ -152,7 +154,47 @@ class MenuImportDialog extends LitElement {
 			this._match = this._result.ok ? this.#findMatch(this._result) : null;
 			this._importMode = this.#usableMatch(this._match) ? 'replace' : 'new';
 		}
+		this._matchModified = false;
 		this._open = true;
+		// Async, so it lands after the first render - the dialog must not wait on
+		// WebCrypto to become visible.
+		this.#annotateModified();
+	}
+
+	// Whether the entry a row would replace has been edited since it was imported.
+	// R1 stores a baselineHash for exactly this question, and the answer decides
+	// whether "replace" is a harmless update or throws the user's own work away.
+	// An entry with no baseline (imported before R1, or from a source that carries
+	// none) answers 'unknown', which is treated as "do not claim it was edited" -
+	// the mode choice is visible either way.
+	async #annotateModified() {
+		const cur = settingsStore.current;
+		const EU = window.FlowMouseEuIntegration;
+		const editedLocally = async (match, type) => {
+			const m = this.#usableMatch(match);
+			if (!m || !m.own) return false;
+			const stored = EU.findStored(cur, type, m.id);
+			if (!stored) return false;
+			return (await EU.modifiedState(stored)) === true;
+		};
+
+		if (this._bundle) {
+			for (const row of this._bundle.rows) {
+				if (!row.result.ok) continue;
+				row.modifiedExisting = await editedLocally(row.match, row.result.type);
+				// Do not arrive pre-ticked on a row that would discard the user's own
+				// edit. Unticked means "keep mine", the warning beside it says why, and
+				// selecting it anyway is one click.
+				if (row.modifiedExisting && row.mode === 'replace') this.#selectRow(row, false, false);
+			}
+			this.#dropDependentMenus();
+		} else if (this._result && this._result.ok) {
+			this._matchModified = await editedLocally(this._match, this._result.type);
+			// Single import: adding a copy loses nothing, so that is the safe default
+			// here. The user can still choose to replace.
+			if (this._matchModified) this._importMode = 'new';
+		}
+		this.requestUpdate();
 	}
 
 	#findMatch(result) {
@@ -209,14 +251,14 @@ class MenuImportDialog extends LitElement {
 	// (a menu and an engine with the same catalog id, or a bundle with a
 	// duplicate id across entries). The single-format callers pass no scope
 	// and keep today's unscoped name.
-	#renderModeChoice(i18n, match, type, mode, onMode, scope = '') {
+	#renderModeChoice(i18n, match, type, mode, onMode, scope = '', bare = false) {
 		if (!match) return '';
 		if (match.ambiguous) {
-			return html`<div class="mode"><div class="mode-label">${i18n.getMessage('euIntegrationImportAmbiguous')}</div></div>`;
+			const note = html`<div class="mode-label">${i18n.getMessage('euIntegrationImportAmbiguous')}</div>`;
+			return bare ? note : html`<div class="mode">${note}</div>`;
 		}
 		const name = this.#matchName(match, type, i18n);
-		return html`
-			<div class="mode">
+		const inner = html`
 				<div class="mode-label">${i18n.getMessage('exchangeImportAs')}</div>
 				<label class="mode-opt">
 					<input type="radio" name="importmode-${scope}${match.id}" .checked=${mode === 'replace'}
@@ -228,8 +270,8 @@ class MenuImportDialog extends LitElement {
 					<input type="radio" name="importmode-${scope}${match.id}" .checked=${mode === 'new'}
 						@change=${() => onMode('new')}>
 					<span>${i18n.getMessage('exchangeAddAsNew')}</span>
-				</label>
-			</div>`;
+				</label>`;
+		return bare ? inner : html`<div class="mode">${inner}</div>`;
 	}
 
 	#lang() { try { return (window.i18n.getCurrentLanguage() || 'en').split('_')[0]; } catch { return 'en'; } }
@@ -598,24 +640,31 @@ class MenuImportDialog extends LitElement {
 					<span class="spacer"></span>
 					${u ? html`<span class="bstorage">${i18n.getMessage('storageAfterImport')
 						.replace('{percent}', u.percent)}</span>` : ''}
-					<label class="mode-opt">
-						<input type="checkbox" ?disabled=${!pick.length}
-							.checked=${pick.length > 0 && pick.every(r => r.selected)}
-							@change=${(e) => setAll(list, e.target.checked)}>
-						<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
-					</label>
+					${list.length > 1 ? html`
+						<label class="mode-opt">
+							<input type="checkbox" ?disabled=${!pick.length}
+								.checked=${pick.length > 0 && pick.every(r => r.selected)}
+								@change=${(e) => setAll(list, e.target.checked)}>
+							<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
+						</label>` : ''}
 				</div>
 				${list.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}`;
 		};
 
+		// One "select all" per group already covers a bundle that is all menus or all
+		// engines, and with a single entry neither of them has anything to do. The
+		// summary line keeps its own only when there is more than one group to reach
+		// across.
+		const groups = BRANCHES.filter(b => rows.some(r => r.result.type === b.type)).length + (loose.length ? 1 : 0);
 		return html`
 			<div class="bsum">
 				<span>${i18n.getMessage('exchangeBundleSummary').replace('{count}', rows.length).replace('{valid}', valid)}</span>
 				<span class="spacer"></span>
-				<label class="mode-opt">
-					<input type="checkbox" .checked=${allOn} @change=${(e) => setAll(rows, e.target.checked)}>
-					<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
-				</label>
+				${rows.length > 1 && groups > 1 ? html`
+					<label class="mode-opt">
+						<input type="checkbox" .checked=${allOn} @change=${(e) => setAll(rows, e.target.checked)}>
+						<span>${i18n.getMessage('exchangeBundleSelectAll')}</span>
+					</label>` : ''}
 			</div>
 			${BRANCHES.map(section)}
 			${loose.map(row => this.#renderBundleRow(row, i18n, lang, missingBy.get(row)))}
@@ -678,6 +727,11 @@ class MenuImportDialog extends LitElement {
 					</button>
 				</div>
 				${missing.length ? html`<p class="bhint">${this.#missingEngineText(missing, i18n)}</p>` : ''}
+				${row.match ? html`
+					<div class="mode">
+						${row.modifiedExisting ? html`<p class="bwarn">${i18n.getMessage('exchangeConflictModified')}</p>` : ''}
+						${this.#renderModeChoice(i18n, row.match, row.result.type, row.mode, (m) => { row.mode = m; this.requestUpdate(); }, `r${row.idx}-`, true)}
+					</div>` : ''}
 				${row.expanded ? html`<div class="bbody">${this.#renderBundleBody(row, i18n)}</div>` : ''}
 			</div>`;
 	}
@@ -696,9 +750,10 @@ class MenuImportDialog extends LitElement {
 		const body = row.result.type === 'menu'
 			? this.#renderMenuBody(v, i18n)
 			: this.#renderEngineBody(v, i18n, row.scriptAck, (c) => { row.scriptAck = c; this.requestUpdate(); });
-		return html`
-			${body}
-			${this.#renderModeChoice(i18n, row.match, row.result.type, row.mode, (m) => { row.mode = m; this.requestUpdate(); }, `r${row.idx}-`)}`;
+		// The mode choice deliberately does NOT live here: a decision that can
+		// overwrite the user's entry must not sit behind a caret nobody has a reason
+		// to click. #renderBundleRow shows it beside the row instead.
+		return html`${body}`;
 	}
 
 	#renderError(r, i18n) {
@@ -760,6 +815,7 @@ class MenuImportDialog extends LitElement {
 		return html`
 			${this.#renderMenuBody(v, i18n)}
 			${missing.length ? html`<p class="err">${this.#missingEngineText(missing, i18n)}</p>` : ''}
+			${this._matchModified ? html`<p class="bwarn">${i18n.getMessage('exchangeConflictModified')}</p>` : ''}
 			${this.#renderModeChoice(i18n, this._match, 'menu', this._importMode, (m) => { this._importMode = m; })}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>
@@ -771,6 +827,7 @@ class MenuImportDialog extends LitElement {
 		const script = this.#needsScriptAck;
 		return html`
 			${this.#renderEngineBody(v, i18n, this._scriptAck, (c) => { this._scriptAck = c; })}
+			${this._matchModified ? html`<p class="bwarn">${i18n.getMessage('exchangeConflictModified')}</p>` : ''}
 			${this.#renderModeChoice(i18n, this._match, 'engine', this._importMode, (m) => { this._importMode = m; })}
 			<div class="actions">
 				<button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button>

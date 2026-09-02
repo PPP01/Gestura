@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 // Alle in diesem Feature eingeführten Keys müssen in JEDER Locale existieren.
 const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration'];
 const NEW_KEYS_EXPLICIT = ['customMenuOwnLabel', 'menuFallbackLabel', 'menuFallbackNone', 'editGlobalMenuHint', 'openSiteMenusSection',
-	'importDoneTitle', 'importBadgeNew'];
+	'importDoneTitle', 'importBadgeNew', 'exchangeConflictModified'];
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '_locales');
 const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf8'));
@@ -19,7 +19,8 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'euIntegrationConsentLead', 'euIntegrationConsentPoint4', 'euIntegrationConsentGranted',
 	'euIntegrationConsentDate', 'euIntegrationConsentRevoke',
 	'euIntegrationConsentPoint1Label', 'euIntegrationConsentPoint2Label',
-	'euIntegrationConsentPoint3Label', 'euIntegrationConsentPoint4Label'];
+	'euIntegrationConsentPoint3Label', 'euIntegrationConsentPoint4Label',
+	'exchangeConflictModified'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

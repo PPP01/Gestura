@@ -3078,6 +3078,7 @@
 	"importDoneTitle": { "message": "Imported" },
 	"importBadgeNew": { "message": "New" },
 	"exchangeUpdateExisting": { "message": "Update your existing \"{name}\"" },
+	"exchangeConflictModified": { "message": "You changed this entry after importing it. Replacing it discards your changes — add it as a new entry, or leave it unselected to keep yours." },
 	"exchangeBadgeExisting": { "message": "Already added" },
 	"euIntegrationTitle": { "message": "gestura.eu integration" },
 	"euIntegrationIntro": { "message": "gestura.eu is a service maintained by the author of Gestura. It hands you ready-made website menus and search engines in a single click, and cross-browser sync of your settings is being built there. Connections run over HTTPS only, there is no account and no personal data, and Gestura sends nothing at all until you act." },

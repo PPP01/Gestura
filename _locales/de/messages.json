@@ -3016,6 +3016,7 @@
 	"importDoneTitle": { "message": "Importiert" },
 	"importBadgeNew": { "message": "Neu" },
 	"exchangeUpdateExisting": { "message": "Vorhandenen Eintrag „{name}“ aktualisieren" },
+	"exchangeConflictModified": { "message": "Du hast diesen Eintrag nach dem Import geändert. Ersetzen verwirft deine Änderungen – lege ihn als neuen Eintrag an oder lass ihn abgewählt, um deinen zu behalten." },
 	"exchangeBadgeExisting": { "message": "Vorhanden" },
 	"euIntegrationTitle": { "message": "gestura.eu-Integration" },
 	"euIntegrationIntro": { "message": "gestura.eu ist ein Dienst, den der Autor von Gestura selbst pflegt. Er liefert dir fertige Website-Menüs und Suchmaschinen mit einem Klick, und dort entsteht die browserübergreifende Synchronisation deiner Einstellungen. Verbindungen laufen ausschließlich über HTTPS, es gibt kein Konto und keine personenbezogenen Daten, und solange du nichts tust, sendet Gestura überhaupt nichts." },

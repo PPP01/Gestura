@@ -2123,11 +2123,13 @@ Checked 2026-09-02 against `docs/test-bundles/bridge-test.html` served on
 `http://localhost:8123`, configured as the developer origin:
 
 1. ~~`query-status` answering~~ **passes.** `hello-result` returns `{requestId, version: "2.8.0", apiLevel: 1}`; `query-status-result` returns `entries` as an array with one object per requested id, `installed: false` for all four while nothing provenanced was stored yet.
-2. The `modified` flag after renaming an imported entry — **still open.**
+2. ~~The `modified` flag after renaming an imported entry~~ **passes end to end.** A hand-off imported `com.example.demo` with `indexId: com.example.demo`, `indexOrigin: http://localhost:8123` and `baselineHash: 9cd5201d3dd68aa1`; `modifiedState` was `false` right after the import and `true` after a rename, and `query-status` over the bridge answered `{installed: true, version: "1.0.0", modified: true}` for it while an unknown id answered `{installed: false}`.
 3. ~~An oversized request (over 32 KiB of `detail`) must stay silent~~ **passes.** No answer, no console output.
 4. ~~A non-configured origin must stay silent~~ **passes.** The same page over `http://127.0.0.1:8123` answers neither the bridge nor the hand-off.
 
-**One defect found while checking, fixed in `054ab65`:** the import preview
+**All four bridge checks pass.** Two defects were found while checking, both fixed.
+
+**One:** the import preview
 reported "99 % used after import" and the save then failed with "exceeds the sync
 storage limit". `#projectedUsage` measured the patch, while `#commitPatch` saves
 `addBaselines(patch, imported)` — 34 bytes longer per provenanced entry, the
@@ -2137,6 +2139,26 @@ with fixed-length placeholders, and `tests/menu-exchange-provenance.test.mjs`
 asserts byte-for-byte equality between measured and stored. The failure was
 reported to the page correctly as `{"status":"failed"}`, so the reply path was
 never in doubt.
+
+**Two — the import dialog put the user's own entries at risk without saying so.**
+A row whose id already existed arrived pre-ticked with mode `replace`, and the
+choice between replacing and adding a copy rendered only inside the *collapsed*
+row body. So the default was destructive and the way out sat behind a caret with
+nothing to suggest clicking it. Pre-existing since 2.8.0, but R1 makes it the
+normal case: importing from an index means importing ids you already have.
+
+Now, for any row that matches something: the mode choice renders beside the row,
+always visible; and when the existing entry was edited after it was imported —
+which `baselineHash` can answer, so R1 is what makes this possible at all — the
+row arrives **unticked** with a warning naming the consequence, and the import
+button counts it out. Selecting it anyway is one click. The two `Select all`
+checkboxes also disappear where they cannot do anything: a group with one entry,
+and the summary line when there is only one group to reach across.
+
+Still missing, and worth its own ticket: a *global* conflict policy for a bundle
+with many conflicting rows (overwrite all / only what is new / keep all of mine),
+and a third per-row option that says "keep mine" in those words instead of
+expressing it as an unticked checkbox.
 
 Steps 3 and 4 need no test page; dispatching the events from the page's own console is enough. `docs/test-bundles/bridge-test.html` covers all of it including the hand-off, which needs a real click and therefore a button.
 

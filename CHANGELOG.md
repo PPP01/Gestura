@@ -33,6 +33,18 @@
 
 **Fixes & Improvements:**
 
+- **The import dialog no longer overwrites your own entry by default.** A row
+  whose id you already have arrived pre-selected as *replace*, and the choice
+  between replacing and adding a copy was only visible after expanding the row —
+  so the default discarded your edits and the way out was hidden. The choice is
+  now shown beside the row, and when the existing entry was changed after you
+  imported it, the row arrives unselected with a warning that says what replacing
+  would cost.
+- **The import preview no longer promises a fit it cannot keep.** It measured the
+  entries without the provenance hash that gets stored with them, so close to the
+  8192-byte limit it could report a percentage under 100 and then fail the save.
+- *Select all* checkboxes are hidden where they have nothing to select: a group
+  with a single entry, and the overall one when the bundle has only one group.
 - **Re-imports no longer guess.** A repeat import matches an existing entry only
   when the origin agrees; the same id arriving from a file, from gestura.eu and
   from a development index are three different entries, and when several could
