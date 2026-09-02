@@ -34,7 +34,7 @@ class MenuImportDialog extends LitElement {
 		_result: { state: true },   // { ok, type, errors, value }
 		_source: { state: true },
 		_scriptAck: { state: true },
-		_match: { state: true },   // eigener, bereits importierter Eintrag oder Katalog-Eintrag; sonst null
+		_match: { state: true },   // eigener, bereits importierter Eintrag, Katalog-Eintrag oder { ambiguous: true, candidates } - sonst null
 		_importMode: { state: true },     // 'replace' | 'new'
 		_bundle: { state: true },   // { errors: string[], rows: Row[] } | null
 	};
@@ -136,7 +136,7 @@ class MenuImportDialog extends LitElement {
 				errors: res.errors,
 				rows: res.entries.map((result, i) => {
 					const match = result.ok ? this.#findMatch(result) : null;
-					const row = { result, match, selected: result.ok, mode: match ? 'replace' : 'new', scriptAck: false, expanded: false, idx: i };
+					const row = { result, match, selected: result.ok, mode: this.#usableMatch(match) ? 'replace' : 'new', scriptAck: false, expanded: false, idx: i };
 					// Ein Eintrag mit Skript ist per Vorbelegung schon ausgewählt (s.o.) -
 					// ohne das hier nachzuholen, zeigt der Blocker von Anfang an auf einen
 					// eingeklappten Body.
@@ -150,14 +150,23 @@ class MenuImportDialog extends LitElement {
 		} else {
 			this._result = X().validate(rawObject);
 			this._match = this._result.ok ? this.#findMatch(this._result) : null;
-			this._importMode = this._match ? 'replace' : 'new';
+			this._importMode = this.#usableMatch(this._match) ? 'replace' : 'new';
 		}
 		this._open = true;
 	}
 
 	#findMatch(result) {
-		return result.type === 'menu' ? this.#menuMatch(result.value) : this.#engineMatch(result.value);
+		const cur = settingsStore.current;
+		if (result.type === 'menu') {
+			const cat = (window.FlowMouseMenuCatalog && window.FlowMouseMenuCatalog.SITE_MENU_CATALOG) || [];
+			return X().matchImport('menu', result.value, this._source, cur.siteMenus || {}, cat);
+		}
+		const cat = (window.FlowMouseEngineCatalogApi && window.FlowMouseEngineCatalogApi.ENGINE_CATALOG) || [];
+		return X().matchImport('engine', result.value, this._source, cur.searchEngines || {}, cat);
 	}
+
+	// An ambiguous match is shown, never acted on: the row imports as new.
+	#usableMatch(match) { return match && !match.ambiguous ? match : null; }
 
 	#close() {
 		// Ohne Commit ist ein Schließen ein Abbruch - die Seite wartet sonst ewig.
@@ -189,32 +198,6 @@ class MenuImportDialog extends LitElement {
 		return window.FlowMouseFavicon.monogramDataUri(name || url || '?');
 	}
 
-	// Zuerst die eigenen Einträge, dann der Katalog. Ohne den ersten Schritt kennt
-	// der Dialog nur "als neuen Eintrag hinzufügen", und jeder erneute Import
-	// desselben Eintrags legt eine weitere Kopie an - so entstehen vier Perplexity
-	// nebeneinander, bis der Speicher voll ist.
-	//
-	// Erkannt wird an source.indexId, nicht an Name oder URL: beide darf der Nutzer
-	// geändert haben, ohne dass daraus ein anderer Eintrag wird. Einträge, die vor
-	// der Einführung dieses Feldes importiert wurden, tragen es nicht und gelten
-	// deshalb als unbekannt - die müssen von Hand aufgeräumt werden.
-	#menuMatch(v) {
-		const custom = (settingsStore.current.siteMenus || {}).custom || {};
-		for (const [id, def] of Object.entries(custom)) {
-			if (def && def.source && def.source.indexId === v.id) return { id, name: def.name, own: true };
-		}
-		const cat = (window.FlowMouseMenuCatalog && window.FlowMouseMenuCatalog.SITE_MENU_CATALOG) || [];
-		return cat.find(m => m.id === v.id) || null;
-	}
-
-	#engineMatch(v) {
-		const own = ((settingsStore.current.searchEngines || {}).custom || [])
-			.find(e => e && e.source && e.source.indexId === v.id);
-		if (own) return { id: own.id, name: own.name, own: true };
-		const cat = (window.FlowMouseEngineCatalogApi && window.FlowMouseEngineCatalogApi.ENGINE_CATALOG) || [];
-		return cat.find(e => e.id === v.id) || null;
-	}
-
 	#matchName(match, type, i18n) {
 		if (!match) return '';
 		if (type === 'menu') return match.name || (match.nameKey ? i18n.getMessage(match.nameKey) : '') || match.id;
@@ -228,6 +211,9 @@ class MenuImportDialog extends LitElement {
 	// and keep today's unscoped name.
 	#renderModeChoice(i18n, match, type, mode, onMode, scope = '') {
 		if (!match) return '';
+		if (match.ambiguous) {
+			return html`<div class="mode"><div class="mode-label">${i18n.getMessage('euIntegrationImportAmbiguous')}</div></div>`;
+		}
 		const name = this.#matchName(match, type, i18n);
 		return html`
 			<div class="mode">
@@ -314,7 +300,8 @@ class MenuImportDialog extends LitElement {
 	// Die Bundle-Limits (200 Einträge, 1 MB) sind ohnehin der Transport-Vertrag
 	// mit dem Index-Backend, eine andere Grenze als diese.
 	async #commitPatch(patch, imported) {
-		const ok = await settingsStore.save(patch);
+		const withBaselines = await window.FlowMouseEuIntegration.addBaselines(patch, imported);
+		const ok = await settingsStore.save(withBaselines);
 		if (!ok) {
 			alert(window.i18n.getMessage('menuSyncSaveError'));
 			this.#reportToPage('failed', []);
@@ -420,7 +407,7 @@ class MenuImportDialog extends LitElement {
 			value: row.result.value,
 			source: { ...this._source, version: row.result.value.version || '1.0.0' },
 			mode: row.mode,
-			matchId: row.match ? row.match.id : null,
+			matchId: this.#usableMatch(row.match) ? row.match.id : null,
 		}));
 		const current = {
 			siteMenus: settingsStore.current.siteMenus || emptySiteMenus(),
@@ -660,6 +647,9 @@ class MenuImportDialog extends LitElement {
 		const iconUrl = !ok ? null
 			: (row.result.type === 'engine' ? v.url : (firstLink ? (firstLink.customUrl || firstLink.url) : null));
 		const name = this.#rowName(row, lang);
+		// Ein ambiges match hat keine id, auf die "Already added" zeigen könnte -
+		// #usableMatch liefert dafür null, und der Badge bleibt aus.
+		const usableMatch = this.#usableMatch(row.match);
 		return html`
 			<div class="brow ${selectable ? '' : 'invalid'}">
 				<div class="bhead">
@@ -672,7 +662,7 @@ class MenuImportDialog extends LitElement {
 							? html`<span class="bmeta">${i18n.getMessage(row.result.type === 'menu' ? 'exchangePreviewMenu' : 'exchangePreviewEngine')}</span>`
 							: ''}
 					</span>
-					${row.match && row.match.own ? html`<span class="badge">${i18n.getMessage('exchangeBadgeExisting')}</span>` : ''}
+					${usableMatch && usableMatch.own ? html`<span class="badge">${i18n.getMessage('exchangeBadgeExisting')}</span>` : ''}
 					${script ? html`<span class="badge bad">${i18n.getMessage('exchangeScriptWarnTitle')}</span>` : ''}
 					${ok ? '' : html`<span class="badge bad">${i18n.getMessage('exchangeBundleInvalid')}</span>`}
 					<button class="bcaret" @click=${() => { row.expanded = !row.expanded; this.requestUpdate(); }}>
