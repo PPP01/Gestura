@@ -93,34 +93,43 @@ Rules:
 - `version` in a status answer is the *content* version of the imported entry (the SemVer from the exchange format), so the page can compute "update available" itself.
 - `modified` is `true | false | 'unknown'` (see section 4).
 - Events carry a `requestId` chosen by the page; answers echo it. The page must keep its own timeout (same contract as `gestura:import-result` in 2.8.0).
+- **Wire contract, same as the shipped 2.8.0 hand-off:** events are dispatched on and listened to on **`document`** (not `window`), and `detail` is always the **JSON as a string**, never an object — this sidesteps Firefox's Xray/cloneInto handling for cross-realm objects and lets size checks run before parsing (see the rationale comment in `js/content.js`). The new bridge follows that contract; it does not invent a second one.
+- **Dev-origin validation** is exact, never substring-based: parse with `new URL(input)`, require `url.origin === input` (rejects paths and trailing slashes), and accept only `https:` or `http:` with hostname `localhost` / `127.0.0.1` — so `http://localhost.attacker.com` never matches.
 
 With integration on, the gestura.eu index can render per entry: *installed / update available / modified locally / not installed*, and its import button reuses the existing inline hand-off — the extension's import dialog remains the trust boundary; there is no import without it.
 
 ## 4. Modified status and update check
 
-**Baseline hash (R1):** on import, a truncated SHA-256 of the normalized payload is written into the entry's `source` metadata (short hex string — sync quota is scarce). `modified` = current entry, normalized the same way, no longer hashes to the baseline. Entries imported before this feature have no baseline and honestly report `'unknown'` (same migration situation as the 2.8.0 dedup change; re-importing once repairs it).
+**Baseline hash (R1):** on import, a truncated SHA-256 of the **canonicalized** payload is written into the entry's `source` metadata. `modified` = current entry, canonicalized the same way, no longer hashes to the baseline. Entries imported before this feature have no baseline and honestly report `'unknown'` (same migration situation as the 2.8.0 dedup change; re-importing once repairs it).
+
+- **Canonical form** (plain `JSON.stringify` is not stable enough): recursively key-sorted objects, no whitespace, `undefined` properties dropped, `null` kept as `null` — one pure function, shared with the tests, fixed in `docs/gestura-eu-api.md`.
+- **Truncation: 64 bits (16 hex characters)** — collision-safe for a local integrity check, gentle on the scarce sync quota.
 
 **Update check (R2):** triggered when the options page opens, throttled to at most once per day — no background alarm, no traffic while settings are closed. `POST /updates` with the `{id, version}` list of index-sourced entries (endpoint exactly as in the July design: answer only for entries with a newer version, including deprecation notices, no account binding). Results become badges on the affected entries; applying an update runs through the existing import dialog with diff. For `transformCode` changes the code diff is shown mandatorily with a fresh confirmation checkbox (July design, section 6, unchanged).
 
-**CORS instead of host permissions:** Firefox MV3 does not grant host permissions automatically — a background `fetch` to gestura.eu would fail there without a user-granted permission. Therefore the API contract requires all anonymous endpoints (`/updates`, sync) to send **open CORS headers** (`Access-Control-Allow-Origin: *`). Then neither the update check nor sync needs any host permission on any browser — also cleaner for review. Open CORS is safe here: the endpoints are anonymous, and the sync locator protects as a capability, not the origin.
+**CORS instead of host permissions:** Firefox MV3 does not grant host permissions automatically — a background `fetch` to gestura.eu would fail there without a user-granted permission. Therefore the API contract requires all anonymous endpoints (`/updates`, sync) to send **open CORS headers**. Then neither the update check nor sync needs any host permission on any browser — also cleaner for review. Open CORS is safe here: the endpoints are anonymous, and the sync locator protects as a capability, not the origin. Two details the contract must spell out:
+
+- JSON `POST`/`PUT` requests are **not** CORS simple requests — the browser sends a preflight, so every endpoint must answer `OPTIONS` with `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: POST, PUT, OPTIONS` and `Access-Control-Allow-Headers: Content-Type`.
+- Requests from extension contexts carry `Origin: chrome-extension://…` / `moz-extension://…` — the server/reverse proxy (Cloudflare, nginx rules) must not drop these unfamiliar schemes before they reach the API.
 
 ## 5. Sync (R3)
 
 ### Secret and key derivation
 
 - On sync opt-in the extension generates a **32-byte random secret** (`crypto.getRandomValues`), stored in `storage.local`, displayed as a human-copyable code (base32-grouped) and as a QR code for pairing a second browser.
-- Because the secret has full entropy, **HKDF (native WebCrypto)** suffices — no Argon2, no vendored WASM (simplification over the July design, which needed Argon2 only because it derived from a human passphrase). HKDF with distinct info strings derives:
-	- the **server locator** (identifies the blob store, sent to the server), and
-	- the **AES-256-GCM key** (never leaves the client).
+- Because the secret has full entropy, **HKDF (native WebCrypto)** suffices — no Argon2, no vendored WASM (simplification over the July design, which needed Argon2 only because it derived from a human passphrase). HKDF-SHA-256 with fixed parameters (part of the API contract): salt = 32 zero bytes (the secret carries the entropy), and distinct info strings derive:
+	- the **server locator** — info `"gestura-sync-locator-v1"` (identifies the blob store, sent to the server), and
+	- the **AES-256-GCM key** — info `"gestura-sync-key-v1"` (never leaves the client).
+- **Ciphertext wire format:** every encryption uses a **fresh random 96-bit IV** (`crypto.getRandomValues`; GCM is fully compromised by IV reuse under the same key), transmitted as `base64(iv[12] ‖ ciphertext+tag)`.
 - The server can never reach the key from the locator. The locator acts as a **bearer capability**: only secret holders can derive it. It travels in the request **body** over TLS, never in the URL, so it stays out of server/proxy logs. Rate limiting per IP applies server-side (July design's RateLimiter).
 
 ### Data model and endpoints
 
-- A sync state is the **existing settings export format**, wrapped in an encrypted envelope. The envelope content includes the **state name** — stricter than the July design: the server sees only locator, ciphertext, size and timestamps, not even the user-chosen name.
+- A sync state is the **existing settings export format**, encrypted. Each state consists of **two ciphertexts under the same key**: a small **meta blob** (state name, creation date, extension version — a few hundred bytes) and the **payload blob** (the settings export). Stricter than the July design: the server sees only locator, ciphertexts, sizes and timestamps, not even the user-chosen name. The split exists for the paired second browser: it has no local `stateId` → name mapping, so the list endpoint returns the meta blobs and the client decrypts just those to render *"Work (updated …)"* — without blindly downloading every full payload.
 - Endpoints (all anonymous, open CORS, under `/api/v1`):
-	- `POST /sync/list` `{locator}` → `[{stateId, size, updatedAt}]`
-	- `PUT /sync/state` `{locator, stateId, ciphertext}` (server enforces per-locator quota: number of states and total size)
-	- `POST /sync/get` `{locator, stateId}` → ciphertext
+	- `POST /sync/list` `{locator}` → `[{stateId, size, updatedAt, meta}]` (`meta` = the encrypted meta blob)
+	- `PUT /sync/state` `{locator, stateId, meta, payload}` (server enforces per-locator quota: number of states and total size)
+	- `POST /sync/get` `{locator, stateId}` → payload ciphertext
 	- `POST /sync/delete` `{locator, stateId?}` — one state, or everything for the locator
 
 ### UX
@@ -167,6 +176,7 @@ Pure functions, framework-free:
 
 - **Bridge:** origin check (gestura.eu yes, others no, dev origin only when configured), switch off = no answer, `query-status` never answers beyond the asked IDs, never for non-index entries; `requestId` echo.
 - **Modified status:** baseline hash write on import, `true`/`false`/`'unknown'` computation, normalization stability (same entry → same hash).
-- **Crypto:** HKDF derivation is deterministic and locator ≠ key; envelope encrypt/decrypt roundtrip; decryption failure on wrong secret; state name is inside the ciphertext.
+- **Crypto:** HKDF derivation is deterministic and locator ≠ key; meta and payload encrypt/decrypt roundtrip; every encryption produces a distinct IV; decryption failure on wrong secret; the state name appears only inside the encrypted meta blob.
+- **Canonicalization:** key order and whitespace never change the hash; `undefined` vs. missing property is identical; `null` is preserved.
 - **Consent:** version + date stored on enable; re-prompt logic when the consent version rises.
 - **Update check:** request body contains exactly the index-sourced `{id, version}` pairs; throttling.
