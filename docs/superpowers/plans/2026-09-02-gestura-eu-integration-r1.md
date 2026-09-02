@@ -2105,3 +2105,51 @@ git commit -m "test(eu): local bridge/hand-off check page; firefox-build parity 
 **Placeholder scan:** no TBD/TODO; every code step carries code. The one deliberately empty artifact (`js/eu-bridge.js` in Task 7) is filled in Task 9 and the plan says so.
 
 **Type consistency:** `normalizeLocal/effectiveEnabled/isValidDevOrigin/allowedOrigins/qualifiedOrigin` (Task 1) are used with those names in Tasks 7–12; `parseBridgeRequest/helloAnswer/statusAnswer` (Task 3) in Task 9; `addBaselines(patch, imported)` (Task 4) in Task 11; `matchImport(kind, value, source, branch, catalog)` (Task 5) in Task 11 with `settingsStore.current.siteMenus` / `.searchEngines` as `branch`; `GesturaEuLocal.{read,current,write,isEnabled,onChange}` (Task 7) in Tasks 8, 9, 12; the i18n keys in Task 10 match those rendered in Tasks 11 and 12 (`euIntegrationImportAmbiguous`, `euIntegrationTitle`, `euIntegrationToggle`, `euIntegrationToggleDesc`, `euIntegrationConsentTitle`, `euIntegrationConsentPoint1-3`, `euIntegrationConsentAccept`, `euIntegrationConsentCancel`, `euIntegrationReconfirmTitle`, `euIntegrationReconfirmDesc`, `euIntegrationDevOrigin`, `euIntegrationDevOriginDesc`, `euIntegrationDevOriginInvalid`).
+
+---
+
+## Status after execution (2026-09-02)
+
+All 14 tasks implemented on `feature/eu-integration-r1`, 19 commits, 524 tests passing (443 before the branch). Each task was reviewed individually; a final whole-branch review found no Critical issues and four Important ones, all fixed in one wave and re-verified. **Not merged** — the branch waits until the feature feels finished.
+
+### Verified in a real browser
+
+- With the switch **off**, a website-triggered hand-off from the local index is ignored. This is the deliberate behaviour change against shipped 2.8.0.
+- With the switch **on**, the hand-off works again. It is gated by the switch alone, not by the origin, which is why it needed no developer-origin entry.
+
+### Still to check by hand
+
+1. `query-status` answering, with the developer origin set to the index's origin.
+2. The `modified` flag after renaming an imported entry.
+3. An oversized request (over 32 KiB of `detail`) must stay silent.
+4. A non-configured origin (for example `http://127.0.0.1:5173`) must stay silent.
+
+Steps 3 and 4 need no test page; dispatching the events from the page's own console is enough. `docs/test-bundles/bridge-test.html` covers all of it including the hand-off, which needs a real click and therefore a button.
+
+**Note on provenance while testing:** an entry imported while no developer origin was configured carries no `indexOrigin`. It stays fully usable but is never disclosed through the bridge, and a later import of the same id *with* the origin configured creates a second entry rather than updating it — a qualified import never silently overwrites an unqualified one. Delete such test entries before testing the status path.
+
+### Open minor findings
+
+From the final whole-branch review, in rough order of how much they matter:
+
+- **The developer-origin row breaks the section's label styling.** The panel puts an `<input>` inside `.setting-label`, whose last `<span>` is styled as the muted description, so the description and the field fight over that slot. Relevant to any visual pass over the new section.
+- **`_devDraft` is clobbered by any storage change**, so an unsaved edit in the developer-origin field can vanish while the user is typing if the state changes for another reason.
+- **Three `write()` calls in the panel are neither awaited nor caught.** A failed write leaves the UI showing a state that was never stored.
+- **Turning the switch off cannot clear a stale consent.** With an out-of-date consent version the toggle already renders off, so there is no affordance that resets `enabled` to false.
+- **The bridge's `getManifest()` and `statusAnswer()` calls sit outside a try/catch.** A throw there would log to the console. Not scriptable by the page, so not a fingerprinting vector, but it breaks the "silence only" rule on paper.
+- **`eu-local.js` never retries a failed first load.** The memoised promise keeps the defaults for the lifetime of that context, so a transient storage error reads as "switch off" until a reload.
+- **A third un-guarded copy of the exchange id rule** exists; the rule now lives in `js/exchange-schema.json`, `js/menu-exchange.js` and `js/eu-integration.js`.
+- **The Firefox parity note sits in `docs/test-bundles/README.md`**, which is otherwise about test bundles. It belongs in `FORK-NOTES.md`, and that file's dedup explanation is now stale.
+- **Following redirects lets a third party end up stamped with an allowed origin.** Bounded and pre-existing fetch behaviour; the README wording was corrected, the mechanism was not changed.
+- **The content script reads storage once per frame at `document_start`**, which is more reads than necessary on pages with many frames.
+- **`query-status` has no rate limit.** An allowed origin can ask as often as it likes.
+
+### Parked
+
+The two regression tests for the engine field-list fix build the rebuilt object themselves instead of calling the real editor, because vitest here cannot mount a Lit component. They therefore cannot fail if someone drops those fields again. The durable fix is one shared field-list helper used by `toCustomEngine`, `toEngineOverride` and the editor's save path.
+
+### Before a release
+
+- The store data-use answers were updated in `docs/store/*-submission.md`; the `firefox-build` manifest still carries the old `data_collection_permissions` value and must be updated when this is merged there.
+- After merging into `firefox-build`: register `js/eu-integration.js`, `js/eu-local.js` and `js/eu-bridge.js` in the Gecko manifest's `content_scripts` (same order as here) and the first two in `background.scripts`, then check `web-ext lint` reports zero errors and run one bridge round-trip in Firefox.
+- 27 of the 39 locales received only mechanical checks on the new consent text, not a fluent read.
