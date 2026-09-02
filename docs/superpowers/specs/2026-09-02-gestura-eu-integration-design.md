@@ -25,7 +25,7 @@
 
 | Decision | Choice |
 |---|---|
-| Page ↔ extension channel | **DOM-event bridge** (like the 2.8.0 hand-off), not `externally_connectable` — one code path for Chrome/Edge/Firefox (Firefox does not support `externally_connectable`). |
+| Page ↔ extension channel | **DOM-event bridge** (like the 2.8.0 hand-off), not `externally_connectable` — one code path for Chrome/Edge/Firefox. Firefox does not support `externally_connectable` toward web pages ([bug 1319168](https://bugzilla.mozilla.org/show_bug.cgi?id=1319168), still open as of 2026-09; a W3C standardization effort exists). Even if Firefox ships it later, the bridge stays the better fit: one code path everywhere, works on older Firefox, and builds on the hand-off that already shipped in 2.8.0. |
 | Direction | **Pull only:** the page asks, the extension answers. The extension never announces itself. |
 | Switch model | **Two tiers:** "gestura.eu integration" (bridge + update check) and, beneath it, "Sync" — each with its own consent text. |
 | Switch storage | **`chrome.storage.local`** — each browser consents on its own; enabling never propagates silently via browser sync. |
