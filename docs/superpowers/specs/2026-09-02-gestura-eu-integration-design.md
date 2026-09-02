@@ -7,7 +7,7 @@
 
 ## Goals
 
-1. A **master switch, off by default** — with it off, the extension is fully standalone: zero contact with gestura.eu, and **every website-triggered import path is ignored** (operator `rel="gestura-menu"` links, `data-gestura-inline` hand-offs, `gestura:import` events; no `gestura:import-result` is sent). Manual imports the user starts inside the extension (file, URL) remain available always.
+1. A **master switch, off by default** — with it off, the extension is fully standalone: **no integration-initiated communication** with gestura.eu (bridge, update check, sync), and **every website-triggered import path is ignored** (operator `rel="gestura-menu"` links, `data-gestura-inline` hand-offs, `gestura:import` events; no `gestura:import-result` is sent). Manual imports the user starts inside the extension (file, URL — including a URL that happens to point at gestura.eu) remain available always.
 2. With integration enabled, gestura.eu pages can see that Gestura is installed, its version, and — per entry they ask about — whether it is installed, which version, and whether the user modified it (status only, never the modification itself).
 3. Direct import from gestura.eu by button, with the page learning the outcome (the mechanics shipped in 2.8.0; this design gates them behind the switch and adds the status display around them).
 4. Update notices for imported entries, on gestura.eu and in the options page.
@@ -66,7 +66,13 @@ Both live in **`chrome.storage.local`** (not `storage.sync`, not the `SettingsSt
 - **Tier 1 — "Website integration"** (default off) gates: bridge answers, **all website-triggered import paths**, the update check, and the visibility of the sync section. Consent text (informing, not warning) lists concretely: *websites can hand menus and search engines to the import dialog; the extension version and the status of entries imported from gestura.eu are disclosed to gestura.eu pages on request; update requests carry the IDs and versions of imported entries — anonymous, no account.*
 - **Tier 2 — "Sync"** (default off, only visible while tier 1 is on, ships with R3) with its own consent: *encrypted settings states are transferred to gestura.eu; only you can read them; before every upload you see in full what is transferred* (Issue #1).
 
-Turning tier 1 off stops all communication immediately; imported entries stay (they are local data). Turning tier 2 off stops sync; the secret is kept unless the user explicitly deletes it (so re-enabling does not orphan server blobs).
+**The effective-enabled invariant** (one shared helper, used by every gated path):
+
+```text
+effectiveEnabled = enabled === true && consent.version === CURRENT_CONSENT_VERSION
+```
+
+A stored consent for an older version never authorizes anything — the switch shows as "needs re-confirmation" and all gated paths stay off until the user confirms the new consent text. Turning tier 1 off (or a consent version bump) takes effect immediately and concretely: content scripts watch `storage.local` for the change, the effective state is re-checked **before every bridge answer and every import hand-off** (never cached across an async gap), in-flight HTTP requests are aborted where possible and their responses are discarded in any case, and a website-triggered import still waiting in the dialog sends no `gestura:import-result` after the switch went off. Imported entries stay (they are local data). Turning tier 2 off stops sync; the secret is kept unless the user explicitly deletes it (so re-enabling does not orphan server blobs).
 
 **Confirmed decision (reversed on 2026-09-02 after review):** when tier 1 is **off**, Gestura ignores **all import hand-offs initiated by websites** — `rel="gestura-menu"` links, `data-gestura-inline` / `gestura:import` events — and sends no `gestura:import-result`. This deliberately changes the shipped 2.8.0 behavior: operator buttons are inert until the user enables the integration. Manual file and URL imports started inside the extension remain available regardless of the switch. Unchanged either way: no import without the dialog — the import dialog stays the trust boundary for everyone, always.
 
@@ -90,6 +96,7 @@ No answer = indistinguishable from "not installed" — intended, and the anti-fi
 Rules:
 
 - `query-status` answers **only for the IDs asked about**, and only for entries with **qualified index provenance** (`source.indexId` *plus* `source.indexOrigin`, see section 4) — an `indexId` alone proves nothing, since 2.8.0 file imports carry the id the file claims. The extension never enumerates or reveals what else the user has (own menus, entries from other sources, file imports). One batched call per page view is the expected usage.
+- **Provenance is origin-bound:** entries are matched by the **pair** `(source.indexOrigin, source.indexId)`, and a status answer requires `source.indexOrigin === location.origin` of the asking page — gestura.eu never learns about entries imported from the dev index, and vice versa.
 - **Limits and types (part of the contract):** `requestId` is a string of at most 64 characters. `ids` is an array of at most 100 strings, each matching the exchange schema's ID rule (`js/exchange-schema.json`: its pattern, max 128 characters). Anything else — wrong types, over limit, malformed JSON — gets silence, like every other failure.
 - `entries` in the answer is an **array** `[{id, installed, version?, modified?}]`, never a keyed object — a hostile but pattern-valid ID like `constructor` must not become an object key anywhere in the pipeline. Every asked (valid) ID appears exactly once; unknown ones as `{id, installed: false}`.
 - `version` in a status answer is the *content* version of the imported entry (the SemVer from the exchange format), so the page can compute "update available" itself.
@@ -104,7 +111,11 @@ With integration on, the gestura.eu index can render per entry: *installed / upd
 
 **Source provenance on every import mode (R1):** today only *new* custom entries persist `source` metadata — replacing a catalog menu goes through `toStandardMenu()` and overriding a built-in engine through `toEngineOverride()` ([js/menu-exchange.js](../../../js/menu-exchange.js)), and both drop the provenance. Status, version, baseline and update check would silently fail for these legitimate import modes. Therefore R1 extends **all** apply paths to persist the same `source` object (`type`, `indexId`, `indexOrigin`, `version`, `baselineHash`) — on custom entries, on edited catalog copies and on engine overrides alike; status/update lookups consult all three storage places.
 
-**Qualified index provenance:** `source.indexId` alone does not prove the entry came from gestura.eu — file imports carry whatever id the file claims (deliberately so, for dedup, since 2.8.0). Disclosure through the bridge and inclusion in the update check therefore require the additional field **`source.indexOrigin`**, which only the extension sets, and only when the payload's origin is verifiable: a website hand-off from an allowed index origin, or a URL import the extension itself fetched from one. A file import can never prove its origin and gets no `indexOrigin` — it stays fully functional locally (dedup by `indexId` included), it is just never disclosed and never update-checked.
+**Qualified index provenance:** `source.indexId` alone does not prove the entry came from gestura.eu — file imports carry whatever id the file claims (deliberately so, for dedup, since 2.8.0). Disclosure through the bridge and inclusion in the update check therefore require the additional field **`source.indexOrigin`**, which only the extension sets, and only when the payload's origin is verifiable: a website hand-off from an allowed index origin, or a URL import the extension itself fetched from one — judged by the **final `Response.url` after redirects**, never by the URL the user typed. A file import can never prove its origin and gets no `indexOrigin` — it stays fully functional locally (dedup by `indexId` included), it is just never disclosed and never update-checked. Origin-binding rules:
+
+- Matching is always by the pair `(indexOrigin, indexId)` — identical IDs from different indexes are different entries and must not collide.
+- **Re-import dedup** for qualified entries uses that pair; file imports keep their existing ID-based dedup.
+- The **production update check** includes only entries with `indexOrigin === "https://gestura.eu"`; dev-index entries are checked, if at all, against the dev origin and never leak into the production request.
 
 **Provenance survives mutation:** it is not enough that the resolvers (`menu-model.js`, `engine-registry.js`) pass `source` through — the editors rebuild entries with fixed field lists on save (e.g. `#saveEdit` in [js/components/engine-manager.js](../../../js/components/engine-manager.js)) and would silently drop it, turning an edited import into `installed: false` instead of `modified: true`. The rule: **every mutation path preserves `source` unchanged — editors, context actions, migrations, helpers; only explicitly deleting the entry or resetting it to catalog state removes provenance.** Required test: import → edit → still `installed: true` with `modified: true`.
 
@@ -127,11 +138,13 @@ With integration on, the gestura.eu index can render per entry: *installed / upd
 - On sync opt-in the extension generates a **32-byte random secret** (`crypto.getRandomValues`), stored in `storage.local`, displayed as a human-copyable code and as a QR code for pairing a second browser.
 - **Code format (part of the API contract, with fixed test vectors):** versioned prefix `GS1-`, then the secret in **Crockford base32** (uppercase, no ambiguous characters), grouped in blocks of four, closed by a **4-character checksum** derived from the secret's SHA-256. Input is forgiving — case-insensitive, separators and whitespace ignored — but a failed checksum is rejected immediately: a typo must produce an error, never a silently different locator that just "sees no states".
 - Because the secret has full entropy, **HKDF (native WebCrypto)** suffices — no Argon2, no vendored WASM (simplification over the July design, which needed Argon2 only because it derived from a human passphrase). HKDF-SHA-256 with fixed parameters (part of the API contract): salt = 32 zero bytes (the secret carries the entropy), and distinct info strings derive:
-	- the **server locator** — info `"gestura-sync-locator-v1"` (identifies the blob store, sent to the server), and
-	- the **AES-256-GCM key** — info `"gestura-sync-key-v1"` (never leaves the client).
+	- the **server locator** — info `"gestura-sync-locator-v1"`: 32 bytes, transmitted as **base64url without padding** (identifies the blob store, sent to the server), and
+	- the **AES-256-GCM key** — info `"gestura-sync-key-v1"`: 256 bits (never leaves the client).
+
+	Info strings are UTF-8 encoded; all of this is part of the API contract with fixed test vectors.
 - **Ciphertext wire format:** every encryption uses a **fresh random 96-bit IV** (`crypto.getRandomValues`; GCM is fully compromised by IV reuse under the same key), transmitted as `base64(iv[12] ‖ ciphertext+tag)`.
 - **Context binding (AAD):** both blobs share one key, so every encryption sets GCM additional authenticated data `"gestura-sync-v1" ‖ stateId ‖ role` (role = `"meta"` or `"payload"`), and the meta blob additionally carries the payload ciphertext's hash — the server cannot swap valid blobs between states or roles without decryption failing. **Server rollback** (serving an older but authentic version of a state) is accepted and outside the threat model: uploads are explicit, states are few, and the preview before import shows what actually arrived.
-- The server can never reach the key from the locator. The locator acts as a **bearer capability**: only secret holders can derive it. It travels in the request **body** over TLS, never in the URL, so it stays out of server/proxy logs. Rate limiting per IP applies server-side (July design's RateLimiter).
+- The server can never reach the key from the locator. The locator acts as a **bearer capability**: only secret holders can derive it. It travels in the request **body** over TLS, never in the URL, so it stays out of ordinary URL/access logs (a server, WAF or application can of course log request bodies — the deployment must not). Rate limiting per IP applies server-side (July design's RateLimiter).
 
 ### Data model and endpoints
 
@@ -146,7 +159,14 @@ With integration on, the gestura.eu index can render per entry: *installed / upd
 ### UX
 
 - **Named states** ("Work", "Home"), explicit **Upload** / **Download & import** buttons.
-- Before every upload a **"What is transferred?" view** shows the complete JSON — Issue #1's transparency requirement. **This view does not exist yet and is R3 work:** today's settings export writes the file immediately (`#exportSettings` in [js/components/options-page.js](../../../js/components/options-page.js)) and the full-settings import is a bare `confirm()` whose validation checks little more than `enableGesture`. R3 therefore explicitly includes: a full settings **export preview**, a **download/import preview**, and a real **settings validator** — one validator, shared between the file import and the sync download (and reused by the file export/import path, which inherits the preview for free).
+- Before every upload a **"What is transferred?" view** shows the complete JSON — Issue #1's transparency requirement. **This view does not exist yet and is R3 work:** today's settings export writes the file immediately (`#exportSettings` in [js/components/options-page.js](../../../js/components/options-page.js)) and the full-settings import is a bare `confirm()` whose validation checks little more than `enableGesture`. R3 therefore explicitly includes: a full settings **export preview**, a **download/import preview**, and a real **settings validator** — one validator, shared between the file import and the sync download (and reused by the file export/import path, which inherits the preview for free). Its ground rules, to be pinned exactly in the settings schema within `docs/gestura-eu-api.md`:
+	- a **maximum payload size**;
+	- **allowlisted top-level keys** (derived from `DEFAULT_SETTINGS`); unknown keys are dropped and listed in the preview, never written;
+	- **nested value types checked** against the expected shapes;
+	- keys named `__proto__`, `constructor` or `prototype` are rejected anywhere in the tree;
+	- **supported export versions** declared, unknown ones refused with a clear message;
+	- the import is **atomic** — one validated write, never partially applied — and **replaces** the settings (today's semantics), no merging;
+	- `euIntegration`, `euSync` and the secret are **excluded from export and import** — they live in `storage.local`, are never part of a state, and a crafted file must not be able to flip the switches or plant a secret.
 - **Reminder:** hash + date of the last upload are kept locally; the sync section shows an unobtrusive *"changed since last upload"* hint when the current settings hash differs. No notifications, no automation.
 - **Secret backup**, offered at generation and available any time in the sync section:
 	- **Copy** — the code as a string, for KeePass and friends.
@@ -173,7 +193,7 @@ With integration on, the gestura.eu index can render per entry: *installed / upd
 
 ## 8. Relationship to the July design
 
-This document **extends** the July design and **supersedes** it on three points:
+This document **extends** the July design and **supersedes** it on four points:
 
 1. **Sync identity:** extension-generated secret + HKDF instead of passkey account + sync passphrase + Argon2. The account (passkey, UUID, no email) stays as designed for submissions/ratings and can adopt the sync later.
 2. **State names are encrypted** inside the envelope; the July design let the server see them.
@@ -186,11 +206,11 @@ Everything else (exchange format, the operator button's mechanics, index, modera
 
 Pure functions, framework-free:
 
-- **Bridge:** origin check (gestura.eu yes, others no, dev origin only when configured), switch off = no answer **and no reaction to any website-triggered import path**, `query-status` never answers beyond the asked IDs, never for entries without qualified provenance (**a file import with a matching `indexId` is not disclosed**); `requestId` echo; limits enforced (ID count, ID pattern, `requestId` length — violations get silence); a pattern-valid hostile ID like `constructor` stays harmless (array answers); unknown IDs come back as `installed: false`.
+- **Bridge:** origin check (gestura.eu yes, others no, dev origin only when configured), switch off = no answer **and no reaction to any website-triggered import path**, `query-status` never answers beyond the asked IDs, never for entries without qualified provenance (**a file import with a matching `indexId` is not disclosed**); origin binding (an entry imported from the dev index is invisible to gestura.eu and vice versa — matching by `(indexOrigin, indexId)` pair); `requestId` echo; limits enforced (ID count, ID pattern, `requestId` length — violations get silence); a pattern-valid hostile ID like `constructor` stays harmless (array answers); unknown IDs come back as `installed: false`.
 - **Modified status:** baseline hash write on import, `true`/`false`/`'unknown'` computation, normalization stability (same entry → same hash), and **`modified === false` immediately after every import mode** (new, replace-custom, replace-catalog, engine override, Firefox transform-strip).
 - **Provenance:** every import mode persists `source` (custom, edited catalog copy, engine override); `indexOrigin` is set for hand-off/URL imports from an allowed index origin and never for file imports; import → edit → still `installed: true` with `modified: true` (mutation paths preserve `source`).
 - **Secret code:** encode/decode roundtrip against the fixed test vectors; checksum rejects a typo; case and separators are forgiven.
 - **Crypto:** HKDF derivation is deterministic and locator ≠ key; meta and payload encrypt/decrypt roundtrip; every encryption produces a distinct IV; decryption failure on wrong secret; the state name appears only inside the encrypted meta blob; blobs swapped between roles or states fail AAD authentication.
 - **Canonicalization:** key order and whitespace never change the hash; `undefined` vs. missing property is identical; `null` is preserved.
-- **Consent:** version + date stored on enable; re-prompt logic when the consent version rises.
+- **Consent:** version + date stored on enable; the `effectiveEnabled` invariant (`enabled` with a stale `consent.version` authorizes nothing); re-prompt logic when the consent version rises; a website-triggered import pending in the dialog sends no result after the switch goes off.
 - **Update check:** request body contains exactly the `{id, version}` pairs of entries with qualified provenance — file imports never appear; throttling.
