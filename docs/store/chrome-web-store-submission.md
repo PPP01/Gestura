@@ -110,9 +110,24 @@ Alles aus `permission-justifications.md` übernehmen:
 - **Permission justification:** für **jede** Berechtigung (`tabs`, `sessions`,
   `storage`, `contextMenus`, `search`, `scripting`, `favicon`, `offscreen`) den
   jeweiligen Satz aus der Tabelle einfügen; ebenso die `<all_urls>`-Begründung.
-- **Datennutzung:** alle drei/vier Fragen mit **Nein** beantworten
-  (keine Datenerhebung, kein Verkauf, keine zweckfremde Nutzung).
-- **Privacy policy URL:** die oben gewählte öffentliche URL eintragen.
+- **Datennutzung:** seit der *Website-Integration* (aus, per Default) nicht mehr
+  pauschal „keine Datenerhebung". Mit ausgeschaltetem Schalter stimmt das weiter —
+  dann verlässt nichts den Browser. Schaltet die Nutzerin ihn selbst ein, teilt die
+  Extension Seiten auf **gestura.eu** (und einer optionalen, selbst eingetragenen
+  Entwickler-Origin) ihre eigene Versionsnummer mit sowie, auf Anfrage der Seite,
+  ob ein von dort importierter Eintrag noch installiert ist, in welcher Version und
+  ob er lokal verändert wurde — anonym, ohne Konto, ohne Personenbezug, und nur
+  während diese Seite offen ist. Keine der drei/vier Kategorien im Formular
+  (personenbezogene, Gesundheits-, Finanz-, Authentifizierungsdaten, private
+  Kommunikation, Standort, Web-Verlauf, Nutzeraktivität, Websiteinhalt) trifft
+  das wörtlich — die ehrliche Antwort ist trotzdem nicht mehr blind „Nein" für
+  jede Frage, sondern eine bewusste Entscheidung beim Ausfüllen, mit obigem Absatz
+  als Grundlage. Die drei „Ich verkaufe/übertrage/nutze Nutzerdaten nicht für
+  sachfremde Zwecke/Kreditwürdigkeit"-Zusicherungen bleiben zutreffend — nichts
+  davon geschieht. (Der noch nicht gebaute Update-Check und die verschlüsselte
+  Sync werden hier nicht vorweggenommen.)
+- **Privacy policy URL:** die oben gewählte öffentliche URL eintragen (PRIVACY.md,
+  Abschnitt „Website integration").
 
 ### 4. Distribution (Tab „Distribution")
 - Sichtbarkeit (öffentlich / nicht gelistet), Regionen wählen.
@@ -143,6 +158,7 @@ die Permission-Begründungen sind genau dafür vorbereitet.
 - [ ] 5 Screenshots hochgeladen
 - [ ] Kategorie = Productivity, Sprache(n) gesetzt
 - [ ] Single purpose + alle Permission-Begründungen eingetragen
-- [ ] Datennutzung = keine Erhebung
+- [ ] Datennutzung: Formular gemäß Website-Integration-Absatz oben ausgefüllt
+      (nicht mehr pauschal „keine Erhebung")
 - [ ] Sichtbarkeit/Regionen gewählt
 - [ ] Submit for review 👤

@@ -27,7 +27,18 @@ Was **nur du** tun kannst (Konto, API-Keys, Einreichung) ist mit 👤 markiert.
 
 - `browser_specific_settings.gecko.id` = **`gestura@gestura.eu`**
 - `strict_min_version` = **140.0**
-- `data_collection_permissions.required` = **`["none"]`** (keine Datenerhebung — Firefox-Pflichtangabe erfüllt)
+- `data_collection_permissions` = **`{ required: ["none"], optional: ["technicalAndInteraction"] }`**
+  seit der optionalen, per Default ausgeschalteten *Website-Integration*: `required`
+  bleibt `["none"]` (ohne Zutun der Nutzerin verlässt nichts den Browser), aber wer
+  den Schalter selbst einschaltet, teilt Seiten auf gestura.eu (und einer optionalen
+  Entwickler-Origin) die eigene Erweiterungsversion sowie, auf Anfrage, den
+  Installiert-/Versions-/Verändert-Status von dort importierter Einträge mit — das
+  fällt unter Mozillas Kategorie „technicalAndInteraction" (Geräte-/Browser-Infos,
+  Nutzungs- und Einstellungsdaten), nie unter eine der personenbezogenen Kategorien.
+  **Der aktuelle `firefox-build`-Manifest-Stand (`required: ["none"]` ohne
+  `optional`) ist noch der vor-R1-Stand** — dieser Branch hat R1 noch nicht gemerged;
+  beim nächsten Merge von `main`/dieser Funktion nach `firefox-build` diesen Schlüssel
+  mitziehen, sonst weicht die AMO-Angabe von PRIVACY.md ab.
 - `background.scripts` (Event-Page statt Service-Worker), inkl. `favicon-util.js`
 
 ---
@@ -103,8 +114,15 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 - **Support:** `contact@gestura.eu` · <https://github.com/PPP01/Gestura/issues>
 - **Datenschutz-URL:** die PRIVACY-URL oben.
 - **Lizenz:** GPL-3.0.
-- **Datennutzung:** „Keine Datenerhebung" (deckt sich mit
-  `data_collection_permissions: none` und `PRIVACY.md`).
+- **Datennutzung:** nicht mehr pauschal „Keine Datenerhebung" — seit R1 gilt das
+  nur noch, solange *Website-Integration* ausgeschaltet bleibt (Werkseinstellung).
+  Ist sie eingeschaltet, teilt die Extension gestura.eu (und einer optionalen
+  Entwickler-Origin) ihre Version sowie den Installiert-/Versions-/
+  Verändert-Status importierter Einträge mit — anonym, ohne Konto, kein
+  Personenbezug. Deckt sich mit `data_collection_permissions: { required: ["none"],
+  optional: ["technicalAndInteraction"] }` (siehe oben) und `PRIVACY.md`, Abschnitt
+  „Website integration". Der noch nicht gebaute Update-Check und die verschlüsselte
+  Sync sind hiervon nicht betroffen — sie existieren in R1 nicht.
 - **Permission-Begründungen:** aus `permission-justifications.md`, falls der Review
   nach `<all_urls>` / `tabs` / `clipboardRead` etc. fragt.
 
@@ -146,6 +164,7 @@ nicht über die Chrome-`favicon`-API.)
 - [ ] `npx web-ext lint` = 0 Fehler
 - [ ] `npm run ff:release` (signiert + gelistet eingereicht) 👤
 - [ ] Listing: Beschreibung (EN/DE), Screenshots, Kategorien
-- [ ] Lizenz GPL-3.0, Datenschutz-URL, „keine Datenerhebung"
+- [ ] Lizenz GPL-3.0, Datenschutz-URL, Datennutzung gemäß Website-Integration-Absatz
+      oben (nicht mehr pauschal „keine Datenerhebung")
 - [ ] Support-Kontakt gesetzt
 - [ ] Auf Review-Rückmeldung reagieren (Permission-Begründungen bereit)
