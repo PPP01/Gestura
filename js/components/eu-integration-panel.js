@@ -110,7 +110,7 @@ class EuIntegrationPanel extends LitElement {
 						<span>${i18n.getMessage('euIntegrationReconfirmTitle')}</span>
 						<span>${i18n.getMessage('euIntegrationReconfirmDesc')}</span>
 					</div>
-					<button class="btn btn-primary" @click=${() => { this._consentOpen = true; }}>${i18n.getMessage('euIntegrationConsentAccept')}</button>
+					<button class="btn btn-primary" @click=${() => { this._consentOpen = true; }}>${i18n.getMessage('tutorialContinue')}</button>
 				</div>` : ''}
 			${this._consentOpen ? html`
 				<div class="consent">
