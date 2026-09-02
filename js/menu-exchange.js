@@ -233,15 +233,22 @@
 	// Build the "edited copy" def used to REPLACE a standard (catalog) menu.
 	// Keeps the file's own item ids so the result aligns with the catalog entry
 	// it overrides (stored at siteMenus.edited[catalogId]).
-	function toStandardMenu(menuValue, lang, engineIdMap) {
+	function toStandardMenu(menuValue, lang, engineIdMap, source) {
 		const lg = lang || 'en';
 		const items = (menuValue.items || []).map(it => mapImportItem(it, (x) => x.id, lg, engineIdMap));
-		return {
+		const def = {
 			name: pickLabel(menuValue.name, lg),
 			icon: menuValue.icon || 'menu',
 			patterns: Array.isArray(menuValue.patterns) ? menuValue.patterns.slice() : [],
 			items,
 		};
+		// Provenance for a replaced catalog menu — without it, status and update
+		// lookups could not see this legitimate import mode at all. Only computed
+		// when a source was actually supplied — storedSource() would otherwise
+		// still produce {indexId} from menuValue.id alone.
+		const src = source ? storedSource(source, menuValue.id) : null;
+		if (src) def.source = src;
+		return def;
 	}
 
 	function toCustomEngine(engineValue, source, genId, lang) {
@@ -266,10 +273,11 @@
 	}
 
 	// Build an override object used to REPLACE a standard (built-in) engine.
-	// Full field set, no id/builtin/source — the engine registry merges this
-	// over the built-in (stored at searchEngines.overrides[builtinId]).
-	function toEngineOverride(engineValue, lang) {
-		return {
+	// Full field set, no id/builtin — the engine registry merges this over the
+	// built-in (stored at searchEngines.overrides[builtinId]). source is kept
+	// when the import supplies one.
+	function toEngineOverride(engineValue, lang, source) {
+		const out = {
 			name: pickLabel(engineValue.name, lang || 'en'),
 			url: engineValue.url || '',
 			plus: !!engineValue.plus,
@@ -283,6 +291,9 @@
 			rawResult: !!engineValue.rawResult,
 			type: engineValue.type === 'image' ? 'image' : 'text',
 		};
+		const src = source ? storedSource(source, engineValue.id) : null;
+		if (src) out.source = src;
+		return out;
 	}
 
 	function menuToExchange(menuDef, meta) {
@@ -352,7 +363,7 @@
 				const { def } = toCustomMenu(value, source, undefined, lang, engineIdMap);
 				return { next: { ...cur, custom: { ...cur.custom, [matchId]: def } }, id: matchId, isNew: false };
 			}
-			const def = toStandardMenu(value, lang, engineIdMap);
+			const def = toStandardMenu(value, lang, engineIdMap, source);
 			return { next: { ...cur, edited: { ...cur.edited, [matchId]: def } }, id: matchId, isNew: false };
 		}
 		const { id, def } = toCustomMenu(value, source, undefined, lang, engineIdMap);
@@ -383,7 +394,7 @@
 				next[at] = engine;
 				return { next: { ...cur, custom: next }, id: matchId, isNew: false };
 			}
-			const ov = strip(toEngineOverride(value, lang));
+			const ov = strip(toEngineOverride(value, lang, source));
 			return { next: { ...cur, overrides: { ...cur.overrides, [matchId]: ov } }, id: matchId, isNew: false };
 		}
 		const engine = strip(toCustomEngine(value, source, undefined, lang));
