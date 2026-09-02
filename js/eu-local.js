@@ -24,13 +24,20 @@
 			let promise;
 			try {
 				promise = chrome.storage.local.get(KEY);
-			} catch {
-				// Synchronous throw when extension context is invalidated (e.g. after
+			} catch (e) {
+				// Synchronous throw when the extension context is invalidated (e.g. a
 				// reload while an old content script is still running in an open tab).
-				// Treat as storage unavailable and use defaults instead.
-				promise = Promise.resolve({});
+				promise = Promise.reject(e);
 			}
-			loading = promise.then(absorb).catch(() => absorb({}));
+			loading = promise.then(absorb).catch(() => {
+				// A failed read must not become this context's answer for good. The
+				// defaults say "switch off", so a memoised failure would read as a
+				// deliberate off until the page is reloaded - indistinguishable from
+				// the user's own choice. Drop the memo so the next caller retries, and
+				// answer the defaults for this one: every gated path must fail closed.
+				loading = null;
+				return cache;
+			});
 		}
 		return loading;
 	}

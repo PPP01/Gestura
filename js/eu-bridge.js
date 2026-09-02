@@ -35,24 +35,32 @@
 		return EU.allowedOrigins(local).includes(location.origin);
 	}
 
+	// Both handlers are wrapped whole. Silence is the only failure mode this bridge
+	// has toward a page, and an uncaught throw would break it: an unhandled rejection
+	// prints to the page's own console, which the page can observe. Nothing in here
+	// is guaranteed not to throw - getManifest() fails on an invalidated context,
+	// storage can reject, and reply() touches JSON.stringify and the DOM.
 	document.addEventListener('gestura:hello', async (e) => {
-		const req = EU.parseBridgeRequest(e.detail);
-		if (!req) return;
-		if (!(await gate())) return;
-		reply('gestura:hello-result', EU.helloAnswer(req, chrome.runtime.getManifest().version));
+		try {
+			const req = EU.parseBridgeRequest(e.detail);
+			if (!req) return;
+			if (!(await gate())) return;
+			reply('gestura:hello-result', EU.helloAnswer(req, chrome.runtime.getManifest().version));
+		} catch { /* silence */ }
 	}, true);
 
 	document.addEventListener('gestura:query-status', async (e) => {
-		const req = EU.parseBridgeRequest(e.detail);
-		// A request without `ids` is well-formed, just pointless: statusAnswer
-		// returns an empty array for it. Only a request that fails to parse gets
-		// silence - answering the empty case keeps the contract honest.
-		if (!req) return;
-		if (!(await gate())) return;
-		let settings;
-		try { settings = await chrome.storage.sync.get(['siteMenus', 'searchEngines']); } catch { return; }
-		// The switch may have flipped while we read the settings.
-		if (!(await gate())) return;
-		reply('gestura:query-status-result', await EU.statusAnswer(req, location.origin, settings));
+		try {
+			const req = EU.parseBridgeRequest(e.detail);
+			// A request without `ids` is well-formed, just pointless: statusAnswer
+			// returns an empty array for it. Only a request that fails to parse gets
+			// silence - answering the empty case keeps the contract honest.
+			if (!req) return;
+			if (!(await gate())) return;
+			const settings = await chrome.storage.sync.get(['siteMenus', 'searchEngines']);
+			// The switch may have flipped while we read the settings.
+			if (!(await gate())) return;
+			reply('gestura:query-status-result', await EU.statusAnswer(req, location.origin, settings));
+		} catch { /* silence */ }
 	}, true);
 })();
