@@ -17,7 +17,9 @@ const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf
 // tests below are what keep that from being forgotten before a release.
 const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'euIntegrationConsentLead', 'euIntegrationConsentPoint4', 'euIntegrationConsentGranted',
-	'euIntegrationConsentDate', 'euIntegrationConsentRevoke'];
+	'euIntegrationConsentDate', 'euIntegrationConsentRevoke',
+	'euIntegrationConsentPoint1Label', 'euIntegrationConsentPoint2Label',
+	'euIntegrationConsentPoint3Label', 'euIntegrationConsentPoint4Label'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

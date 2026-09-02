@@ -77,7 +77,8 @@ class EuIntegrationPanel extends LitElement {
 		.modal-body { padding: 18px 20px; overflow-y: auto; }
 		.modal-body .lead { margin: 0 0 14px; font-size: 14px; line-height: 1.6; }
 		.modal-body ul { margin: 0; padding-inline-start: 20px; }
-		.modal-body li { margin: 8px 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+		.modal-body li { margin: 10px 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+		.modal-body li strong { color: var(--text-primary); font-weight: 600; }
 		.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border-color); }
 	`];
 
@@ -198,7 +199,9 @@ class EuIntegrationPanel extends LitElement {
 
 	#renderOverlay() {
 		const i18n = window.i18n;
-		const points = ['euIntegrationConsentPoint1', 'euIntegrationConsentPoint2', 'euIntegrationConsentPoint3', 'euIntegrationConsentPoint4'];
+		// Each point leads with a bold label. Label and body are separate message
+		// keys because messages.json holds plain text - no markup in translations.
+		const points = [1, 2, 3, 4].map(n => [`euIntegrationConsentPoint${n}Label`, `euIntegrationConsentPoint${n}`]);
 		return html`
 			<div class="modal-overlay" @mousedown=${this.#decline}>
 				<div class="modal-panel" tabindex="-1" @mousedown=${e => e.stopPropagation()}>
@@ -209,7 +212,8 @@ class EuIntegrationPanel extends LitElement {
 					</div>
 					<div class="modal-body">
 						<p class="lead">${i18n.getMessage('euIntegrationConsentLead')}</p>
-						<ul>${points.map(k => html`<li>${i18n.getMessage(k)}</li>`)}</ul>
+						<ul>${points.map(([label, body]) => html`
+							<li><strong>${i18n.getMessage(label)}</strong> ${i18n.getMessage(body)}</li>`)}</ul>
 					</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary" @click=${this.#decline}>${i18n.getMessage('euIntegrationConsentCancel')}</button>
