@@ -609,6 +609,10 @@ git commit -m "feat(eu): bridge protocol - request parsing, hello and origin-bou
 
 **Interfaces:**
 - Consumes: `storedSource(source, formatId)` (`menu-exchange.js:212`), `listProvenanced`, `findStored`, `baselineHash` (Tasks 2–3)
+
+**Two facts verified in the code before writing this task — do not "fix" them:**
+1. `buildImportPatch` returns `imported: [{ kind, id, isNew }]` — `kind`, not `type`. `type` is a property of the *input* `rows`, never of the output. Every consumer reads `.kind` (`import-marker.js:35`, `menu-import-dialog.js:363`, `import-feedback.js:19`) and `tests/menu-exchange-apply.test.mjs:128` asserts it. `addBaselines` destructures `{ kind, id }` accordingly.
+2. `strip()` inside `applyEngineTo` is **not** a key whitelist — it only blanks `transformEnabled`/`transformCode` and returns the same object (`menu-exchange.js:370-373`). Wrapping `toEngineOverride(value, lang, source)` in it therefore preserves `source`.
 - Produces:
   - `toStandardMenu(menuValue, lang, engineIdMap, source)` — new trailing optional `source`; when given, the def carries `source: storedSource(source, menuValue.id)`
   - `toEngineOverride(engineValue, lang, source)` — same
@@ -781,6 +785,10 @@ git commit -m "feat(exchange): provenance on catalog replacements and engine ove
 
 Rules (spec section 4): a **qualified** import matches only entries with the same `(indexOrigin, indexId)`; an **unqualified** import matches only among unqualified entries and **never automatically overwrites a qualified one**; more than one candidate, or any qualified entry in the way of an unqualified import, is ambiguous.
 
+One more collision, easy to miss: replacing a **catalog** entry writes into a single slot — `siteMenus.edited[catalogId]` or `searchEngines.overrides[builtinId]`. Two origins cannot both own that slot, and neither can an index import and the user's own hand-edit of the catalog entry. So when the catalog fallback would apply but something already occupies that slot which the qualified match above did not claim, the result is `ambiguous` as well. Without that check the dialog would offer "replace the standard entry" and silently overwrite the user's edited copy, or another origin's entry.
+
+This applies to every import path, file imports included, and it changes 2.8.0 behavior in two visible ways. A hand-edited catalog entry is no longer overwritten by an import of the same id — the dialog imports a new entry instead. And a catalog replacement imported **before** R1 carries no provenance (`toStandardMenu` dropped it), so re-importing it now reads as an occupied slot and also lands as a new entry; those entries have to be tidied up by hand once, the same one-off as the 2.8.0 dedup change. Both are the safe direction: nothing is overwritten that Gestura cannot prove is the same thing.
+
 - [ ] **Step 1: Write the failing tests**
 
 ```js
@@ -847,6 +855,23 @@ describe('matchImport — catalog fallback and storage places', () => {
 	it('falls back to the catalog entry with own:false', () => {
 		expect(X.matchImport('menu', { id: 'google' }, { type: 'file' }, menus({}), CAT_MENUS)).toEqual({ id: 'google', name: 'Google', own: false });
 	});
+	it('an occupied catalog slot is ambiguous, never a blind "replace the standard entry"', () => {
+		// The user edited the catalog menu by hand: no provenance at all.
+		const handEdited = { custom: {}, edited: { google: { name: 'My Google' } } };
+		expect(X.matchImport('menu', { id: 'google' }, { type: 'site', indexOrigin: PROD }, handEdited, CAT_MENUS))
+			.toEqual({ ambiguous: true, candidates: [{ id: 'google', name: 'My Google', indexOrigin: null }] });
+		// Another origin already owns the single edited[] slot.
+		const devOwned = { custom: {}, edited: { google: { name: 'Dev Google', source: s('google', DEV) } } };
+		expect(X.matchImport('menu', { id: 'google' }, { type: 'site', indexOrigin: PROD }, devOwned, CAT_MENUS).ambiguous).toBe(true);
+		// Same origin: still a normal update, not ambiguous.
+		const ours = { custom: {}, edited: { google: { name: 'Ours', source: s('google', PROD) } } };
+		expect(X.matchImport('menu', { id: 'google' }, { type: 'site', indexOrigin: PROD }, ours, CAT_MENUS)).toEqual({ id: 'google', name: 'Ours', own: true });
+	});
+	it('an occupied override slot is ambiguous for engines too', () => {
+		const CAT_ENGINES = [{ id: 'bing', name: 'Bing' }];
+		expect(X.matchImport('engine', { id: 'bing' }, { type: 'site', indexOrigin: PROD }, engines([], { bing: { name: 'My Bing' } }), CAT_ENGINES).ambiguous).toBe(true);
+		expect(X.matchImport('engine', { id: 'bing' }, { type: 'site', indexOrigin: PROD }, engines([]), CAT_ENGINES)).toEqual({ id: 'bing', name: 'Bing', own: false });
+	});
 	it('an edited catalog copy with provenance is an own match on its catalog id', () => {
 		const branch = { custom: {}, edited: { google: { name: 'G2', source: s('google', PROD) } } };
 		expect(X.matchImport('menu', { id: 'google' }, { type: 'site', indexOrigin: PROD }, branch, CAT_MENUS)).toEqual({ id: 'google', name: 'G2', own: true });
@@ -909,7 +934,18 @@ Expected: FAIL — `X.matchImport is not a function`.
 			if (withId.length >= 1) return candidates(withId);
 		}
 		const cat = (catalog || []).find(c => c && c.id === value.id);
-		return cat ? { ...cat, own: false } : null;
+		if (!cat) return null;
+		// Ein Katalog-Eintrag wird in genau einen Platz geschrieben: edited[id] bzw.
+		// overrides[id]. Was dort schon liegt und oben nicht als eigener Treffer
+		// erkannt wurde, gehört jemand anderem - der Handarbeit des Nutzers oder
+		// einer anderen Origin. "Standard-Eintrag ersetzen" wäre dafür die falsche
+		// Beschreibung, also lieber mehrdeutig.
+		const b = branch || {};
+		const occupant = kind === 'menu' ? (b.edited || {})[value.id] : (b.overrides || {})[value.id];
+		if (occupant) {
+			return { ambiguous: true, candidates: [{ id: value.id, name: occupant.name, indexOrigin: (occupant.source && occupant.source.indexOrigin) || null }] };
+		}
+		return { ...cat, own: false };
 	}
 ```
 
@@ -958,6 +994,31 @@ describe('source pass-through', () => {
 ```
 
 If the file imports differ (check its first lines: `const { resolveEngines, getEngineById } = globalThis.FlowMouseEngineRegistry;` or similar), use those names.
+
+The editor itself lives in a Lit component and cannot run under vitest, so append a pure test of the *rule* it has to obey to `tests/menu-exchange-provenance.test.mjs` — an edit keeps `source`, and the entry then reports `modified: true`:
+
+```js
+describe('an edited import stays an import', () => {
+	it('keeps provenance and reports modified after the editor rebuilds an entry', async () => {
+		const { patch, imported } = X.buildImportPatch(
+			[{ type: 'engine', value: engine('com.e'), source: SITE, mode: 'new', matchId: null }],
+			{ siteMenus: { custom: {}, edited: {} }, searchEngines: { custom: [], overrides: {} } },
+			{ lang: 'en', stripTransform: false },
+		);
+		const saved = await EU.addBaselines(patch, imported);
+		const stored = EU.findStored(saved, 'engine', imported[0].id);
+
+		// What engine-manager's #saveEdit does: rebuild from a fixed field list.
+		// With `source` carried over (Task 6) the entry stays recognisable.
+		const rebuilt = { id: stored.id, name: 'renamed by the user', url: stored.url, type: stored.type, builtin: false, source: stored.source };
+		expect(await EU.modifiedState(rebuilt)).toBe(true);
+
+		// Dropping `source` - the bug this task fixes - loses the entry entirely.
+		const { source, ...withoutSource } = rebuilt;
+		expect(EU.listProvenanced({ searchEngines: { custom: [withoutSource], overrides: {} } })).toEqual([]);
+	});
+});
+```
 
 - [ ] **Step 2: Run to verify failure**
 
@@ -1281,6 +1342,15 @@ The bridge runs in all frames; `location.origin` of the frame is what counts (an
 	const LOCAL = self.GesturaEuLocal;
 	if (!EU || !LOCAL) return;
 
+	// Cheap synchronous exit for origins that can never be allowed: the production
+	// origin is https, and a dev origin is either https or http on a loopback host.
+	// Everything else leaves without touching storage or registering a listener.
+	// Registration itself stays synchronous on purpose - a page may ask at
+	// document_start, and a listener deferred until the state load finished would
+	// miss that request.
+	const loopback = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+	if (location.protocol !== 'https:' && !(location.protocol === 'http:' && loopback)) return;
+
 	function reply(type, answer) {
 		document.dispatchEvent(new CustomEvent(type, { detail: JSON.stringify(answer), bubbles: true }));
 	}
@@ -1302,7 +1372,10 @@ The bridge runs in all frames; `location.origin` of the frame is what counts (an
 
 	document.addEventListener('gestura:query-status', async (e) => {
 		const req = EU.parseBridgeRequest(e.detail);
-		if (!req || !req.ids) return;
+		// A request without `ids` is well-formed, just pointless: statusAnswer
+		// returns an empty array for it. Only a request that fails to parse gets
+		// silence - answering the empty case keeps the contract honest.
+		if (!req) return;
 		if (!(await gate())) return;
 		let settings;
 		try { settings = await chrome.storage.sync.get(['siteMenus', 'searchEngines']); } catch { return; }
@@ -1587,7 +1660,10 @@ class EuIntegrationPanel extends LitElement {
 	#cancel() { this._consentOpen = false; }
 
 	#commitDevOrigin() {
-		const value = (this._devDraft || '').trim();
+		// Origins get pasted from a browser bar far more often than typed, and those
+		// carry a trailing slash that isValidDevOrigin rejects. Trim it instead of
+		// blaming the user.
+		const value = (this._devDraft || '').trim().replace(/\/+$/, '');
 		if (value && !window.FlowMouseEuIntegration.isValidDevOrigin(value)) { this._devError = true; return; }
 		this._devError = false;
 		window.GesturaEuLocal.write({ devOrigin: value });
