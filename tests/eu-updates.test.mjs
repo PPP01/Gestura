@@ -218,3 +218,167 @@ describe('updateFor', () => {
 		expect(U.updateFor(cache, { name: 'x' })).toBeNull();
 	});
 });
+
+describe('runUpdateCheck', () => {
+	const now = Date.parse('2026-09-02T12:00:00Z');
+	const iso = new Date(now).toISOString();
+	const ok = (body) => {
+		const text = JSON.stringify(body);
+		return { ok: true, headers: new Headers({ 'content-length': String(text.length) }), text: async () => text };
+	};
+	const upd = (id) => ({ id, type: 'menu', version: '9.9.9', url: PROD + '/api/v1/menus/' + id + '/9.9.9' });
+
+	// Records what was asked, so the per-origin grouping can be asserted from the
+	// outside as well as from updateRequestGroups().
+	const spy = (handler) => {
+		const calls = [];
+		const fetchImpl = async (url, init) => {
+			calls.push({ url, body: JSON.parse(init.body), method: init.method, redirect: init.redirect });
+			return handler(url, init);
+		};
+		return { calls, fetchImpl };
+	};
+	const run = (over = {}) => U.runUpdateCheck({
+		settings: settings(), local: local(), cache: { origins: [] }, now,
+		fetchImpl: over.fetchImpl, ...over,
+	});
+
+	it('asks each origin its own endpoint, with only its own entries', async () => {
+		const { calls, fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
+		await run({ local: local({ devOrigin: DEV }), fetchImpl });
+		expect(calls.map(c => c.url).sort()).toEqual([DEV + U.PATH, PROD + U.PATH]);
+		const prod = calls.find(c => c.url.startsWith(PROD));
+		expect(prod.method).toBe('POST');
+		expect(prod.body.apiLevel).toBe(EU.API_LEVEL);
+		expect(prod.body.entries.map(e => e.id)).toEqual(['eu.example.shop', 'eu.example.search']);
+		// No entry kind on the wire, and no redirect may be followed: a 307/308
+		// preserves the body, so following one would forward these ids elsewhere.
+		expect(prod.body.entries.every(e => !('type' in e))).toBe(true);
+		expect(prod.redirect).toBe('error');
+		const dev = calls.find(c => c.url.startsWith(DEV));
+		expect(dev.body.entries.map(e => e.id)).toEqual(['eu.example.dev']);
+	});
+
+	it('sends nothing while the integration is not effectively enabled', async () => {
+		const { calls, fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
+		const off = local({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT - 1, date: 'x' } });
+		expect(await run({ local: off, fetchImpl })).toEqual({ slots: [] });
+		expect(calls).toEqual([]);
+	});
+
+	it('reports one slot per origin that answered, and none for the others', async () => {
+		const seed = { origins: [{ origin: DEV, checkedAt: '2026-09-02T11:00:00Z', results: [] }] };
+		const { fetchImpl } = spy((url) => (url.startsWith(PROD)
+			? ok({ apiLevel: 2, updates: [upd('eu.example.shop')] })
+			: ok({ apiLevel: 2, updates: [] })));
+		const { slots } = await run({ local: local({ devOrigin: DEV }), cache: seed, fetchImpl });
+		// DEV was inside its window, so it was never asked and produces no slot.
+		expect(slots.map(s => s.origin)).toEqual([PROD]);
+		expect(slots[0]).toEqual({ origin: PROD, checkedAt: iso, results: [upd('eu.example.shop')] });
+	});
+
+	it('a network error produces no slot, so no checkedAt is ever written', async () => {
+		const { fetchImpl } = spy(() => { throw new Error('offline'); });
+		expect(await run({ fetchImpl })).toEqual({ slots: [] });
+	});
+
+	it('a non-200 and an invalid body produce no slot either', async () => {
+		for (const res of [
+			{ ok: false, headers: new Headers(), text: async () => '{}' },
+			{ ok: true, headers: new Headers(), text: async () => 'not json' },
+		]) {
+			const { fetchImpl } = spy(() => res);
+			expect(await run({ fetchImpl })).toEqual({ slots: [] });
+		}
+	});
+
+	it('respects the window and skips the request entirely', async () => {
+		const seed = { origins: [{ origin: PROD, checkedAt: '2026-09-02T06:00:00Z', results: [] }] };
+		const { calls, fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
+		const { slots } = await run({ cache: seed, fetchImpl });
+		expect(calls).toEqual([]);
+		expect(slots).toEqual([]);
+	});
+
+	it('force asks anyway, and touches nothing that is cached', async () => {
+		const kept = [upd('eu.example.shop')];
+		const seed = { origins: [{ origin: PROD, checkedAt: '2026-09-02T06:00:00Z', results: kept }] };
+		const { calls, fetchImpl } = spy(() => { throw new Error('offline'); });
+		const { slots } = await run({ cache: seed, fetchImpl, force: true });
+		expect(calls).toHaveLength(1);
+		// The failed forced check reports nothing, so applySlots leaves the old
+		// slot - checkedAt and results - exactly where it was.
+		expect(slots).toEqual([]);
+		expect(U.applySlots(seed, slots, [PROD])).toEqual(seed);
+	});
+
+	it('discards an answer whose origin stopped being allowed mid-run', async () => {
+		const { fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [upd('eu.example.shop')] }));
+		const { slots } = await run({ fetchImpl, stillAllowed: async () => false });
+		expect(slots).toEqual([]);
+	});
+
+	it('keeps the origins that are still allowed and drops only the others', async () => {
+		const { fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [upd('eu.example.shop')] }));
+		const { slots } = await run({
+			local: local({ devOrigin: DEV }), fetchImpl,
+			stillAllowed: async (origin) => origin === PROD,
+		});
+		expect(slots.map(s => s.origin)).toEqual([PROD]);
+	});
+});
+
+describe('applySlots', () => {
+	const iso = '2026-09-02T12:00:00Z';
+	const res = (id) => ({ id, type: 'menu', version: '9.9.9', url: PROD + '/' + id });
+
+	it('merges a slot into whatever the cache looks like now', () => {
+		const fresh = { origins: [{ origin: DEV, checkedAt: iso, results: [] }] };
+		const out = U.applySlots(fresh, [{ origin: PROD, checkedAt: iso, results: [res('a')] }], [PROD, DEV]);
+		expect(out.origins.map(s => s.origin)).toEqual([DEV, PROD]);
+	});
+
+	it('refuses a slot whose origin is no longer allowed', () => {
+		const out = U.applySlots({ origins: [] }, [{ origin: DEV, checkedAt: iso, results: [res('a')] }], [PROD]);
+		expect(out.origins).toEqual([]);
+	});
+
+	it('drops a cached slot whose origin is no longer allowed', () => {
+		const fresh = { origins: [{ origin: DEV, checkedAt: iso, results: [res('a')] }] };
+		expect(U.applySlots(fresh, [], [PROD]).origins).toEqual([]);
+	});
+
+	it('leaves a slot another writer added in the meantime alone', () => {
+		const fresh = { origins: [{ origin: DEV, checkedAt: '2026-09-02T13:00:00Z', results: [res('b')] }] };
+		const out = U.applySlots(fresh, [{ origin: PROD, checkedAt: iso, results: [] }], [PROD, DEV]);
+		expect(out.origins.find(s => s.origin === DEV)).toEqual(fresh.origins[0]);
+	});
+});
+
+describe('isNewer', () => {
+	it.each([
+		['1.3.0', '1.2.0', true],
+		['1.2.0', '1.3.0', false],
+		['1.2.0', '1.2.0', false],
+		['1.10.0', '1.9.0', true],
+		['2.0.0', '1.99.99', true],
+		['1.3.0', null, true],
+		['not.a.version', '1.0.0', false],
+	])('%s over %s is %s', (a, b, expected) => {
+		expect(U.isNewer(a, b)).toBe(expected);
+	});
+});
+
+describe('options.html', () => {
+	it('loads eu-updates.js after eu-integration.js', async () => {
+		const { readFileSync } = await import('node:fs');
+		const { fileURLToPath } = await import('node:url');
+		const { dirname, join } = await import('node:path');
+		const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'pages', 'options.html'), 'utf8');
+		const order = [...html.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)].map(m => m[1].split('/').pop());
+		const dep = order.indexOf('eu-integration.js');
+		const own = order.indexOf('eu-updates.js');
+		expect(dep).toBeGreaterThanOrEqual(0);
+		expect(own).toBeGreaterThan(dep);
+	});
+});

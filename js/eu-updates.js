@@ -226,10 +226,130 @@
 		return { ...hit, newer, origin: slot.origin };
 	}
 
+	// --- the run ------------------------------------------------------------------
+
+	const CHANGED_EVENT = 'eu-updates-changed';
+
+	// One origin, one request. Nothing here throws and nothing here decides
+	// anything: a null return means "this origin said nothing usable", and the
+	// caller then leaves its slot exactly as it was - checkedAt included, which is
+	// what keeps a network error from starting the 24-hour window.
+	async function askOrigin(group, fetchImpl) {
+		const ctl = new AbortController();
+		const timer = setTimeout(() => ctl.abort(), REQUEST_TIMEOUT_MS);
+		try {
+			const res = await fetchImpl(group.origin + PATH, {
+				method: 'POST',
+				credentials: 'omit',
+				cache: 'no-store',
+				// Not 'follow'. A 307/308 preserves method AND body, so a redirect off
+				// the index would hand this request's ids and versions to whatever
+				// origin it names - and an attacker's endpoint can answer the preflight
+				// with Access-Control-Allow-Origin: * just as happily. A JSON API has
+				// no business redirecting, so any redirect is an error here. The
+				// same-origin promise has to hold at request time, not only for the
+				// url an answer announces.
+				redirect: 'error',
+				signal: ctl.signal,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ apiLevel: EU.API_LEVEL, entries: group.entries }),
+			});
+			if (!res.ok) return null;
+			// Advisory only - a chunked answer declares no length - so this is an
+			// early exit, not the limit. The limit is the byte count inside
+			// parseUpdateResponse, and the abort timer is what bounds a body that
+			// keeps arriving slowly.
+			const declared = Number(res.headers?.get?.('content-length'));
+			if (Number.isFinite(declared) && declared > LIMITS.responseMaxBytes) return null;
+			return parseUpdateResponse(await res.text(), group.origin, group.kinds);
+		} catch {
+			return null;
+		} finally {
+			// Cleared here and nowhere earlier: fetch() resolves on the response
+			// HEADERS, so clearing the timer around the fetch alone would leave
+			// res.text() unbounded and a slow body could hang the check for good.
+			clearTimeout(timer);
+		}
+	}
+
+	// Sequential on purpose: two requests, at most once a day, on a page the user
+	// just opened. Nothing here is worth the concurrency.
+	//
+	// Returns the slots it actually obtained - not a whole cache. `local` is a
+	// snapshot taken before the first request, and a request may hang for the full
+	// 8 seconds: long enough for the user to hit "Withdraw" in the panel right
+	// beside this, or to change the developer origin. Writing back a cache captured
+	// before all that would revive a slot the panel just dropped and clobber
+	// anything a second options tab wrote meanwhile. So the run reports deltas and
+	// persist() folds them into whatever the cache looks like afterwards.
+	//
+	// stillAllowed(origin) is re-asked after every answer and must re-read the
+	// live state, not close over the snapshot - the same reason the hand-off fetch
+	// in js/background.js re-checks euHandOffAllowed() after its own fetch.
+	async function runUpdateCheck(opts) {
+		const { settings, local, cache, now, fetchImpl, force, stillAllowed } = opts;
+		const slots = [];
+		if (!EU.effectiveEnabled(local)) return { slots };
+		const groups = updateRequestGroups(settings, local);
+		for (const group of dueOrigins(normalizeCache(cache), groups, now, force)) {
+			const answer = await askOrigin(group, fetchImpl);
+			if (stillAllowed && !(await stillAllowed(group.origin))) continue;
+			if (!answer) continue;
+			slots.push({ origin: group.origin, checkedAt: new Date(now).toISOString(), results: answer.results });
+		}
+		return { slots };
+	}
+
+	// --- storage --------------------------------------------------------------------
+	// Read on demand rather than cached: the options page reads once per open and
+	// once per change event, and a stale cache here would show badges for an entry
+	// the user just updated.
+
+	async function read() {
+		try {
+			const raw = await chrome.storage.local.get(KEY);
+			return normalizeCache(raw && raw[KEY]);
+		} catch {
+			// Storage unavailable (private mode, invalidated context): no badges is a
+			// fine answer, a broken settings page is not.
+			return { origins: [] };
+		}
+	}
+
+	async function write(cache) {
+		try { await chrome.storage.local.set({ [KEY]: normalizeCache(cache) }); } catch { /* see read() */ }
+	}
+
+	async function clear() {
+		try { await chrome.storage.local.remove(KEY); } catch { /* see read() */ }
+	}
+
+	// The write half of a run, deliberately separate from it: the live state is
+	// read again here, after every request has finished, so a revoke or a changed
+	// developer origin during the run wins over the run's own findings. Writes
+	// nothing when nothing would change - and dispatches the event only when it
+	// wrote, so the managers do not re-render for a no-op.
+	async function persist(slots) {
+		// GesturaEuLocal is loaded before this file (pages/options.html), and read()
+		// hands back its live cache, which storage.onChanged keeps current - so this
+		// sees a revoke that landed mid-run.
+		const local = await root.GesturaEuLocal.read();
+		if (!EU.effectiveEnabled(local)) return false;
+		const fresh = await read();
+		const next = applySlots(fresh, slots, EU.allowedOrigins(local));
+		// EU.canonicalize is R1's stable stringifier; plain JSON.stringify would
+		// report a change whenever a key order happened to differ.
+		if (EU.canonicalize(next) === EU.canonicalize(fresh)) return false;
+		await write(next);
+		if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
+		return true;
+	}
+
 	const api = {
-		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS, SEMVER_RE,
+		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS, SEMVER_RE, CHANGED_EVENT,
 		normalizeCache, mergeSlot, dropOrigin, pruneOrigins, applySlots, isNewer,
 		updateRequestGroups, dueOrigins, parseUpdateResponse, updateFor,
+		runUpdateCheck, read, write, clear, persist,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaEuUpdates = api;
