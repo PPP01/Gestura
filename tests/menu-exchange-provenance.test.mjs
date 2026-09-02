@@ -42,11 +42,18 @@ describe('addBaselines', () => {
 		const rows = [
 			{ type: 'engine', value: engine('bing'), source: SITE, mode: 'replace', matchId: 'bing' },
 			{ type: 'engine', value: engine('com.e'), source: SITE, mode: 'new', matchId: null },
+			// replace-custom: a repeat import onto an entry already in .custom, not the
+			// catalog/override branch above — same functions as "new", but Spec §9 names
+			// it as its own of the five import modes and it was missing from this fixture.
+			{ type: 'engine', value: engine('com.repeat'), source: SITE, mode: 'replace', matchId: 'eng_repeat' },
 			{ type: 'menu', value: menu('google'), source: SITE, mode: 'replace', matchId: 'google' },
 			{ type: 'menu', value: menu('com.x'), source: SITE, mode: 'new', matchId: null },
+			{ type: 'menu', value: menu('com.repeat'), source: SITE, mode: 'replace', matchId: 'menu_repeat' },
 		];
 		const cur = JSON.parse(JSON.stringify(current));
 		cur.siteMenus.custom.menu_old = { name: 'Old', icon: 'menu', patterns: [], items: [], source: { type: 'file', indexId: 'old', baselineHash: 'deadbeefdeadbeef' } };
+		cur.siteMenus.custom.menu_repeat = { name: 'Old repeat', icon: 'menu', patterns: [], items: [], source: { type: 'file', indexId: 'old-repeat', baselineHash: 'deadbeefdeadbeef' } };
+		cur.searchEngines.custom.push({ id: 'eng_repeat', name: 'Old repeat', url: 'https://old-repeat.example/?q=%s', type: 'text', source: { type: 'file', indexId: 'old-repeat', baselineHash: 'deadbeefdeadbeef' } });
 		const { patch, imported } = X.buildImportPatch(rows, cur, { lang: 'en', stripTransform: false });
 		const withBase = await EU.addBaselines(patch, imported);
 		for (const { kind, id } of imported) {
@@ -64,6 +71,64 @@ describe('addBaselines', () => {
 		const stored = EU.findStored(withBase, 'engine', imported[0].id);
 		expect(stored.transformCode).toBe('');
 		expect(await EU.modifiedState(stored)).toBe(false);
+	});
+});
+
+describe('a no-op editor save does not flip modified (Important 1 regression)', () => {
+	// engine-manager.js's #saveEdit rebuilds the stored entry from a fixed field
+	// list rather than spreading the original object. That list has to match, key
+	// for key, what the import wrote (toCustomEngine / toEngineOverride in
+	// js/menu-exchange.js) — the baseline hashes the whole stored object minus
+	// `source`, so a rebuild that drops or adds a field changes the hash even
+	// when no user-visible value changed. Both cases below build the rebuilt
+	// object the way #saveEdit does today (`builtin` added for the custom branch,
+	// `type` added for the override branch) and open the editor without touching
+	// any field, exactly as a user pressing Save without editing anything would.
+
+	it('custom-engine branch: rebuild with the corrected field list stays unmodified', async () => {
+		const { patch, imported } = X.buildImportPatch(
+			[{ type: 'engine', value: engine('com.e'), source: SITE, mode: 'new', matchId: null }],
+			{ siteMenus: { custom: {}, edited: {} }, searchEngines: { custom: [], overrides: {} } },
+			{ lang: 'en', stripTransform: false },
+		);
+		const saved = await EU.addBaselines(patch, imported);
+		const stored = EU.findStored(saved, 'engine', imported[0].id);
+
+		// #saveEdit's custom branch, field for field, with `draft` standing in for
+		// an editor opened on `stored` and closed again without any edit.
+		const draft = { ...stored };
+		const rebuilt = {
+			id: stored.id, name: draft.name, url: draft.url,
+			plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode,
+			rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode,
+			transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult,
+			type: stored.type, builtin: false,
+			...(stored.source ? { source: stored.source } : {}),
+		};
+		expect(await EU.modifiedState(rebuilt)).toBe(false);
+	});
+
+	it('built-in-override branch: rebuild with the corrected field list stays unmodified', async () => {
+		const { patch, imported } = X.buildImportPatch(
+			[{ type: 'engine', value: engine('bing'), source: SITE, mode: 'replace', matchId: 'bing' }],
+			{ siteMenus: { custom: {}, edited: {} }, searchEngines: { custom: [], overrides: {} } },
+			{ lang: 'en', stripTransform: false },
+		);
+		const saved = await EU.addBaselines(patch, imported);
+		const prev = EU.findStored(saved, 'engine', 'bing');
+
+		// #saveEdit's built-in branch, field for field, `draft` again standing in
+		// for an editor opened and closed without any edit.
+		const draft = { ...prev };
+		const rebuilt = {
+			name: draft.name, url: draft.url,
+			plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode,
+			transformEnabled: draft.transformEnabled, transformCode: draft.transformCode,
+			transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult,
+			rawResult: draft.rawResult, type: draft.type,
+			...(prev.source ? { source: prev.source } : {}),
+		};
+		expect(await EU.modifiedState(rebuilt)).toBe(false);
 	});
 });
 

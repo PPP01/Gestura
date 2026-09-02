@@ -351,6 +351,7 @@ class EngineManager extends LitElement {
 				rawResult: !!merged.rawResult,
 				type: b.type === 'image' ? 'image' : 'text',
 				builtin: true,
+				source: merged.source,
 				isHidden: window.FlowMouseEngineRegistry.isEngineHidden(b, se.hidden || []),
 			});
 		}
@@ -471,6 +472,7 @@ class EngineManager extends LitElement {
 					transformClipboard: draft.transformClipboard,
 					transformRawResult: draft.transformRawResult,
 					rawResult: draft.rawResult,
+					type: draft.type,
 					...(prev.source ? { source: prev.source } : {}),
 				};
 				this.#save({ ...se, overrides });
@@ -478,7 +480,7 @@ class EngineManager extends LitElement {
 		} else {
 			const custom = (se.custom || []).map(c => {
 				if (c.id !== id) return c;
-				return { id, name, url, plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode, rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode, transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult, type: c.type, ...(c.source ? { source: c.source } : {}) };
+				return { id, name, url, plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode, rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode, transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult, type: c.type, builtin: false, ...(c.source ? { source: c.source } : {}) };
 			});
 			this.#save({ ...se, custom });
 		}

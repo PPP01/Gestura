@@ -1359,12 +1359,24 @@ async function importFromSite(request, sender) {
 	try {
 		const ctl = new AbortController();
 		const timeout = setTimeout(() => ctl.abort(), 8000);
+		// If the switch goes off while the fetch is in flight, abort it where
+		// possible (spec §2) — the response is discarded in any case below.
+		const unsubscribe = GesturaEuLocal.onChange((local) => {
+			if (!FlowMouseEuIntegration.effectiveEnabled(local)) ctl.abort();
+		});
 		let response;
 		try {
 			response = await fetch(url.href, { signal: ctl.signal, credentials: 'omit', redirect: 'follow' });
 		} finally {
 			clearTimeout(timeout);
+			unsubscribe();
 		}
+
+		// Re-check after the fetch: up to 8 s may have passed since the entry
+		// check, long enough for the switch to go off mid-flight. Its response
+		// is discarded in any case, whether or not the abort above won the race.
+		if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
+
 		if (!response.ok) return { success: false, error: 'Fetch failed: ' + response.status };
 
 		const text = await response.text();
