@@ -79,6 +79,14 @@ echten Nutzerklick, die Daten werden gegen das Austauschformat geprüft, und der
 Nutzer bestätigt sie in einem Vorschaudialog. Suchmaschinen mit
 Transformations-Skript brauchen eine eigene, ausdrückliche Zustimmung.
 
+**Der Nutzer muss zuerst zustimmen.** Übergaben funktionieren nur, solange der
+Nutzer in den Gestura-Einstellungen die *Website-Integration* eingeschaltet hat –
+sie ist standardmäßig aus. Solange sie aus ist, ignoriert Gestura den Klick
+vollständig: Einem `rel="gestura-menu"`-Link folgt der Browser einfach (also auf
+eine URL zeigen, die sich sinnvoll öffnen lässt), und ein Inline-Button tut
+nichts Gestura-Bezogenes (also einen normalen Download als Fallback anbieten).
+Gestura verrät der Seite nicht, ob die Integration eingeschaltet ist.
+
 **Per Link, für JSON, das du selbst hostest.** Der Link muss same-origin zur Seite
 sein — die Erweiterung holt keine fremde URL für eine Seite ab.
 

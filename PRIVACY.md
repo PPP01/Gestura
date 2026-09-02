@@ -1,6 +1,6 @@
 # Gestura – Privacy Policy
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-09-02_
 
 Gestura is a privacy-focused, open-source mouse gesture extension. Protecting your
 privacy is a core design goal.
@@ -9,6 +9,8 @@ privacy is a core design goal.
 
 **Gestura does not collect, transmit, or sell any personal data.** There are no
 analytics, no tracking, no advertising, and no remote servers operated by Gestura.
+The optional website integration (below) is off by default and, when enabled,
+only answers questions from gestura.eu about entries you imported from there.
 
 ## What data Gestura processes and where it stays
 
@@ -24,6 +26,30 @@ analytics, no tracking, no advertising, and no remote servers operated by Gestur
   chose (e.g. a search engine you configured). This is a normal browser navigation to
   a third party you selected; that third party's own privacy policy then applies.
   Gestura adds no identifiers of its own.
+
+## Website integration (optional, off by default)
+
+Gestura ships with its website integration switched off. In that state the
+extension ignores every hand-off a website tries to start and has no contact
+with gestura.eu.
+
+If you enable *Website integration* in the settings, and only then:
+
+- Websites can hand menus and search engines to Gestura's import dialog after
+  you click a button on their page. Nothing is imported without your
+  confirmation in that dialog.
+- Pages on **gestura.eu** (and one developer origin you may configure yourself)
+  can ask Gestura which of *their* entries you have installed, in which version,
+  and whether you changed them locally. Gestura answers only about entries you
+  imported from that very origin, only to that origin, and never about anything
+  else in your settings. Gestura also tells such pages its own version number.
+- Nothing is sent while you are not on such a page. There is no account, no
+  identifier, and no request Gestura makes on its own.
+
+The switch and your consent are stored only on the device where you enabled
+them (`chrome.storage.local`); they are never synced, exported or imported.
+Turning the switch off stops all of the above immediately. Entries you imported
+stay on your device.
 
 ## Permissions
 

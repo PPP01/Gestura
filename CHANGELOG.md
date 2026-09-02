@@ -7,7 +7,37 @@
 
 ### Unreleased
 
-_Nothing yet._
+**New Features:**
+
+- **Website integration, off by default:** a new settings section with a single
+  switch and a plain-language consent. While it is off — the default — Gestura
+  is fully standalone: it ignores every hand-off a website triggers (operator
+  links, inline buttons, `gestura:import`) and has no contact with gestura.eu.
+  Turning it on lets gestura.eu pages ask which of their entries you have
+  installed, in which version and whether you changed them — answered only for
+  entries imported from that origin, only to that origin, as an array of the
+  ids the page asked about. The consent is versioned; a later change to what the
+  integration does re-asks before anything is sent again.
+- **Imports remember where they came from — verifiably:** entries now carry the
+  origin they were imported from (`source.indexOrigin`), set only when the
+  extension itself verified it, plus a baseline hash of the imported state.
+  That is what lets an index page tell "installed" from "modified locally"
+  without ever seeing the change itself. Replacing a catalog menu or overriding
+  a built-in engine keeps this provenance too — until now those two import
+  modes forgot it, and editing a search engine used to drop it as well.
+
+**Fixes & Improvements:**
+
+- **Re-imports no longer guess.** A repeat import matches an existing entry only
+  when the origin agrees; the same id arriving from a file, from gestura.eu and
+  from a development index are three different entries, and when several could
+  be meant the dialog imports a new entry instead of overwriting one. A catalog
+  replacement or engine override imported before this release carries no
+  provenance, so re-importing it now lands as a new entry instead of updating
+  the old one; that is a one-off, worth tidying up by hand once.
+- **Behaviour change for site operators:** the operator hand-off shipped in
+  2.8.0 now requires the user to have enabled *Website integration*. See *For
+  site operators* in the README.
 
 ### v2.8.0 (2026-09-02)
 
