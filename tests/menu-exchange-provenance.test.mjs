@@ -64,6 +64,33 @@ describe('addBaselines', () => {
 		expect(withBase.siteMenus.custom.menu_old.source.baselineHash).toBe('deadbeefdeadbeef');
 		expect(patch.searchEngines.overrides.bing.source.baselineHash).toBeUndefined();   // input not mutated
 	});
+	// The import preview measures the patch synchronously to decide whether it still
+	// fits the 8192-byte item quota, but the real hashes are added afterwards and are
+	// async. If the measured shape is one byte short of the stored one, the preview
+	// can say "fits" and the save can then fail - which is what happened in a real
+	// browser at 99 % usage. Byte-exact equality is the only assertion that holds
+	// that line; "roughly the same" would not have caught it.
+	it('the preview measures byte-for-byte what the save will store', async () => {
+		const rows = [
+			{ type: 'menu', value: menu('google'), source: SITE, mode: 'replace', matchId: 'google' },
+			{ type: 'menu', value: menu('com.x'), source: SITE, mode: 'new', matchId: null },
+			{ type: 'engine', value: engine('bing'), source: SITE, mode: 'replace', matchId: 'bing' },
+			{ type: 'engine', value: engine('com.e'), source: SITE, mode: 'new', matchId: null },
+		];
+		const { patch, imported } = X.buildImportPatch(rows, JSON.parse(JSON.stringify(current)), { lang: 'en', stripTransform: false });
+		const stored = await EU.addBaselines(patch, imported);
+		const measured = EU.withBaselinePlaceholders(patch, imported);
+
+		expect(imported.length).toBe(4);
+		for (const key of ['siteMenus', 'searchEngines']) {
+			expect(JSON.stringify(measured[key]).length).toBe(JSON.stringify(stored[key]).length);
+		}
+		// And the placeholder is the reason it lines up: same length as a real hash.
+		expect(EU.BASELINE_PLACEHOLDER).toHaveLength((await EU.baselineHash({ a: 1 })).length);
+		// Measuring must not have written anything into the patch it measured.
+		expect(JSON.stringify(patch)).not.toContain('baselineHash');
+	});
+
 	it('Firefox transform-strip happens before the baseline', async () => {
 		const withScript = { ...engine('com.s'), transformEnabled: true, transformCode: 'return q' };
 		const { patch, imported } = X.buildImportPatch([{ type: 'engine', value: withScript, source: SITE, mode: 'new', matchId: null }], current, { lang: 'en', stripTransform: true });

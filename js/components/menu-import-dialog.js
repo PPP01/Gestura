@@ -244,12 +244,19 @@ class MenuImportDialog extends LitElement {
 	// bliebe die Zahl leer, sobald der Nutzer alle Menüs abwählt, und "leer" liest
 	// sich wie "unbekannt" statt wie "unverändert". `touched` hält fest, welcher
 	// Fall vorliegt.
-	#projectedUsage(patch) {
+	//
+	// Measured over the patch WITH baseline placeholders: #commitPatch saves
+	// addBaselines(patch), which is longer than `patch` by one fixed-length hash per
+	// provenanced entry. Without them the preview under-reports and can promise a fit
+	// that the save then refuses - the invariant above is that the shown usage cannot
+	// differ from the real one, and this is what keeps it true.
+	#projectedUsage(patch, imported) {
 		const cur = settingsStore.current;
+		const measured = window.FlowMouseEuIntegration.withBaselinePlaceholders(patch, imported);
 		const out = {};
 		for (const { key } of BRANCHES) {
-			const touched = key in patch;
-			const value = touched ? patch[key] : cur[key];
+			const touched = key in measured;
+			const value = touched ? measured[key] : cur[key];
 			out[key] = value === undefined ? null : { ...usageOf(key, value), touched };
 		}
 		return out;
@@ -390,7 +397,7 @@ class MenuImportDialog extends LitElement {
 		// Einzel-Import: es gibt genau einen Eintrag und nichts zum Abwählen -
 		// storageImportTooLarge ("Auswahl verkleinern") passt hier nicht, storageFull
 		// ("Speichern schlägt fehl, bis du Einträge entfernst") beschreibt die Lage.
-		if (this.#overflowing(this.#projectedUsage(patch)).length) {
+		if (this.#overflowing(this.#projectedUsage(patch, imported)).length) {
 			alert(window.i18n.getMessage('storageFull'));
 			return;
 		}
@@ -422,7 +429,7 @@ class MenuImportDialog extends LitElement {
 	async #confirmBundle() {
 		const chosen = this.#bundleChosen;
 		const { patch, imported } = this.#patchFor(chosen);
-		if (this.#blockedFor(chosen, this.#projectedUsage(patch))) return;
+		if (this.#blockedFor(chosen, this.#projectedUsage(patch, imported))) return;
 		const provided = this.#providedEngineIds();
 		if (chosen.some(r => r.result.type === 'menu' && this.#missingEngines(r.result.value, provided).length)) return;
 		await this.#commitPatch(patch, imported);
@@ -546,7 +553,8 @@ class MenuImportDialog extends LitElement {
 				<div class="actions"><button class="btn" @click=${() => this.#close()}>${i18n.getMessage('exchangeCancel')}</button></div>`;
 		}
 		const chosen = this.#bundleChosen;
-		const projected = this.#projectedUsage(this.#patchFor(chosen).patch);
+		const { patch: previewPatch, imported: previewImported } = this.#patchFor(chosen);
+		const projected = this.#projectedUsage(previewPatch, previewImported);
 		const blocked = this.#blockedFor(chosen, projected);
 		const provided = this.#providedEngineIds();
 		// Einmal je Render feststellen, welche Zeile auf eine Engine zeigt, die es

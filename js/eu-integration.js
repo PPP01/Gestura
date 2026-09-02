@@ -187,11 +187,38 @@
 	// Sets source.baselineHash on exactly the entries an import wrote — never on
 	// the rest of the patch, which carries the whole siteMenus/searchEngines branch
 	// and therefore every previously imported (possibly edited) entry too.
-	async function addBaselines(patch, imported) {
-		const out = JSON.parse(JSON.stringify(patch || {}));
+	// hash64 always yields 16 hex characters, so a baselineHash costs a fixed number
+	// of bytes in the stored item. That matters because the import preview measures
+	// the patch to decide whether it still fits the 8192-byte item quota, and it has
+	// to do so synchronously - while the real hash needs WebCrypto and cannot be
+	// awaited during render. Measuring a patch without its hashes under-reports by
+	// exactly this string per provenanced entry, which near the cap is enough to
+	// promise a fit and then fail the save.
+	const BASELINE_PLACEHOLDER = '0'.repeat(16);
+
+	function provenancedTargets(out, imported) {
+		const list = [];
 		for (const { kind, id } of imported || []) {
 			const stored = findStored(out, kind, id);
-			if (stored && stored.source) stored.source.baselineHash = await baselineHash(stored);
+			if (stored && stored.source) list.push(stored);
+		}
+		return list;
+	}
+
+	async function addBaselines(patch, imported) {
+		const out = JSON.parse(JSON.stringify(patch || {}));
+		for (const stored of provenancedTargets(out, imported)) {
+			stored.source.baselineHash = await baselineHash(stored);
+		}
+		return out;
+	}
+
+	// For measuring only - never save this. Byte-for-byte the same shape as
+	// addBaselines() produces, so a projection over it is exact rather than close.
+	function withBaselinePlaceholders(patch, imported) {
+		const out = JSON.parse(JSON.stringify(patch || {}));
+		for (const stored of provenancedTargets(out, imported)) {
+			stored.source.baselineHash = BASELINE_PLACEHOLDER;
 		}
 		return out;
 	}
@@ -201,7 +228,7 @@
 		normalizeLocal, effectiveEnabled, isValidDevOrigin, allowedOrigins, qualifiedOrigin, handOffAllowed,
 		canonicalize, hash64, projection, baselineHash, modifiedState,
 		listProvenanced, findStored, parseBridgeRequest, helloAnswer, statusAnswer,
-		addBaselines,
+		addBaselines, withBaselinePlaceholders, BASELINE_PLACEHOLDER,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseEuIntegration = api;
