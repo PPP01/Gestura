@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Payagan ang mga website na makipag-usap sa Gestura" },
 	"euIntegrationToggleDesc": { "message": "Naka-off bilang default. Habang naka-off, ina-ignore ng Gestura ang bawat hand-off na sinisimulan ng isang website at walang koneksyon sa gestura.eu. Palaging gumagana ang pag-import ng mga file dito sa settings." },
 	"euIntegrationConsentTitle": { "message": "Bago mo i-enable ito" },
-	"euIntegrationConsentPoint1": { "message": "Maaaring maghatid ang mga website ng mga menu at search engine sa import dialog. Walang ii-import kung wala kang kumpirmasyon." },
 	"euIntegrationConsentPoint2": { "message": "Maaaring itanong ng mga pahina ng gestura.eu kung alin sa kanilang mga entry ang na-install mo, sa aling bersyon, at kung binago mo ang mga ito. Sumasagot lang ang Gestura tungkol sa mga entry na na-import mo mula sa gestura.eu, at sa gestura.eu lang — kailanman hindi tungkol sa iba pang mayroon ka." },
 	"euIntegrationConsentPoint3": { "message": "Sinasabi ng Gestura sa mga pahina ng gestura.eu ang numero ng bersyon nito. Walang account, walang personal na datos, at wala talagang ipinapadala habang wala ka sa gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "I-enable" },

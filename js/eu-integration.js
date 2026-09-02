@@ -8,9 +8,10 @@
 
 	const PRODUCTION_ORIGIN = 'https://gestura.eu';
 	// Bumping this re-prompts every user: effectiveEnabled() is false until the
-	// stored consent carries the current number. R1 = 1. R2 raises it to 2.
-	const CURRENT_INTEGRATION_CONSENT = 1;
-	const API_LEVEL = 1;
+	// stored consent carries the current number. R1 = 1. R2 = 2 (the update
+	// check sends a request the user did not click). R3 raises it again.
+	const CURRENT_INTEGRATION_CONSENT = 2;
+	const API_LEVEL = 2;
 	const LIMITS = { detailMaxBytes: 32 * 1024, requestIdMax: 64, idsMax: 100, idMax: 128 };
 	const ID_RE = /^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$/;
 	const LOCAL_DEFAULTS = { euIntegration: { enabled: false, consent: null, devOrigin: '' } };

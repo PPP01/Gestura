@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "به وب‌سایت‌ها اجازه دهید با Gestura ارتباط برقرار کنند" },
 	"euIntegrationToggleDesc": { "message": "به‌طور پیش‌فرض خاموش است. تا زمانی که خاموش است، Gestura هر واگذاری‌ای را که یک وب‌سایت آغاز می‌کند نادیده می‌گیرد و هیچ تماسی با gestura.eu ندارد. وارد کردن فایل‌ها در همین تنظیمات همیشه کار می‌کند." },
 	"euIntegrationConsentTitle": { "message": "پیش از روشن کردن این گزینه" },
-	"euIntegrationConsentPoint1": { "message": "وب‌سایت‌ها می‌توانند منوها و موتورهای جست‌وجو را به کادر گفتگوی درون‌ریزی واگذار کنند. بدون تأیید شما چیزی وارد نمی‌شود." },
 	"euIntegrationConsentPoint2": { "message": "صفحات gestura.eu ممکن است بپرسند کدام‌یک از موارد آن‌ها را نصب کرده‌اید، در چه نسخه‌ای، و آیا آن‌ها را تغییر داده‌اید. Gestura فقط درباره‌ی مواردی که از gestura.eu وارد کرده‌اید پاسخ می‌دهد، و فقط به gestura.eu — هرگز درباره‌ی چیز دیگری که دارید." },
 	"euIntegrationConsentPoint3": { "message": "Gestura شماره نسخه‌ی خود را به صفحات gestura.eu اعلام می‌کند. بدون حساب کاربری، بدون داده‌ی شخصی، و تا زمانی که در gestura.eu نیستید، هیچ‌چیز ارسال نمی‌شود." },
 	"euIntegrationConsentAccept": { "message": "روشن کردن" },

@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "允许网站与 Gestura 通信" },
 	"euIntegrationToggleDesc": { "message": "默认关闭。关闭期间，Gestura 会忽略网站发起的任何交接，并且不会与 gestura.eu 有任何联系。在此设置中导入文件始终可用。" },
 	"euIntegrationConsentTitle": { "message": "启用前须知" },
-	"euIntegrationConsentPoint1": { "message": "网站可以将菜单和搜索引擎交给导入对话框。未经确认，不会导入任何内容。" },
 	"euIntegrationConsentPoint2": { "message": "gestura.eu 页面可能会询问你安装了它们的哪些条目、版本号，以及是否修改过。Gestura 只会回答你从 gestura.eu 导入的条目，且仅回答给 gestura.eu——绝不会涉及你拥有的其他任何内容。" },
 	"euIntegrationConsentPoint3": { "message": "Gestura 会告诉 gestura.eu 页面其版本号。没有账户，没有个人数据，只要你不在 gestura.eu 上，就不会发送任何内容。" },
 	"euIntegrationConsentAccept": { "message": "启用" },

@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Dopusti web-stranicama da komuniciraju s Gesturom" },
 	"euIntegrationToggleDesc": { "message": "Prema zadanim postavkama isključeno. Dok je isključeno, Gestura zanemaruje svaku predaju koju pokrene web-stranica i nema nikakav kontakt s gestura.eu. Uvoz datoteka ovdje, u postavkama, uvijek radi." },
 	"euIntegrationConsentTitle": { "message": "Prije nego što ovo uključite" },
-	"euIntegrationConsentPoint1": { "message": "Web-stranice mogu predati izbornike i tražilice dijalogu za uvoz. Ništa se ne uvozi bez vaše potvrde." },
 	"euIntegrationConsentPoint2": { "message": "Stranice gestura.eu mogu pitati koje su njihove stavke instalirane, u kojoj verziji, i jeste li ih promijenili. Gestura odgovara samo o stavkama koje ste uvezli s gestura.eu, i to samo gestura.eu — nikada o bilo čemu drugom što imate." },
 	"euIntegrationConsentPoint3": { "message": "Gestura javlja stranicama gestura.eu svoj broj verzije. Bez računa, bez osobnih podataka, i dok niste na gestura.eu, ništa se uopće ne šalje." },
 	"euIntegrationConsentAccept": { "message": "Uključi" },

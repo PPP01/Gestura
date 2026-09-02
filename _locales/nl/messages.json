@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Websites toestaan met Gestura te communiceren" },
 	"euIntegrationToggleDesc": { "message": "Standaard uit. Zolang dit uit staat, negeert Gestura elke overdracht die door een website wordt gestart en heeft het geen contact met gestura.eu. Bestanden hier in de instellingen importeren werkt altijd." },
 	"euIntegrationConsentTitle": { "message": "Voordat u dit inschakelt" },
-	"euIntegrationConsentPoint1": { "message": "Websites kunnen menu's en zoekmachines overdragen aan het importvenster. Er wordt niets geïmporteerd zonder uw bevestiging." },
 	"euIntegrationConsentPoint2": { "message": "Pagina's van gestura.eu kunnen vragen welke van hun items u hebt geïnstalleerd, in welke versie, en of u ze hebt gewijzigd. Gestura antwoordt alleen over items die u van gestura.eu hebt geïmporteerd, en alleen aan gestura.eu — nooit over iets anders wat u heeft." },
 	"euIntegrationConsentPoint3": { "message": "Gestura deelt zijn versienummer met pagina's van gestura.eu. Geen account, geen persoonlijke gegevens, en er wordt helemaal niets verzonden zolang u niet op gestura.eu bent." },
 	"euIntegrationConsentAccept": { "message": "Inschakelen" },

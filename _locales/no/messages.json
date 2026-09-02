@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Tillat nettsteder å kommunisere med Gestura" },
 	"euIntegrationToggleDesc": { "message": "Av som standard. Så lenge den er av, ignorerer Gestura enhver overlevering utløst av et nettsted og har ingen kontakt med gestura.eu. Import av filer her i innstillingene fungerer alltid." },
 	"euIntegrationConsentTitle": { "message": "Før du slår dette på" },
-	"euIntegrationConsentPoint1": { "message": "Nettsteder kan overlevere menyer og søkemotorer til importdialogen. Ingenting importeres uten din bekreftelse." },
 	"euIntegrationConsentPoint2": { "message": "Sider på gestura.eu kan spørre hvilke av oppføringene sine du har installert, i hvilken versjon, og om du har endret dem. Gestura svarer bare om oppføringer du har importert fra gestura.eu, og bare til gestura.eu — aldri om noe annet du har." },
 	"euIntegrationConsentPoint3": { "message": "Gestura forteller sider på gestura.eu versjonsnummeret sitt. Ingen konto, ingen personopplysninger, og det sendes overhodet ingenting mens du ikke er på gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "Slå på" },

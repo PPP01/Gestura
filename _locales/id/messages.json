@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Izinkan situs web berkomunikasi dengan Gestura" },
 	"euIntegrationToggleDesc": { "message": "Nonaktif secara default. Selama nonaktif, Gestura mengabaikan setiap hand-off yang dipicu oleh situs web dan tidak memiliki kontak dengan gestura.eu. Mengimpor berkas di sini, di pengaturan, selalu berfungsi." },
 	"euIntegrationConsentTitle": { "message": "Sebelum Anda mengaktifkan ini" },
-	"euIntegrationConsentPoint1": { "message": "Situs web dapat menyerahkan menu dan mesin pencari ke dialog impor. Tidak ada yang diimpor tanpa konfirmasi Anda." },
 	"euIntegrationConsentPoint2": { "message": "Halaman gestura.eu mungkin menanyakan entri mana milik mereka yang telah Anda pasang, dalam versi berapa, dan apakah Anda telah mengubahnya. Gestura hanya menjawab tentang entri yang Anda impor dari gestura.eu, dan hanya kepada gestura.eu — tidak pernah tentang hal lain yang Anda miliki." },
 	"euIntegrationConsentPoint3": { "message": "Gestura memberi tahu halaman gestura.eu nomor versinya. Tidak ada akun, tidak ada data pribadi, dan sama sekali tidak ada yang dikirim selama Anda tidak berada di gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "Aktifkan" },

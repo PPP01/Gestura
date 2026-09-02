@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Engedélyezd, hogy weboldalak kommunikáljanak a Gesturával" },
 	"euIntegrationToggleDesc": { "message": "Alapértelmezés szerint kikapcsolva. Amíg ki van kapcsolva, a Gestura figyelmen kívül hagy minden weboldal által kezdeményezett átadást, és nincs kapcsolatban a gestura.eu-val. A fájlok importálása itt, a beállításokban, mindig működik." },
 	"euIntegrationConsentTitle": { "message": "Mielőtt bekapcsolnád" },
-	"euIntegrationConsentPoint1": { "message": "A weboldalak menüket és keresőmotorokat adhatnak át az importálási párbeszédablaknak. Semmi sem kerül importálásra a jóváhagyásod nélkül." },
 	"euIntegrationConsentPoint2": { "message": "A gestura.eu oldalai megkérdezhetik, mely bejegyzéseiket telepítetted, milyen verzióban, és módosítottad-e őket. A Gestura csak azokról a bejegyzésekről válaszol, amelyeket a gestura.eu-ról importáltál, és csak a gestura.eu-nak — soha semmi másról, amid van." },
 	"euIntegrationConsentPoint3": { "message": "A Gestura közli a gestura.eu oldalaival a verziószámát. Nincs fiók, nincs személyes adat, és amíg nem vagy a gestura.eu-n, egyáltalán semmi nem kerül elküldésre." },
 	"euIntegrationConsentAccept": { "message": "Bekapcsolás" },

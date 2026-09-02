@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "वेबसाइटों को Gestura से बात करने की अनुमति दें" },
 	"euIntegrationToggleDesc": { "message": "डिफ़ॉल्ट रूप से बंद। जब तक यह बंद है, Gestura किसी वेबसाइट द्वारा शुरू किए गए हर हैंड-ऑफ को नज़रअंदाज़ करता है और gestura.eu से कोई संपर्क नहीं रखता। सेटिंग्स में यहां फ़ाइलें आयात करना हमेशा काम करता है।" },
 	"euIntegrationConsentTitle": { "message": "इसे चालू करने से पहले" },
-	"euIntegrationConsentPoint1": { "message": "वेबसाइटें मेनू और सर्च इंजन आयात संवाद बॉक्स को सौंप सकती हैं। आपकी पुष्टि के बिना कुछ भी आयात नहीं होता।" },
 	"euIntegrationConsentPoint2": { "message": "gestura.eu के पेज पूछ सकते हैं कि आपने उनकी कौन-सी प्रविष्टियां इंस्टॉल की हैं, किस संस्करण में, और क्या आपने उन्हें बदला है। Gestura केवल उन प्रविष्टियों के बारे में उत्तर देता है जो आपने gestura.eu से आयात कीं, और केवल gestura.eu को — आपके पास मौजूद किसी अन्य चीज़ के बारे में कभी नहीं।" },
 	"euIntegrationConsentPoint3": { "message": "Gestura, gestura.eu के पेजों को अपना संस्करण नंबर बताता है। कोई खाता नहीं, कोई व्यक्तिगत डेटा नहीं, और जब तक आप gestura.eu पर नहीं हैं, कुछ भी नहीं भेजा जाता।" },
 	"euIntegrationConsentAccept": { "message": "चालू करें" },

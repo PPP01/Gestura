@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Tillad websteder at kommunikere med Gestura" },
 	"euIntegrationToggleDesc": { "message": "Slået fra som standard. Mens den er slået fra, ignorerer Gestura enhver overdragelse udløst af et websted og har ingen kontakt til gestura.eu. Import af filer her i indstillingerne virker altid." },
 	"euIntegrationConsentTitle": { "message": "Før du slår dette til" },
-	"euIntegrationConsentPoint1": { "message": "Websteder kan overdrage menuer og søgemaskiner til importdialogen. Intet importeres uden din bekræftelse." },
 	"euIntegrationConsentPoint2": { "message": "gestura.eu-sider kan spørge, hvilke af deres indgange du har installeret, i hvilken version, og om du har ændret dem. Gestura svarer kun om indgange, du har importeret fra gestura.eu, og kun til gestura.eu — aldrig om noget andet, du har." },
 	"euIntegrationConsentPoint3": { "message": "Gestura fortæller gestura.eu-sider sit versionsnummer. Ingen konto, ingen personoplysninger, og der sendes slet intet, mens du ikke er på gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "Slå til" },

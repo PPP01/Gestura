@@ -20,6 +20,7 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'euIntegrationConsentDate', 'euIntegrationConsentRevoke',
 	'euIntegrationConsentPoint1Label', 'euIntegrationConsentPoint2Label',
 	'euIntegrationConsentPoint3Label', 'euIntegrationConsentPoint4Label',
+	'euIntegrationConsentPoint1', 'euIntegrationConsentPoint5Label', 'euIntegrationConsentPoint5',
 	'exchangeConflictModified'];
 
 const featureKeys = Object.keys(en).filter(k =>

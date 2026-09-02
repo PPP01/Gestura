@@ -56,7 +56,7 @@ describe('parseBridgeRequest', () => {
 
 describe('helloAnswer', () => {
 	it('echoes requestId, carries version and apiLevel', () => {
-		expect(EU.helloAnswer({ requestId: 'r9' }, '2.9.0')).toEqual({ requestId: 'r9', version: '2.9.0', apiLevel: 1 });
+		expect(EU.helloAnswer({ requestId: 'r9' }, '2.9.0')).toEqual({ requestId: 'r9', version: '2.9.0', apiLevel: EU.API_LEVEL });
 	});
 });
 

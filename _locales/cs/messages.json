@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Povolit webům komunikovat s Gesturou" },
 	"euIntegrationToggleDesc": { "message": "Ve výchozím nastavení vypnuto. Dokud je vypnuto, Gestura ignoruje každé předání vyvolané webem a nemá žádný kontakt s gestura.eu. Import souborů zde v nastavení funguje vždy." },
 	"euIntegrationConsentTitle": { "message": "Než to zapnete" },
-	"euIntegrationConsentPoint1": { "message": "Weby mohou předávat menu a vyhledávače do dialogu importu. Bez vašeho potvrzení se nic neimportuje." },
 	"euIntegrationConsentPoint2": { "message": "Stránky gestura.eu se mohou zeptat, které z jejich položek máte nainstalované, v jaké verzi a zda jste je změnili. Gestura odpovídá pouze na položky importované z gestura.eu, a to pouze gestura.eu — nikdy na cokoliv jiného, co máte." },
 	"euIntegrationConsentPoint3": { "message": "Gestura sděluje stránkám gestura.eu číslo své verze. Žádný účet, žádné osobní údaje, a dokud nejste na gestura.eu, neposílá se vůbec nic." },
 	"euIntegrationConsentAccept": { "message": "Zapnout" },

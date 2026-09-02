@@ -15,7 +15,14 @@ describe('normalizeLocal', () => {
 	});
 	it('keeps a well-formed consent', () => {
 		const n = EU.normalizeLocal(on());
-		expect(n.euIntegration.consent).toEqual({ version: 1, date: '2026-09-02T00:00:00Z' });
+		expect(n.euIntegration.consent).toEqual({ version: 2, date: '2026-09-02T00:00:00Z' });
+	});
+});
+
+describe('API_LEVEL', () => {
+	it('announces the level the update endpoint belongs to', () => {
+		expect(EU.API_LEVEL).toBe(2);
+		expect(EU.helloAnswer({ requestId: 'r' }, '2.8.0')).toEqual({ requestId: 'r', version: '2.8.0', apiLevel: 2 });
 	});
 });
 

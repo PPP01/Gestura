@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "السماح للمواقع الإلكترونية بالتواصل مع Gestura" },
 	"euIntegrationToggleDesc": { "message": "متوقف افتراضيًا. طالما هو متوقف، يتجاهل Gestura كل عملية تسليم يطلقها موقع إلكتروني، ولا يتواصل مع gestura.eu. استيراد الملفات هنا في الإعدادات يعمل دائمًا." },
 	"euIntegrationConsentTitle": { "message": "قبل أن تُفعّل هذا" },
-	"euIntegrationConsentPoint1": { "message": "يمكن للمواقع الإلكترونية تمرير قوائم ومحركات بحث إلى مربع حوار الاستيراد. لا يُستورد شيء دون تأكيدك." },
 	"euIntegrationConsentPoint2": { "message": "قد تسأل صفحات gestura.eu عن العناصر التي ثبّتها من عناصرها، وبأي إصدار، وما إذا كنت قد عدّلتها. يجيب Gestura فقط عن العناصر التي استوردتها من gestura.eu، وفقط إلى gestura.eu — أبدًا عن أي شيء آخر لديك." },
 	"euIntegrationConsentPoint3": { "message": "يُخبر Gestura صفحات gestura.eu برقم إصداره. لا حساب، ولا بيانات شخصية، ولا يُرسَل أي شيء إطلاقًا طالما أنك لست على gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "تفعيل" },

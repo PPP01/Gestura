@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Permitir que sites se comuniquem com o Gestura" },
 	"euIntegrationToggleDesc": { "message": "Desativado por padrão. Enquanto estiver desativado, o Gestura ignora toda transferência iniciada por um site e não tem nenhum contato com o gestura.eu. Importar arquivos aqui nas configurações sempre funciona." },
 	"euIntegrationConsentTitle": { "message": "Antes de ativar isso" },
-	"euIntegrationConsentPoint1": { "message": "Sites podem entregar menus e mecanismos de busca à caixa de diálogo de importação. Nada é importado sem sua confirmação." },
 	"euIntegrationConsentPoint2": { "message": "Páginas do gestura.eu podem perguntar quais das entradas delas você instalou, em qual versão, e se você as alterou. O Gestura responde apenas sobre entradas que você importou do gestura.eu, e apenas para o gestura.eu — nunca sobre qualquer outra coisa que você tenha." },
 	"euIntegrationConsentPoint3": { "message": "O Gestura informa às páginas do gestura.eu o número de sua versão. Sem conta, sem dados pessoais, e absolutamente nada é enviado enquanto você não estiver no gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "Ativar" },

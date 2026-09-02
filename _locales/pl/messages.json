@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Zezwól stronom internetowym na komunikację z Gesturą" },
 	"euIntegrationToggleDesc": { "message": "Domyślnie wyłączone. Dopóki jest wyłączone, Gestura ignoruje każde przekazanie zainicjowane przez stronę internetową i nie ma żadnego kontaktu z gestura.eu. Import plików tutaj, w ustawieniach, zawsze działa." },
 	"euIntegrationConsentTitle": { "message": "Zanim to włączysz" },
-	"euIntegrationConsentPoint1": { "message": "Strony internetowe mogą przekazywać menu i wyszukiwarki do okna importu. Nic nie zostanie zaimportowane bez twojego potwierdzenia." },
 	"euIntegrationConsentPoint2": { "message": "Strony gestura.eu mogą pytać, które ich wpisy zainstalowałeś, w jakiej wersji i czy je zmieniłeś. Gestura odpowiada tylko o wpisach zaimportowanych z gestura.eu, i tylko do gestura.eu — nigdy o niczym innym, co masz." },
 	"euIntegrationConsentPoint3": { "message": "Gestura podaje stronom gestura.eu swój numer wersji. Żadnego konta, żadnych danych osobowych, a dopóki nie jesteś na gestura.eu, nic w ogóle nie jest wysyłane." },
 	"euIntegrationConsentAccept": { "message": "Włącz" },

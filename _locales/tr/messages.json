@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Web sitelerinin Gestura ile iletişim kurmasına izin ver" },
 	"euIntegrationToggleDesc": { "message": "Varsayılan olarak kapalı. Kapalıyken Gestura, bir web sitesinin başlattığı her aktarımı yok sayar ve gestura.eu ile hiçbir bağlantısı olmaz. Buradaki ayarlardan dosya içe aktarma her zaman çalışır." },
 	"euIntegrationConsentTitle": { "message": "Bunu etkinleştirmeden önce" },
-	"euIntegrationConsentPoint1": { "message": "Web siteleri menüleri ve arama motorlarını içe aktarma iletişim kutusuna teslim edebilir. Onayınız olmadan hiçbir şey içe aktarılmaz." },
 	"euIntegrationConsentPoint2": { "message": "gestura.eu sayfaları, kendilerine ait hangi girişleri kurduğunuzu, hangi sürümde olduğunu ve değiştirip değiştirmediğinizi sorabilir. Gestura yalnızca gestura.eu'dan içe aktardığınız girişler hakkında, ve yalnızca gestura.eu'ya yanıt verir — sahip olduğunuz başka herhangi bir şey hakkında asla." },
 	"euIntegrationConsentPoint3": { "message": "Gestura, gestura.eu sayfalarına sürüm numarasını bildirir. Hesap yok, kişisel veri yok ve gestura.eu'da değilken kesinlikle hiçbir şey gönderilmez." },
 	"euIntegrationConsentAccept": { "message": "Etkinleştir" },

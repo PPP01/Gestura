@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "웹사이트가 Gestura와 통신하도록 허용" },
 	"euIntegrationToggleDesc": { "message": "기본값은 꺼짐입니다. 꺼져 있는 동안 Gestura는 웹사이트가 시작하는 모든 핸드오프를 무시하며 gestura.eu와 어떤 연결도 하지 않습니다. 여기 설정에서 파일을 가져오는 기능은 항상 작동합니다." },
 	"euIntegrationConsentTitle": { "message": "이 기능을 켜기 전에" },
-	"euIntegrationConsentPoint1": { "message": "웹사이트는 메뉴와 검색엔진을 가져오기 대화상자에 전달할 수 있습니다. 사용자의 확인 없이는 아무것도 가져오지 않습니다." },
 	"euIntegrationConsentPoint2": { "message": "gestura.eu 페이지는 사용자가 자사의 항목 중 어떤 것을 설치했는지, 어떤 버전인지, 변경했는지 여부를 물어볼 수 있습니다. Gestura는 gestura.eu에서 가져온 항목에 대해서만, 그리고 gestura.eu에만 응답합니다 — 사용자가 가진 다른 어떤 것에 대해서도 응답하지 않습니다." },
 	"euIntegrationConsentPoint3": { "message": "Gestura는 gestura.eu 페이지에 자신의 버전 번호를 알려줍니다. 계정도, 개인 데이터도 없으며, gestura.eu에 있지 않은 동안에는 아무것도 전송되지 않습니다." },
 	"euIntegrationConsentAccept": { "message": "켜기" },

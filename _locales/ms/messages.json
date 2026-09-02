@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Benarkan laman web berkomunikasi dengan Gestura" },
 	"euIntegrationToggleDesc": { "message": "Dimatikan secara lalai. Semasa dimatikan, Gestura mengabaikan setiap serahan yang dicetuskan oleh laman web dan tiada hubungan dengan gestura.eu. Mengimport fail di sini dalam tetapan sentiasa berfungsi." },
 	"euIntegrationConsentTitle": { "message": "Sebelum anda mendayakan ini" },
-	"euIntegrationConsentPoint1": { "message": "Laman web boleh menyerahkan menu dan enjin carian kepada dialog import. Tiada apa-apa diimport tanpa pengesahan anda." },
 	"euIntegrationConsentPoint2": { "message": "Halaman gestura.eu mungkin bertanya entri mana milik mereka yang telah anda pasang, dalam versi apa, dan sama ada anda telah mengubahnya. Gestura hanya menjawab tentang entri yang anda import daripada gestura.eu, dan hanya kepada gestura.eu — tidak pernah tentang apa-apa lagi yang anda ada." },
 	"euIntegrationConsentPoint3": { "message": "Gestura memberitahu halaman gestura.eu nombor versinya. Tiada akaun, tiada data peribadi, dan tiada apa-apa langsung dihantar semasa anda tidak berada di gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "Dayakan" },

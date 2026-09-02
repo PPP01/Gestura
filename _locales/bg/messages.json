@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "Разрешете на уебсайтовете да комуникират с Gestura" },
 	"euIntegrationToggleDesc": { "message": "Изключено по подразбиране. Докато е изключено, Gestura игнорира всяко прехвърляне, задействано от уебсайт, и няма контакт с gestura.eu. Импортирането на файлове тук, в настройките, винаги работи." },
 	"euIntegrationConsentTitle": { "message": "Преди да включите това" },
-	"euIntegrationConsentPoint1": { "message": "Уебсайтовете могат да предават менюта и търсачки на диалога за импортиране. Нищо не се импортира без вашето потвърждение." },
 	"euIntegrationConsentPoint2": { "message": "Страниците на gestura.eu може да питат кои от техните записи сте инсталирали, в коя версия и дали сте ги променили. Gestura отговаря само за записи, импортирани от gestura.eu, и само към gestura.eu — никога за нещо друго, което имате." },
 	"euIntegrationConsentPoint3": { "message": "Gestura съобщава на страниците на gestura.eu номера на версията си. Без акаунт, без лични данни, и нищо не се изпраща, докато не сте на gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "Включи" },

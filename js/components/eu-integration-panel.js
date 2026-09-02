@@ -112,6 +112,14 @@ class EuIntegrationPanel extends LitElement {
 
 	#absorb(local) {
 		this._local = local;
+		// A storage change must not move the cursor or throw away an uncommitted
+		// draft - and this panel triggers such changes itself (the toggle, the
+		// revoke, the cache writes, a write from a second options tab). While the
+		// field has focus its draft is the truth; #commitDevOrigin decides when
+		// that becomes storage. renderRoot is undefined before the first render,
+		// which is exactly when there is no draft to protect.
+		const field = this.renderRoot && this.renderRoot.querySelector('.dev-field input');
+		if (field && this.renderRoot.activeElement === field) return;
 		this._devDraft = local.euIntegration.devOrigin;
 	}
 
@@ -172,16 +180,33 @@ class EuIntegrationPanel extends LitElement {
 		// A failed write leaves _local untouched, so the panel keeps showing the
 		// consent that is still on record instead of a state nobody stored.
 		try { await window.GesturaEuLocal.write({ enabled: false, consent: null }); } catch { /* nothing changed */ }
+		// Derived from a permission that is gone: the notices go with it, and the
+		// managers drop their badges on the event.
+		await window.GesturaEuUpdates.clear();
+		window.dispatchEvent(new Event(window.GesturaEuUpdates.CHANGED_EVENT));
 	}
 
-	#commitDevOrigin() {
+	async #commitDevOrigin() {
 		// Origins get pasted from a browser bar far more often than typed, and those
 		// carry a trailing slash that isValidDevOrigin rejects. Trim it instead of
 		// blaming the user.
 		const value = (this._devDraft || '').trim().replace(/\/+$/, '');
 		if (value && !window.FlowMouseEuIntegration.isValidDevOrigin(value)) { this._devError = true; return; }
 		this._devError = false;
-		window.GesturaEuLocal.write({ devOrigin: value });
+		// The draft now survives a storage change (see #absorb), so it has to show
+		// what was actually stored - otherwise a pasted "https://host/" keeps its
+		// trailing slash on screen while storage holds the trimmed origin.
+		this._devDraft = value;
+		const previous = this.#state ? this.#state.devOrigin : '';
+		await window.GesturaEuLocal.write({ devOrigin: value });
+		// The entries imported from the previous dev origin can never be asked
+		// about again, so their cached answers are dead weight that would keep
+		// rendering badges.
+		if (previous && previous !== value) {
+			const cache = await window.GesturaEuUpdates.read();
+			await window.GesturaEuUpdates.write(window.GesturaEuUpdates.dropOrigin(cache, previous));
+			window.dispatchEvent(new Event(window.GesturaEuUpdates.CHANGED_EVENT));
+		}
 	}
 
 	#consentDate() {
@@ -201,7 +226,11 @@ class EuIntegrationPanel extends LitElement {
 		const i18n = window.i18n;
 		// Each point leads with a bold label. Label and body are separate message
 		// keys because messages.json holds plain text - no markup in translations.
-		const points = [1, 2, 3, 4].map(n => [`euIntegrationConsentPoint${n}Label`, `euIntegrationConsentPoint${n}`]);
+		// The update check is point 5, after "local and reversible", because it is
+		// the one thing the user has to take on board IN ADDITION to what R1
+		// described - and the overlay's order goes from what the service does for
+		// you towards what it costs you.
+		const points = [1, 2, 3, 4, 5].map(n => [`euIntegrationConsentPoint${n}Label`, `euIntegrationConsentPoint${n}`]);
 		return html`
 			<div class="modal-overlay" @mousedown=${this.#decline}>
 				<div class="modal-panel" tabindex="-1" @mousedown=${e => e.stopPropagation()}>

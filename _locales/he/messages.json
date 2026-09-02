@@ -2919,7 +2919,6 @@
 	"euIntegrationToggle": { "message": "לאפשר לאתרים לתקשר עם Gestura" },
 	"euIntegrationToggleDesc": { "message": "כבוי כברירת מחדל. כל עוד זה כבוי, Gestura מתעלם מכל העברה שאתר מפעיל ואין לו שום קשר עם gestura.eu. ייבוא קבצים כאן, בהגדרות, תמיד עובד." },
 	"euIntegrationConsentTitle": { "message": "לפני שתפעיל את זה" },
-	"euIntegrationConsentPoint1": { "message": "אתרים יכולים למסור תפריטים ומנועי חיפוש לתיבת הדו-שיח של הייבוא. שום דבר לא מיובא בלי האישור שלך." },
 	"euIntegrationConsentPoint2": { "message": "דפי gestura.eu עשויים לשאול אילו מהערכים שלהם התקנת, באיזו גרסה, והאם שינית אותם. Gestura עונה רק על ערכים שייבאת מ-gestura.eu, ורק ל-gestura.eu — לעולם לא על שום דבר אחר שיש לך." },
 	"euIntegrationConsentPoint3": { "message": "Gestura מודיע לדפי gestura.eu את מספר הגרסה שלו. בלי חשבון, בלי מידע אישי, ושום דבר לא נשלח כל עוד אינך ב-gestura.eu." },
 	"euIntegrationConsentAccept": { "message": "הפעל" },
