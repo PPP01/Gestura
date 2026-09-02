@@ -15,7 +15,9 @@ const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf
 // other locale falls back to en at runtime, which chrome.i18n does on its own for
 // a missing key. Translating them means deleting them from this list - the two
 // tests below are what keep that from being forgotten before a release.
-const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink'];
+const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
+	'euIntegrationConsentLead', 'euIntegrationConsentPoint4', 'euIntegrationConsentGranted',
+	'euIntegrationConsentDate', 'euIntegrationConsentRevoke'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

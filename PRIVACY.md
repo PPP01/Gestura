@@ -49,9 +49,11 @@ If you enable *gestura.eu integration* in the settings, and only then:
   identifier, and no request Gestura makes on its own.
 
 The switch and your consent are stored only on the device where you enabled
-them (`chrome.storage.local`); they are never synced, exported or imported.
-Turning the switch off stops all of the above immediately. Entries you imported
-stay on your device.
+them (`chrome.storage.local`); they are never synced, exported or imported. The
+settings section shows the date you agreed and offers a *Withdraw* button, which
+clears the consent and switches the integration off in one step; turning the
+switch off does the same. Either way everything above stops immediately, and
+entries you imported stay on your device.
 
 ## Permissions
 

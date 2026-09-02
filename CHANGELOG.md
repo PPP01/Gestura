@@ -10,7 +10,11 @@
 **New Features:**
 
 - **gestura.eu integration, off by default:** a new settings section with a
-  single switch and a plain-language consent. While it is off — the default —
+  single switch. Turning it on opens a consent overlay that explains what the
+  service does for you and what it does not do; agreeing enables the
+  integration, declining leaves it off. The section then states that consent
+  with the date it was given, and a *Withdraw* button clears it and switches the
+  integration off in one step. While it is off — the default —
   Gestura is fully standalone: it communicates with neither gestura.eu nor any
   other website, and ignores every hand-off a website triggers (operator links,
   inline buttons, `gestura:import`).
