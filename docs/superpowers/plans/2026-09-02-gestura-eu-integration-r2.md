@@ -2218,3 +2218,140 @@ version explicitly.
 3. **Two small R1 findings stay open** and are untouched here: the bridge's `getManifest()`/`statusAnswer()` calls outside a try/catch (`js/eu-bridge.js`), and `js/eu-local.js` never retrying a failed first load. Neither blocks R2, and the session that found them is taking both. The third — `_devDraft` being clobbered by any storage change — is fixed in Task 4 step 13, because this plan edits that file anyway and two people editing it in parallel buys nothing but a conflict.
 4. **`AGENTS.md` has drifted from `CLAUDE.md`.** It is a copy that is missing the `PENDING_TRANSLATION` paragraph (and two `Conventions` bullets), so an agent reading `AGENTS.md` concludes that en/de-only keys break a hard rule — one review did exactly that. Either sync it or make it a one-line pointer at `CLAUDE.md`; two instruction files that disagree will keep producing false findings. Not part of R2's tasks.
 5. **`main` is 39 commits ahead of `gestura/main` and unpushed.** R2 branches off it either way, but the further the two drift the more a merge into `firefox-build` has to absorb at once.
+
+---
+
+## Execution status, 2026-09-02
+
+Implemented on `feature/eu-integration-r2`, seven commits, `004923d`…`9706cbc`.
+**`npm test`: 28 files, 597 tests green** (baseline before R2 was 27 files / 536).
+`tests/eu-updates.test.mjs` contributes 60 of them.
+
+| Task | State |
+|---|---|
+| 1 — the contract in `docs/gestura-eu-api.md` | done, `004923d` |
+| 2 — the pure core of `js/eu-updates.js` | done, `2cde806` |
+| 3 — orchestrator, storage accessors, `options.html` | done, `b4c2c37` |
+| 4 — consent version 2, en/de texts, 37 locales stripped | done, `6d152a7` |
+| 5 — the check on options open, panel line + "check now" | done, `9f7ddb9` |
+| 6 — badges, adopt button, `expectOrigin` on `#importUrl` | done, `f4ca9a8` |
+| 7 — `PRIVACY.md`, both store docs, `CHANGELOG.md` | done, `9706cbc` |
+
+Nothing was deferred from the plan's task list. Two deviations, both noted below.
+
+### Deviations from the plan
+
+1. **The mock ran on `http://localhost:8199`, not `:8123`.** Port 8123 is taken
+   on this machine by the `gestura-index` dev server. The port is only ever a
+   developer origin, so nothing depends on the number.
+2. **The manual checks were driven programmatically, in Edge.** Chrome 152 has
+   removed `--load-extension`, so an isolated Chrome could not load the unpacked
+   extension at all (`--disable-features=DisableLoadExtensionCommandLineSwitch`
+   and `--enable-unsafe-extension-debugging` were both tried; neither restores
+   it). Edge — which this extension also targets, same Chromium — still honours
+   the switch, so the checks ran there against a real network and a real
+   `chrome.storage`, driven over CDP from a throwaway profile. Every claim below
+   was asserted, not eyeballed. **The one thing this does not cover is Firefox**,
+   which R2 does not touch beyond the shared `pages/options.html` line.
+
+### Verified by hand (driven over CDP, Edge 152 + a local mock)
+
+All 50 assertions passed. Task 5 step 5:
+
+1. **PASS** — the mock logs an `OPTIONS` preflight and then a
+   `POST /api/v1/updates` whose body is `{"apiLevel":2,"entries":[{"id":
+   "com.example.klein","version":"1.0.0"}]}`: the dev-index entry only, no
+   entry kind on the wire, and **not** the file import that carries the same id.
+2. **PASS** — reopening the settings inside the window logs nothing at all.
+3. **PASS** — a forced check logs a fresh request and moves `checkedAt` forward.
+4. **PASS** — `chrome.storage.local` holds `euUpdates` with exactly one slot for
+   `http://localhost:8199`.
+5. **PASS** — with the endpoint unreachable, a forced check reports no slot and
+   leaves `checkedAt` **and** the cached results byte-identical.
+6. **PASS (the revoke race)** — with the mock answering after 3 s, a withdrawal
+   mid-flight deletes `euUpdates`, and it is **still** gone once the answer
+   arrives. This is the case the first external review found.
+7. **PASS (the dev-origin race)** — changing the developer origin mid-flight
+   leaves no slot for the old origin and creates none when the answer lands.
+8. **PASS** — a failed manual check keeps the slot and the `checkedAt` it had.
+   This is the case the second review found in the `clear()`-first draft.
+
+Task 6 step 7:
+
+1. **PASS** — the index entry shows an **Update** badge; its tooltip reads
+   "gestura.eu bietet Version 9.9.9 an. … — Two new patterns, one fixed icon."
+2. **PASS** — the menu imported from a file with the same id shows no badge and
+   offers no adopt button.
+3. **PASS** — adopt opens the import dialog with the payload the mock served
+   (version 9.9.9), the replace/new choice and the confirm button.
+4. **PASS** — after renaming the entry (with a real `baselineHash`, so
+   `modifiedState()` answers `true`), adopt opens the dialog with the
+   `exchangeConflictModified` warning and `_importMode === 'new'`: it does not
+   default to discarding the user's edit. R1 behaviour, working as intended.
+5. **PASS** — actually adopting stamps `source.version = 9.9.9` and the badge is
+   gone on the next render, with no new check and the cached answer still on
+   record.
+6. **PASS** — `deprecated: true` at the stored version renders **Eingestellt**,
+   no Update badge, and no adopt button.
+7. **PASS** — `deprecated: true` **with** a newer version keeps **Eingestellt**,
+   names retirement, successor and version in one tooltip, and the adopt button
+   is back.
+8. **PASS** — switching the integration off removes every badge; a forced stale
+   consent (`enabled: true`, `consent.version: 1`) leaves the cache in place,
+   shows no badge, and the panel offers its re-confirmation row. That guard is
+   the second review's finding.
+
+Task 4 step 14 (the R1 draft defect):
+
+- **PASS** — typing `http://localhost:81` into the developer-origin field and
+  then causing a storage write keeps both the text and the caret (offset 19
+  before and after).
+- **PASS** — committing a pasted `http://localhost:8199/` stores and *displays*
+  the trimmed origin.
+
+### Not verified
+
+- **Firefox.** R2 adds no content script and no `importScripts` entry, so the
+  only shared surface is the `pages/options.html` line both branches carry.
+  `npm run ff:run` / `web-ext lint` on `firefox-build` still belong to the merge
+  that takes R2 there.
+- **The real endpoint.** `https://gestura.eu/api/v1/updates` does not exist yet;
+  everything above ran against the mock in the scratchpad
+  (`updates-mock.mjs`, config-driven so the answer can change between checks).
+- **`Content-Length` over the cap as an early exit.** The mock never sends an
+  oversized declared length; the byte-count limit inside `parseUpdateResponse`
+  *is* unit-tested.
+
+### Defects found while verifying
+
+None in R2's own code — every check passed on its first run. Two environment
+findings, recorded because the next executor will hit them:
+Chrome 152 cannot load an unpacked extension from the command line at all, and
+port 8123 belongs to the index dev server on this machine.
+
+### Beyond the plan
+
+`PRIVACY.md`'s summary at the top (line 12) said the integration *"only answers
+questions from gestura.eu"*. R2 makes that as wrong as the bullet the plan named,
+and no test guards prose, so it was corrected in the same commit: it now says the
+integration answers questions **and asks that index, at most once a day, when the
+settings open**.
+
+### Not releasable until
+
+1. `PENDING_TRANSLATION` in `tests/site-menu-locales.test.mjs` holds none of
+   R2's keys any more: `euIntegrationConsentPoint1`,
+   `euIntegrationConsentPoint5Label`, `euIntegrationConsentPoint5`,
+   `euIntegrationUpdateCheck`, `euIntegrationCheckNow`,
+   `euIntegrationLastChecked`, `euIntegrationNeverChecked`,
+   `euIntegrationUpdateBadge`, `euIntegrationUpdateTooltip`,
+   `euIntegrationUpdateApply`, `euIntegrationRetiredBadge`,
+   `euIntegrationRetiredTooltip`, `euIntegrationRetiredSuccessor` — all of them
+   translated into all 39 locales and deleted from the list. The list's own test
+   fails once a key is everywhere but still listed, so this cannot be forgotten
+   quietly; what it does not do is stop a release, which is why it is written
+   here as well.
+2. `https://gestura.eu/api/v1/updates` answers the contract in
+   `docs/gestura-eu-api.md`, `OPTIONS` preflight included.
+3. `PRIVACY.md` and both store data declarations carry the update check
+   (Task 7).
