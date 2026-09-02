@@ -1054,6 +1054,13 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
+				<div class="section ${this._activeSection === 'websiteIntegration' ? 'active' : ''}" data-nav="websiteIntegration">
+					<h2><span class="section-icon">${unsafeHTML(icon('globe', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euIntegrationTitle')}</span></h2>
+					<div class="section-body">
+						<eu-integration-panel></eu-integration-panel>
+					</div>
+				</div>
+
 				<div class="section ${this._activeSection === 'data' ? 'active' : ''}" data-nav="data">
 					<h2><span class="section-icon">${unsafeHTML(icon('hardDrive', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('dataManagement')}</span></h2>
 					<div class="section-body">
@@ -1198,6 +1205,7 @@ class OptionsPage extends LitElement {
 			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList, flag: 'enableSiteMenus' },
 			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff, flag: 'enableBlacklist' },
 			{ id: 'contextMenu', label: i18n.getMessage('contextMenuSection'), icon: icons.menu },
+			{ id: 'websiteIntegration', label: i18n.getMessage('euIntegrationTitle'), icon: icons.globe },
 			{ id: 'data', label: i18n.getMessage('dataManagement'), icon: icons.hardDrive },
 			{ id: 'support', label: i18n.getMessage('supportAndFeedback'), icon: icons.messageCircleMore },
 		];
