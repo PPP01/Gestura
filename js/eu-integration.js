@@ -65,9 +65,48 @@
 		return allowedOrigins(local).includes(origin) ? origin : null;
 	}
 
+	// --- canonical JSON + baseline hash ------------------------------------------
+	// JSON.stringify is not key-order stable across code paths; the baseline
+	// needs one canonical form. undefined properties are dropped (like
+	// JSON.stringify), null is kept, arrays keep their order.
+
+	function canonicalize(value) {
+		if (value === undefined) return undefined;
+		if (value === null || typeof value !== 'object') return JSON.stringify(value);
+		if (Array.isArray(value)) return '[' + value.map(v => (v === undefined ? 'null' : canonicalize(v))).join(',') + ']';
+		const keys = Object.keys(value).filter(k => value[k] !== undefined).sort();
+		return '{' + keys.map(k => JSON.stringify(k) + ':' + canonicalize(value[k])).join(',') + '}';
+	}
+
+	// 64 bits (16 hex chars): collision-safe for a local integrity check, gentle
+	// on the scarce sync quota where it is stored.
+	async function hash64(str) {
+		const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+		return Array.from(new Uint8Array(digest).slice(0, 8)).map(b => b.toString(16).padStart(2, '0')).join('');
+	}
+
+	// The baseline is the stored runtime entry exactly as the import wrote it,
+	// after all import transformations, minus the source object itself.
+	function projection(stored) {
+		const out = { ...stored };
+		delete out.source;
+		return out;
+	}
+
+	async function baselineHash(stored) {
+		return hash64(canonicalize(projection(stored)));
+	}
+
+	async function modifiedState(stored) {
+		const base = stored && stored.source && stored.source.baselineHash;
+		if (typeof base !== 'string' || !base) return 'unknown';
+		return (await baselineHash(stored)) !== base;
+	}
+
 	const api = {
 		PRODUCTION_ORIGIN, CURRENT_INTEGRATION_CONSENT, API_LEVEL, LIMITS, LOCAL_DEFAULTS, ID_RE,
 		normalizeLocal, effectiveEnabled, isValidDevOrigin, allowedOrigins, qualifiedOrigin,
+		canonicalize, hash64, projection, baselineHash, modifiedState,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseEuIntegration = api;

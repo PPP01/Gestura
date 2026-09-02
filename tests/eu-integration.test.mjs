@@ -65,3 +65,46 @@ describe('allowedOrigins / qualifiedOrigin', () => {
 		expect(EU.qualifiedOrigin('https://gestura.eu/x', EU.normalizeLocal({}))).toBe('https://gestura.eu');
 	});
 });
+
+describe('canonicalize', () => {
+	it('sorts keys recursively and strips whitespace', () => {
+		expect(EU.canonicalize({ b: 1, a: { d: [1, { z: 1, y: 2 }], c: 'x' } })).toBe('{"a":{"c":"x","d":[1,{"y":2,"z":1}]},"b":1}');
+	});
+	it('drops undefined properties, keeps null', () => {
+		expect(EU.canonicalize({ a: undefined, b: null })).toBe('{"b":null}');
+		expect(EU.canonicalize({ b: null })).toBe(EU.canonicalize({ a: undefined, b: null }));
+	});
+	it('undefined inside arrays becomes null, like JSON.stringify', () => {
+		expect(EU.canonicalize([1, undefined, 2])).toBe('[1,null,2]');
+	});
+	it('scalars round-trip', () => {
+		expect(EU.canonicalize('a"b')).toBe('"a\\"b"');
+		expect(EU.canonicalize(3)).toBe('3');
+		expect(EU.canonicalize(true)).toBe('true');
+		expect(EU.canonicalize(null)).toBe('null');
+	});
+});
+
+describe('baselineHash / modifiedState', () => {
+	const stored = { name: 'Shop', icon: 'cart', patterns: ['*example.com*'], items: [], source: { type: 'site', indexId: 'com.example.shop', indexOrigin: 'https://gestura.eu', version: '1.0.0' } };
+
+	it('hash is 16 lowercase hex chars and deterministic', async () => {
+		const h = await EU.baselineHash(stored);
+		expect(h).toMatch(/^[0-9a-f]{16}$/);
+		expect(await EU.baselineHash(JSON.parse(JSON.stringify(stored)))).toBe(h);
+	});
+	it('ignores the source object and key order', async () => {
+		const reordered = { source: { indexId: 'other', type: 'file' }, items: [], patterns: ['*example.com*'], icon: 'cart', name: 'Shop' };
+		expect(await EU.baselineHash(reordered)).toBe(await EU.baselineHash(stored));
+	});
+	it('changes when content changes', async () => {
+		expect(await EU.baselineHash({ ...stored, name: 'Shop 2' })).not.toBe(await EU.baselineHash(stored));
+	});
+	it('modifiedState: unknown without baseline, false when equal, true when changed', async () => {
+		expect(await EU.modifiedState(stored)).toBe('unknown');
+		const base = await EU.baselineHash(stored);
+		const withBase = { ...stored, source: { ...stored.source, baselineHash: base } };
+		expect(await EU.modifiedState(withBase)).toBe(false);
+		expect(await EU.modifiedState({ ...withBase, name: 'edited' })).toBe(true);
+	});
+});
