@@ -5,7 +5,7 @@ import { settingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
-import { ImportHighlight, renderImportDone, renderImportBadge } from './import-feedback.js';
+import { ImportHighlight, renderImportDone, renderImportBadge, renderUpdateBadge } from './import-feedback.js';
 
 function downloadJson(obj, filename) {
 	const blob = new Blob([JSON.stringify(obj, null, '\t')], { type: 'application/json' });
@@ -35,6 +35,7 @@ class EngineManager extends LitElement {
 		_addingNew: { state: true },
 		_newDraft: { state: true },
 		_activeType: { state: true },
+		_updates: { state: true },
 	};
 
 	static styles = [
@@ -270,6 +271,7 @@ class EngineManager extends LitElement {
 		this._addingNew = false;
 		this._newDraft = null;
 		this._activeType = 'text';
+		this._updates = { origins: [] };
 		this._onCatalogChanged = () => this.requestUpdate();
 		this._unsubscribeStore = null;
 	}
@@ -291,6 +293,15 @@ class EngineManager extends LitElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.#highlight.connect();
+		// Both reads in one chain, for the same reason as the menu manager: the
+		// synchronous GesturaEuLocal.current() answers defaults until its own first
+		// load resolves, and the first render must not suppress every badge.
+		this._boundUpdates = () => {
+			Promise.all([window.GesturaEuLocal.read(), window.GesturaEuUpdates.read()])
+				.then(([, cache]) => { this._updates = cache; });
+		};
+		this._boundUpdates();
+		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore = settingsStore.onChange((changed) => {
 			if ('searchEngines' in changed || 'engineManagerLocalOnly' in changed) this.requestUpdate();
@@ -300,6 +311,7 @@ class EngineManager extends LitElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.#highlight.disconnect();
+		window.removeEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore?.();
 		this._unsubscribeStore = null;
@@ -702,13 +714,22 @@ class EngineManager extends LitElement {
 		input.click();
 	}
 
-	async #importUrl(url) {
+	async #importUrl(url, expectOrigin) {
 		if (!url) return;
 		try {
 			const res = await fetch(url);
 			const obj = await res.json();
 			// Provenance from the final URL after redirects, never from what was typed.
 			const indexOrigin = window.FlowMouseEuIntegration.qualifiedOrigin(res.url, await window.GesturaEuLocal.read());
+			// Adopting an update names the origin it expects. A redirect that leaves
+			// it is refused outright rather than imported as an unqualified entry:
+			// the user asked for gestura.eu's version of this entry, not for whatever
+			// a redirect chain ended up pointing at. Handled like a failed fetch,
+			// because that is what it is from the user's side.
+			if (expectOrigin && indexOrigin !== expectOrigin) {
+				this.#dialog().openWith({}, { type: 'url', url });
+				return;
+			}
 			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
 		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
 	}
@@ -721,11 +742,23 @@ class EngineManager extends LitElement {
 		downloadJson(out, `${sanitizeFilename(engine.name || engine.id)}.gestura-engine.json`);
 	}
 
+	// #getResolvedEngines() builds its rows from a fixed field list that does not
+	// include `source`, so reading eng.source here would silently always be
+	// undefined - going through findStored() is not a stylistic choice.
+	#updateFor(id) {
+		// Same guard, same reason as the menu manager's: a stale consent leaves the
+		// cache in place while effectiveEnabled() is already false.
+		if (!window.FlowMouseEuIntegration.effectiveEnabled(window.GesturaEuLocal.current())) return null;
+		const stored = window.FlowMouseEuIntegration.findStored(settingsStore.current, 'engine', id);
+		return window.GesturaEuUpdates.updateFor(this._updates, stored);
+	}
+
 	#renderRow(eng, idx) {
 		const i18n = window.i18n;
 		const isEditing = this._editingId === eng.id;
 		const hidden = eng.isHidden;
 		const hasOverride = eng.builtin && this.#isBuiltinModified(eng.id);
+		const up = this.#updateFor(eng.id);
 
 		return html`
 			<div class="engine-row ${hidden ? 'is-hidden' : ''}"
@@ -746,6 +779,7 @@ class EngineManager extends LitElement {
 						<span class="engine-name">${eng.name || eng.id}</span>
 						${eng.builtin ? html`<span class="engine-badge">${i18n.getMessage('engineBuiltinBadge')}</span>` : ''}
 						${hidden ? html`<span class="engine-badge">${i18n.getMessage('engineHiddenBadge')}</span>` : ''}
+						${renderUpdateBadge(i18n, up)}
 						${this.#highlight.isMarked(eng.id) ? renderImportBadge(i18n) : ''}
 					</div>
 					${eng.url ? html`<span class="engine-url">${eng.url}</span>` : ''}
@@ -756,6 +790,13 @@ class EngineManager extends LitElement {
 						.tooltip=${tooltip(i18n.getMessage('engineEdit'))}>
 						${unsafeHTML(icon('squarePen', { size: 14, strokeWidth: 2 }))}
 					</button>
+
+					${up && up.newer ? html`
+						<button class="engine-btn" .tooltip=${tooltip(i18n.getMessage('euIntegrationUpdateApply'))}
+							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url, up.origin); }}>
+							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
+						</button>
+					` : ''}
 
 					${eng.builtin ? html`
 						<button class="engine-btn" @click=${() => this.#toggleHide(eng.id)}

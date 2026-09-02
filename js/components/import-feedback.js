@@ -1,6 +1,7 @@
 import { html, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { icon } from '../icons.js';
 import { importedOf, clearImported } from './import-marker.js';
+import { tooltip } from '../tooltip.js';
 
 // Was nach einem Import zu sehen ist: eine Meldung über der Liste, ein Abzeichen an
 // jeder betroffenen Zeile, ein Sprung zum ersten neuen Eintrag und ein einmaliger
@@ -34,6 +35,30 @@ export function renderImportDone(i18n, imported) {
 
 export function renderImportBadge(i18n) {
 	return html`<span class="import-badge">${i18n.getMessage('importBadgeNew')}</span>`;
+}
+
+// Ein Update-Hinweis aus dem Cache (js/eu-updates.js). Zwei Formen, weil sie
+// Verschiedenes bedeuten: eine neuere Version ist ein Angebot, eine Abkündigung
+// ist eine Information - für die es nichts zu übernehmen gibt.
+export function renderUpdateBadge(i18n, up) {
+	if (!up) return '';
+	// Ein Absatz, kein Zeilenumbruch: der Tooltip setzt textContent und trägt kein
+	// white-space: pre-line - ein Zeilenumbruch verschwände lautlos mitten im Satz.
+	const parts = [];
+	// Abkündigung und neue Version schließen sich nicht aus: ein Index kann einen
+	// Eintrag einstellen und dafür eine letzte Fassung nachliefern. Dann steht die
+	// Abkündigung auf dem Abzeichen - sie ist die größere Nachricht - und die
+	// Version steht trotzdem im Tooltip, wo sie zum Übernehmen-Knopf daneben passt.
+	if (up.deprecated) {
+		parts.push(up.successor
+			? i18n.getMessage('euIntegrationRetiredSuccessor').replace('{id}', up.successor)
+			: i18n.getMessage('euIntegrationRetiredTooltip'));
+	}
+	if (up.newer) parts.push(i18n.getMessage('euIntegrationUpdateTooltip').replace('{version}', up.version));
+	if (up.changelog) parts.push(up.changelog);
+	const cls = up.deprecated ? 'retired-badge' : 'update-badge';
+	const label = up.deprecated ? 'euIntegrationRetiredBadge' : 'euIntegrationUpdateBadge';
+	return html`<span class="${cls}" .tooltip=${tooltip(parts.join(' — '))}>${i18n.getMessage(label)}</span>`;
 }
 
 // Der Zustand dahinter. Die Komponente hält eine Instanz, meldet sie an und ab und

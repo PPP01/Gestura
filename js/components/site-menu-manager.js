@@ -6,7 +6,7 @@ import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
-import { ImportHighlight, renderImportDone, renderImportBadge } from './import-feedback.js';
+import { ImportHighlight, renderImportDone, renderImportBadge, renderUpdateBadge } from './import-feedback.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -42,6 +42,7 @@ class SiteMenuManager extends LitElement {
 		_expandedId: { state: true },
 		_activeTab: { state: true },
 		advancedMode: { type: Boolean, attribute: 'advanced-mode' },
+		_updates: { state: true },
 	};
 
 	static styles = [
@@ -124,6 +125,7 @@ class SiteMenuManager extends LitElement {
 		this._expandedId = '';
 		this._activeTab = 'menus';
 		this.advancedMode = false;
+		this._updates = { origins: [] };
 		this._unsubscribe = null;
 		// Local settingsStore.save() does not fire onChange, so imports/edits from
 		// elsewhere (the import dialog, the native context menu) announce via this
@@ -136,6 +138,16 @@ class SiteMenuManager extends LitElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.#highlight.connect();
+		// Both reads in one chain: #updateFor() consults GesturaEuLocal.current(),
+		// which is synchronous and returns defaults until its own first load
+		// resolves. Setting _updates only after that load has finished is what keeps
+		// the very first render from suppressing every badge.
+		this._boundUpdates = () => {
+			Promise.all([window.GesturaEuLocal.read(), window.GesturaEuUpdates.read()])
+				.then(([, cache]) => { this._updates = cache; });
+		};
+		this._boundUpdates();
+		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = settingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed || 'siteMenuAddAsk' in changed) this.requestUpdate();
@@ -145,6 +157,7 @@ class SiteMenuManager extends LitElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.#highlight.disconnect();
+		window.removeEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe?.();
 		this._unsubscribe = null;
@@ -230,13 +243,22 @@ class SiteMenuManager extends LitElement {
 		input.click();
 	}
 
-	async #importUrl(url) {
+	async #importUrl(url, expectOrigin) {
 		if (!url) return;
 		try {
 			const res = await fetch(url);
 			const obj = await res.json();
 			// Provenance from the final URL after redirects, never from what was typed.
 			const indexOrigin = window.FlowMouseEuIntegration.qualifiedOrigin(res.url, await window.GesturaEuLocal.read());
+			// Adopting an update names the origin it expects. A redirect that leaves
+			// it is refused outright rather than imported as an unqualified entry:
+			// the user asked for gestura.eu's version of this entry, not for whatever
+			// a redirect chain ended up pointing at. Handled like a failed fetch,
+			// because that is what it is from the user's side.
+			if (expectOrigin && indexOrigin !== expectOrigin) {
+				this.#dialog().openWith({}, { type: 'url', url });
+				return;
+			}
 			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
 		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
 	}
@@ -428,11 +450,27 @@ class SiteMenuManager extends LitElement {
 		`;
 	}
 
+	// The row's own def is not enough: a menu can sit in siteMenus.custom or in
+	// siteMenus.edited, and listMenus() merges both into one shape. findStored()
+	// is the resolver that knows where provenance actually lives.
+	#updateFor(id) {
+		// No badge while the integration authorizes nothing. Revoking and switching
+		// off both clear the cache, but a consent that went STALE does not: it
+		// leaves enabled:true beside an outdated consent.version, which is exactly
+		// where every user lands the moment R3 raises the number again. Without this
+		// guard their badges would keep offering downloads from an integration that
+		// is off.
+		if (!window.FlowMouseEuIntegration.effectiveEnabled(window.GesturaEuLocal.current())) return null;
+		const stored = window.FlowMouseEuIntegration.findStored(settingsStore.current, 'menu', id);
+		return window.GesturaEuUpdates.updateFor(this._updates, stored);
+	}
+
 	#renderMenuRow(m, i18n) {
 		const count = (m.def.items || []).filter(it => it.type !== 'separator').length;
 		const menuIcon = (window.FlowMouseMenuIcons || {})[m.def.icon] || '';
 		const expanded = this._expandedId === m.id;
 		const isDefault = (this.siteMenus.defaultMenuId || '') === m.id;
+		const up = this.#updateFor(m.id);
 		return html`
 			<div class="menu-row ${m.disabled ? 'disabled' : ''}"
 				data-import-id=${this.#highlight.isMarked(m.id) ? m.id : nothing}>
@@ -444,6 +482,7 @@ class SiteMenuManager extends LitElement {
 					${menuDisplayName(m.def, 'menuNamePlaceholder')}
 					<span class="menu-count">(${count})</span>
 					${m.isEdited ? html`<span class="edited-badge">${i18n.getMessage('siteMenuEdited')}</span>` : ''}
+					${renderUpdateBadge(i18n, up)}
 					${this.#highlight.isMarked(m.id) ? renderImportBadge(i18n) : ''}
 				</span>
 				<div class="menu-buttons">
@@ -452,6 +491,12 @@ class SiteMenuManager extends LitElement {
 						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('siteMenuReset'))}
 							@click=${() => this.#resetMenu(m)}>
 							${unsafeHTML(icon('rotateCcw', { size: 14, strokeWidth: 2 }))}
+						</button>
+					` : ''}
+					${up && up.newer ? html`
+						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('euIntegrationUpdateApply'))}
+							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url, up.origin); }}>
+							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
 						</button>
 					` : ''}
 					${(m.isCustom || m.isEdited) ? html`

@@ -692,6 +692,28 @@ textarea.input-mono {
 	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 40%, transparent);
 }
 
+.update-badge,
+.retired-badge {
+	flex-shrink: 0;
+	padding: 1px 6px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 600;
+	cursor: help;
+}
+
+.update-badge {
+	color: var(--attention-color);
+	background: color-mix(in srgb, var(--attention-color) 14%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--attention-color) 40%, transparent);
+}
+
+.retired-badge {
+	color: var(--text-muted);
+	background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-muted) 30%, transparent);
+}
+
 @keyframes gestura-breath {
 	0%, 100% { box-shadow: 0 0 0 0 transparent; }
 	50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--success-color) 55%, transparent); }
