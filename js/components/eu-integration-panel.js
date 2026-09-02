@@ -1,6 +1,7 @@
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons } from '../icons.js';
+import { settingsStore } from '../settings-store.js';
 
 // The tier-1 switch of the gestura.eu integration. State lives in
 // chrome.storage.local (GesturaEuLocal), not in the SettingsStore: consent is
@@ -18,6 +19,8 @@ class EuIntegrationPanel extends LitElement {
 		_consentOpen: { state: true },
 		_devDraft: { state: true },
 		_devError: { state: true },
+		_checked: { state: true },
+		_checking: { state: true },
 	};
 
 	// The one URL the panel points at. Opening it is the user's own click, not
@@ -89,6 +92,8 @@ class EuIntegrationPanel extends LitElement {
 		this._consentOpen = false;
 		this._devDraft = '';
 		this._devError = false;
+		this._checked = '';
+		this._checking = false;
 		this._unsubscribe = null;
 		this._onKeydown = (e) => {
 			// Escape declines: the switch stays where it was.
@@ -100,12 +105,18 @@ class EuIntegrationPanel extends LitElement {
 		super.connectedCallback();
 		window.GesturaEuLocal.read().then(local => this.#absorb(local));
 		this._unsubscribe = window.GesturaEuLocal.onChange(local => this.#absorb(local));
+		this._boundChecked = () => {
+			window.GesturaEuUpdates.read().then(cache => { this._checked = this.#latestCheck(cache); });
+		};
+		this._boundChecked();
+		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundChecked);
 		document.addEventListener('keydown', this._onKeydown, true);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		if (this._unsubscribe) this._unsubscribe();
+		window.removeEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundChecked);
 		document.removeEventListener('keydown', this._onKeydown, true);
 		this.#lockScroll(false);
 	}
@@ -206,6 +217,63 @@ class EuIntegrationPanel extends LitElement {
 			const cache = await window.GesturaEuUpdates.read();
 			await window.GesturaEuUpdates.write(window.GesturaEuUpdates.dropOrigin(cache, previous));
 			window.dispatchEvent(new Event(window.GesturaEuUpdates.CHANGED_EVENT));
+		}
+	}
+
+	// The newest checkedAt across all slots: the line answers "did this work at
+	// all", not "when was each index asked".
+	#latestCheck(cache) {
+		return (cache.origins || [])
+			.map(s => s.checkedAt)
+			.filter(Boolean)
+			.sort()
+			.pop() || '';
+	}
+
+	// Ignores the 24-hour window via `force`, and NOTHING else: it does not clear
+	// the cache first. Clearing would mean a failed manual check - the exact case
+	// worth testing against a local index - destroys the answers already on record
+	// and leaves the user worse off than before pressing the button. force acts on
+	// the due-check alone; a failing origin still keeps its old slot untouched.
+	async #checkNow() {
+		const U = window.GesturaEuUpdates;
+		const EU = window.FlowMouseEuIntegration;
+		this._checking = true;
+		try {
+			const { slots } = await U.runUpdateCheck({
+				settings: settingsStore.current,
+				local: await window.GesturaEuLocal.read(),
+				cache: await U.read(),
+				now: Date.now(),
+				fetchImpl: (url, init) => fetch(url, init),
+				force: true,
+				stillAllowed: async (origin) => {
+					const cur = await window.GesturaEuLocal.read();
+					return EU.effectiveEnabled(cur) && EU.allowedOrigins(cur).includes(origin);
+				},
+			});
+			// No manual _checked assignment: persist() fires CHANGED_EVENT and the
+			// listener in connectedCallback refreshes the line, the same way the
+			// managers refresh.
+			await U.persist(slots);
+		} catch {
+			// Nothing to report: the line simply keeps its old date.
+		} finally {
+			// finally, not a trailing assignment: an early return or a throw would
+			// otherwise leave the button disabled for the rest of the session.
+			this._checking = false;
+		}
+	}
+
+	// Same shape as #consentDate(), but the time matters here - a manual check
+	// twice in one minute must be visibly different.
+	#formatCheck(iso) {
+		const d = new Date(iso);
+		if (Number.isNaN(d.getTime())) return '';
+		try {
+			return d.toLocaleString(window.i18n.getHtmlLang(), { dateStyle: 'medium', timeStyle: 'short' });
+		} catch {
+			return d.toISOString().slice(0, 16).replace('T', ' ');
 		}
 	}
 
@@ -311,6 +379,19 @@ class EuIntegrationPanel extends LitElement {
 							@keydown=${e => { if (e.key === 'Enter') this.#commitDevOrigin(); }}>
 					</div>
 					${this._devError ? html`<div class="error">${i18n.getMessage('euIntegrationDevOriginInvalid')}</div>` : ''}
+				</div>
+				<div class="setting-row">
+					<div class="setting-label">
+						<span>${i18n.getMessage('euIntegrationUpdateCheck')}</span>
+						<span>${this._checked
+							? i18n.getMessage('euIntegrationLastChecked').replace('{date}', this.#formatCheck(this._checked))
+							: i18n.getMessage('euIntegrationNeverChecked')}</span>
+					</div>
+					<div class="row-actions">
+						<button class="btn btn-secondary" ?disabled=${this._checking} @click=${this.#checkNow}>
+							${i18n.getMessage('euIntegrationCheckNow')}
+						</button>
+					</div>
 				</div>` : ''}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 		`;
