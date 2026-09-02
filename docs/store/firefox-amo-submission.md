@@ -121,8 +121,18 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
   Verändert-Status importierter Einträge mit — anonym, ohne Konto, kein
   Personenbezug. Deckt sich mit `data_collection_permissions: { required: ["none"],
   optional: ["technicalAndInteraction"] }` (siehe oben) und `PRIVACY.md`, Abschnitt
-  „gestura.eu integration". Der noch nicht gebaute Update-Check und die verschlüsselte
-  Sync sind hiervon nicht betroffen — sie existieren in R1 nicht.
+  „gestura.eu integration". Die verschlüsselte Sync ist hiervon nicht betroffen —
+  sie existiert noch nicht.
+- **Datennutzung, Update-Prüfung (seit R2):** beim Öffnen der Einstellungen fragt
+  die Extension — höchstens einmal täglich und getrennt je Index — bei gestura.eu
+  nach neueren Versionen der von dort importierten Einträge und überträgt dafür
+  nur deren Kennungen und Versionsnummern sowie die Version der Schnittstelle;
+  aus Dateien importierte Einträge nie. Antwort sind Versionsangaben. Weiterhin
+  anonym, ohne Konto, ohne Personenbezug, also weiter unter
+  „technicalAndInteraction" und nicht unter einer personenbezogenen Kategorie —
+  `required: ["none"]` bleibt richtig, weil ohne eingeschalteten Schalter nichts
+  passiert. Neu ist nur, dass die Anfrage auch ohne Klick der Nutzerin erfolgt;
+  das steht in der Zustimmung (Consent-Version 2) und in `PRIVACY.md`.
 - **Permission-Begründungen:** aus `permission-justifications.md`, falls der Review
   nach `<all_urls>` / `tabs` / `clipboardRead` etc. fragt.
 

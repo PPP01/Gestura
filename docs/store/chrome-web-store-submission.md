@@ -124,8 +124,17 @@ Alles aus `permission-justifications.md` übernehmen:
   jede Frage, sondern eine bewusste Entscheidung beim Ausfüllen, mit obigem Absatz
   als Grundlage. Die drei „Ich verkaufe/übertrage/nutze Nutzerdaten nicht für
   sachfremde Zwecke/Kreditwürdigkeit"-Zusicherungen bleiben zutreffend — nichts
-  davon geschieht. (Der noch nicht gebaute Update-Check und die verschlüsselte
-  Sync werden hier nicht vorweggenommen.)
+  davon geschieht. (Die verschlüsselte Sync wird hier nicht vorweggenommen.)
+- **Datennutzung, Update-Prüfung (seit R2):** ist der Schalter eingeschaltet,
+  fragt die Extension beim Öffnen ihrer Einstellungen — höchstens einmal täglich
+  und getrennt je Index — bei gestura.eu nach neueren Versionen der von dort
+  importierten Einträge. Übertragen werden nur deren Kennungen und
+  Versionsnummern sowie die Version der Schnittstelle; aus Dateien importierte
+  Einträge sind nie dabei. Zurück kommen Versionsangaben. Das ist **kein**
+  Personenbezug, **kein** Konto und **kein** Web-Verlauf — die
+  Formularkategorien bleiben also wie oben. Neu ist allein, dass eine Anfrage
+  auch ohne Klick der Nutzerin den Browser verlässt; genau das steht in der
+  Zustimmung (Consent-Version 2) und in `PRIVACY.md`.
 - **Privacy policy URL:** die oben gewählte öffentliche URL eintragen (PRIVACY.md,
   Abschnitt „gestura.eu integration").
 

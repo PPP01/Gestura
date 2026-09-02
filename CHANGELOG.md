@@ -30,6 +30,16 @@
   without ever seeing the change itself. Replacing a catalog menu or overriding
   a built-in engine keeps this provenance too — until now those two import
   modes forgot it, and editing a search engine used to drop it as well.
+- **Update notices for imported entries:** with the gestura.eu integration
+  enabled, opening the settings asks gestura.eu — at most once a day, and
+  separately per index — whether newer versions exist for the entries you took
+  from there. Only their ids and version numbers are sent; entries imported from
+  a file are never included. Entries with a newer version get an *Update* badge
+  and a button that opens the usual import window, where you decide what happens;
+  entries the index has retired say so and are left alone. A failed check
+  changes nothing and is simply retried the next time the settings open.
+  Because the extension now sends a request you did not click, the consent text
+  says so and asks once more — the integration stays off until you confirm it.
 
 **Fixes & Improvements:**
 

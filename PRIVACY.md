@@ -10,7 +10,9 @@ privacy is a core design goal.
 **Gestura does not collect, transmit, or sell any personal data.** There are no
 analytics, no tracking, no advertising, and no remote servers operated by Gestura.
 The optional gestura.eu integration (below) is off by default and, when enabled,
-only answers questions from gestura.eu about entries you imported from there.
+answers questions from gestura.eu about entries you imported from there and asks
+that index — at most once a day, when you open the settings — whether newer
+versions of those entries exist.
 
 ## What data Gestura processes and where it stays
 
@@ -45,15 +47,24 @@ If you enable *gestura.eu integration* in the settings, and only then:
   and whether you changed them locally. Gestura answers only about entries you
   imported from that very origin, only to that origin, and never about anything
   else in your settings. Gestura also tells such pages its own version number.
-- Nothing is sent while you are not on such a page. There is no account, no
-  identifier, and no request Gestura makes on its own.
+- When you open Gestura's settings, the extension asks gestura.eu — at most once
+  a day, and separately per index — whether newer versions exist for the entries
+  you imported from there. Of those entries the request contains nothing but
+  their ids and version numbers, plus which version of the interface Gestura
+  speaks. Entries you imported from a file are never included,
+  because Gestura cannot verify where they came from. The answer is stored on
+  your device and shown as a badge on the entries it concerns; nothing is
+  downloaded or changed until you confirm it in the import dialog. There is no
+  account and no identifier, and this is the only request Gestura makes without a
+  click of yours.
+- Nothing else is sent while you are not on such a page.
 
 The switch and your consent are stored only on the device where you enabled
 them (`chrome.storage.local`); they are never synced, exported or imported. The
 settings section shows the date you agreed and offers a *Withdraw* button, which
 clears the consent and switches the integration off in one step; turning the
-switch off does the same. Either way everything above stops immediately, and
-entries you imported stay on your device.
+switch off does the same. Either way everything above stops immediately, the
+stored update notices are deleted, and entries you imported stay on your device.
 
 ## Permissions
 
