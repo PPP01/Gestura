@@ -87,8 +87,11 @@ eine URL zeigen, die sich sinnvoll öffnen lässt), und ein Inline-Button tut
 nichts Gestura-Bezogenes (also einen normalen Download als Fallback anbieten).
 Gestura verrät der Seite nicht, ob die Integration eingeschaltet ist.
 
-**Per Link, für JSON, das du selbst hostest.** Der Link muss same-origin zur Seite
-sein — die Erweiterung holt keine fremde URL für eine Seite ab.
+**Per Link, für JSON, das du selbst hostest.** Das `href` des Links muss
+same-origin zur Seite sein. Die Erweiterung folgt beim Abruf dieser URL
+Weiterleitungen, ein same-origin-Link kann also am Ende von einer anderen
+Origin ausgeliefert werden; die Herkunft richtet sich nach der letzten URL,
+nicht nach der im Link geschriebenen.
 
 ```html
 <a rel="gestura-menu" href="/gestura-menu.json">Zu Gestura hinzufügen</a>

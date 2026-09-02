@@ -86,8 +86,10 @@ followed by the browser (so point it at a URL that makes sense to open), and an
 inline button does nothing Gestura-related (so offer a plain download as
 fallback). Gestura does not tell your page whether the integration is on.
 
-**By link, for JSON you host yourself.** The link must be same-origin with the
-page — the extension will not fetch a third-party URL on a page's behalf.
+**By link, for JSON you host yourself.** The link's `href` must be same-origin
+with the page. The extension follows redirects when it fetches that URL, so a
+same-origin link can end up served from another origin; provenance is judged by
+the final URL, not the one written in the link.
 
 ```html
 <a rel="gestura-menu" href="/gestura-menu.json">Add to Gestura</a>
