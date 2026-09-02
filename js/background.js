@@ -3,6 +3,8 @@ importScripts('menu-catalog.js');
 importScripts('menu-model.js');
 importScripts('search-url.js');
 importScripts('favicon-util.js');
+importScripts('eu-integration.js');
+importScripts('eu-local.js');
 
 const isEdge = navigator.userAgent.includes('Edg/') || navigator.userAgent.includes('EdgA/');
 
