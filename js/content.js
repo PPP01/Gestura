@@ -66,11 +66,20 @@
 // the size check run before parsing. Unlike the href branch, this one does not stop
 // propagation: the page's own click handler (the one that dispatches 'gestura:import')
 // is expected to run on the same click, so only the default action is suppressed.
+// Both paths are inert while the website integration (chrome.storage.local, key euIntegration) is off — the default.
 (function () {
 	'use strict';
 
 	if (window.__gesturaMenuLinkImport) return;
 	window.__gesturaMenuLinkImport = true;
+
+	// The switch is read at every decision point, never captured across an
+	// async gap: GesturaEuLocal.current() is a live snapshot fed by
+	// storage.onChanged. Until the first load resolves it reports "off".
+	function integrationOn() {
+		const local = self.GesturaEuLocal;
+		return !!local && self.FlowMouseEuIntegration.effectiveEnabled(local.current());
+	}
 
 	// Mirrors LIMITS.bundleBlobMax in js/menu-exchange.js, which is authoritative.
 	const INLINE_MAX_BYTES = 1024 * 1024;
@@ -87,6 +96,7 @@
 	function onInlinePayload(e) {
 		// One payload per gesture: close first, so a flood of events cannot queue up.
 		closeInlineWindow();
+		if (!integrationOn()) return;
 		const json = e && e.detail;
 		if (typeof json !== 'string' || !json) return;
 		if (new TextEncoder().encode(json).length > INLINE_MAX_BYTES) return;
@@ -115,6 +125,7 @@
 	try {
 		chrome.runtime.onMessage.addListener((request) => {
 			if (!request || request.action !== 'gesturaImportResult') return;
+			if (!integrationOn()) return;
 			// bubbles so a listener on `window` hears it too. The contract names
 			// `document`; a page that guessed `window` would otherwise see nothing
 			// while the extension reports a successful delivery — the exact pair of
@@ -137,6 +148,7 @@
 
 	document.addEventListener('click', (e) => {
 		if (!e.isTrusted) return;
+		if (!integrationOn()) return;
 
 		// One ancestor walk for both paths: this fires on every click in every
 		// frame of every page, so the common case (a hit on neither) must bail

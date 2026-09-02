@@ -1283,7 +1283,7 @@ async function handleAction(request, sender) {
 // Hand-off to the options page: stash the parsed JSON in session storage and
 // open/focus the options page, which picks it up in #checkPendingImport().
 // Shared by both import paths (fetched href, and inline hand-off).
-async function stashPendingImport(json, url, sender) {
+async function stashPendingImport(json, url, sender, indexOrigin) {
 	await chrome.storage.session.set({
 		// tabId/frameId reisen mit, damit die Optionsseite der auslösenden Seite
 		// hinterher melden kann, was aus der Übergabe geworden ist. Sie stehen hier
@@ -1293,6 +1293,7 @@ async function stashPendingImport(json, url, sender) {
 			json, url, ts: Date.now(),
 			tabId: sender && sender.tab ? sender.tab.id : null,
 			frameId: sender && typeof sender.frameId === 'number' ? sender.frameId : 0,
+			indexOrigin: indexOrigin || null,
 		},
 	});
 	await openOptionsPage('');
@@ -1310,6 +1311,7 @@ async function stashPendingImport(json, url, sender) {
 const NO_RECEIVER = /Receiving end does not exist|Could not establish connection|No frame with id|No tab with id/i;
 
 async function reportImportResult(request) {
+	if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
 	const tabId = request && request.tabId;
 	if (typeof tabId !== 'number') return { success: false, error: 'noTab' };
 	try {
@@ -1334,6 +1336,7 @@ async function reportImportResult(request) {
 const IMPORT_FROM_SITE_MAX_BYTES = 100 * 1024;
 
 async function importFromSite(request, sender) {
+	if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
 	let url;
 	try {
 		url = new URL(request.url);
@@ -1356,21 +1359,23 @@ async function importFromSite(request, sender) {
 	try {
 		const ctl = new AbortController();
 		const timeout = setTimeout(() => ctl.abort(), 8000);
-		let res;
+		let response;
 		try {
-			res = await fetch(url.href, { signal: ctl.signal, credentials: 'omit', redirect: 'follow' });
+			response = await fetch(url.href, { signal: ctl.signal, credentials: 'omit', redirect: 'follow' });
 		} finally {
 			clearTimeout(timeout);
 		}
-		if (!res.ok) return { success: false, error: 'Fetch failed: ' + res.status };
+		if (!response.ok) return { success: false, error: 'Fetch failed: ' + response.status };
 
-		const text = await res.text();
+		const text = await response.text();
 		if (new TextEncoder().encode(text).length > IMPORT_FROM_SITE_MAX_BYTES) {
 			return { success: false, error: 'Response too large' };
 		}
 		const json = JSON.parse(text);
 
-		return await stashPendingImport(json, url.href, sender);
+		// The final URL after redirects decides provenance, never what was clicked.
+		return await stashPendingImport(json, url.href, sender,
+			FlowMouseEuIntegration.qualifiedOrigin(response.url, await GesturaEuLocal.read()));
 	} catch (e) {
 		return { success: false, error: String(e?.message || e) };
 	}
@@ -1384,6 +1389,7 @@ async function importFromSite(request, sender) {
 const IMPORT_INLINE_MAX_BYTES = 1024 * 1024; // mirrors LIMITS.bundleBlobMax in js/menu-exchange.js
 
 async function importInline(request, sender) {
+	if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
 	const text = request && request.json;
 	if (typeof text !== 'string' || !text) return { success: false, error: 'Missing payload' };
 	if (new TextEncoder().encode(text).length > IMPORT_INLINE_MAX_BYTES) {
@@ -1395,7 +1401,8 @@ async function importInline(request, sender) {
 	} catch {
 		return { success: false, error: 'Invalid JSON' };
 	}
-	return await stashPendingImport(json, sender.url || sender.tab?.url || '', sender);
+	const pageUrl = sender.url || (sender.tab && sender.tab.url) || '';
+	return await stashPendingImport(json, pageUrl, sender, FlowMouseEuIntegration.qualifiedOrigin(pageUrl, await GesturaEuLocal.read()));
 }
 
 // ---- Favicon resolution (cross-browser; replaces Chrome-only /_favicon/) ----

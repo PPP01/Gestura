@@ -389,7 +389,8 @@ class OptionsPage extends LitElement {
 			dialog.addEventListener('import-done', () => this.requestUpdate());
 			this.shadowRoot.appendChild(dialog);
 		}
-		dialog.openWith(pending.json, { type: 'site', url: pending.url },
+		dialog.openWith(pending.json,
+			{ type: 'site', url: pending.url, ...(pending.indexOrigin ? { indexOrigin: pending.indexOrigin } : {}) },
 			{ tabId: pending.tabId, frameId: pending.frameId });
 	}
 

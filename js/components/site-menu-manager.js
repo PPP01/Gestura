@@ -235,7 +235,9 @@ class SiteMenuManager extends LitElement {
 		try {
 			const res = await fetch(url);
 			const obj = await res.json();
-			this.#dialog().openWith(obj, { type: 'url', url });
+			// Provenance from the final URL after redirects, never from what was typed.
+			const indexOrigin = window.FlowMouseEuIntegration.qualifiedOrigin(res.url, await window.GesturaEuLocal.read());
+			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
 		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
 	}
 
