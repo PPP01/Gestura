@@ -22,6 +22,7 @@
 			rawResult: !!src.rawResult,
 			builtin: !!builtin,
 			type: src.type === 'image' ? 'image' : 'text',
+			source: src.source,
 		};
 	}
 	function isEngineHidden(entry, hiddenList) {

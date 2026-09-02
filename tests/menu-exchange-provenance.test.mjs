@@ -66,3 +66,24 @@ describe('addBaselines', () => {
 		expect(await EU.modifiedState(stored)).toBe(false);
 	});
 });
+
+describe('an edited import stays an import', () => {
+	it('keeps provenance and reports modified after the editor rebuilds an entry', async () => {
+		const { patch, imported } = X.buildImportPatch(
+			[{ type: 'engine', value: engine('com.e'), source: SITE, mode: 'new', matchId: null }],
+			{ siteMenus: { custom: {}, edited: {} }, searchEngines: { custom: [], overrides: {} } },
+			{ lang: 'en', stripTransform: false },
+		);
+		const saved = await EU.addBaselines(patch, imported);
+		const stored = EU.findStored(saved, 'engine', imported[0].id);
+
+		// What engine-manager's #saveEdit does: rebuild from a fixed field list.
+		// With `source` carried over (Task 6) the entry stays recognisable.
+		const rebuilt = { id: stored.id, name: 'renamed by the user', url: stored.url, type: stored.type, builtin: false, source: stored.source };
+		expect(await EU.modifiedState(rebuilt)).toBe(true);
+
+		// Dropping `source` - the bug this task fixes - loses the entry entirely.
+		const { source, ...withoutSource } = rebuilt;
+		expect(EU.listProvenanced({ searchEngines: { custom: [withoutSource], overrides: {} } })).toEqual([]);
+	});
+});

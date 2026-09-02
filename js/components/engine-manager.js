@@ -369,6 +369,7 @@ class EngineManager extends LitElement {
 				transformRawResult: !!c.transformRawResult,
 				rawResult: !!c.rawResult,
 				type: c.type === 'image' ? 'image' : 'text',
+				source: c.source,
 				builtin: false,
 				isHidden: false,
 			});
@@ -457,6 +458,7 @@ class EngineManager extends LitElement {
 			if (catalogEntry) {
 				// Store only the fields that differ from catalog base, but keep it simple: store the whole subset
 				const overrides = { ...(se.overrides || {}) };
+				const prev = overrides[id] || {};
 				overrides[id] = {
 					name,
 					url,
@@ -469,13 +471,14 @@ class EngineManager extends LitElement {
 					transformClipboard: draft.transformClipboard,
 					transformRawResult: draft.transformRawResult,
 					rawResult: draft.rawResult,
+					...(prev.source ? { source: prev.source } : {}),
 				};
 				this.#save({ ...se, overrides });
 			}
 		} else {
 			const custom = (se.custom || []).map(c => {
 				if (c.id !== id) return c;
-				return { id, name, url, plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode, rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode, transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult, type: c.type };
+				return { id, name, url, plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode, rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode, transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult, type: c.type, ...(c.source ? { source: c.source } : {}) };
 			});
 			this.#save({ ...se, custom });
 		}
