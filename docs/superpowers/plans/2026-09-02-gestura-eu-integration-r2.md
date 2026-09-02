@@ -17,7 +17,8 @@
 - **No build step.** The repo folder *is* the unpacked extension. `js/eu-updates.js` is a classic script (IIFE, `root.GesturaEuUpdates = api`, `module.exports` for vitest); components under `js/components/` stay ES modules. Never mix the two worlds.
 - **Indentation is tabs**, throughout, in JS, JSON and CSS alike.
 - **Internal `FlowMouse*` identifiers stay.** R1's pure core is `window.FlowMouseEuIntegration`; do not rename it. New R2 globals use the `Gestura*` prefix R1 established for new files (`GesturaEuLocal` → `GesturaEuUpdates`).
-- **i18n: en and de only, and every new key goes into `PENDING_TRANSLATION`** in `tests/site-menu-locales.test.mjs`. Owner decision, carried over from R1: all 39 locales are filled before a release, not during development. New keys use the `euIntegration*` prefix, which `NEW_KEY_PREFIXES` already covers.
+- **i18n: en and de only, and every new key goes into `PENDING_TRANSLATION`** in `tests/site-menu-locales.test.mjs`. This is the mechanism [CLAUDE.md](../../../CLAUDE.md) documents for text still being drafted ("*may live in `en` and `de` alone, but only by being listed in `PENDING_TRANSLATION` — that list is the release checklist*"), and the owner confirmed it for R2. New keys use the `euIntegration*` prefix, which `NEW_KEY_PREFIXES` already covers. Note that **`AGENTS.md` is a stale copy of `CLAUDE.md` that is missing exactly this paragraph** — read from `CLAUDE.md`, and see "Open for the owner" below.
+- **R2 is not releasable while any key is still in `PENDING_TRANSLATION`.** "Build now, release when the endpoint answers" is about the server, not about the texts: consent copy is the one thing a user must be able to read in their own language. Task 8 carries the gate explicitly.
 - **Never put an undeclared `$WORD$` in a message.** `chrome.i18n` reads it as a placeholder and the extension fails to load entirely. Use `{token}` plus `.replace()`; `tests/locale-placeholders.test.mjs` guards it.
 - **Copy rule from the owner:** lead with what the service does for the user, not with warnings. Keep claims factual — where the extension genuinely acts without a click, the text says so plainly instead of implying nothing ever happens. R2's whole point is such a case.
 - **`version_name` in `manifest.json` is generated** — a clean filter and the hooks in `.githooks/` own it. Never edit it; do not bump `version` in this plan either (that is a release step).
@@ -122,19 +123,25 @@ Request body:
 {
 	"apiLevel": 2,
 	"entries": [
-		{ "id": "eu.example.shop", "type": "menu", "version": "1.2.0" },
-		{ "id": "eu.example.search", "type": "engine", "version": null }
+		{ "id": "eu.example.shop", "version": "1.2.0" },
+		{ "id": "eu.example.search", "version": null }
 	]
 }
 ```
 
-- `type` is `"menu"` or `"engine"`. Ids are unique across both in the index, so
-  `type` is redundant for the lookup; it travels because the answer must be
-  attributable without a second lookup on the client.
+- **Id and version, and nothing else.** Whether an entry is a menu or a search
+  engine is information about the user's setup, and ids are unique across both in
+  the index, so the kind is not needed to look one up. The client keeps it locally
+  and uses it to check the answer (below).
 - `version` is the content version the entry was imported with, or `null` when
   the entry carries none (imported before versions were recorded). `null` means
   "tell me the current version"; the client decides for itself whether that
   differs from what it stores.
+- **The endpoint must not redirect.** The client sends `redirect: "error"`,
+  because a `307`/`308` preserves method *and* body: a redirect off the index
+  would forward these ids and versions to whatever origin it names, and that
+  origin can answer the preflight permissively. A `3xx` is therefore a failed
+  check, not a hop.
 
 Answer — **only** entries that have something to say (a newer version, a
 deprecation, or both). Everything up to date is simply absent:
@@ -156,10 +163,21 @@ deprecation, or both). Everything up to date is simply absent:
 }
 ```
 
+- `type` is `"menu"` or `"engine"` and is **checked against the kind the client
+  asked about**: an answer that calls a menu an engine is dropped. This is the
+  only reason `type` is in the protocol, and it is why it travels in the answer
+  rather than in the request.
+- `version` must be a numeric triple (`\d{1,5}\.\d{1,5}\.\d{1,5}`, the same
+  `SEMVER_RE` the exchange format enforces) and is compared **numerically**
+  against what the entry stores. Merely differing is not enough: after a manual
+  import of `1.4.0`, an answer still naming `1.3.0` must not be offered as an
+  update.
 - `url` is where the entry's exchange JSON for that version can be fetched. It
   **must** be on the same origin that answered; the extension drops any result
-  whose `url` points elsewhere, and refuses to be sent shopping on a third
-  party's behalf.
+  whose `url` points elsewhere. When the user then adopts the update, the
+  extension checks the **final** URL after redirects against that same origin and
+  refuses the import if it moved — so the guarantee holds at download time too,
+  not only for the URL the answer announced.
 - `changelog` is optional plain text, no markup, truncated to 1000 characters by
   the client.
 - `deprecated: true` says the index no longer maintains the entry. It may appear
@@ -175,8 +193,15 @@ included, stays exactly as it was, so **a network error does not start the
 malformed *element* is dropped and the rest of the answer is kept — an element
 naming a `type` a future level introduces must not invalidate today's answer.
 Elements are dropped when: the `id` was not asked for, it repeats, `type` is
-neither `menu` nor `engine`, `version` is missing or over 32 characters, or `url`
-is unparseable or not on the answering origin. At most 200 elements.
+missing or disagrees with the kind that id was asked about, `version` is not a
+numeric triple, or `url` is unparseable or not on the answering origin. At most
+200 elements.
+
+The response is read under the same abort timer as the request — `fetch` resolves
+on the response *headers*, so a body that arrives slowly forever would otherwise
+hang the check indefinitely. A `Content-Length` above the cap is an early exit;
+because a chunked answer declares none, the byte count on the received text is
+the actual limit and the timer is what bounds the rest.
 
 **CORS.** Both manifests carry `<all_urls>`, but Firefox MV3 does not *grant*
 host permissions automatically, so until the user opts in at `about:addons` this
@@ -251,7 +276,7 @@ git commit -m "docs(api): pin the update endpoint, its validation and its cache"
 
 **Interfaces:**
 - Consumes: `FlowMouseEuIntegration` — `allowedOrigins(local)`, `effectiveEnabled(local)`, `listProvenanced(settings)`, `ID_RE`, `API_LEVEL`.
-- Produces: `GesturaEuUpdates` with `KEY`, `PATH`, `THROTTLE_MS`, `LIMITS`, `normalizeCache(cache)`, `updateRequestGroups(settings, local)`, `dueOrigins(cache, groups, nowMs)`, `parseUpdateResponse(text, origin, askedIds)`, `mergeSlot(cache, origin, results, checkedAtIso)`, `dropOrigin(cache, origin)`, `pruneOrigins(cache, allowedOrigins)`, `updateFor(cache, stored)`. Task 3 adds `runUpdateCheck`, `read`, `write`, `clear` to the same object.
+- Produces: `GesturaEuUpdates` with `KEY`, `PATH`, `THROTTLE_MS`, `LIMITS`, `SEMVER_RE`, `normalizeCache(cache)`, `updateRequestGroups(settings, local)` → `[{origin, entries: [{id, version}], kinds: Map<id, kind>}]`, `dueOrigins(cache, groups, nowMs, force)`, `parseUpdateResponse(text, origin, kinds)`, `mergeSlot(cache, origin, results, checkedAtIso)`, `dropOrigin(cache, origin)`, `pruneOrigins(cache, allowedOrigins)`, `applySlots(cache, slots, allowedOrigins)`, `isNewer(candidate, known)`, `updateFor(cache, stored)` → the cached result plus `newer` and `origin`, or `null`. Task 3 adds `runUpdateCheck`, `read`, `write`, `clear`, `persist` to the same object.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -300,10 +325,12 @@ describe('updateRequestGroups', () => {
 		const groups = U.updateRequestGroups(settings(), local({ devOrigin: DEV }));
 		expect(groups.map(g => g.origin).sort()).toEqual([DEV, PROD]);
 		const prod = groups.find(g => g.origin === PROD);
+		// The body carries id and version only - the kind stays local.
 		expect(prod.entries).toEqual([
-			{ id: 'eu.example.shop', type: 'menu', version: '1.2.0' },
-			{ id: 'eu.example.search', type: 'engine', version: null },
+			{ id: 'eu.example.shop', version: '1.2.0' },
+			{ id: 'eu.example.search', version: null },
 		]);
+		expect([...prod.kinds]).toEqual([['eu.example.shop', 'menu'], ['eu.example.search', 'engine']]);
 	});
 
 	it('drops an origin that is no longer allowed', () => {
@@ -340,7 +367,7 @@ describe('dueOrigins', () => {
 });
 
 describe('parseUpdateResponse', () => {
-	const asked = ['eu.example.shop', 'eu.example.search'];
+	const asked = new Map([['eu.example.shop', 'menu'], ['eu.example.search', 'engine']]);
 	const body = (updates) => JSON.stringify({ apiLevel: 2, updates });
 	const one = {
 		id: 'eu.example.shop', type: 'menu', version: '1.3.0',
@@ -368,7 +395,9 @@ describe('parseUpdateResponse', () => {
 	it.each([
 		['an id nobody asked about', { ...one, id: 'eu.other.thing' }],
 		['an unknown type', { ...one, type: 'bookmark' }],
+		['the wrong type for the id that was asked', { ...one, type: 'engine' }],
 		['a missing version', { ...one, version: undefined }],
+		['a version that is not a numeric triple', { ...one, version: '1.3' }],
 		['a url on another origin', { ...one, url: 'https://evil.example/x.json' }],
 		['an unparseable url', { ...one, url: 'not a url' }],
 	])('drops just the element: %s', (_label, bad) => {
@@ -388,13 +417,13 @@ describe('parseUpdateResponse', () => {
 describe('mergeSlot, dropOrigin, pruneOrigins', () => {
 	const seed = {
 		origins: [
-			{ origin: PROD, checkedAt: '2026-09-01T00:00:00Z', results: [{ id: 'a', type: 'menu', version: '2', url: PROD + '/a' }] },
+			{ origin: PROD, checkedAt: '2026-09-01T00:00:00Z', results: [{ id: 'a', type: 'menu', version: '2.0.0', url: PROD + '/a' }] },
 			{ origin: DEV, checkedAt: '2026-09-01T00:00:00Z', results: [] },
 		],
 	};
 
 	it('replaces only its own slot, in place', () => {
-		const next = U.mergeSlot(seed, DEV, [{ id: 'b', type: 'menu', version: '3', url: DEV + '/b' }], '2026-09-02T00:00:00Z');
+		const next = U.mergeSlot(seed, DEV, [{ id: 'b', type: 'menu', version: '3.0.0', url: DEV + '/b' }], '2026-09-02T00:00:00Z');
 		expect(next.origins.map(s => s.origin)).toEqual([PROD, DEV]);
 		expect(next.origins[0]).toEqual(seed.origins[0]);
 		expect(next.origins[1].checkedAt).toBe('2026-09-02T00:00:00Z');
@@ -434,11 +463,31 @@ describe('updateFor', () => {
 	};
 	const stored = (over) => ({ name: 'x', source: { type: 'site', indexOrigin: PROD, indexId: 'eu.example.shop', version: '1.2.0', ...over } });
 
-	it('reports a newer version', () => {
-		expect(U.updateFor(cache, stored()).version).toBe('1.3.0');
+	it('reports a newer version, marked adoptable', () => {
+		const up = U.updateFor(cache, stored());
+		expect(up.version).toBe('1.3.0');
+		expect(up.newer).toBe(true);
+	});
+	it('a retirement at the version the user already has is not adoptable', () => {
+		const s = { source: { indexOrigin: PROD, indexId: 'eu.example.old', version: '1.0.0' } };
+		expect(U.updateFor(cache, s).newer).toBe(false);
+	});
+	it('a retirement with one last version stays adoptable', () => {
+		const s = { source: { indexOrigin: PROD, indexId: 'eu.example.old', version: '0.9.0' } };
+		const up = U.updateFor(cache, s);
+		expect(up.deprecated).toBe(true);
+		expect(up.newer).toBe(true);
 	});
 	it('says nothing once the stored version has caught up', () => {
 		expect(U.updateFor(cache, stored({ version: '1.3.0' }))).toBeNull();
+	});
+	it('never offers a downgrade after a manual import of something newer', () => {
+		// The cache still announces 1.3.0; the user has since imported 1.4.0 by
+		// hand. "Different" would offer 1.3.0 as an update - a downgrade.
+		expect(U.updateFor(cache, stored({ version: '1.4.0' }))).toBeNull();
+	});
+	it('names the origin the entry came from, for the adopt path to check', () => {
+		expect(U.updateFor(cache, stored()).origin).toBe(PROD);
 	});
 	it('reports a deprecation even at the same version', () => {
 		const s = { source: { indexOrigin: PROD, indexId: 'eu.example.old', version: '1.0.0' } };
@@ -488,7 +537,11 @@ Create `js/eu-updates.js`:
 	const PATH = '/api/v1/updates';
 	const THROTTLE_MS = 24 * 60 * 60 * 1000;
 	const REQUEST_TIMEOUT_MS = 8000;
-	const LIMITS = { responseMaxBytes: 256 * 1024, resultsMax: 200, versionMax: 32, changelogMax: 1000 };
+	const LIMITS = { responseMaxBytes: 256 * 1024, resultsMax: 200, changelogMax: 1000 };
+	// Mirrors SEMVER_RE in js/menu-exchange.js, which is not exported. The exchange
+	// format accepts nothing else as a version, so the update check must not
+	// either - and a numeric triple is what makes a real comparison possible.
+	const SEMVER_RE = /^\d{1,5}\.\d{1,5}\.\d{1,5}$/;
 
 	// --- cache ------------------------------------------------------------------
 	// An array of per-origin slots, never an object keyed by origin: the keys
@@ -535,8 +588,42 @@ Create `js/eu-updates.js`:
 		return { origins: normalizeCache(cache).origins.filter(s => keep.has(s.origin)) };
 	}
 
+	// Folds a finished run's slots into whatever the cache looks like NOW, rather
+	// than writing back a whole cache captured before the requests went out. The
+	// panel can have dropped a developer origin's slot in the meantime, and a
+	// second options tab can have written its own answer; both survive this, and a
+	// slot whose origin is no longer allowed is refused even if the run produced
+	// one.
+	function applySlots(cache, slots, allowed) {
+		const keep = new Set(allowed || []);
+		let out = pruneOrigins(cache, allowed);
+		for (const slot of slots || []) {
+			if (!slot || !keep.has(slot.origin)) continue;
+			out = mergeSlot(out, slot.origin, slot.results, slot.checkedAt);
+		}
+		return out;
+	}
+
+	// "Different" is not good enough: after a manual import of 1.4.0 a cache entry
+	// still announcing 1.3.0 would otherwise offer the user a downgrade as an
+	// update. Nothing comparable stored (an entry imported before versions were
+	// recorded) counts as older, because the index's version is then the only one
+	// anybody knows.
+	function isNewer(candidate, known) {
+		if (!SEMVER_RE.test(candidate || '')) return false;
+		if (!SEMVER_RE.test(known || '')) return true;
+		const a = candidate.split('.').map(Number);
+		const b = known.split('.').map(Number);
+		for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i];
+		return false;
+	}
+
 	// --- what to ask -------------------------------------------------------------
 
+	// `entries` is exactly the request body: id and version, nothing else. The kind
+	// stays behind in `kinds`, where it is used to check the answer rather than
+	// disclosed - a menu/engine split is information about the user's entries, and
+	// the index does not need it to look an id up.
 	function updateRequestGroups(settings, local) {
 		const allowed = new Set(EU.allowedOrigins(local));
 		const byOrigin = new Map();
@@ -551,14 +638,28 @@ Create `js/eu-updates.js`:
 			if (entries.has(s.indexId)) continue;
 			entries.set(s.indexId, {
 				id: s.indexId,
-				type: e.kind,
+				kind: e.kind,
 				version: typeof s.version === 'string' ? s.version : null,
 			});
 		}
-		return [...byOrigin].map(([origin, entries]) => ({ origin, entries: [...entries.values()] }));
+		return [...byOrigin].map(([origin, entries]) => {
+			const list = [...entries.values()];
+			return {
+				origin,
+				entries: list.map(e => ({ id: e.id, version: e.version })),
+				// A Map, not an object: an id like "constructor" is pattern-valid and
+				// must not reach an object's prototype chain (same reason as
+				// statusAnswer's byId map in eu-integration.js).
+				kinds: new Map(list.map(e => [e.id, e.kind])),
+			};
+		});
 	}
 
-	function dueOrigins(cache, groups, nowMs) {
+	// force skips the window and nothing else - it does not clear, reset or
+	// otherwise touch what is cached. "Check now" is a scheduling override, not a
+	// reason to lose the answers already on record.
+	function dueOrigins(cache, groups, nowMs, force) {
+		if (force) return (groups || []).slice();
 		const slots = new Map(normalizeCache(cache).origins.map(s => [s.origin, s]));
 		return (groups || []).filter(g => {
 			const slot = slots.get(g.origin);
@@ -577,11 +678,15 @@ Create `js/eu-updates.js`:
 	// element the client cannot use is dropped - an element naming a type some
 	// future level introduces must not invalidate today's answer.
 
-	function normalizeResult(raw, origin, asked, seen) {
+	function normalizeResult(raw, origin, kinds, seen) {
 		if (!raw || typeof raw !== 'object') return null;
-		if (typeof raw.id !== 'string' || !asked.has(raw.id) || seen.has(raw.id)) return null;
-		if (raw.type !== 'menu' && raw.type !== 'engine') return null;
-		if (typeof raw.version !== 'string' || !raw.version || raw.version.length > LIMITS.versionMax) return null;
+		if (typeof raw.id !== 'string' || seen.has(raw.id)) return null;
+		// Asked about, and answered as the kind it actually is. Without the second
+		// half the index could answer a menu question with an engine and the badge
+		// would point at the wrong thing; `type` travels in the answer for exactly
+		// this check, which is the only reason it is in the protocol at all.
+		if (kinds.get(raw.id) !== raw.type) return null;
+		if (typeof raw.version !== 'string' || !SEMVER_RE.test(raw.version)) return null;
 		if (typeof raw.url !== 'string') return null;
 		let url;
 		try { url = new URL(raw.url); } catch { return null; }
@@ -595,14 +700,14 @@ Create `js/eu-updates.js`:
 		return out;
 	}
 
-	function parseUpdateResponse(text, origin, askedIds) {
+	function parseUpdateResponse(text, origin, kinds) {
 		if (typeof text !== 'string' || !text) return null;
 		if (new TextEncoder().encode(text).length > LIMITS.responseMaxBytes) return null;
 		let json;
 		try { json = JSON.parse(text); } catch { return null; }
 		if (!json || typeof json !== 'object' || Array.isArray(json)) return null;
 		if (!Array.isArray(json.updates) || json.updates.length > LIMITS.resultsMax) return null;
-		const asked = new Set(askedIds || []);
+		const asked = kinds instanceof Map ? kinds : new Map();
 		const seen = new Set();
 		const results = [];
 		for (const raw of json.updates) {
@@ -627,13 +732,20 @@ Create `js/eu-updates.js`:
 		const hit = slot.results.find(r => r.id === s.indexId);
 		if (!hit) return null;
 		const known = typeof s.version === 'string' ? s.version : null;
-		if (hit.version === known && !hit.deprecated) return null;
-		return hit;
+		// `newer` is not the opposite of `deprecated`: an index may retire an entry
+		// and still publish one last fix for it, and it may also announce a
+		// retirement at the version the user already has. The badge reads
+		// `deprecated`, the adopt button reads `newer`, and both can be true.
+		const newer = isNewer(hit.version, known);
+		if (!newer && !hit.deprecated) return null;
+		// origin travels with the result so the adopt button can name the origin it
+		// expects; the results themselves are stored per slot and carry none.
+		return { ...hit, newer, origin: slot.origin };
 	}
 
 	const api = {
-		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS,
-		normalizeCache, mergeSlot, dropOrigin, pruneOrigins,
+		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS, SEMVER_RE,
+		normalizeCache, mergeSlot, dropOrigin, pruneOrigins, applySlots, isNewer,
 		updateRequestGroups, dueOrigins, parseUpdateResponse, updateFor,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -669,7 +781,7 @@ git commit -m "feat(eu): the update check's pure core - grouping, validation, ca
 
 **Interfaces:**
 - Consumes: everything Task 2 produced, plus `EU.effectiveEnabled(local)`.
-- Produces: `GesturaEuUpdates.runUpdateCheck({ settings, local, cache, now, fetchImpl })` → `Promise<{ cache, changed }>`; `read()` → `Promise<cache>`; `write(cache)` → `Promise<void>`; `clear()` → `Promise<void>`; `CHANGED_EVENT = 'eu-updates-changed'`.
+- Produces: `GesturaEuUpdates.runUpdateCheck({ settings, local, cache, now, fetchImpl, force?, stillAllowed? })` → `Promise<{ slots: [{origin, checkedAt, results}] }>`. It writes nothing: `force` skips the due-check only, and `stillAllowed(origin)` is an optional `async (origin) => boolean` re-asked after every answer, whose `false` drops that answer. Persisting is `persist(slots)` → `Promise<boolean>`, which re-reads the live state and the cache, folds the slots in through `applySlots`, writes only on a real change and then fires `CHANGED_EVENT`. Also `read()` → `Promise<cache>`; `write(cache)` → `Promise<void>`; `clear()` → `Promise<void>`; `CHANGED_EVENT = 'eu-updates-changed'`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -678,7 +790,11 @@ Append to `tests/eu-updates.test.mjs`:
 ```js
 describe('runUpdateCheck', () => {
 	const now = Date.parse('2026-09-02T12:00:00Z');
-	const ok = (body) => ({ ok: true, text: async () => JSON.stringify(body) });
+	const iso = new Date(now).toISOString();
+	const ok = (body) => {
+		const text = JSON.stringify(body);
+		return { ok: true, headers: new Headers({ 'content-length': String(text.length) }), text: async () => text };
+	};
 	const upd = (id) => ({ id, type: 'menu', version: '9.9.9', url: PROD + '/api/v1/menus/' + id + '/9.9.9' });
 
 	// Records what was asked, so the per-origin grouping can be asserted from the
@@ -686,20 +802,28 @@ describe('runUpdateCheck', () => {
 	const spy = (handler) => {
 		const calls = [];
 		const fetchImpl = async (url, init) => {
-			calls.push({ url, body: JSON.parse(init.body), method: init.method });
+			calls.push({ url, body: JSON.parse(init.body), method: init.method, redirect: init.redirect });
 			return handler(url, init);
 		};
 		return { calls, fetchImpl };
 	};
+	const run = (over = {}) => U.runUpdateCheck({
+		settings: settings(), local: local(), cache: { origins: [] }, now,
+		fetchImpl: over.fetchImpl, ...over,
+	});
 
 	it('asks each origin its own endpoint, with only its own entries', async () => {
 		const { calls, fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
-		await U.runUpdateCheck({ settings: settings(), local: local({ devOrigin: DEV }), cache: { origins: [] }, now, fetchImpl });
+		await run({ local: local({ devOrigin: DEV }), fetchImpl });
 		expect(calls.map(c => c.url).sort()).toEqual([DEV + U.PATH, PROD + U.PATH]);
 		const prod = calls.find(c => c.url.startsWith(PROD));
 		expect(prod.method).toBe('POST');
 		expect(prod.body.apiLevel).toBe(EU.API_LEVEL);
 		expect(prod.body.entries.map(e => e.id)).toEqual(['eu.example.shop', 'eu.example.search']);
+		// No entry kind on the wire, and no redirect may be followed: a 307/308
+		// preserves the body, so following one would forward these ids elsewhere.
+		expect(prod.body.entries.every(e => !('type' in e))).toBe(true);
+		expect(prod.redirect).toBe('error');
 		const dev = calls.find(c => c.url.startsWith(DEV));
 		expect(dev.body.entries.map(e => e.id)).toEqual(['eu.example.dev']);
 	});
@@ -707,54 +831,110 @@ describe('runUpdateCheck', () => {
 	it('sends nothing while the integration is not effectively enabled', async () => {
 		const { calls, fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
 		const off = local({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT - 1, date: 'x' } });
-		const out = await U.runUpdateCheck({ settings: settings(), local: off, cache: { origins: [] }, now, fetchImpl });
+		expect(await run({ local: off, fetchImpl })).toEqual({ slots: [] });
 		expect(calls).toEqual([]);
-		expect(out.cache).toEqual({ origins: [] });
 	});
 
-	it('stores a validated answer in its own slot and leaves the other alone', async () => {
+	it('reports one slot per origin that answered, and none for the others', async () => {
 		const seed = { origins: [{ origin: DEV, checkedAt: '2026-09-02T11:00:00Z', results: [] }] };
-		const { fetchImpl } = spy((url) => (url.startsWith(PROD) ? ok({ apiLevel: 2, updates: [upd('eu.example.shop')] }) : ok({ apiLevel: 2, updates: [] })));
-		const out = await U.runUpdateCheck({ settings: settings(), local: local({ devOrigin: DEV }), cache: seed, now, fetchImpl });
-		expect(out.changed).toBe(true);
-		const prod = out.cache.origins.find(s => s.origin === PROD);
-		expect(prod.results).toHaveLength(1);
-		expect(prod.checkedAt).toBe(new Date(now).toISOString());
-		// DEV was inside its window, so it was not even asked and is untouched.
-		expect(out.cache.origins.find(s => s.origin === DEV)).toEqual(seed.origins[0]);
+		const { fetchImpl } = spy((url) => (url.startsWith(PROD)
+			? ok({ apiLevel: 2, updates: [upd('eu.example.shop')] })
+			: ok({ apiLevel: 2, updates: [] })));
+		const { slots } = await run({ local: local({ devOrigin: DEV }), cache: seed, fetchImpl });
+		// DEV was inside its window, so it was never asked and produces no slot.
+		expect(slots.map(s => s.origin)).toEqual([PROD]);
+		expect(slots[0]).toEqual({ origin: PROD, checkedAt: iso, results: [upd('eu.example.shop')] });
 	});
 
-	it('a network error starts no throttle window', async () => {
-		const seed = { origins: [{ origin: PROD, checkedAt: '2026-09-01T00:00:00Z', results: [upd('eu.example.shop')] }] };
+	it('a network error produces no slot, so no checkedAt is ever written', async () => {
 		const { fetchImpl } = spy(() => { throw new Error('offline'); });
-		const out = await U.runUpdateCheck({ settings: settings(), local: local(), cache: seed, now, fetchImpl });
-		expect(out.changed).toBe(false);
-		expect(out.cache.origins[0]).toEqual(seed.origins[0]);
+		expect(await run({ fetchImpl })).toEqual({ slots: [] });
 	});
 
-	it('a non-200 and an invalid body leave the slot untouched too', async () => {
-		const seed = { origins: [{ origin: PROD, checkedAt: '2026-09-01T00:00:00Z', results: [] }] };
-		for (const res of [{ ok: false, text: async () => '{}' }, { ok: true, text: async () => 'not json' }]) {
+	it('a non-200 and an invalid body produce no slot either', async () => {
+		for (const res of [
+			{ ok: false, headers: new Headers(), text: async () => '{}' },
+			{ ok: true, headers: new Headers(), text: async () => 'not json' },
+		]) {
 			const { fetchImpl } = spy(() => res);
-			const out = await U.runUpdateCheck({ settings: settings(), local: local(), cache: seed, now, fetchImpl });
-			expect(out.cache.origins[0].checkedAt).toBe('2026-09-01T00:00:00Z');
+			expect(await run({ fetchImpl })).toEqual({ slots: [] });
 		}
 	});
 
 	it('respects the window and skips the request entirely', async () => {
 		const seed = { origins: [{ origin: PROD, checkedAt: '2026-09-02T06:00:00Z', results: [] }] };
 		const { calls, fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
-		const out = await U.runUpdateCheck({ settings: settings(), local: local(), cache: seed, now, fetchImpl });
+		const { slots } = await run({ cache: seed, fetchImpl });
 		expect(calls).toEqual([]);
-		expect(out.changed).toBe(false);
+		expect(slots).toEqual([]);
 	});
 
-	it('prunes a slot whose origin is no longer allowed, without asking anyone', async () => {
-		const seed = { origins: [{ origin: DEV, checkedAt: '2026-09-02T11:00:00Z', results: [upd('x')] }] };
-		const { fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [] }));
-		const out = await U.runUpdateCheck({ settings: { siteMenus: {}, searchEngines: {} }, local: local({ devOrigin: '' }), cache: seed, now, fetchImpl });
-		expect(out.cache.origins).toEqual([]);
-		expect(out.changed).toBe(true);
+	it('force asks anyway, and touches nothing that is cached', async () => {
+		const kept = [upd('eu.example.shop')];
+		const seed = { origins: [{ origin: PROD, checkedAt: '2026-09-02T06:00:00Z', results: kept }] };
+		const { calls, fetchImpl } = spy(() => { throw new Error('offline'); });
+		const { slots } = await run({ cache: seed, fetchImpl, force: true });
+		expect(calls).toHaveLength(1);
+		// The failed forced check reports nothing, so applySlots leaves the old
+		// slot - checkedAt and results - exactly where it was.
+		expect(slots).toEqual([]);
+		expect(U.applySlots(seed, slots, [PROD])).toEqual(seed);
+	});
+
+	it('discards an answer whose origin stopped being allowed mid-run', async () => {
+		const { fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [upd('eu.example.shop')] }));
+		const { slots } = await run({ fetchImpl, stillAllowed: async () => false });
+		expect(slots).toEqual([]);
+	});
+
+	it('keeps the origins that are still allowed and drops only the others', async () => {
+		const { fetchImpl } = spy(() => ok({ apiLevel: 2, updates: [upd('eu.example.shop')] }));
+		const { slots } = await run({
+			local: local({ devOrigin: DEV }), fetchImpl,
+			stillAllowed: async (origin) => origin === PROD,
+		});
+		expect(slots.map(s => s.origin)).toEqual([PROD]);
+	});
+});
+
+describe('applySlots', () => {
+	const iso = '2026-09-02T12:00:00Z';
+	const res = (id) => ({ id, type: 'menu', version: '9.9.9', url: PROD + '/' + id });
+
+	it('merges a slot into whatever the cache looks like now', () => {
+		const fresh = { origins: [{ origin: DEV, checkedAt: iso, results: [] }] };
+		const out = U.applySlots(fresh, [{ origin: PROD, checkedAt: iso, results: [res('a')] }], [PROD, DEV]);
+		expect(out.origins.map(s => s.origin)).toEqual([DEV, PROD]);
+	});
+
+	it('refuses a slot whose origin is no longer allowed', () => {
+		const out = U.applySlots({ origins: [] }, [{ origin: DEV, checkedAt: iso, results: [res('a')] }], [PROD]);
+		expect(out.origins).toEqual([]);
+	});
+
+	it('drops a cached slot whose origin is no longer allowed', () => {
+		const fresh = { origins: [{ origin: DEV, checkedAt: iso, results: [res('a')] }] };
+		expect(U.applySlots(fresh, [], [PROD]).origins).toEqual([]);
+	});
+
+	it('leaves a slot another writer added in the meantime alone', () => {
+		const fresh = { origins: [{ origin: DEV, checkedAt: '2026-09-02T13:00:00Z', results: [res('b')] }] };
+		const out = U.applySlots(fresh, [{ origin: PROD, checkedAt: iso, results: [] }], [PROD, DEV]);
+		expect(out.origins.find(s => s.origin === DEV)).toEqual(fresh.origins[0]);
+	});
+});
+
+describe('isNewer', () => {
+	it.each([
+		['1.3.0', '1.2.0', true],
+		['1.2.0', '1.3.0', false],
+		['1.2.0', '1.2.0', false],
+		['1.10.0', '1.9.0', true],
+		['2.0.0', '1.99.99', true],
+		['1.3.0', null, true],
+		['not.a.version', '1.0.0', false],
+	])('%s over %s is %s', (a, b, expected) => {
+		expect(U.isNewer(a, b)).toBe(expected);
 	});
 });
 ```
@@ -780,43 +960,67 @@ In `js/eu-updates.js`, insert before the `const api = {` block:
 	async function askOrigin(group, fetchImpl) {
 		const ctl = new AbortController();
 		const timer = setTimeout(() => ctl.abort(), REQUEST_TIMEOUT_MS);
-		let res;
 		try {
-			res = await fetchImpl(group.origin + PATH, {
+			const res = await fetchImpl(group.origin + PATH, {
 				method: 'POST',
 				credentials: 'omit',
 				cache: 'no-store',
-				redirect: 'follow',
+				// Not 'follow'. A 307/308 preserves method AND body, so a redirect off
+				// the index would hand this request's ids and versions to whatever
+				// origin it names - and an attacker's endpoint can answer the preflight
+				// with Access-Control-Allow-Origin: * just as happily. A JSON API has
+				// no business redirecting, so any redirect is an error here. The
+				// same-origin promise has to hold at request time, not only for the
+				// url an answer announces.
+				redirect: 'error',
 				signal: ctl.signal,
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ apiLevel: EU.API_LEVEL, entries: group.entries }),
 			});
+			if (!res.ok) return null;
+			// Advisory only - a chunked answer declares no length - so this is an
+			// early exit, not the limit. The limit is the byte count inside
+			// parseUpdateResponse, and the abort timer is what bounds a body that
+			// keeps arriving slowly.
+			const declared = Number(res.headers?.get?.('content-length'));
+			if (Number.isFinite(declared) && declared > LIMITS.responseMaxBytes) return null;
+			return parseUpdateResponse(await res.text(), group.origin, group.kinds);
 		} catch {
 			return null;
 		} finally {
+			// Cleared here and nowhere earlier: fetch() resolves on the response
+			// HEADERS, so clearing the timer around the fetch alone would leave
+			// res.text() unbounded and a slow body could hang the check for good.
 			clearTimeout(timer);
 		}
-		if (!res || !res.ok) return null;
-		let text;
-		try { text = await res.text(); } catch { return null; }
-		return parseUpdateResponse(text, group.origin, group.entries.map(e => e.id));
 	}
 
 	// Sequential on purpose: two requests, at most once a day, on a page the user
 	// just opened. Nothing here is worth the concurrency.
+	//
+	// Returns the slots it actually obtained - not a whole cache. `local` is a
+	// snapshot taken before the first request, and a request may hang for the full
+	// 8 seconds: long enough for the user to hit "Withdraw" in the panel right
+	// beside this, or to change the developer origin. Writing back a cache captured
+	// before all that would revive a slot the panel just dropped and clobber
+	// anything a second options tab wrote meanwhile. So the run reports deltas and
+	// persist() folds them into whatever the cache looks like afterwards.
+	//
+	// stillAllowed(origin) is re-asked after every answer and must re-read the
+	// live state, not close over the snapshot - the same reason the hand-off fetch
+	// in js/background.js re-checks euHandOffAllowed() after its own fetch.
 	async function runUpdateCheck(opts) {
-		const { settings, local, cache, now, fetchImpl } = opts;
-		const before = normalizeCache(cache);
-		let out = pruneOrigins(before, EU.allowedOrigins(local));
-		let changed = out.origins.length !== before.origins.length;
-		if (!EU.effectiveEnabled(local)) return { cache: out, changed };
-		for (const group of dueOrigins(out, updateRequestGroups(settings, local), now)) {
+		const { settings, local, cache, now, fetchImpl, force, stillAllowed } = opts;
+		const slots = [];
+		if (!EU.effectiveEnabled(local)) return { slots };
+		const groups = updateRequestGroups(settings, local);
+		for (const group of dueOrigins(normalizeCache(cache), groups, now, force)) {
 			const answer = await askOrigin(group, fetchImpl);
+			if (stillAllowed && !(await stillAllowed(group.origin))) continue;
 			if (!answer) continue;
-			out = mergeSlot(out, group.origin, answer.results, new Date(now).toISOString());
-			changed = true;
+			slots.push({ origin: group.origin, checkedAt: new Date(now).toISOString(), results: answer.results });
 		}
-		return { cache: out, changed };
+		return { slots };
 	}
 
 	// --- storage --------------------------------------------------------------------
@@ -842,23 +1046,44 @@ In `js/eu-updates.js`, insert before the `const api = {` block:
 	async function clear() {
 		try { await chrome.storage.local.remove(KEY); } catch { /* see read() */ }
 	}
+
+	// The write half of a run, deliberately separate from it: the live state is
+	// read again here, after every request has finished, so a revoke or a changed
+	// developer origin during the run wins over the run's own findings. Writes
+	// nothing when nothing would change - and dispatches the event only when it
+	// wrote, so the managers do not re-render for a no-op.
+	async function persist(slots) {
+		// GesturaEuLocal is loaded before this file (pages/options.html), and read()
+		// hands back its live cache, which storage.onChanged keeps current - so this
+		// sees a revoke that landed mid-run.
+		const local = await root.GesturaEuLocal.read();
+		if (!EU.effectiveEnabled(local)) return false;
+		const fresh = await read();
+		const next = applySlots(fresh, slots, EU.allowedOrigins(local));
+		// EU.canonicalize is R1's stable stringifier; plain JSON.stringify would
+		// report a change whenever a key order happened to differ.
+		if (EU.canonicalize(next) === EU.canonicalize(fresh)) return false;
+		await write(next);
+		if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
+		return true;
+	}
 ```
 
 Then extend the exported object:
 
 ```js
 	const api = {
-		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS, CHANGED_EVENT,
-		normalizeCache, mergeSlot, dropOrigin, pruneOrigins,
+		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS, SEMVER_RE, CHANGED_EVENT,
+		normalizeCache, mergeSlot, dropOrigin, pruneOrigins, applySlots, isNewer,
 		updateRequestGroups, dueOrigins, parseUpdateResponse, updateFor,
-		runUpdateCheck, read, write, clear,
+		runUpdateCheck, read, write, clear, persist,
 	};
 ```
 
 - [ ] **Step 4: Run the tests**
 
 Run: `npx vitest run tests/eu-updates.test.mjs`
-Expected: PASS. `read`/`write`/`clear` are untested here on purpose — they are three `chrome.storage.local` calls with a catch, and a mock of `chrome` would test the mock.
+Expected: PASS. `read`/`write`/`clear` are untested here on purpose — they are three `chrome.storage.local` calls with a catch, and a mock of `chrome` would test the mock. `persist()` is deliberately thin for the same reason: everything it decides lives in `applySlots`, which *is* tested above; what remains is a read, a comparison and a write.
 
 - [ ] **Step 5: Load the script on the options page**
 
@@ -970,7 +1195,7 @@ In `_locales/en/messages.json`, beside the other consent points:
 
 ```json
 	"euIntegrationConsentPoint5Label": { "message": "Update notices:" },
-	"euIntegrationConsentPoint5": { "message": "When you open these settings, Gestura asks gestura.eu — at most once a day — whether newer versions exist for the entries you took from there. It sends nothing but their identifiers and version numbers: no account, no identifier of you, and nothing about the rest of your settings. Entries you imported from a file are never included. Nothing is downloaded or changed without your confirmation in the import window." },
+	"euIntegrationConsentPoint5": { "message": "When you open these settings, Gestura asks gestura.eu — at most once a day — whether newer versions exist for the entries you took from there. Of those entries it sends nothing but their identifiers and version numbers, plus which version of the interface Gestura speaks: no account, no identifier of you, and nothing about the rest of your settings. Entries you imported from a file are never included. Nothing is downloaded or changed without your confirmation in the import window." },
 ```
 
 - [ ] **Step 6: Correct the two claims that R2 breaks in en**
@@ -990,7 +1215,7 @@ Also `euIntegrationIntro` ends with *"Gestura sends nothing at all until you act
 
 ```json
 	"euIntegrationConsentPoint5Label": { "message": "Update-Hinweise:" },
-	"euIntegrationConsentPoint5": { "message": "Wenn du diese Einstellungen öffnest, fragt Gestura höchstens einmal täglich bei gestura.eu nach, ob es für die von dort übernommenen Einträge neuere Versionen gibt. Übertragen werden dabei nur deren Kennungen und Versionsnummern: kein Konto, keine Kennung von dir und nichts über den Rest deiner Einstellungen. Aus einer Datei importierte Einträge sind nie dabei. Heruntergeladen oder geändert wird nichts ohne deine Bestätigung im Import-Fenster." },
+	"euIntegrationConsentPoint5": { "message": "Wenn du diese Einstellungen öffnest, fragt Gestura höchstens einmal täglich bei gestura.eu nach, ob es für die von dort übernommenen Einträge neuere Versionen gibt. Von diesen Einträgen werden nur Kennungen und Versionsnummern übertragen, dazu die Version der Schnittstelle, die Gestura spricht: kein Konto, keine Kennung von dir und nichts über den Rest deiner Einstellungen. Aus einer Datei importierte Einträge sind nie dabei. Heruntergeladen oder geändert wird nichts ohne deine Bestätigung im Import-Fenster." },
 	"euIntegrationConsentPoint1Label": { "message": "Durchweg anonym:" },
 	"euIntegrationConsentPoint1": { "message": "Kein Konto, keine Anmeldung, keine Kennung von dir. Außer der unten beschriebenen Update-Prüfung wendet sich Gestura nur dann an gestura.eu, wenn du etwas anklickst – und gibt niemals eines deiner Menüs, eine Suchmaschine oder eine Einstellung ohne deine Bestätigung weiter." },
 	"euIntegrationConsentPoint4Label": { "message": "Lokal und flexibel:" },
@@ -1007,21 +1232,34 @@ And the German `euIntegrationIntro` ending, to match: **"…und Gestura bleibt s
 
 The guard machinery then needs no change: `PENDING_TRANSLATION` excludes the key from the per-locale completeness check, the "exists in en and de" test still holds it, and "are not yet complete everywhere" passes at 2 of 39 and fails once someone translates all of them — which is the signal to drop it from the list.
 
+All 39 files are tab-indented and LF-only today (checked), but the script must
+not be able to fail *quietly*: a no-op match would leave a wrong promise in a
+language file with nothing to say so. It therefore matches whitespace loosely,
+tolerates CRLF, and refuses to finish unless it stripped exactly 37 files.
+
 ```bash
 node -e '
 const fs = require("fs");
 const dir = "_locales";
+let stripped = 0;
 for (const lang of fs.readdirSync(dir)) {
 	if (lang === "en" || lang === "de") continue;
 	const p = dir + "/" + lang + "/messages.json";
 	const before = fs.readFileSync(p, "utf8");
-	// One key, one line, tabs preserved: a JSON round-trip would reformat the file.
-	const after = before.replace(/^\t"euIntegrationConsentPoint1":.*\n/m, "");
-	if (after !== before) { fs.writeFileSync(p, after); console.log("stripped", lang); }
-}'
+	// One key, one line: a JSON round-trip would reformat the whole file.
+	const after = before.replace(/^[ \t]*"euIntegrationConsentPoint1":.*\r?\n/m, "");
+	if (after === before) { console.error("NOT FOUND in " + lang); process.exit(1); }
+	fs.writeFileSync(p, after);
+	stripped++;
+}
+if (stripped !== 37) { console.error("expected 37, stripped " + stripped); process.exit(1); }
+console.log("stripped " + stripped);'
 ```
 
-Run it, then confirm exactly 37 lines were reported and that en/de still have the key:
+If it exits non-zero it may already have rewritten some files — `git checkout -- _locales`
+and find out why before running it again.
+
+Run it, then confirm it reported 37 and that en/de still have the key:
 
 ```bash
 grep -l '"euIntegrationConsentPoint1"' _locales/*/messages.json
@@ -1195,17 +1433,24 @@ and add the method beside `#checkPendingImport()`:
 	// page, and it has nothing to show until its answer is in.
 	async #checkForEntryUpdates() {
 		const U = window.GesturaEuUpdates;
+		const EU = window.FlowMouseEuIntegration;
 		try {
-			const { cache, changed } = await U.runUpdateCheck({
+			const { slots } = await U.runUpdateCheck({
 				settings: this._store.current,
 				local: await window.GesturaEuLocal.read(),
 				cache: await U.read(),
 				now: Date.now(),
 				fetchImpl: (url, init) => fetch(url, init),
+				// Re-reads the live state per answer, so both a revoke and a changed
+				// developer origin during the run drop that answer on the floor.
+				stillAllowed: async (origin) => {
+					const cur = await window.GesturaEuLocal.read();
+					return EU.effectiveEnabled(cur) && EU.allowedOrigins(cur).includes(origin);
+				},
 			});
-			if (!changed) return;
-			await U.write(cache);
-			window.dispatchEvent(new Event(U.CHANGED_EVENT));
+			// persist() re-reads state and cache once more, merges only these slots,
+			// writes only if something actually changed, and fires the event.
+			await U.persist(slots);
 		} catch {
 			// A nicety in the background: no dialog, no status line. The next open
 			// tries again, because a failed origin's checkedAt was never written.
@@ -1222,10 +1467,20 @@ Advanced mode only, beside the developer-origin field: without it, testing again
 		_checking: { state: true },
 ```
 
-initialize them in the constructor (`this._checked = ''; this._checking = false;`), read the cache in `connectedCallback()`:
+initialize them in the constructor (`this._checked = ''; this._checking = false;`), and give the panel the same event lifecycle the managers get in Task 6 — the automatic check runs *after* the panel is on screen, so a one-off read in `connectedCallback()` would leave "Not asked yet" standing until a reload. In `connectedCallback()`:
 
 ```js
-		window.GesturaEuUpdates.read().then(cache => { this._checked = this.#latestCheck(cache); });
+		this._boundChecked = () => {
+			window.GesturaEuUpdates.read().then(cache => { this._checked = this.#latestCheck(cache); });
+		};
+		this._boundChecked();
+		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundChecked);
+```
+
+and in `disconnectedCallback()`, beside the existing `keydown` removal:
+
+```js
+		window.removeEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundChecked);
 ```
 
 The panel does not import the settings store today, and `#checkNow()` needs the
@@ -1249,26 +1504,38 @@ and add:
 			.pop() || '';
 	}
 
-	// Ignores the 24-hour window by clearing the slots first - that is the whole
-	// point of a manual check, and it is the only way to exercise a local index
-	// without waiting a day.
+	// Ignores the 24-hour window via `force`, and NOTHING else: it does not clear
+	// the cache first. Clearing would mean a failed manual check - the exact case
+	// worth testing against a local index - destroys the answers already on record
+	// and leaves the user worse off than before pressing the button. force acts on
+	// the due-check alone; a failing origin still keeps its old slot untouched.
 	async #checkNow() {
 		const U = window.GesturaEuUpdates;
+		const EU = window.FlowMouseEuIntegration;
 		this._checking = true;
 		try {
-			await U.clear();
-			const { cache } = await U.runUpdateCheck({
+			const { slots } = await U.runUpdateCheck({
 				settings: settingsStore.current,
 				local: await window.GesturaEuLocal.read(),
-				cache: { origins: [] },
+				cache: await U.read(),
 				now: Date.now(),
 				fetchImpl: (url, init) => fetch(url, init),
+				force: true,
+				stillAllowed: async (origin) => {
+					const cur = await window.GesturaEuLocal.read();
+					return EU.effectiveEnabled(cur) && EU.allowedOrigins(cur).includes(origin);
+				},
 			});
-			await U.write(cache);
-			this._checked = this.#latestCheck(cache);
-			window.dispatchEvent(new Event(U.CHANGED_EVENT));
-		} catch { /* nothing to report: the line simply keeps its old date */ }
-		this._checking = false;
+			// No manual _checked assignment: persist() fires CHANGED_EVENT and the
+			// listener below refreshes the line, the same way the managers refresh.
+			await U.persist(slots);
+		} catch {
+			// Nothing to report: the line simply keeps its old date.
+		} finally {
+			// finally, not a trailing assignment: an early return or a throw would
+			// otherwise leave the button disabled for the rest of the session.
+			this._checking = false;
+		}
 	}
 ```
 
@@ -1375,6 +1642,9 @@ Expected, and each of these is a claim to check rather than assume:
 3. "Check now" logs a fresh request and updates the date.
 4. `chrome.storage.local` holds `euUpdates` with one slot for `http://localhost:8123`.
 5. Stopping the mock and pressing "Check now" leaves the stored `checkedAt` at its old value.
+6. **The revoke race:** with the mock artificially slow (`setTimeout(() => { … }, 6000)` around its response), open the settings and click *Withdraw* while the request is in flight. Expected: `euUpdates` is gone from `chrome.storage.local` and **stays** gone when the answer arrives. Without `stillAllowed` and `persist`'s re-read this is exactly where the deleted key comes back.
+7. **The dev-origin race:** same slow mock, but instead of withdrawing, change the developer origin to another port while the request is in flight. Expected: no slot for the old origin survives, and none appears for it when the answer lands.
+8. **A failed manual check keeps what it had:** with a cached answer on record, stop the mock and press *Check now*. Expected: `euUpdates` still holds the old slot with its old `checkedAt`. This is the case that the earlier draft's `clear()`-first approach destroyed.
 
 - [ ] **Step 6: Commit**
 
@@ -1416,17 +1686,23 @@ import { tooltip } from '../tooltip.js';
 // ist eine Information - für die es nichts zu übernehmen gibt.
 export function renderUpdateBadge(i18n, up) {
 	if (!up) return '';
-	if (up.deprecated) {
-		const text = up.successor
-			? i18n.getMessage('euIntegrationRetiredSuccessor').replace('{id}', up.successor)
-			: i18n.getMessage('euIntegrationRetiredTooltip');
-		return html`<span class="retired-badge" .tooltip=${tooltip(text)}>${i18n.getMessage('euIntegrationRetiredBadge')}</span>`;
-	}
 	// Ein Absatz, kein Zeilenumbruch: der Tooltip setzt textContent und trägt kein
 	// white-space: pre-line - ein "\n" verschwände lautlos mitten im Satz.
-	const parts = [i18n.getMessage('euIntegrationUpdateTooltip').replace('{version}', up.version)];
+	const parts = [];
+	// Abkündigung und neue Version schließen sich nicht aus: ein Index kann einen
+	// Eintrag einstellen und dafür eine letzte Fassung nachliefern. Dann steht die
+	// Abkündigung auf dem Abzeichen - sie ist die größere Nachricht - und die
+	// Version steht trotzdem im Tooltip, wo sie zum Übernehmen-Knopf daneben passt.
+	if (up.deprecated) {
+		parts.push(up.successor
+			? i18n.getMessage('euIntegrationRetiredSuccessor').replace('{id}', up.successor)
+			: i18n.getMessage('euIntegrationRetiredTooltip'));
+	}
+	if (up.newer) parts.push(i18n.getMessage('euIntegrationUpdateTooltip').replace('{version}', up.version));
 	if (up.changelog) parts.push(up.changelog);
-	return html`<span class="update-badge" .tooltip=${tooltip(parts.join(' — '))}>${i18n.getMessage('euIntegrationUpdateBadge')}</span>`;
+	const cls = up.deprecated ? 'retired-badge' : 'update-badge';
+	const label = up.deprecated ? 'euIntegrationRetiredBadge' : 'euIntegrationUpdateBadge';
+	return html`<span class="${cls}" .tooltip=${tooltip(parts.join(' — '))}>${i18n.getMessage(label)}</span>`;
 }
 ```
 
@@ -1475,7 +1751,14 @@ In `static properties`: `_updates: { state: true },`. In the constructor: `this.
 In `connectedCallback()` (add beside the existing listeners; keep the bound reference so `disconnectedCallback()` can remove it):
 
 ```js
-		this._boundUpdates = () => { window.GesturaEuUpdates.read().then(c => { this._updates = c; }); };
+		// Both reads in one chain: #updateFor() consults GesturaEuLocal.current(),
+		// which is synchronous and returns defaults until its own first load
+		// resolves. Setting _updates only after that load has finished is what keeps
+		// the very first render from suppressing every badge.
+		this._boundUpdates = () => {
+			Promise.all([window.GesturaEuLocal.read(), window.GesturaEuUpdates.read()])
+				.then(([, cache]) => { this._updates = cache; });
+		};
 		this._boundUpdates();
 		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
 ```
@@ -1493,6 +1776,13 @@ A lookup helper beside `#renderMenuRow`:
 	// siteMenus.edited, and listMenus() merges both into one shape. findStored()
 	// is the resolver that knows where provenance actually lives.
 	#updateFor(id) {
+		// No badge while the integration authorizes nothing. Revoking and switching
+		// off both clear the cache, but a consent that went STALE does not: it
+		// leaves enabled:true beside an outdated consent.version, which is exactly
+		// where every user lands the moment R3 raises the number again. Without this
+		// guard their badges would keep offering downloads from an integration that
+		// is off.
+		if (!window.FlowMouseEuIntegration.effectiveEnabled(window.GesturaEuLocal.current())) return null;
 		const stored = window.FlowMouseEuIntegration.findStored(settingsStore.current, 'menu', id);
 		return window.GesturaEuUpdates.updateFor(this._updates, stored);
 	}
@@ -1513,9 +1803,9 @@ In `#renderMenuRow`, after the existing badges:
 and in `.menu-buttons`, before the export button:
 
 ```js
-					${up && !up.deprecated ? html`
+					${up && up.newer ? html`
 						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('euIntegrationUpdateApply'))}
-							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url); }}>
+							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url, up.origin); }}>
 							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
 						</button>
 					` : ''}
@@ -1523,12 +1813,39 @@ and in `.menu-buttons`, before the export button:
 
 `#importUrl` already fetches, derives `indexOrigin` from the final `Response.url`, and opens the import dialog — so adopting an update is the same reviewed path as a manual URL import, including the "you changed this entry" warning that leaves an edited row unticked. Nothing about that is bypassed here, deliberately.
 
+**But it needs one more argument.** For a *manual* URL import, following a redirect and then judging by the final URL is the R1 rule and stays. Adopting an update is a different question: the user is taking a named entry from a named index, so a redirect that leaves that origin is not a provenance nuance but a different party's file. Add an optional expected origin — the same edit in both managers:
+
+```js
+	async #importUrl(url, expectOrigin) {
+		if (!url) return;
+		try {
+			const res = await fetch(url);
+			const obj = await res.json();
+			// Provenance from the final URL after redirects, never from what was typed.
+			const indexOrigin = window.FlowMouseEuIntegration.qualifiedOrigin(res.url, await window.GesturaEuLocal.read());
+			// Adopting an update names the origin it expects. A redirect that leaves
+			// it is refused outright rather than imported as an unqualified entry:
+			// the user asked for gestura.eu's version of this entry, not for whatever
+			// a redirect chain ended up pointing at. Handled like a failed fetch,
+			// because that is what it is from the user's side.
+			if (expectOrigin && indexOrigin !== expectOrigin) {
+				this.#dialog().openWith({}, { type: 'url', url });
+				return;
+			}
+			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
+		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
+	}
+```
+
 - [ ] **Step 4: Wire the engine manager the same way**
 
 `js/components/engine-manager.js`, identical except for the kind and the row markup. The import, `_updates`, the constructor line, the two listener lines and:
 
 ```js
 	#updateFor(id) {
+		// Same guard, same reason as the menu manager's: a stale consent leaves the
+		// cache in place while effectiveEnabled() is already false.
+		if (!window.FlowMouseEuIntegration.effectiveEnabled(window.GesturaEuLocal.current())) return null;
 		const stored = window.FlowMouseEuIntegration.findStored(settingsStore.current, 'engine', id);
 		return window.GesturaEuUpdates.updateFor(this._updates, stored);
 	}
@@ -1549,9 +1866,9 @@ and in `.menu-buttons`, before the export button:
 and in `.engine-buttons`, right after the edit button:
 
 ```js
-					${up && !up.deprecated ? html`
+					${up && up.newer ? html`
 						<button class="engine-btn" .tooltip=${tooltip(i18n.getMessage('euIntegrationUpdateApply'))}
-							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url); }}>
+							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url, up.origin); }}>
 							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
 						</button>
 					` : ''}
@@ -1596,8 +1913,10 @@ With the mock from Task 5 still running and an entry imported from `localhost:81
 2. A menu imported from a **file** with the same id shows **no** badge.
 3. The adopt button opens the import dialog with the fetched payload and the replace/new choice visible beside the row.
 4. Rename the imported entry first, then press adopt: the row arrives **unticked** with the "you changed this entry" warning. That is R1's behaviour working as intended, not a defect.
-5. Actually adopting the update makes the badge disappear immediately, without a new check — `updateFor` compares against the stored version.
-6. Set the mock's `deprecated: true` (edit the mock, restart, "Check now"): the badge becomes **Retired**, and the adopt button is gone.
+5. Actually adopting the update makes the badge disappear immediately, without a new check — `updateFor` compares against the stored version. **This only works when the served payload's own `version` matches the version the mock announced.** The dialog stamps `source.version` from `row.result.value.version` ([menu-import-dialog.js:457](../../../js/components/menu-import-dialog.js)), falling back to `'1.0.0'`; a `bundle.json` without a version therefore stores `1.0.0` while the cache says `9.9.9`, and the badge correctly stays. If the badge survives an adoption, check the payload's version before suspecting the cache.
+6. Set the mock's `deprecated: true` **without** changing its version: the badge becomes **Retired** and the adopt button is gone.
+7. Set `deprecated: true` **and** a version newer than the stored one: the badge stays **Retired**, its tooltip names both the retirement and the final version, and the adopt button is back. An index that retires an entry and ships one last fix must not leave the user unable to take it.
+8. Switch the integration off and reopen the settings: no badges anywhere. Then simulate a stale consent — in the service worker console, `chrome.storage.local.get('euIntegration', s => { s.euIntegration.consent.version = 1; chrome.storage.local.set(s); })` — reload the settings: still no badges, and the panel shows its re-confirmation row.
 
 - [ ] **Step 8: Commit**
 
@@ -1624,8 +1943,9 @@ The current text reads *"Nothing is sent while you are not on such a page. There
 ```markdown
 - When you open Gestura's settings, the extension asks gestura.eu — at most once
   a day, and separately per index — whether newer versions exist for the entries
-  you imported from there. The request contains nothing but those entries' ids
-  and version numbers. Entries you imported from a file are never included,
+  you imported from there. Of those entries the request contains nothing but
+  their ids and version numbers, plus which version of the interface Gestura
+  speaks. Entries you imported from a file are never included,
   because Gestura cannot verify where they came from. The answer is stored on
   your device and shown as a badge on the entries it concerns; nothing is
   downloaded or changed until you confirm it in the import dialog. There is no
@@ -1699,7 +2019,34 @@ Mirror R1's: what is implemented, what was verified by hand and how, what stayed
 
 `exchange/` is untracked working material that crosses the WSL2 ↔ Windows boundary; it is never committed and never referenced from a tracked file. Write `exchange/2026-09-02-r2-update-endpoint.md` in German, addressed to the index team, carrying: the endpoint's request and response verbatim from `docs/gestura-eu-api.md`, the CORS requirement including the `OPTIONS` preflight and the extension-scheme `Origin` a proxy must not drop, the client's validation rules (what invalidates a whole answer versus a single element), the rule that `url` must be same-origin with the answering index, and the fact that `apiLevel` is now 2 while extensions at level 1 never call the endpoint at all. Note that the extension side is finished and testable against a mock, and that nothing ships until the endpoint answers.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Write the release gate into the status section**
+
+R2's code can sit on `main` unreleased, but it must not go out half-translated —
+the consent overlay is the one text a user has to be able to read in their own
+language, and R2 rewrites it. Record, verbatim, in the status section:
+
+```markdown
+### Not releasable until
+
+1. `PENDING_TRANSLATION` in `tests/site-menu-locales.test.mjs` holds none of
+   R2's keys any more: `euIntegrationConsentPoint1`,
+   `euIntegrationConsentPoint5Label`, `euIntegrationConsentPoint5`,
+   `euIntegrationUpdateCheck`, `euIntegrationCheckNow`,
+   `euIntegrationLastChecked`, `euIntegrationNeverChecked`,
+   `euIntegrationUpdateBadge`, `euIntegrationUpdateTooltip`,
+   `euIntegrationUpdateApply`, `euIntegrationRetiredBadge`,
+   `euIntegrationRetiredTooltip`, `euIntegrationRetiredSuccessor` — all of them
+   translated into all 39 locales and deleted from the list. The list's own test
+   fails once a key is everywhere but still listed, so this cannot be forgotten
+   quietly; what it does not do is stop a release, which is why it is written
+   here as well.
+2. `https://gestura.eu/api/v1/updates` answers the contract in
+   `docs/gestura-eu-api.md`, `OPTIONS` preflight included.
+3. `PRIVACY.md` and both store data declarations carry the update check
+   (Task 7).
+```
+
+- [ ] **Step 5: Commit**
 
 ```bash
 git add docs/superpowers/plans/2026-09-02-gestura-eu-integration-r2.md
@@ -1737,15 +2084,137 @@ git commit -m "docs(plan): record R2's execution state"
 - **`transformCode` diff with a fresh confirmation** — the dialog's existing `_scriptAck` already forces a fresh confirmation for a transform script on every import, so an adopted update inherits it. What is missing is only the *diff*, which is the same deferral.
 - **A global conflict policy for bundles** ([issue #5](https://github.com/PPP01/Gestura/issues/5): replace all / only what is new / keep all mine). It gains value once badges exist, but it is a change to the import dialog's model, not to the update check, and folding it in here would make every task in this plan wait on it. Flagged for the owner as its own decision.
 
-**Type consistency.** `updateFor()` returns the cached result object (`{id, type, version, url, changelog?, deprecated?, successor?}`) everywhere — Task 2 defines it, Task 6's `renderUpdateBadge(i18n, up)` and both `#updateFor(id)` helpers consume exactly that. `runUpdateCheck` takes `{settings, local, cache, now, fetchImpl}` and returns `{cache, changed}` in Task 3, Task 5's caller and the panel's `#checkNow()`. The cache shape is `{origins: [...]}` in every signature; only `read()` and `write()` touch the `euUpdates` wrapper.
+**Type consistency.** `updateFor()` returns the cached result object plus one derived flag (`{id, type, version, url, changelog?, deprecated?, successor?, newer}`) everywhere — Task 2 defines it, Task 6's `renderUpdateBadge(i18n, up)` reads `deprecated`/`newer`/`changelog`, and both adopt buttons gate on `newer` alone. `runUpdateCheck` takes `{settings, local, cache, now, fetchImpl, force?, stillAllowed?}` and returns `{slots}` in Task 3, Task 5's caller and the panel's `#checkNow()`; `persist(slots)` is the only thing that writes, and it re-reads before merging. The cache shape is `{origins: [...]}` in every signature; only `read()`, `write()` and `persist()` touch the `euUpdates` wrapper. Note that `newer` is stored nowhere — it is computed per render against the entry's current `source.version`, which is what makes a badge vanish on import.
 
 **Checked while writing, so an executor need not re-derive it:** `tooltip()` in `js/tooltip.js` is a Lit directive over a plain string, assigned to the tooltip element's `textContent`, styled with `max-width: 250px` and **no** `white-space` override. That is why Task 6 joins the version sentence and the changelog with `' — '` instead of a newline, and why `renderUpdateBadge` imports `tooltip` rather than building an object.
 
 ---
+
+## External review, 2026-09-02
+
+An external review (Gemini) raised three blockers and two risks against the first
+draft. Each was checked against the code before anything was changed; three
+findings held, one held for a different reason than the one given, and one did
+not hold.
+
+**1. Revive-after-revoke race — confirmed, fixed.** `runUpdateCheck` took
+`local` as a snapshot and never looked again, and the caller wrote whenever
+`changed` was true. A *Withdraw* during an in-flight request (up to 8 s) cleared
+the key, and the arriving answer wrote it straight back. Fixed with a
+`stillAllowed` predicate re-asked after every answer (Task 3), a second check
+between the last answer and the write (Task 5), and both a unit test and a manual
+check with a deliberately slow mock. This is the same shape
+[js/background.js](../../../js/background.js) already uses after its hand-off
+fetch, so the plan now follows an established idiom rather than inventing one.
+
+**2. Badges outliving the switch — right conclusion, wrong mechanism.** The
+review had `#onToggle` writing only `{enabled: false}`. It does not: switching
+off calls `#revoke()`, which clears consent and (Task 4 step 11) the cache, so
+that path was already covered. The real hole is a **stale consent** —
+`enabled: true` beside an outdated `consent.version` makes `effectiveEnabled()`
+false while the cache survives untouched, which is precisely the state every user
+enters when R3 raises the number again. Guard added to both managers' `#updateFor`
+(Task 6), plus a manual check that forces the state.
+
+**3. Retired entry with one last version — confirmed, fixed.** The contract
+permits `deprecated: true` alongside a newer version (a final security fix), and
+the draft's UI made it unadoptable: `renderUpdateBadge` returned early on
+`deprecated` and the button was gated on `!up.deprecated`. `updateFor` now
+returns a `newer` flag independent of `deprecated`; the badge reads `deprecated`,
+the button reads `newer`, the tooltip says both.
+
+**4. Fragile locale strip — premise does not hold, hardened anyway.** All 39
+`messages.json` are tab-indented and LF-only (verified), so `^\t…\n` matched
+correctly. The valuable half of the objection is that the script could fail
+*silently*, so it now matches whitespace loosely, tolerates CRLF, and exits
+non-zero unless it stripped exactly 37 files.
+
+**5. `source.version` lost on an update import — does not hold.** The claim was
+that `#importUrl` passes no version, so the badge would never disappear.
+[js/components/menu-import-dialog.js:457](../../../js/components/menu-import-dialog.js)
+builds the stored provenance as
+`{ ...this._source, version: row.result.value.version || '1.0.0' }` — the version
+comes from the imported payload, which is the only place it can honestly come
+from; the manager deliberately does not supply one. No change made. The review did
+point at a real edge on the way there: a payload carrying **no** version stores
+`'1.0.0'`, which will not match a cache entry announcing something else, and the
+badge then persists — correctly, since the entry really is not at that version.
+Recorded in Task 6's manual check so a tester does not misread it as a cache bug.
+
+## Second external review, 2026-09-02 (codex)
+
+Four blockers and four further findings against the revised draft. Six changed
+the plan; two premises did not survive checking.
+
+**1. Redirects defeated the same-origin promise — confirmed, fixed.** The check
+used `redirect: 'follow'` and never looked at `res.url`. A `307`/`308` preserves
+method **and** body, so a redirect off the index would have handed the request's
+ids and versions to whatever origin it named — and that origin can answer the
+preflight permissively, so CORS does not save it. Now `redirect: 'error'`, and
+the contract states that the endpoint must not redirect. The adopt path was the
+second half: `#importUrl` follows redirects by design (R1's rule for manual URL
+imports, which stays) and would have imported a redirected file as merely
+"unqualified". It now takes an expected origin and refuses a mismatch outright.
+
+**2. "Check now" destroyed the cache it was meant to refresh — confirmed,
+fixed.** `#checkNow()` called `clear()` first and started from `{origins: []}`,
+so a failed manual check — the exact case one tests a local index with — wiped
+the answers on record, and closing the page mid-request left them wiped. It also
+contradicted this plan's own manual check. `force` now skips the due-check and
+nothing else; the cache is never cleared to run one.
+
+**3. A finished run could revive a dropped developer origin — confirmed,
+fixed.** `stillEnabled` only asked about the master switch, and the caller wrote
+back a whole cache captured before the requests went out — so a slot the panel
+had just dropped came back, and a concurrent write from a second options tab was
+clobbered. `runUpdateCheck` now returns *slots* and writes nothing;
+`stillAllowed(origin)` re-reads the live state per answer; `persist(slots)`
+re-reads state and cache, folds the slots in through the tested `applySlots`, and
+refuses any origin no longer allowed.
+
+**4. The 39-locale rule — premise does not hold; the release gap did.** The
+finding cited `AGENTS.md`, which forbids en/de-only keys. `CLAUDE.md` — the
+authoritative file — documents `PENDING_TRANSLATION` as exactly the mechanism for
+text still being drafted, and the owner confirmed the deferral for R2. `AGENTS.md`
+is a stale copy missing that paragraph; that drift is now item 4 under "Open for
+the owner". The second half was fair: "ship when the endpoint answers" said
+nothing about the texts, so Task 8 now carries an explicit **Not releasable
+until** gate naming all thirteen keys.
+
+**5. `newer` meant "different" and could offer a downgrade — confirmed, fixed.**
+After a manual import of `1.4.0`, a cache entry still announcing `1.3.0` would
+have shown an adopt button for the older version. The exchange format pins
+versions to a numeric triple (`SEMVER_RE`, verified in
+[js/menu-exchange.js:31](../../../js/menu-exchange.js)), so `isNewer()` now
+compares numerically; response versions are validated against the same regex
+instead of a length cap. Test added, downgrade case included.
+
+**6. The abort timer ended at the response headers — confirmed, fixed.**
+`clearTimeout` sat in a `finally` around the `fetch` alone, so `res.text()` ran
+unbounded and a slow body could hang the check for good. The timer now covers the
+body read and the validation. A `Content-Length` over the cap is an early exit;
+the byte count on the received text remains the real limit, since a chunked
+answer declares no length.
+
+**7. "Last checked" never refreshed — confirmed, fixed.** The panel read the
+cache once in `connectedCallback()`, and the automatic check finishes afterwards,
+so the line would have read "Not asked yet" until a reload. It now uses the same
+`CHANGED_EVENT` lifecycle as the managers, with the listener removed in
+`disconnectedCallback()`.
+
+**8. The disclosure texts did not match the request — confirmed, fixed by
+shrinking the request.** The body carried `type` and `apiLevel` while consent and
+`PRIVACY.md` promised "nothing but identifiers and version numbers". Rather than
+widen the promise, `type` left the request: ids are unique across menus and
+engines in the index, and the kind is information about the user's setup. It stays
+in the *answer*, where it is now checked against the kind the client asked about —
+which is also the extra test the review asked for. The texts name the interface
+version explicitly.
 
 ## Open for the owner
 
 1. **Issue #5's global conflict policy** — pull into R2 (it is worth more with badges than alone) or leave standing? Not folded in; it changes the dialog's model.
 2. **`gestura-index` must implement the contract from Task 1** before R2 can be released. Task 8 writes the hand-over; the endpoint's arrival is what unblocks the release, not the code.
 3. **Two small R1 findings stay open** and are untouched here: the bridge's `getManifest()`/`statusAnswer()` calls outside a try/catch (`js/eu-bridge.js`), and `js/eu-local.js` never retrying a failed first load. Neither blocks R2, and the session that found them is taking both. The third — `_devDraft` being clobbered by any storage change — is fixed in Task 4 step 13, because this plan edits that file anyway and two people editing it in parallel buys nothing but a conflict.
-4. **`main` is 39 commits ahead of `gestura/main` and unpushed.** R2 branches off it either way, but the further the two drift the more a merge into `firefox-build` has to absorb at once.
+4. **`AGENTS.md` has drifted from `CLAUDE.md`.** It is a copy that is missing the `PENDING_TRANSLATION` paragraph (and two `Conventions` bullets), so an agent reading `AGENTS.md` concludes that en/de-only keys break a hard rule — one review did exactly that. Either sync it or make it a one-line pointer at `CLAUDE.md`; two instruction files that disagree will keep producing false findings. Not part of R2's tasks.
+5. **`main` is 39 commits ahead of `gestura/main` and unpushed.** R2 branches off it either way, but the further the two drift the more a merge into `firefox-build` has to absorb at once.
