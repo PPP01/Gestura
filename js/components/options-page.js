@@ -353,35 +353,14 @@ class OptionsPage extends LitElement {
 
 	// The update check for imported entries (js/eu-updates.js). Deliberately here
 	// and nowhere else: no alarm, no worker, no traffic while the settings are
-	// closed. It is throttled per origin inside runUpdateCheck(), so calling it on
-	// every open costs at most one request a day per index.
+	// closed. It is throttled per origin, so calling it on every open costs at
+	// most one request a day per index.
 	//
-	// Awaited after the first render, never before: the check must not delay the
-	// page, and it has nothing to show until its answer is in.
-	async #checkForEntryUpdates() {
-		const U = window.GesturaEuUpdates;
-		const EU = window.FlowMouseEuIntegration;
-		try {
-			const { slots } = await U.runUpdateCheck({
-				settings: this._store.current,
-				local: await window.GesturaEuLocal.read(),
-				cache: await U.read(),
-				now: Date.now(),
-				fetchImpl: (url, init) => fetch(url, init),
-				// Re-reads the live state per answer, so both a revoke and a changed
-				// developer origin during the run drop that answer on the floor.
-				stillAllowed: async (origin) => {
-					const cur = await window.GesturaEuLocal.read();
-					return EU.effectiveEnabled(cur) && EU.allowedOrigins(cur).includes(origin);
-				},
-			});
-			// persist() re-reads state and cache once more, merges only these slots,
-			// writes only if something actually changed, and fires the event.
-			await U.persist(slots);
-		} catch {
-			// A nicety in the background: no dialog, no status line. The next open
-			// tries again, because a failed origin's checkedAt was never written.
-		}
+	// Started after the first render and never awaited: the check must not delay
+	// the page, and it has nothing to show until its answer is in. Failures are
+	// swallowed inside checkAndPersist - the next open simply tries again.
+	#checkForEntryUpdates() {
+		window.GesturaEuUpdates.checkAndPersist(this._store.current);
 	}
 
 	// Operator-button import hand-off (see js/content.js + js/background.js

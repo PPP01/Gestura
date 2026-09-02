@@ -129,7 +129,7 @@ describe('parseUpdateResponse', () => {
 	});
 });
 
-describe('mergeSlot, dropOrigin, pruneOrigins', () => {
+describe('mergeSlot, pruneOrigins', () => {
 	const seed = {
 		origins: [
 			{ origin: PROD, checkedAt: '2026-09-01T00:00:00Z', results: [{ id: 'a', type: 'menu', version: '2.0.0', url: PROD + '/a' }] },
@@ -146,9 +146,6 @@ describe('mergeSlot, dropOrigin, pruneOrigins', () => {
 	it('appends an origin it has never seen', () => {
 		const next = U.mergeSlot({ origins: [] }, PROD, [], '2026-09-02T00:00:00Z');
 		expect(next.origins).toHaveLength(1);
-	});
-	it('drops one origin and keeps the other', () => {
-		expect(U.dropOrigin(seed, DEV).origins.map(s => s.origin)).toEqual([PROD]);
 	});
 	it('prunes every origin that is not allowed any more', () => {
 		expect(U.pruneOrigins(seed, [PROD]).origins.map(s => s.origin)).toEqual([PROD]);

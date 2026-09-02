@@ -681,17 +681,7 @@ textarea.input-mono {
 	height: 14px;
 }
 
-.import-badge {
-	flex-shrink: 0;
-	padding: 1px 6px;
-	border-radius: 999px;
-	font-size: 10px;
-	font-weight: 600;
-	color: var(--success-color);
-	background: color-mix(in srgb, var(--success-color) 14%, transparent);
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 40%, transparent);
-}
-
+.import-badge,
 .update-badge,
 .retired-badge {
 	flex-shrink: 0;
@@ -699,6 +689,17 @@ textarea.input-mono {
 	border-radius: 999px;
 	font-size: 10px;
 	font-weight: 600;
+}
+
+.import-badge {
+	color: var(--success-color);
+	background: color-mix(in srgb, var(--success-color) 14%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--success-color) 40%, transparent);
+}
+
+/* Beide tragen ihre Auskunft im Tooltip, das Abzeichen selbst ist nur der Anlass. */
+.update-badge,
+.retired-badge {
 	cursor: help;
 }
 

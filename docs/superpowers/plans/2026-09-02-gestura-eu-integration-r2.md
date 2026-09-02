@@ -2026,6 +2026,56 @@ the consent overlay is the one text a user has to be able to read in their own
 language, and R2 rewrites it. Record, verbatim, in the status section:
 
 ```markdown
+### Cleanup pass, 2026-09-02 (after the tasks)
+
+Four review angles (reuse, simplification, efficiency, altitude) were run over
+the branch diff. What they changed, all in one commit on top of the eight task
+commits — no behaviour was meant to change, and the 50 checks above were re-run
+to confirm none did:
+
+- **The run harness moved into `js/eu-updates.js` as `checkAndPersist()`.** Both
+  callers had assembled the same fifteen lines, including `stillAllowed` — the
+  predicate that makes a mid-run revoke win. It was a caller obligation that
+  `runUpdateCheck` treats as optional, so a future third caller could have
+  omitted it and silently lost the guarantee. `runUpdateCheck` stays exported and
+  injectable for the tests.
+- **`CHANGED_EVENT` is dispatched from a `chrome.storage.onChanged` listener**,
+  the way `js/eu-local.js` already does it for its own key, instead of by
+  `persist()` and by two hand-written lines in the panel. Every write now
+  announces itself — **including a write from a second options tab**, which the
+  window event could never reach, and which `runUpdateCheck`'s own comment
+  reasons about.
+- **`dropOrigin()` is gone.** `eu-updates.js` subscribes to
+  `GesturaEuLocal.onChange` and prunes to `allowedOrigins()`, so a changed
+  developer origin is reconciled wherever it was changed rather than only at the
+  panel keystroke that caused it. The panel lost its `previous`-value
+  bookkeeping.
+- **The per-row `findStored()` lookup is gone**, replaced by passing the row's
+  own stored object. The comments justifying it in both managers were **factually
+  wrong**: `#getResolvedEngines()` does carry `source` (`engine-manager.js`,
+  both branches) and `getBaseMenu()` spreads the whole stored def. Worse, the two
+  lookups disagreed — `getBaseMenu()` prefers `edited` over `custom`,
+  `findStored()` prefers `custom` over `edited` — so for an id present in both
+  places the row rendered one record while the badge and the adopt button's
+  origin came from the other.
+- **`UpdateWatch` in `js/components/import-feedback.js`** replaces ~25 lines
+  duplicated in each manager (the `_updates` field, the `_boundUpdates` closure,
+  the listener pair, the private `#updateFor`), joining `ImportHighlight` and
+  `renderUpdateBadge`, which are shared from there for the same reason. It also
+  drops the reactive `_updates` property, whose fresh-object identity forced a
+  second full render of both lists on every page open.
+- Smaller: the adopt-path origin mismatch `throw`s into the existing catch
+  instead of restating it; `.import-badge` and the two new badges share one pill
+  block in `css/common.css`; `runUpdateCheck` no longer normalizes a cache
+  `dueOrigins` normalizes again; `KEY`, `THROTTLE_MS`, `REQUEST_TIMEOUT_MS` and
+  `SEMVER_RE` left the exported surface (no callers anywhere).
+
+Consciously **not** done: moving `#importUrl` out of both managers (its real home
+is `menu-import-dialog.js`, well outside this diff — it was already duplicated
+before R2), and sharing `SEMVER_RE` with `js/menu-exchange.js` (which needs a
+script-tag reorder in `options.html` for a cosmetic gain, and mirrors the split
+`ID_RE` already has). Both are noted for whoever touches those files next.
+
 ### Not releasable until
 
 1. `PENDING_TRANSLATION` in `tests/site-menu-locales.test.mjs` holds none of
@@ -2258,10 +2308,20 @@ Nothing was deferred from the plan's task list. Two deviations, both noted below
 
 All 50 assertions passed. Task 5 step 5:
 
-1. **PASS** — the mock logs an `OPTIONS` preflight and then a
+1. **PASS, with one claim corrected** — the mock logs a
    `POST /api/v1/updates` whose body is `{"apiLevel":2,"entries":[{"id":
    "com.example.klein","version":"1.0.0"}]}`: the dev-index entry only, no
    entry kind on the wire, and **not** the file import that carries the same id.
+   It logs **no `OPTIONS` preflight**, and that is correct: Chromium exempts an
+   extension's `fetch` from CORS entirely when `host_permissions` match the
+   target, so Edge and Chrome never send one. An earlier run of this check
+   reported a preflight — that entry came from a manual `curl -X OPTIONS` smoke
+   test which the mock's then-cumulative log replayed into the file after the
+   driver cleared it. The mock now forgets its history when the log is cleared,
+   and the assertion says what is actually verifiable here. **The preflight in
+   the contract is a Firefox requirement** (MV3 withholds host permissions until
+   the user opts in at `about:addons`), and it stays unverified along with the
+   rest of Firefox.
 2. **PASS** — reopening the settings inside the window logs nothing at all.
 3. **PASS** — a forced check logs a fresh request and moves `checkedAt` forward.
 4. **PASS** — `chrome.storage.local` holds `euUpdates` with exactly one slot for
@@ -2324,10 +2384,25 @@ Task 4 step 14 (the R1 draft defect):
 
 ### Defects found while verifying
 
-None in R2's own code — every check passed on its first run. Two environment
-findings, recorded because the next executor will hit them:
-Chrome 152 cannot load an unpacked extension from the command line at all, and
-port 8123 belongs to the index dev server on this machine.
+**In the first pass, none** — every check passed on its first run. Two
+environment findings, recorded because the next executor will hit them: Chrome
+152 cannot load an unpacked extension from the command line at all, and port
+8123 belongs to the index dev server on this machine.
+
+**In the `/simplify` pass afterwards, two** — both introduced by that refactor
+and both caught by re-running these same checks, which is the reason they were
+re-run rather than assumed:
+
+1. `UpdateWatch` cached the `effectiveEnabled` answer instead of asking per
+   render, so switching the integration off — or a stale consent — no longer
+   removed the badges (T6.8a and the second T6.8b failed). The cached flag was
+   only refreshed on an `euUpdates` change, and both of those cases change
+   `euIntegration` instead. Fixed by subscribing to `GesturaEuLocal.onChange`
+   as well; the watch now reacts to the state change rather than depending on
+   something else to trigger a re-render, which is stricter than the per-render
+   guard it replaced.
+2. The harness flaw described in check 1 above, which had made a manual `curl`
+   look like a browser preflight.
 
 ### Beyond the plan
 

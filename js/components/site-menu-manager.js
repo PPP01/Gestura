@@ -6,7 +6,7 @@ import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
-import { ImportHighlight, renderImportDone, renderImportBadge, renderUpdateBadge } from './import-feedback.js';
+import { ImportHighlight, UpdateWatch, renderImportDone, renderImportBadge, renderUpdateBadge } from './import-feedback.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -42,7 +42,6 @@ class SiteMenuManager extends LitElement {
 		_expandedId: { state: true },
 		_activeTab: { state: true },
 		advancedMode: { type: Boolean, attribute: 'advanced-mode' },
-		_updates: { state: true },
 	};
 
 	static styles = [
@@ -125,7 +124,6 @@ class SiteMenuManager extends LitElement {
 		this._expandedId = '';
 		this._activeTab = 'menus';
 		this.advancedMode = false;
-		this._updates = { origins: [] };
 		this._unsubscribe = null;
 		// Local settingsStore.save() does not fire onChange, so imports/edits from
 		// elsewhere (the import dialog, the native context menu) announce via this
@@ -134,20 +132,12 @@ class SiteMenuManager extends LitElement {
 	}
 
 	#highlight = new ImportHighlight('menu', () => this.requestUpdate());
+	#updates = new UpdateWatch(() => this.requestUpdate());
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.#highlight.connect();
-		// Both reads in one chain: #updateFor() consults GesturaEuLocal.current(),
-		// which is synchronous and returns defaults until its own first load
-		// resolves. Setting _updates only after that load has finished is what keeps
-		// the very first render from suppressing every badge.
-		this._boundUpdates = () => {
-			Promise.all([window.GesturaEuLocal.read(), window.GesturaEuUpdates.read()])
-				.then(([, cache]) => { this._updates = cache; });
-		};
-		this._boundUpdates();
-		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
+		this.#updates.connect();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = settingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed || 'siteMenuAddAsk' in changed) this.requestUpdate();
@@ -157,7 +147,7 @@ class SiteMenuManager extends LitElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.#highlight.disconnect();
-		window.removeEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this._boundUpdates);
+		this.#updates.disconnect();
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe?.();
 		this._unsubscribe = null;
@@ -253,12 +243,10 @@ class SiteMenuManager extends LitElement {
 			// Adopting an update names the origin it expects. A redirect that leaves
 			// it is refused outright rather than imported as an unqualified entry:
 			// the user asked for gestura.eu's version of this entry, not for whatever
-			// a redirect chain ended up pointing at. Handled like a failed fetch,
-			// because that is what it is from the user's side.
-			if (expectOrigin && indexOrigin !== expectOrigin) {
-				this.#dialog().openWith({}, { type: 'url', url });
-				return;
-			}
+			// a redirect chain ended up pointing at. Thrown, not handled here: from
+			// the user's side this IS a failed fetch, and the catch below already
+			// says so.
+			if (expectOrigin && indexOrigin !== expectOrigin) throw new Error('origin mismatch');
 			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
 		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
 	}
@@ -450,27 +438,12 @@ class SiteMenuManager extends LitElement {
 		`;
 	}
 
-	// The row's own def is not enough: a menu can sit in siteMenus.custom or in
-	// siteMenus.edited, and listMenus() merges both into one shape. findStored()
-	// is the resolver that knows where provenance actually lives.
-	#updateFor(id) {
-		// No badge while the integration authorizes nothing. Revoking and switching
-		// off both clear the cache, but a consent that went STALE does not: it
-		// leaves enabled:true beside an outdated consent.version, which is exactly
-		// where every user lands the moment R3 raises the number again. Without this
-		// guard their badges would keep offering downloads from an integration that
-		// is off.
-		if (!window.FlowMouseEuIntegration.effectiveEnabled(window.GesturaEuLocal.current())) return null;
-		const stored = window.FlowMouseEuIntegration.findStored(settingsStore.current, 'menu', id);
-		return window.GesturaEuUpdates.updateFor(this._updates, stored);
-	}
-
 	#renderMenuRow(m, i18n) {
 		const count = (m.def.items || []).filter(it => it.type !== 'separator').length;
 		const menuIcon = (window.FlowMouseMenuIcons || {})[m.def.icon] || '';
 		const expanded = this._expandedId === m.id;
 		const isDefault = (this.siteMenus.defaultMenuId || '') === m.id;
-		const up = this.#updateFor(m.id);
+		const up = this.#updates.for(m.def);
 		return html`
 			<div class="menu-row ${m.disabled ? 'disabled' : ''}"
 				data-import-id=${this.#highlight.isMarked(m.id) ? m.id : nothing}>

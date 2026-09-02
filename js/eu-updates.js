@@ -8,9 +8,12 @@
 // service worker where the update cache has no business existing. The cache is a
 // different key with a different lifetime, read only by the options page.
 //
-// Everything here is pure except read/write/clear and runUpdateCheck(), which
-// takes its fetch as an argument - so the whole file is testable in vitest
-// without chrome and without a network.
+// Everything here is pure except read/write/clear, checkAndPersist() and
+// runUpdateCheck(), which takes its fetch as an argument - so the whole file is
+// testable in vitest without chrome and without a network. The two
+// subscriptions at the bottom are this file's only load-time side effects: they
+// are what make a cache write announce itself and a dropped origin prune itself,
+// instead of leaving both to whoever happened to write.
 (function (root) {
 	'use strict';
 
@@ -60,12 +63,11 @@
 		return { origins };
 	}
 
-	function dropOrigin(cache, origin) {
-		return { origins: normalizeCache(cache).origins.filter(s => s.origin !== origin) };
-	}
-
-	// Whatever the panel forgot to clean up: a developer origin that changed or
-	// went away leaves a slot nobody can ever ask about again.
+	// A developer origin that changed or went away leaves a slot nobody can ever
+	// ask about again. Reconciling against the allowed set - rather than dropping
+	// one origin at the keystroke that replaced it - is what lets the
+	// GesturaEuLocal subscription at the bottom of this file do the cleaning for
+	// every writer of devOrigin, not just for the panel's own field.
 	function pruneOrigins(cache, allowed) {
 		const keep = new Set(allowed || []);
 		return { origins: normalizeCache(cache).origins.filter(s => keep.has(s.origin)) };
@@ -291,7 +293,7 @@
 		const slots = [];
 		if (!EU.effectiveEnabled(local)) return { slots };
 		const groups = updateRequestGroups(settings, local);
-		for (const group of dueOrigins(normalizeCache(cache), groups, now, force)) {
+		for (const group of dueOrigins(cache, groups, now, force)) {
 			const answer = await askOrigin(group, fetchImpl);
 			if (stillAllowed && !(await stillAllowed(group.origin))) continue;
 			if (!answer) continue;
@@ -327,8 +329,7 @@
 	// The write half of a run, deliberately separate from it: the live state is
 	// read again here, after every request has finished, so a revoke or a changed
 	// developer origin during the run wins over the run's own findings. Writes
-	// nothing when nothing would change - and dispatches the event only when it
-	// wrote, so the managers do not re-render for a no-op.
+	// nothing when nothing would change, so nothing re-renders for a no-op.
 	async function persist(slots) {
 		// GesturaEuLocal is loaded before this file (pages/options.html), and read()
 		// hands back its live cache, which storage.onChanged keeps current - so this
@@ -341,15 +342,76 @@
 		// report a change whenever a key order happened to differ.
 		if (EU.canonicalize(next) === EU.canonicalize(fresh)) return false;
 		await write(next);
-		if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
 		return true;
 	}
 
+	// The one way a check is run: the options page on open (throttled), the
+	// panel's "check now" (force). Both used to assemble this argument object
+	// themselves, which put stillAllowed - the predicate that makes a mid-run
+	// revoke win - in the hands of every caller, optional and easy to forget. It
+	// lives here now; runUpdateCheck stays injectable for the tests.
+	//
+	// `settings` comes in from outside because this is a classic script and cannot
+	// import the SettingsStore module.
+	async function checkAndPersist(settings, force) {
+		try {
+			const local = await root.GesturaEuLocal.read();
+			// Nothing to ask and nothing to show: skip the cache read as well.
+			if (!EU.effectiveEnabled(local)) return false;
+			const { slots } = await runUpdateCheck({
+				settings,
+				local,
+				cache: await read(),
+				now: Date.now(),
+				fetchImpl: (url, init) => fetch(url, init),
+				force: !!force,
+				// Re-reads the live state per answer, so both a revoke and a changed
+				// developer origin during the run drop that answer on the floor.
+				stillAllowed: async (origin) => {
+					const cur = await root.GesturaEuLocal.read();
+					return EU.effectiveEnabled(cur) && EU.allowedOrigins(cur).includes(origin);
+				},
+			});
+			return await persist(slots);
+		} catch {
+			// A nicety in the background: no dialog, no status line. The next open
+			// tries again, because a failed origin's checkedAt was never written.
+			return false;
+		}
+	}
+
+	// --- keeping the cache honest --------------------------------------------------
+	// Both of these exist so that no writer has to remember anything. eu-local.js
+	// gets the same guarantees from storage.onChanged for its own key; this is that
+	// pattern, applied to euUpdates.
+
+	// typeof-guarded, unlike eu-local.js's identical block: that file only ever
+	// runs where chrome exists, this one is also imported bare by vitest.
+	if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+		chrome.storage.onChanged.addListener((changes, area) => {
+			if (area !== 'local') return;
+			// One announcement per actual write, wherever it came from - including a
+			// SECOND OPTIONS TAB, which a window event could never have reached. That
+			// is the concurrency runUpdateCheck's own comment reasons about.
+			if (changes[KEY] && typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
+		});
+	}
+
+	if (root.GesturaEuLocal && root.GesturaEuLocal.onChange) {
+		root.GesturaEuLocal.onChange(async (local) => {
+			// Reconciled on the state change rather than at the one keystroke that
+			// caused it, so an imported settings file or a second tab prunes too.
+			const cur = await read();
+			const next = pruneOrigins(cur, EU.allowedOrigins(local));
+			if (EU.canonicalize(next) !== EU.canonicalize(cur)) await write(next);
+		});
+	}
+
 	const api = {
-		KEY, PATH, THROTTLE_MS, REQUEST_TIMEOUT_MS, LIMITS, SEMVER_RE, CHANGED_EVENT,
-		normalizeCache, mergeSlot, dropOrigin, pruneOrigins, applySlots, isNewer,
+		PATH, LIMITS, CHANGED_EVENT,
+		normalizeCache, mergeSlot, pruneOrigins, applySlots, isNewer,
 		updateRequestGroups, dueOrigins, parseUpdateResponse, updateFor,
-		runUpdateCheck, read, write, clear, persist,
+		runUpdateCheck, read, write, clear, persist, checkAndPersist,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaEuUpdates = api;

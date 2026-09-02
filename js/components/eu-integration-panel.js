@@ -191,10 +191,10 @@ class EuIntegrationPanel extends LitElement {
 		// A failed write leaves _local untouched, so the panel keeps showing the
 		// consent that is still on record instead of a state nobody stored.
 		try { await window.GesturaEuLocal.write({ enabled: false, consent: null }); } catch { /* nothing changed */ }
-		// Derived from a permission that is gone: the notices go with it, and the
-		// managers drop their badges on the event.
+		// Derived from a permission that is gone: the notices go with it. The
+		// managers drop their badges on the storage change the removal causes -
+		// announcing it is eu-updates.js's own job, not this caller's.
 		await window.GesturaEuUpdates.clear();
-		window.dispatchEvent(new Event(window.GesturaEuUpdates.CHANGED_EVENT));
 	}
 
 	async #commitDevOrigin() {
@@ -208,16 +208,11 @@ class EuIntegrationPanel extends LitElement {
 		// what was actually stored - otherwise a pasted "https://host/" keeps its
 		// trailing slash on screen while storage holds the trimmed origin.
 		this._devDraft = value;
-		const previous = this.#state ? this.#state.devOrigin : '';
+		// Just the write. The cached answers of an origin that can never be asked
+		// again are pruned by eu-updates.js, which subscribes to this very state -
+		// so a settings import or a second tab gets the same cleanup, and this
+		// method needs no bookkeeping of the previous value.
 		await window.GesturaEuLocal.write({ devOrigin: value });
-		// The entries imported from the previous dev origin can never be asked
-		// about again, so their cached answers are dead weight that would keep
-		// rendering badges.
-		if (previous && previous !== value) {
-			const cache = await window.GesturaEuUpdates.read();
-			await window.GesturaEuUpdates.write(window.GesturaEuUpdates.dropOrigin(cache, previous));
-			window.dispatchEvent(new Event(window.GesturaEuUpdates.CHANGED_EVENT));
-		}
 	}
 
 	// The newest checkedAt across all slots: the line answers "did this work at
@@ -236,28 +231,12 @@ class EuIntegrationPanel extends LitElement {
 	// and leaves the user worse off than before pressing the button. force acts on
 	// the due-check alone; a failing origin still keeps its old slot untouched.
 	async #checkNow() {
-		const U = window.GesturaEuUpdates;
-		const EU = window.FlowMouseEuIntegration;
 		this._checking = true;
 		try {
-			const { slots } = await U.runUpdateCheck({
-				settings: settingsStore.current,
-				local: await window.GesturaEuLocal.read(),
-				cache: await U.read(),
-				now: Date.now(),
-				fetchImpl: (url, init) => fetch(url, init),
-				force: true,
-				stillAllowed: async (origin) => {
-					const cur = await window.GesturaEuLocal.read();
-					return EU.effectiveEnabled(cur) && EU.allowedOrigins(cur).includes(origin);
-				},
-			});
-			// No manual _checked assignment: persist() fires CHANGED_EVENT and the
-			// listener in connectedCallback refreshes the line, the same way the
-			// managers refresh.
-			await U.persist(slots);
-		} catch {
-			// Nothing to report: the line simply keeps its old date.
+			// No manual _checked assignment: the write announces itself through
+			// storage.onChanged and the listener in connectedCallback refreshes the
+			// line, the same way the managers refresh.
+			await window.GesturaEuUpdates.checkAndPersist(settingsStore.current, true);
 		} finally {
 			// finally, not a trailing assignment: an early return or a throw would
 			// otherwise leave the button disabled for the rest of the session.
