@@ -35,9 +35,11 @@ every hand-off a website tries to start.
 
 If you enable *gestura.eu integration* in the settings, and only then:
 
-- Websites can hand menus and search engines to Gestura's import dialog after
-  you click a button on their page. Nothing is imported without your
-  confirmation in that dialog.
+- Pages on **gestura.eu** (and one developer origin you may configure yourself)
+  can hand menus and search engines to Gestura's import dialog after you click a
+  button there. Nothing is imported without your confirmation in that dialog, and
+  no other website can hand anything over — the origin is checked in the page and
+  again in the extension's own trusted context.
 - Pages on **gestura.eu** (and one developer origin you may configure yourself)
   can ask Gestura which of *their* entries you have installed, in which version,
   and whether you changed them locally. Gestura answers only about entries you

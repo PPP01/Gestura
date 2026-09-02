@@ -13,7 +13,7 @@ the update endpoint and R3 the sync endpoints to this file.
 
 - Events are dispatched on and listened to on `document`.
 - `detail` is always the request as a **JSON string** (never an object).
-- The extension answers **only** when the user has enabled *Website
+- The extension answers **only** when the user has enabled *gestura.eu
   integration* with a current consent, **and** `location.origin` of the frame is
   `https://gestura.eu` or the user's single configured developer origin.
   Everything else — off, wrong origin, malformed request, over limit — is
@@ -47,6 +47,40 @@ document.dispatchEvent(new CustomEvent('gestura:query-status', {
 }));
 // Keep your own timeout: silence is a legitimate outcome.
 ```
+
+## Hand-off (page → extension, import)
+
+Two paths, both requiring a **trusted click** and both gated exactly like the
+bridge: the switch on with a current consent, **and** the acting frame's own
+origin `https://gestura.eu` or the configured developer origin. The origin is
+checked in the content script and again in the extension's trusted context from
+`sender.url`, so a runtime message that did not come from the content script is
+refused too. On any other origin both paths are inert — the click behaves as if
+the extension were not installed.
+
+Opening the hand-off to third-party origins is intended to become its own opt-in
+with its own warning. Until that switch exists, no origin but the two above can
+hand anything over, and the format below is documentation rather than a public
+interface.
+
+- **By link:** `<a rel="gestura-menu" href="…">`. The `href` must be same-origin
+  with the page; the extension fetches it, follows redirects, and judges
+  provenance by the **final** URL. Cap 100 KB.
+- **Inline:** a trusted click on `[data-gestura-inline]` opens a 15-second window
+  in which the page dispatches `gestura:import` on `document` with the bundle as
+  a **JSON string**. The extension fetches nothing on this path. Cap 1 MB.
+
+**CORS applies to the link path.** Both manifests carry `<all_urls>`, but Firefox
+MV3 does not *grant* host permissions automatically: until the user opts in at
+`about:addons`, the extension's `fetch` is an ordinary cross-origin request from
+`moz-extension://…`. The JSON served for a `rel="gestura-menu"` link must
+therefore answer with `Access-Control-Allow-Origin: *` (a `GET` of a static JSON
+file needs no preflight), and a reverse proxy must not drop the unfamiliar
+`chrome-extension://` / `moz-extension://` origin before it reaches the file.
+Without that header the link path fails silently on Firefox while working on
+Chrome — the inline path is unaffected, because there the page does the fetching.
+This applies to a developer origin as well: a local index has to send the header
+to be testable in Firefox.
 
 ## Provenance
 

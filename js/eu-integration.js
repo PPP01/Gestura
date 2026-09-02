@@ -65,6 +65,16 @@
 		return allowedOrigins(local).includes(origin) ? origin : null;
 	}
 
+	// Whether a page may start a hand-off at all. The switch alone is not enough:
+	// only an allowed origin may hand anything over, so a third-party operator
+	// button is treated exactly as if the switch were off. Letting any site hand
+	// over entries is meant to become its own opt-in later, with its own warning;
+	// until that switch exists, this is the whole gate. Callers pass the FINAL url
+	// of the frame that acted (location.href, sender.url), never a claimed one.
+	function handOffAllowed(urlString, local) {
+		return effectiveEnabled(local) && qualifiedOrigin(urlString, local) !== null;
+	}
+
 	// --- canonical JSON + baseline hash ------------------------------------------
 	// JSON.stringify is not key-order stable across code paths; the baseline
 	// needs one canonical form. undefined properties are dropped (like
@@ -188,7 +198,7 @@
 
 	const api = {
 		PRODUCTION_ORIGIN, CURRENT_INTEGRATION_CONSENT, API_LEVEL, LIMITS, LOCAL_DEFAULTS, ID_RE,
-		normalizeLocal, effectiveEnabled, isValidDevOrigin, allowedOrigins, qualifiedOrigin,
+		normalizeLocal, effectiveEnabled, isValidDevOrigin, allowedOrigins, qualifiedOrigin, handOffAllowed,
 		canonicalize, hash64, projection, baselineHash, modifiedState,
 		listProvenanced, findStored, parseBridgeRequest, helloAnswer, statusAnswer,
 		addBaselines,

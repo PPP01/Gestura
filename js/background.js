@@ -1310,6 +1310,17 @@ async function stashPendingImport(json, url, sender, indexOrigin) {
 // sonst sieht man einem stummen Kanal nicht an, ob er gearbeitet hat.
 const NO_RECEIVER = /Receiving end does not exist|Could not establish connection|No frame with id|No tab with id/i;
 
+// The trusted-context repeat of js/content.js's gate: the switch must be on AND the
+// frame that asked must be gestura.eu or the configured developer origin. A runtime
+// message can originate outside the content script, so the origin is re-derived from
+// sender here instead of being trusted from the caller.
+async function euHandOffAllowed(pageUrl) {
+	return FlowMouseEuIntegration.handOffAllowed(pageUrl, await GesturaEuLocal.read());
+}
+
+// No origin check here, deliberately: the sender is the options page, not the site.
+// The frame that receives the result checks its own origin again in content.js, and
+// a pending import can only exist for a hand-off that passed the gate to begin with.
 async function reportImportResult(request) {
 	if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
 	const tabId = request && request.tabId;
@@ -1336,7 +1347,8 @@ async function reportImportResult(request) {
 const IMPORT_FROM_SITE_MAX_BYTES = 100 * 1024;
 
 async function importFromSite(request, sender) {
-	if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
+	const pageUrl = sender.url || sender.tab?.url || '';
+	if (!(await euHandOffAllowed(pageUrl))) return { success: false, error: 'integrationDisabled' };
 	let url;
 	try {
 		url = new URL(request.url);
@@ -1347,7 +1359,6 @@ async function importFromSite(request, sender) {
 		return { success: false, error: 'Unsupported protocol' };
 	}
 
-	const pageUrl = sender.url || sender.tab?.url;
 	if (pageUrl) {
 		try {
 			if (new URL(pageUrl).origin !== url.origin) {
@@ -1362,7 +1373,7 @@ async function importFromSite(request, sender) {
 		// If the switch goes off while the fetch is in flight, abort it where
 		// possible (spec §2) — the response is discarded in any case below.
 		const unsubscribe = GesturaEuLocal.onChange((local) => {
-			if (!FlowMouseEuIntegration.effectiveEnabled(local)) ctl.abort();
+			if (!FlowMouseEuIntegration.handOffAllowed(pageUrl, local)) ctl.abort();
 		});
 		let response;
 		try {
@@ -1373,9 +1384,10 @@ async function importFromSite(request, sender) {
 		}
 
 		// Re-check after the fetch: up to 8 s may have passed since the entry
-		// check, long enough for the switch to go off mid-flight. Its response
-		// is discarded in any case, whether or not the abort above won the race.
-		if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
+		// check, long enough for the switch to go off or the developer origin to
+		// change mid-flight. Its response is discarded in any case, whether or not
+		// the abort above won the race.
+		if (!(await euHandOffAllowed(pageUrl))) return { success: false, error: 'integrationDisabled' };
 
 		if (!response.ok) return { success: false, error: 'Fetch failed: ' + response.status };
 
@@ -1401,7 +1413,8 @@ async function importFromSite(request, sender) {
 const IMPORT_INLINE_MAX_BYTES = 1024 * 1024; // mirrors LIMITS.bundleBlobMax in js/menu-exchange.js
 
 async function importInline(request, sender) {
-	if (!(await GesturaEuLocal.isEnabled())) return { success: false, error: 'integrationDisabled' };
+	const pageUrl = sender.url || (sender.tab && sender.tab.url) || '';
+	if (!(await euHandOffAllowed(pageUrl))) return { success: false, error: 'integrationDisabled' };
 	const text = request && request.json;
 	if (typeof text !== 'string' || !text) return { success: false, error: 'Missing payload' };
 	if (new TextEncoder().encode(text).length > IMPORT_INLINE_MAX_BYTES) {
@@ -1413,7 +1426,6 @@ async function importInline(request, sender) {
 	} catch {
 		return { success: false, error: 'Invalid JSON' };
 	}
-	const pageUrl = sender.url || (sender.tab && sender.tab.url) || '';
 	return await stashPendingImport(json, pageUrl, sender, FlowMouseEuIntegration.qualifiedOrigin(pageUrl, await GesturaEuLocal.read()));
 }
 

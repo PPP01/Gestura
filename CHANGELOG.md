@@ -37,8 +37,12 @@
   provenance, so re-importing it now lands as a new entry instead of updating
   the old one; that is a one-off, worth tidying up by hand once.
 - **Behaviour change for site operators:** the operator hand-off shipped in
-  2.8.0 now requires the user to have enabled *gestura.eu integration*. See *For
-  site operators* in the README.
+  2.8.0 (`rel="gestura-menu"`, `[data-gestura-inline]`) now works **only** on
+  gestura.eu and on a developer origin the user configures — and only with
+  *gestura.eu integration* enabled. On every other site both mechanisms are
+  inert, and the click behaves as if Gestura were not installed. Opening the
+  hand-off to third-party sites is planned as its own opt-in with its own
+  warning. See *For site operators* in the README.
 
 ### v2.8.0 (2026-09-02)
 

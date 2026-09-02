@@ -66,6 +66,35 @@ describe('allowedOrigins / qualifiedOrigin', () => {
 	});
 });
 
+describe('handOffAllowed', () => {
+	it('needs the switch AND an allowed origin', () => {
+		expect(EU.handOffAllowed('https://gestura.eu/de/index', on())).toBe(true);
+		// The switch alone is not a permission: this is what keeps a third-party
+		// operator button from working until it gets its own opt-in.
+		expect(EU.handOffAllowed('https://shop.example/menu', on())).toBe(false);
+		// An allowed origin alone is not one either.
+		expect(EU.handOffAllowed('https://gestura.eu/de/index', EU.normalizeLocal({}))).toBe(false);
+		expect(EU.handOffAllowed('https://gestura.eu/de/index', on({ consent: null }))).toBe(false);
+	});
+	it('covers the configured developer origin, and only it', () => {
+		const local = on({ devOrigin: 'http://localhost:5173' });
+		expect(EU.handOffAllowed('http://localhost:5173/de/index', local)).toBe(true);
+		expect(EU.handOffAllowed('http://localhost:5174/de/index', local)).toBe(false);
+		// An invalid dev origin grants nothing, even when it matches the page.
+		expect(EU.handOffAllowed('http://evil.example/x', on({ devOrigin: 'http://evil.example' }))).toBe(false);
+	});
+	it('a subdomain or a lookalike host is not the origin', () => {
+		expect(EU.handOffAllowed('https://cdn.gestura.eu/x', on())).toBe(false);
+		expect(EU.handOffAllowed('http://gestura.eu/x', on())).toBe(false);
+		expect(EU.handOffAllowed('https://gestura.eu.evil.example/x', on())).toBe(false);
+	});
+	it('refuses anything that is not a URL', () => {
+		expect(EU.handOffAllowed('', on())).toBe(false);
+		expect(EU.handOffAllowed('not a url', on())).toBe(false);
+		expect(EU.handOffAllowed(undefined, on())).toBe(false);
+	});
+});
+
 describe('canonicalize', () => {
 	it('sorts keys recursively and strips whitespace', () => {
 		expect(EU.canonicalize({ b: 1, a: { d: [1, { z: 1, y: 2 }], c: 'x' } })).toBe('{"a":{"c":"x","d":[1,{"y":2,"z":1}]},"b":1}');
