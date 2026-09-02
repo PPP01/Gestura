@@ -80,7 +80,7 @@ preview dialog. Search engines that carry a transform script need a separate,
 explicit acknowledgement.
 
 **The user has to opt in first.** Hand-offs only work while the user has enabled
-*Website integration* in Gestura's settings — it is off by default. While it is
+*gestura.eu integration* in Gestura's settings — it is off by default. While it is
 off, Gestura ignores the click entirely: a `rel="gestura-menu"` link is simply
 followed by the browser (so point it at a URL that makes sense to open), and an
 inline button does nothing Gestura-related (so offer a plain download as

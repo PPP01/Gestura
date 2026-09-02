@@ -28,7 +28,7 @@ Was **nur du** tun kannst (Konto, API-Keys, Einreichung) ist mit 👤 markiert.
 - `browser_specific_settings.gecko.id` = **`gestura@gestura.eu`**
 - `strict_min_version` = **140.0**
 - `data_collection_permissions` = **`{ required: ["none"], optional: ["technicalAndInteraction"] }`**
-  seit der optionalen, per Default ausgeschalteten *Website-Integration*: `required`
+  seit der optionalen, per Default ausgeschalteten *gestura.eu-Integration*: `required`
   bleibt `["none"]` (ohne Zutun der Nutzerin verlässt nichts den Browser), aber wer
   den Schalter selbst einschaltet, teilt Seiten auf gestura.eu (und einer optionalen
   Entwickler-Origin) die eigene Erweiterungsversion sowie, auf Anfrage, den
@@ -115,13 +115,13 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
 - **Datenschutz-URL:** die PRIVACY-URL oben.
 - **Lizenz:** GPL-3.0.
 - **Datennutzung:** nicht mehr pauschal „Keine Datenerhebung" — seit R1 gilt das
-  nur noch, solange *Website-Integration* ausgeschaltet bleibt (Werkseinstellung).
+  nur noch, solange *gestura.eu-Integration* ausgeschaltet bleibt (Werkseinstellung).
   Ist sie eingeschaltet, teilt die Extension gestura.eu (und einer optionalen
   Entwickler-Origin) ihre Version sowie den Installiert-/Versions-/
   Verändert-Status importierter Einträge mit — anonym, ohne Konto, kein
   Personenbezug. Deckt sich mit `data_collection_permissions: { required: ["none"],
   optional: ["technicalAndInteraction"] }` (siehe oben) und `PRIVACY.md`, Abschnitt
-  „Website integration". Der noch nicht gebaute Update-Check und die verschlüsselte
+  „gestura.eu integration". Der noch nicht gebaute Update-Check und die verschlüsselte
   Sync sind hiervon nicht betroffen — sie existieren in R1 nicht.
 - **Permission-Begründungen:** aus `permission-justifications.md`, falls der Review
   nach `<all_urls>` / `tabs` / `clipboardRead` etc. fragt.
@@ -164,7 +164,7 @@ nicht über die Chrome-`favicon`-API.)
 - [ ] `npx web-ext lint` = 0 Fehler
 - [ ] `npm run ff:release` (signiert + gelistet eingereicht) 👤
 - [ ] Listing: Beschreibung (EN/DE), Screenshots, Kategorien
-- [ ] Lizenz GPL-3.0, Datenschutz-URL, Datennutzung gemäß Website-Integration-Absatz
+- [ ] Lizenz GPL-3.0, Datenschutz-URL, Datennutzung gemäß gestura.eu-Integration-Absatz
       oben (nicht mehr pauschal „keine Datenerhebung")
 - [ ] Support-Kontakt gesetzt
 - [ ] Auf Review-Rückmeldung reagieren (Permission-Begründungen bereit)

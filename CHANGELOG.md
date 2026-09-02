@@ -9,10 +9,11 @@
 
 **New Features:**
 
-- **Website integration, off by default:** a new settings section with a single
-  switch and a plain-language consent. While it is off — the default — Gestura
-  is fully standalone: it ignores every hand-off a website triggers (operator
-  links, inline buttons, `gestura:import`) and has no contact with gestura.eu.
+- **gestura.eu integration, off by default:** a new settings section with a
+  single switch and a plain-language consent. While it is off — the default —
+  Gestura is fully standalone: it communicates with neither gestura.eu nor any
+  other website, and ignores every hand-off a website triggers (operator links,
+  inline buttons, `gestura:import`).
   Turning it on lets gestura.eu pages ask which of their entries you have
   installed, in which version and whether you changed them — answered only for
   entries imported from that origin, only to that origin, as an array of the
@@ -36,7 +37,7 @@
   provenance, so re-importing it now lands as a new entry instead of updating
   the old one; that is a one-off, worth tidying up by hand once.
 - **Behaviour change for site operators:** the operator hand-off shipped in
-  2.8.0 now requires the user to have enabled *Website integration*. See *For
+  2.8.0 now requires the user to have enabled *gestura.eu integration*. See *For
   site operators* in the README.
 
 ### v2.8.0 (2026-09-02)

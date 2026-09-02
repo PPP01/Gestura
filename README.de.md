@@ -80,7 +80,7 @@ Nutzer bestätigt sie in einem Vorschaudialog. Suchmaschinen mit
 Transformations-Skript brauchen eine eigene, ausdrückliche Zustimmung.
 
 **Der Nutzer muss zuerst zustimmen.** Übergaben funktionieren nur, solange der
-Nutzer in den Gestura-Einstellungen die *Website-Integration* eingeschaltet hat –
+Nutzer in den Gestura-Einstellungen die *gestura.eu-Integration* eingeschaltet hat –
 sie ist standardmäßig aus. Solange sie aus ist, ignoriert Gestura den Klick
 vollständig: Einem `rel="gestura-menu"`-Link folgt der Browser einfach (also auf
 eine URL zeigen, die sich sinnvoll öffnen lässt), und ein Inline-Button tut

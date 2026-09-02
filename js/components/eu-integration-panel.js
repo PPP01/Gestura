@@ -14,8 +14,16 @@ class EuIntegrationPanel extends LitElement {
 		_devError: { state: true },
 	};
 
+	// The one URL the panel points at. Opening it is the user's own click, not
+	// something the extension does on its own, so it works with the switch off.
+	static SITE_URL = 'https://gestura.eu/';
+
 	static styles = [commonStyles, optionStyles, css`
 		:host { display: block; }
+		.intro { padding: 16px 0 14px; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+		.intro p { margin: 0 0 8px; }
+		.intro a { color: var(--accent-color); text-decoration: none; }
+		.intro a:hover { text-decoration: underline; }
 		.consent { margin: 8px 0 4px; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); }
 		.consent h4 { margin: 0 0 8px; font-size: 15px; }
 		.consent ul { margin: 0 0 12px 18px; padding: 0; }
@@ -104,7 +112,11 @@ class EuIntegrationPanel extends LitElement {
 		if (!s) return html``;
 		const points = ['euIntegrationConsentPoint1', 'euIntegrationConsentPoint2', 'euIntegrationConsentPoint3'];
 		return html`
-			<div class="setting-row first-row">
+			<div class="intro">
+				<p>${i18n.getMessage('euIntegrationIntro')}</p>
+				<a href="${EuIntegrationPanel.SITE_URL}" target="_blank" rel="noopener noreferrer">${i18n.getMessage('euIntegrationIntroLink')}</a>
+			</div>
+			<div class="setting-row">
 				<div class="setting-label">
 					<span>${i18n.getMessage('euIntegrationToggle')}</span>
 					<span>${i18n.getMessage('euIntegrationToggleDesc')}</span>

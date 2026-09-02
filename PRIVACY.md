@@ -9,7 +9,7 @@ privacy is a core design goal.
 
 **Gestura does not collect, transmit, or sell any personal data.** There are no
 analytics, no tracking, no advertising, and no remote servers operated by Gestura.
-The optional website integration (below) is off by default and, when enabled,
+The optional gestura.eu integration (below) is off by default and, when enabled,
 only answers questions from gestura.eu about entries you imported from there.
 
 ## What data Gestura processes and where it stays
@@ -27,13 +27,13 @@ only answers questions from gestura.eu about entries you imported from there.
   a third party you selected; that third party's own privacy policy then applies.
   Gestura adds no identifiers of its own.
 
-## Website integration (optional, off by default)
+## gestura.eu integration (optional, off by default)
 
-Gestura ships with its website integration switched off. In that state the
-extension ignores every hand-off a website tries to start and has no contact
-with gestura.eu.
+Gestura ships with its gestura.eu integration switched off. In that state the
+extension communicates with neither gestura.eu nor any other website: it ignores
+every hand-off a website tries to start.
 
-If you enable *Website integration* in the settings, and only then:
+If you enable *gestura.eu integration* in the settings, and only then:
 
 - Websites can hand menus and search engines to Gestura's import dialog after
   you click a button on their page. Nothing is imported without your

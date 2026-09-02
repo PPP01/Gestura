@@ -110,7 +110,7 @@ Alles aus `permission-justifications.md` übernehmen:
 - **Permission justification:** für **jede** Berechtigung (`tabs`, `sessions`,
   `storage`, `contextMenus`, `search`, `scripting`, `favicon`, `offscreen`) den
   jeweiligen Satz aus der Tabelle einfügen; ebenso die `<all_urls>`-Begründung.
-- **Datennutzung:** seit der *Website-Integration* (aus, per Default) nicht mehr
+- **Datennutzung:** seit der *gestura.eu-Integration* (aus, per Default) nicht mehr
   pauschal „keine Datenerhebung". Mit ausgeschaltetem Schalter stimmt das weiter —
   dann verlässt nichts den Browser. Schaltet die Nutzerin ihn selbst ein, teilt die
   Extension Seiten auf **gestura.eu** (und einer optionalen, selbst eingetragenen
@@ -127,7 +127,7 @@ Alles aus `permission-justifications.md` übernehmen:
   davon geschieht. (Der noch nicht gebaute Update-Check und die verschlüsselte
   Sync werden hier nicht vorweggenommen.)
 - **Privacy policy URL:** die oben gewählte öffentliche URL eintragen (PRIVACY.md,
-  Abschnitt „Website integration").
+  Abschnitt „gestura.eu integration").
 
 ### 4. Distribution (Tab „Distribution")
 - Sichtbarkeit (öffentlich / nicht gelistet), Regionen wählen.
@@ -158,7 +158,7 @@ die Permission-Begründungen sind genau dafür vorbereitet.
 - [ ] 5 Screenshots hochgeladen
 - [ ] Kategorie = Productivity, Sprache(n) gesetzt
 - [ ] Single purpose + alle Permission-Begründungen eingetragen
-- [ ] Datennutzung: Formular gemäß Website-Integration-Absatz oben ausgefüllt
+- [ ] Datennutzung: Formular gemäß gestura.eu-Integration-Absatz oben ausgefüllt
       (nicht mehr pauschal „keine Erhebung")
 - [ ] Sichtbarkeit/Regionen gewählt
 - [ ] Submit for review 👤
