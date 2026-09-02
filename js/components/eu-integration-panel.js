@@ -7,6 +7,7 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 // opens the consent block; only "Enable" there persists enabled + consent.
 class EuIntegrationPanel extends LitElement {
 	static properties = {
+		advancedMode: { type: Boolean, attribute: 'advanced-mode' },
 		_local: { state: true },
 		_consentOpen: { state: true },
 		_devDraft: { state: true },
@@ -21,12 +22,21 @@ class EuIntegrationPanel extends LitElement {
 		.consent li { margin: 4px 0; font-size: 13px; line-height: 1.45; }
 		.consent .actions { display: flex; gap: 8px; }
 		.reconfirm { color: var(--warning-color); }
-		.dev input { width: 100%; max-width: 360px; }
-		.error { color: var(--danger-color); font-size: 12px; margin-top: 4px; }
+		/* The row wraps only so the error can claim a line of its own; min-width:0
+		   lets the label shrink instead, keeping the field beside it on line 1. */
+		.dev-row { flex-wrap: wrap; }
+		.dev-row .setting-label { flex: 1 1 0; min-width: 0; }
+		.dev-field { flex: 0 0 260px; max-width: 100%; }
+		.dev-field input { width: 100%; }
+		.dev-field input.invalid { box-shadow: 0 0 0 1.5px var(--danger-color); }
+		/* Full row width, below both columns: the message does not fit the input's
+		   column without breaking into four lines. */
+		.error { flex: 0 0 100%; margin-top: 8px; color: var(--danger-color); font-size: 12px; }
 	`];
 
 	constructor() {
 		super();
+		this.advancedMode = false;
 		this._local = null;
 		this._consentOpen = false;
 		this._devDraft = '';
@@ -121,17 +131,19 @@ class EuIntegrationPanel extends LitElement {
 						<button class="btn" @click=${this.#cancel}>${i18n.getMessage('euIntegrationConsentCancel')}</button>
 					</div>
 				</div>` : ''}
-			${this.#effective ? html`
-				<div class="setting-row dev">
+			${this.#effective && this.advancedMode ? html`
+				<div class="setting-row dev-row">
 					<div class="setting-label">
 						<span>${i18n.getMessage('euIntegrationDevOrigin')}</span>
 						<span>${i18n.getMessage('euIntegrationDevOriginDesc')}</span>
-						<input type="url" placeholder="http://localhost:5173" .value=${this._devDraft}
+					</div>
+					<div class="dev-field">
+						<input type="url" class="input-lg ${this._devError ? 'invalid' : ''}" placeholder="http://localhost:5173" .value=${this._devDraft}
 							@input=${e => { this._devDraft = e.target.value; this._devError = false; }}
 							@blur=${this.#commitDevOrigin}
 							@keydown=${e => { if (e.key === 'Enter') this.#commitDevOrigin(); }}>
-						${this._devError ? html`<div class="error">${i18n.getMessage('euIntegrationDevOriginInvalid')}</div>` : ''}
 					</div>
+					${this._devError ? html`<div class="error">${i18n.getMessage('euIntegrationDevOriginInvalid')}</div>` : ''}
 				</div>` : ''}
 		`;
 	}

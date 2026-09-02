@@ -1054,10 +1054,10 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
-				<div class="section ${this._activeSection === 'websiteIntegration' ? 'active' : ''}" data-nav="websiteIntegration">
-					<h2><span class="section-icon">${unsafeHTML(icon('globe', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euIntegrationTitle')}</span></h2>
+				<div class="section ${this._activeSection === 'websiteIntegration' ? 'active' : ''} ${(this._settings.sectionAdvanced?.websiteIntegration) ? 'advanced-expanded' : ''}" data-nav="websiteIntegration">
+					<h2><span class="section-icon">${unsafeHTML(icon('globe', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euIntegrationTitle')}</span>${this.#renderAdvancedToggle('websiteIntegration')}</h2>
 					<div class="section-body">
-						<eu-integration-panel></eu-integration-panel>
+						<eu-integration-panel ?advanced-mode=${this._settings.sectionAdvanced?.websiteIntegration}></eu-integration-panel>
 					</div>
 				</div>
 

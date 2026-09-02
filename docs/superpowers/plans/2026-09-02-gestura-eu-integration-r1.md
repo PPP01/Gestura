@@ -2132,7 +2132,7 @@ Steps 3 and 4 need no test page; dispatching the events from the page's own cons
 
 From the final whole-branch review, in rough order of how much they matter:
 
-- **The developer-origin row breaks the section's label styling.** The panel puts an `<input>` inside `.setting-label`, whose last `<span>` is styled as the muted description, so the description and the field fight over that slot. Relevant to any visual pass over the new section.
+- ~~**The developer-origin row breaks the section's label styling.**~~ Fixed 2026-09-02: the input moved out of `.setting-label` into its own column on the right of the row, the way every other setting row places its control, and the validation message now takes a full-width line below both columns instead of wrapping into four lines inside a 260 px column. The row also moved behind the section's *Erweitert* toggle — a developer-only field has no business in the default view.
 - **`_devDraft` is clobbered by any storage change**, so an unsaved edit in the developer-origin field can vanish while the user is typing if the state changes for another reason.
 - **Three `write()` calls in the panel are neither awaited nor caught.** A failed write leaves the UI showing a state that was never stored.
 - **Turning the switch off cannot clear a stale consent.** With an out-of-date consent version the toggle already renders off, so there is no affordance that resets `enabled` to false.
