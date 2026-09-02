@@ -1,0 +1,11 @@
+{
+	"gesturaMenu": 1,
+	"id": "com.example.demo",
+	"version": "1.0.0",
+	"name": { "en": "Demo menu" },
+	"icon": "menu",
+	"patterns": ["*example.com*"],
+	"items": [
+		{ "id": "home", "label": { "en": "Home" }, "action": "openCustomUrl", "customUrl": "https://example.com/" }
+	]
+}
