@@ -103,10 +103,82 @@
 		return (await baselineHash(stored)) !== base;
 	}
 
+	// --- provenance walk -------------------------------------------------------------
+	// The four places an imported entry can live. Custom menus and engines
+	// (new imports), edited catalog copies and engine overrides (replacements).
+
+	function listProvenanced(settings) {
+		const out = [];
+		const sm = (settings && settings.siteMenus) || {};
+		const se = (settings && settings.searchEngines) || {};
+		for (const [id, def] of Object.entries(sm.custom || {})) if (def && def.source) out.push({ kind: 'menu', id, stored: def });
+		for (const [id, def] of Object.entries(sm.edited || {})) if (def && def.source) out.push({ kind: 'menu', id, stored: def });
+		for (const e of se.custom || []) if (e && e.source) out.push({ kind: 'engine', id: e.id, stored: e });
+		for (const [id, ov] of Object.entries(se.overrides || {})) if (ov && ov.source) out.push({ kind: 'engine', id, stored: ov });
+		return out;
+	}
+
+	function findStored(settings, kind, id) {
+		const sm = (settings && settings.siteMenus) || {};
+		const se = (settings && settings.searchEngines) || {};
+		if (kind === 'menu') return (sm.custom && sm.custom[id]) || (sm.edited && sm.edited[id]) || null;
+		return (se.custom || []).find(e => e && e.id === id) || (se.overrides && se.overrides[id]) || null;
+	}
+
+	// --- bridge protocol ----------------------------------------------------------------
+	// Everything that is not exactly right yields null → the caller stays silent.
+
+	function parseBridgeRequest(detail) {
+		if (typeof detail !== 'string' || !detail) return null;
+		if (new TextEncoder().encode(detail).length > LIMITS.detailMaxBytes) return null;
+		let req;
+		try { req = JSON.parse(detail); } catch { return null; }
+		if (!req || typeof req !== 'object' || Array.isArray(req)) return null;
+		if (typeof req.requestId !== 'string' || !req.requestId || req.requestId.length > LIMITS.requestIdMax) return null;
+		const out = { requestId: req.requestId };
+		if (Object.prototype.hasOwnProperty.call(req, 'ids')) {
+			if (!Array.isArray(req.ids) || req.ids.length > LIMITS.idsMax) return null;
+			for (const id of req.ids) {
+				if (typeof id !== 'string' || id.length > LIMITS.idMax || !ID_RE.test(id)) return null;
+			}
+			out.ids = req.ids.slice();
+		}
+		return out;
+	}
+
+	function helloAnswer(req, version) {
+		return { requestId: req.requestId, version, apiLevel: API_LEVEL };
+	}
+
+	// Origin-bound: only entries whose source.indexOrigin equals the asking
+	// origin exist as far as that page is concerned. A Map keyed by indexId keeps
+	// hostile ids ("constructor") off any object prototype chain.
+	async function statusAnswer(req, origin, settings) {
+		const byId = new Map();
+		for (const e of listProvenanced(settings)) {
+			const s = e.stored.source;
+			if (!s || s.indexOrigin !== origin || typeof s.indexId !== 'string') continue;
+			if (!byId.has(s.indexId)) byId.set(s.indexId, e);
+		}
+		const entries = [];
+		for (const id of new Set(req.ids || [])) {
+			const hit = byId.get(id);
+			if (!hit) { entries.push({ id, installed: false }); continue; }
+			entries.push({
+				id,
+				installed: true,
+				version: typeof hit.stored.source.version === 'string' ? hit.stored.source.version : null,
+				modified: await modifiedState(hit.stored),
+			});
+		}
+		return { requestId: req.requestId, entries };
+	}
+
 	const api = {
 		PRODUCTION_ORIGIN, CURRENT_INTEGRATION_CONSENT, API_LEVEL, LIMITS, LOCAL_DEFAULTS, ID_RE,
 		normalizeLocal, effectiveEnabled, isValidDevOrigin, allowedOrigins, qualifiedOrigin,
 		canonicalize, hash64, projection, baselineHash, modifiedState,
+		listProvenanced, findStored, parseBridgeRequest, helloAnswer, statusAnswer,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseEuIntegration = api;
