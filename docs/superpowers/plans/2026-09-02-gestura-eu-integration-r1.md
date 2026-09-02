@@ -2119,10 +2119,24 @@ All 14 tasks implemented on `feature/eu-integration-r1`, 19 commits, 524 tests p
 
 ### Still to check by hand
 
-1. `query-status` answering, with the developer origin set to the index's origin.
-2. The `modified` flag after renaming an imported entry.
-3. An oversized request (over 32 KiB of `detail`) must stay silent.
-4. A non-configured origin (for example `http://127.0.0.1:5173`) must stay silent.
+Checked 2026-09-02 against `docs/test-bundles/bridge-test.html` served on
+`http://localhost:8123`, configured as the developer origin:
+
+1. ~~`query-status` answering~~ **passes.** `hello-result` returns `{requestId, version: "2.8.0", apiLevel: 1}`; `query-status-result` returns `entries` as an array with one object per requested id, `installed: false` for all four while nothing provenanced was stored yet.
+2. The `modified` flag after renaming an imported entry — **still open.**
+3. ~~An oversized request (over 32 KiB of `detail`) must stay silent~~ **passes.** No answer, no console output.
+4. ~~A non-configured origin must stay silent~~ **passes.** The same page over `http://127.0.0.1:8123` answers neither the bridge nor the hand-off.
+
+**One defect found while checking, fixed in `054ab65`:** the import preview
+reported "99 % used after import" and the save then failed with "exceeds the sync
+storage limit". `#projectedUsage` measured the patch, while `#commitPatch` saves
+`addBaselines(patch, imported)` — 34 bytes longer per provenanced entry, the
+`baselineHash` R1 introduced. Near the 8192-byte item cap that is enough to
+promise a fit and then refuse the write. The preview now measures a patch stamped
+with fixed-length placeholders, and `tests/menu-exchange-provenance.test.mjs`
+asserts byte-for-byte equality between measured and stored. The failure was
+reported to the page correctly as `{"status":"failed"}`, so the reply path was
+never in doubt.
 
 Steps 3 and 4 need no test page; dispatching the events from the page's own console is enough. `docs/test-bundles/bridge-test.html` covers all of it including the hand-off, which needs a real click and therefore a button.
 
