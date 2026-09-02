@@ -89,6 +89,17 @@ git add --renormalize manifest.json
 
 **Switching branches with a stamped manifest fails.** `git checkout <branch>` aborts with *"Please commit your changes or stash them"* even though `git diff` is empty — checkout decides from the cached stat without running the clean filter, and the stamp changed the file's size. Nothing is at stake: the filtered content hashes to exactly the committed blob. But `commit`, `stash` and `git checkout HEAD -- manifest.json` all fail to clear it, the last because `post-checkout` re-stamps immediately. Use **`git checkout -f <branch>`** — the stamp is the only thing it can discard, and the hook re-stamps for the new branch. Commit or stash real work first.
 
+**`git merge` trips over it too, and `-f` is not an option there.** After a checkout the hook has already re-stamped, so a merge into the branch you just switched to aborts with the same *"Please commit your changes"* — while `git diff manifest.json` stays empty, because through the clean filter the content does equal the commit. Neither `git update-index --refresh` nor `--really-refresh` clears it. For a fast-forward, move the pointer instead of merging:
+
+```sh
+git merge-base --is-ancestor main <branch>   # prove it is a fast-forward first
+git checkout -f <branch>
+git branch -f main <branch>                  # main is not checked out, so this is allowed
+git checkout -f main
+```
+
+That is exactly what a fast-forward merge does, and nothing but the stamp is ever discarded. A merge that is *not* a fast-forward needs the stamp gone for real: `git stash push -- manifest.json` fails for the same reason, so reset the file from the index in a clone with the filter configured, or merge from a fresh clone.
+
 ## Architecture
 
 ### Two execution contexts, two settings paths
