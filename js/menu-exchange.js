@@ -401,6 +401,56 @@
 		return { next: { ...cur, custom: [...(cur.custom || []), engine] }, id: engine.id, isNew: true };
 	}
 
+	// --- Wiedererkennung eines Imports (drei Fälle, Spec Abschnitt 4) --------------
+	// Lag bis 2.8.0 im Dialog (#menuMatch/#engineMatch) und verglich nur die
+	// indexId - die aber auch eine Datei behaupten kann. Ein qualifizierter Import
+	// (source.indexOrigin gesetzt) trifft ausschließlich das Paar (indexOrigin,
+	// indexId); ein unqualifizierter trifft nur unqualifizierte Einträge und
+	// überschreibt nie automatisch einen qualifizierten. Mehrdeutig → der Dialog
+	// bietet nur "als neu importieren" an und rät nicht.
+
+	function provenancedEntries(kind, branch) {
+		const out = [];
+		const b = branch || {};
+		if (kind === 'menu') {
+			for (const [id, def] of Object.entries(b.custom || {})) if (def && def.source) out.push({ id, name: def.name, source: def.source });
+			for (const [id, def] of Object.entries(b.edited || {})) if (def && def.source) out.push({ id, name: def.name, source: def.source });
+		} else {
+			for (const e of b.custom || []) if (e && e.source) out.push({ id: e.id, name: e.name, source: e.source });
+			for (const [id, ov] of Object.entries(b.overrides || {})) if (ov && ov.source) out.push({ id, name: ov.name, source: ov.source });
+		}
+		return out;
+	}
+
+	function matchImport(kind, value, source, branch, catalog) {
+		const withId = provenancedEntries(kind, branch).filter(e => e.source.indexId === value.id);
+		const candidates = (list) => ({ ambiguous: true, candidates: list.map(e => ({ id: e.id, name: e.name, indexOrigin: e.source.indexOrigin || null })) });
+		const origin = source && typeof source.indexOrigin === 'string' ? source.indexOrigin : null;
+		if (origin) {
+			const same = withId.filter(e => e.source.indexOrigin === origin);
+			if (same.length === 1) return { id: same[0].id, name: same[0].name, own: true };
+			if (same.length > 1) return candidates(same);
+			// Nothing of our own from this origin: unqualified twins are not ours to touch.
+		} else {
+			const unqualified = withId.filter(e => !e.source.indexOrigin);
+			if (withId.length === 1 && unqualified.length === 1) return { id: unqualified[0].id, name: unqualified[0].name, own: true };
+			if (withId.length >= 1) return candidates(withId);
+		}
+		const cat = (catalog || []).find(c => c && c.id === value.id);
+		if (!cat) return null;
+		// Ein Katalog-Eintrag wird in genau einen Platz geschrieben: edited[id] bzw.
+		// overrides[id]. Was dort schon liegt und oben nicht als eigener Treffer
+		// erkannt wurde, gehört jemand anderem - der Handarbeit des Nutzers oder
+		// einer anderen Origin. "Standard-Eintrag ersetzen" wäre dafür die falsche
+		// Beschreibung, also lieber mehrdeutig.
+		const b = branch || {};
+		const occupant = kind === 'menu' ? (b.edited || {})[value.id] : (b.overrides || {})[value.id];
+		if (occupant) {
+			return { ambiguous: true, candidates: [{ id: value.id, name: occupant.name, indexOrigin: (occupant.source && occupant.source.indexOrigin) || null }] };
+		}
+		return { ...cat, own: false };
+	}
+
 	// Baut den Patch, den ein Import der übergebenen Zeilen schreiben würde. Rein -
 	// schreibt nichts. Einzel- und Sammel-Import gehen beide hierdurch, damit sie
 	// garantiert dasselbe schreiben; die Vorschau nutzt denselben Weg, damit die
@@ -448,7 +498,7 @@
 		detectType, isHttpsUrl, pickLabel, validate, validateBundle, hasTransform, menuEngineIds,
 		newId, toCustomMenu, toCustomEngine, toStandardMenu, toEngineOverride,
 		menuToExchange, engineToExchange,
-		applyMenuTo, applyEngineTo, buildImportPatch,
+		applyMenuTo, applyEngineTo, matchImport, buildImportPatch,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseMenuExchange = api;
