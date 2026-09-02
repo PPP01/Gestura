@@ -56,7 +56,7 @@ v2.8.0
   gestura-2.8.0-firefox.xpi    signed by Mozilla, added when AMO is done
 ```
 
-Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then tag the `release:` commit itself, annotated, and push the tag:
+Bump `version` in `manifest.json` and rename the `### Unreleased` section of `CHANGELOG.md` (that is the only changelog file) to `### vX.Y.Z (YYYY-MM-DD)`, then open a fresh, empty `### Unreleased` above it. Without that fresh section the next entries are written under the released version and go out again with the next tag. Commit, then tag the `release:` commit itself, annotated, and push the tag:
 
 ```sh
 git tag -a v2.8.0 <release-commit> -m "Gestura v2.8.0"
