@@ -21,7 +21,16 @@
 
 	function load() {
 		if (!loading) {
-			loading = chrome.storage.local.get(KEY).then(absorb).catch(() => absorb({}));
+			let promise;
+			try {
+				promise = chrome.storage.local.get(KEY);
+			} catch {
+				// Synchronous throw when extension context is invalidated (e.g. after
+				// reload while an old content script is still running in an open tab).
+				// Treat as storage unavailable and use defaults instead.
+				promise = Promise.resolve({});
+			}
+			loading = promise.then(absorb).catch(() => absorb({}));
 		}
 		return loading;
 	}
