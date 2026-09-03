@@ -76,7 +76,8 @@ The spec leaves five things open. Decided here, with the reasoning, so a reviewe
 | File | Change |
 |---|---|
 | `docs/gestura-eu-api.md` | `apiLevel` 3; the sync half: code format, crypto parameters, test vectors, four endpoints, quotas, retention, the settings schema, consent table row. |
-| `js/eu-integration.js` | `API_LEVEL` 2 → 3, and the comment claiming R3 raises the consent version. Nothing else. |
+| `js/eu-integration.js` | `API_LEVEL` 2 → 3, the comment claiming R3 raises the consent version, and `Array.isArray` around the engine list the provenance walk iterates. |
+| `js/engine-registry.js` | `Array.isArray` guards around `searchEngines.custom` / `hidden` / `order`, and an element guard before `toEngine`. |
 | `js/settings-store.js` | Dispatch `gestura:settings-saved` on a successful local save, so the reminder can react to it. |
 | `js/components/options-page.js` | Export and file import go through the schema and the preview dialog; the two `confirm()` calls and the inline migration go away. |
 | `pages/options.html` | Load the five new classic scripts and the two new modules. |
@@ -907,13 +908,16 @@ One validator for every settings blob that enters the extension, whatever door i
 
 **Files:**
 - Create: `js/eu-settings-schema.js`
+- Modify: `js/engine-registry.js` (guard the containers it iterates)
+- Modify: `js/eu-integration.js` (the same, in the bridge path)
 - Test: `tests/eu-settings-schema.test.mjs`
 
 **Interfaces:**
 - Consumes: `window.GestureConstants.DEFAULT_SETTINGS`, `window.FlowMouseEuIntegration.canonicalize` / `hash64`.
 - Produces: `window.GesturaSettingsSchema` with
-  `FORMAT_FIELD: 'gesturaSettings'`, `FORMAT_VERSION: 1`, `MAX_BYTES`, `FORBIDDEN`, `NEVER`,
+  `FORMAT_FIELD: 'gesturaSettings'`, `FORMAT_VERSION: 1`, `MAX_BYTES`, `FORBIDDEN`, `NEVER`, `RECORD_KEYS`,
   `allowedKeys() -> string[]`,
+  `conformRecord(value, def) -> { value, repaired }`,
   `buildExport(settings, extVersion) -> object`,
   `exportText(settings, extVersion) -> string`,
   `validate(input) -> Result` where `input` is the export **text** or an already-parsed object,
@@ -928,7 +932,7 @@ One validator for every settings blob that enters the extension, whatever door i
   	legacy: boolean,        // the file carried no gesturaSettings field
   	settings: object|null,  // complete, ready for SettingsStore.save()
   	dropped: string[],      // top-level keys that were not written
-  	retyped: string[],      // allowlisted keys whose value had the wrong shape
+  	retyped: string[],      // keys reset to their default: `siteMenus`, or `searchEngines.custom`
   	json: string,           // pretty-printed, exactly what would be written
   }
   ```
@@ -1047,6 +1051,82 @@ describe('validation', () => {
 		expect(res.retyped).toEqual(['siteMenus']);
 		expect(res.settings.trailWidth).toBe(7);
 	});
+});
+
+// The container shapes inside the record keys. This is not tidiness: consumers
+// iterate these. `for (const c of {})` throws, and engine-registry.js does
+// exactly that over searchEngines.custom on every page load.
+describe('the shapes inside a record key', () => {
+	it.each([
+		['searchEngines.custom as an object', 'searchEngines', { custom: {} }, 'custom'],
+		['searchEngines.custom as a string', 'searchEngines', { custom: 'invalid' }, 'custom'],
+		['searchEngines.hidden as an object', 'searchEngines', { hidden: {} }, 'hidden'],
+		['searchEngines.order as an object', 'searchEngines', { order: {} }, 'order'],
+		['searchEngines.overrides as an array', 'searchEngines', { overrides: [] }, 'overrides'],
+		['siteMenus.custom as an array', 'siteMenus', { custom: [] }, 'custom'],
+		['siteMenus.disabled as an object', 'siteMenus', { disabled: {} }, 'disabled'],
+		['menuAppend.items as an object', 'menuAppend', { items: {} }, 'items'],
+	])('repairs %s', (_label, key, value, child) => {
+		const res = S.validate({ gesturaSettings: 1, [key]: value });
+		expect(res.ok).toBe(true);
+		expect(res.settings[key][child]).toEqual(DEFAULTS[key][child]);
+		expect(res.retyped).toContain(`${key}.${child}`);
+	});
+
+	// Only the offending child. Losing every engine override because `custom` was
+	// mistyped would be a worse outcome than the file caused.
+	it('keeps the children that were fine', () => {
+		const res = S.validate({
+			gesturaSettings: 1,
+			searchEngines: { custom: {}, overrides: { google: { name: 'G' } }, order: ['google'] },
+		});
+		expect(res.settings.searchEngines.custom).toEqual([]);
+		expect(res.settings.searchEngines.overrides).toEqual({ google: { name: 'G' } });
+		expect(res.settings.searchEngines.order).toEqual(['google']);
+		expect(res.retyped).toEqual(['searchEngines.custom']);
+	});
+
+	// mouseGestures is keyed by gesture patterns: its default entries are DATA,
+	// not a schema. Filling in "missing" ones would hand back every gesture the
+	// user deliberately removed.
+	it('does not treat mouseGestures as a record', () => {
+		const res = S.validate({ gesturaSettings: 1, mouseGestures: { '→': { action: 'forward' } } });
+		expect(res.settings.mouseGestures).toEqual({ '→': { action: 'forward' } });
+		expect(res.retyped).toEqual([]);
+	});
+
+	it('leaves a child the default does not describe alone', () => {
+		const res = S.validate({ gesturaSettings: 1, siteMenus: { custom: { mine: { name: 'Mine' } } } });
+		expect(res.settings.siteMenus.custom).toEqual({ mine: { name: 'Mine' } });
+		expect(res.retyped).toEqual([]);
+	});
+
+	// The consumer's own guard, tested through the consumer: even settings that
+	// never passed the validator - anything already in chrome.storage.sync, which
+	// content scripts read directly - must not take the engine list down.
+	it('leaves engine resolution standing for every malformed custom', async () => {
+		await import('../js/search-url.js');
+		await import('../js/search-engines-catalog.js');
+		await import('../js/engine-registry.js');
+		const R = globalThis.FlowMouseEngineRegistry;
+		for (const custom of [{}, 'invalid', 42, [null], [{ id: 'x' }], []]) {
+			expect(() => R.resolveEngines([], { custom, overrides: {}, hidden: [], order: [] })).not.toThrow();
+		}
+		for (const hidden of [{}, 42]) {
+			expect(() => R.resolveEngines([], { custom: [], overrides: {}, hidden, order: [] })).not.toThrow();
+		}
+		for (const order of [{}, 42]) {
+			expect(() => R.resolveEngines([], { custom: [], overrides: {}, hidden: [], order })).not.toThrow();
+		}
+	});
+
+	it('leaves the provenance walk standing for every malformed custom', () => {
+		const EU = globalThis.FlowMouseEuIntegration;
+		for (const custom of [{}, 'invalid', 42, [null], []]) {
+			expect(() => EU.listProvenanced({ siteMenus: {}, searchEngines: { custom } })).not.toThrow();
+			expect(() => EU.findStored({ siteMenus: {}, searchEngines: { custom } }, 'engine', 'x')).not.toThrow();
+		}
+	});
 
 	// Written as TEXT, not as object literals: `__proto__:` in a literal sets the
 	// prototype instead of creating a property, so JSON.stringify would silently
@@ -1163,12 +1243,8 @@ Create `js/eu-settings-schema.js`:
 		return Object.keys(defaults()).filter(k => !NEVER.has(k));
 	}
 
-	// Top level only, against the shape of the key's own default. Deeper
-	// normalisation is not repeated here: SettingsStore.normalizeSetting() runs
-	// over mouseGestures, wheelGestures, specialGestures and siteMenus on every
-	// load, and an import reloads the page - so a malformed inner value is
-	// repaired by the code that already owns that job, instead of by a second
-	// copy of it that could drift.
+	// Against the shape of the key's own default: object vs array vs primitive
+	// type. Used at the top level and, for RECORD_KEYS below, one level deeper.
 	function sameShape(value, def) {
 		if (Array.isArray(def)) return Array.isArray(value);
 		if (def === null) return true;
@@ -1176,6 +1252,39 @@ Create `js/eu-settings-schema.js`:
 			return value !== null && typeof value === 'object' && !Array.isArray(value);
 		}
 		return typeof value === typeof def;
+	}
+
+	// Keys whose CHILD NAMES are part of the format rather than user data, so the
+	// default describes a shape for each of them and it can be checked. This is
+	// where generic checking has to stop being generic: DEFAULT_SETTINGS.siteMenus
+	// has the fixed children `custom`, `edited`, `order` …, while
+	// DEFAULT_SETTINGS.mouseGestures is keyed by gesture patterns - its default
+	// entries are DATA, and "fill in what is missing from the default" would
+	// resurrect every gesture the user deleted. actionChains has an empty default
+	// and therefore describes nothing.
+	//
+	// Checking these matters because consumers rely on them: engine-registry.js
+	// iterates searchEngines.custom, and `for (const c of {})` throws. A settings
+	// object whose containers have the wrong type is not a cosmetic problem - it
+	// takes out the search engines on every page load.
+	const RECORD_KEYS = new Set([
+		'gestureTriggerButtons', 'siteMenus', 'searchEngines',
+		'menuAppend', 'customMenuSwitcher', 'wheelGestures', 'specialGestures',
+	]);
+
+	// Repairs the offending CHILD rather than discarding the whole key: one
+	// mistyped `custom` should not cost the user their overrides and their order
+	// as well. Children the default does not describe pass through untouched -
+	// they are the user's own menu ids, engine ids and domains.
+	function conformRecord(value, def) {
+		const out = { ...value };
+		const repaired = [];
+		for (const [child, childDef] of Object.entries(def)) {
+			if (!(child in out) || sameShape(out[child], childDef)) continue;
+			out[child] = structuredClone(childDef);
+			repaired.push(child);
+		}
+		return { value: out, repaired };
 	}
 
 	function hasForbiddenKey(value) {
@@ -1248,7 +1357,15 @@ Create `js/eu-settings-schema.js`:
 			if (key === FORMAT_FIELD || key === '_version') continue;
 			if (!allowed.has(key)) { dropped.push(key); continue; }
 			if (!sameShape(value, defaults()[key])) { retyped.push(key); continue; }
-			settings[key] = value;
+			if (RECORD_KEYS.has(key)) {
+				const fixed = conformRecord(value, defaults()[key]);
+				settings[key] = fixed.value;
+				// Named as `searchEngines.custom`, so the preview says which part was
+				// reset rather than pointing at the whole branch.
+				for (const child of fixed.repaired) retyped.push(`${key}.${child}`);
+			} else {
+				settings[key] = value;
+			}
 			kept++;
 		}
 
@@ -1280,26 +1397,85 @@ Create `js/eu-settings-schema.js`:
 	}
 
 	const api = {
-		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, FORBIDDEN, NEVER,
-		allowedKeys, buildExport, exportText, validate, hashOf, migrateLegacy,
+		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, FORBIDDEN, NEVER, RECORD_KEYS,
+		allowedKeys, buildExport, exportText, validate, hashOf, migrateLegacy, conformRecord,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSettingsSchema = api;
 })(typeof self !== 'undefined' ? self : globalThis);
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [ ] **Step 4: Harden the two consumers that iterate those containers**
+
+The validator stops a malformed shape from being *written*. It does not help
+with what is already in `chrome.storage.sync` — from an older import, which
+checked nothing but `enableGesture` — and content scripts read that key
+**directly**, never through `SettingsStore`. So the two places that iterate
+these containers get a guard of their own.
+
+In `js/engine-registry.js`, `resolveEngines`:
+
+```js
+	function resolveEngines(catalog, se, type) {
+		const s = se || {};
+		// Array.isArray, not `|| []`: a stored `custom: {}` is truthy and
+		// `for (const c of {})` throws - which takes out the whole engine list on
+		// every page load. `hidden: {}` has no .includes and `order: {}` no
+		// .indexOf, with the same result one line later.
+		const overrides = (s.overrides && typeof s.overrides === 'object' && !Array.isArray(s.overrides)) ? s.overrides : {};
+		const custom = Array.isArray(s.custom) ? s.custom : [];
+		const hidden = Array.isArray(s.hidden) ? s.hidden : [];
+		const order = Array.isArray(s.order) ? s.order : [];
+		const list = [];
+		for (const b of (catalog || [])) {
+			if (isEngineHidden(b, hidden)) continue;
+			list.push(toEngine(mergeOverride(b, overrides[b.id]), true));
+		}
+		// toEngine reads src.id straight away, so a null element would throw here
+		// rather than produce a useless entry.
+		for (const c of custom) if (c && typeof c === 'object') list.push(toEngine(c, false));
+```
+
+The rest of the function is unchanged, except that `pos()` now closes over the
+guarded `order`. In `getEngineById`, the same two lines:
+
+```js
+		const overrides = (s.overrides && typeof s.overrides === 'object' && !Array.isArray(s.overrides)) ? s.overrides : {};
+		const custom = Array.isArray(s.custom) ? s.custom : [];
+		…
+		const c = custom.find(e => e && e.id === id);
+```
+
+In `js/eu-integration.js`, `listProvenanced` and `findStored` iterate the same
+array — and `listProvenanced` runs in the bridge answer path, in every frame,
+where a throw is a silently unanswered request:
+
+```js
+	// in listProvenanced:
+		for (const e of (Array.isArray(se.custom) ? se.custom : [])) if (e && e.source) out.push({ kind: 'engine', id: e.id, stored: e });
+
+	// in findStored:
+		return (Array.isArray(se.custom) ? se.custom : []).find(e => e && e.id === id) || (se.overrides && se.overrides[id]) || null;
+```
+
+`Object.entries(sm.custom || {})` a few lines above needs no guard: it answers
+`[]` for a number and index/character pairs for a string, and the `def &&
+def.source` test drops both.
+
+- [ ] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/eu-settings-schema.test.mjs`
-Expected: PASS.
+Expected: PASS, including the two consumer-guard cases at the end.
 
 Run: `npm test`
-Expected: PASS.
+Expected: PASS. `tests/engine-registry.test.mjs` and
+`tests/eu-integration.test.mjs` both exercise the functions changed in Step 4,
+so a guard that broke the normal path shows up here.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add js/eu-settings-schema.js tests/eu-settings-schema.test.mjs
+git add js/eu-settings-schema.js js/engine-registry.js js/eu-integration.js tests/eu-settings-schema.test.mjs
 git commit -m "feat(settings): one validator for every door settings come in by"
 ```
 
@@ -1891,6 +2067,19 @@ describe('downloading', () => {
 			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', payload }),
 		})).rejects.toMatchObject({ code: 'decrypt' });
 	});
+
+	// The binding must not be skippable. A server that leaves payloadHash out of
+	// the meta blob would otherwise switch the check off for that one state -
+	// exactly the move the binding exists to stop. So a missing hash is a
+	// failure, and it fails before the request is even made.
+	it.each([['no hash', undefined], ['an empty hash', ''], ['a hash that is not a string', 42]])
+		('refuses to download with %s to check against', async (_label, expectPayloadHash) => {
+			await expect(S.downloadState({
+				secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+				expectPayloadHash, fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', payload: 'AA==' }),
+			})).rejects.toMatchObject({ code: 'decrypt' });
+			expect(calls).toHaveLength(0);
+		});
 });
 
 describe('errors', () => {
@@ -2096,15 +2285,21 @@ Create `js/eu-sync.js`:
 		});
 	}
 
+	// expectPayloadHash is REQUIRED, and deliberately so. It is the only
+	// cryptographic tie between a state's meta blob and its payload, and an
+	// optional check is one a hostile server can switch off: serve a meta whose
+	// payloadHash is missing, and `if (hash && ...)` skips the comparison for it.
+	// So the absence of a hash is itself a failure, not a reason to skip.
 	async function downloadState(opts) {
 		const { secret, origin, stateId, expectPayloadHash, fetchImpl } = opts;
 		const X = root.GesturaSyncCrypto;
+		if (typeof expectPayloadHash !== 'string' || !expectPayloadHash) throw syncError('decrypt');
 		const answer = await request({
 			origin, path: PATHS.get, method: 'POST', fetchImpl,
 			body: { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId },
 		});
 		if (!isEnvelope(answer.payload)) throw syncError('malformed');
-		if (expectPayloadHash && await X.blobHash(answer.payload) !== expectPayloadHash) throw syncError('decrypt');
+		if (await X.blobHash(answer.payload) !== expectPayloadHash) throw syncError('decrypt');
 		const key = await X.deriveKey(secret);
 		try {
 			return await X.decryptBlob(key, stateId, 'payload', answer.payload);
@@ -3467,9 +3662,19 @@ Then the methods, replacing the two stubs from Task 9:
 	// Der Validator ist derselbe wie beim Datei-Import, also kann ein Stand aus
 	// einer neueren Gestura-Version hier auch dieselbe klare Absage bekommen.
 	async #downloadState(state) {
+		// Ohne den Hash aus dem Meta-Blob wird gar nicht gefragt: er ist die
+		// einzige Klammer zwischen Meta und Payload, und ein Stand, dessen Meta
+		// keinen mitbringt, ist keiner, den dieser Client aufmachen darf.
+		// GesturaSync.download() lehnt das ebenfalls ab - hier steht es, damit der
+		// Nutzer einen Satz sieht statt einer Fehlerzeile aus dem Netzweg.
+		const expectPayloadHash = state.meta && state.meta.payloadHash;
+		if (typeof expectPayloadHash !== 'string' || !expectPayloadHash) {
+			this._error = window.i18n.getMessage('euSyncStateBroken');
+			return;
+		}
 		const payload = await this.#run(() => window.GesturaSync.download({
 			stateId: state.stateId,
-			expectPayloadHash: state.meta ? state.meta.payloadHash : '',
+			expectPayloadHash,
 		}));
 		if (!payload) return;
 		const result = window.GesturaSettingsSchema.validate(payload);
@@ -3786,14 +3991,30 @@ they concern.
    Gestura is desktop-only, so there is nothing to scan it into; copy and file
    cover every real path. The code stays inside the QR alphanumeric charset so
    this is additive later, not a rewrite.
-2. **Type checking is top-level, not deep** (Task 4). The spec says "nested
-   value types checked against the expected shapes". The validator checks the
-   top-level shape of every allowlisted key and rejects forbidden property names
-   at every depth; deeper repair is left to `SettingsStore.normalizeSetting()`,
-   which already runs over the four structured keys on every load — and an import
-   reloads the page. A second normaliser would be a copy that drifts. If the
-   owner wants the schema to own deep validation too, that is a task of its own
-   and should be one.
+2. **Type checking goes as deep as `DEFAULT_SETTINGS` describes a shape, and no
+   deeper** (Task 4). The spec says "nested value types checked against the
+   expected shapes". The validator checks the top-level shape of every
+   allowlisted key, the declared children of the seven `RECORD_KEYS`, and
+   forbidden property names at every depth. It stops there because that is where
+   the defaults stop describing anything: `siteMenus`' children are format,
+   `mouseGestures`' children are the user's gestures, and there is no rule that
+   tells the two apart — hence the explicit list.
+
+   What is **not** covered: the elements *inside* those containers. A crafted
+   `searchEngines.custom: [null]` still reaches `toEngine`, which reads
+   `src.id` — Step 4 of Task 4 guards that one, but the general case (an array
+   of objects with wrong inner types) is the consumer's job, as it is today.
+
+   The first draft of this plan justified top-level-only checking by saying
+   `SettingsStore.normalizeSetting()` repairs the deeper shapes. **That was
+   wrong on two counts**, and a review caught it: `normalizeSetting` covers four
+   keys and `searchEngines` is not among them, and even for the keys it does
+   cover it only merges missing defaults in (`{...defaults, ...value}`) — it
+   never replaces a wrong-typed value. On top of that, content scripts read
+   `chrome.storage.sync` **directly** and never call it at all. The fix is that
+   the schema owns the container shapes and the consumers guard their own
+   iteration; `normalizeSetting` is deliberately left alone rather than turned
+   into a second validator that could drift.
 
 **Placeholder scan.** No "TBD", no "add error handling", no "similar to Task N".
 Every code step carries the code. Task 1's constants are not invented: the
@@ -3829,4 +4050,48 @@ few, and the preview shows what actually arrived.
    configured developer origin silently redirects sync away from production. The
    panel says so in a line under the code; if that is too quiet, the alternative
    is refusing to sync at all while a developer origin is configured.
-4. **Deep validation** — see the self-review's second gap.
+4. **Element-level validation** — see the self-review's second gap. The
+   containers are now checked and the two iterating consumers guarded; what
+   remains is the content of those arrays (`searchEngines.custom: [{…nonsense}]`).
+   Making the schema own that means declaring an engine and a menu shape inside
+   it, which is a task of its own — and one that would finally give
+   `menu-exchange.js` and the schema a single shared definition of an entry.
+
+## Review, 2026-09-03 (gemini)
+
+Two findings, both verified against the code before anything was changed. Both
+were real; both are fixed above. The verification is recorded because in one
+case the reported symptom was not the actual one, and the difference decides
+what the fix has to be.
+
+**1. The meta↔payload binding could be switched off from the server.** In
+`downloadState`, `if (expectPayloadHash && await blobHash(...) !== expectPayloadHash)`
+skips the comparison when the hash is falsy — and the panel passed `''` for a
+state whose meta did not decrypt. A server that omits `payloadHash` from a meta
+blob would therefore disable, for that state, the only tie between the two
+blobs. **Fixed:** the hash is required in `downloadState` (before the request is
+made) and the panel refuses to open a state without one. Three test cases cover
+it.
+
+**2. A malformed `searchEngines.custom` crashes engine resolution.** Confirmed
+— with two corrections to the report:
+
+- The reported example, `custom: "invalid"`, does **not** throw: strings are
+  iterable, so `resolveEngines` silently produces one bogus engine per
+  character. It is `custom: {}` / `{a:1}` / `42` that throw
+  `TypeError: custom is not iterable`, and `custom: [null]` that throws inside
+  `toEngine`. `hidden` and `order` have the same exposure one line later.
+- The suggested alternative fix — adding `searchEngines` to
+  `normalizeSetting()` — would **not** have worked. That function's branches are
+  `{...defaults, ...value}`: they fill in missing keys and never replace a
+  wrong-typed one. And content scripts read `chrome.storage.sync` directly, so
+  `normalizeSetting` is not in their path at all — `js/eu-bridge.js` reads
+  `['siteMenus', 'searchEngines']` straight from storage, and
+  `EU.listProvenanced` iterates that same array in every frame.
+
+**Fixed** in the two places that together cover both directions: the schema
+gains `RECORD_KEYS` + `conformRecord`, so a malformed container is repaired to
+its default and named in the preview as `searchEngines.custom`; and
+`engine-registry.js` and `eu-integration.js` guard their own iteration, which
+also repairs data that is already in storage from an import made before this
+release.
