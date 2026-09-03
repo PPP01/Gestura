@@ -14,6 +14,8 @@
 
 **Contract:** [docs/gestura-eu-api.md](../../gestura-eu-api.md) — Task 1 raises it to `apiLevel: 3` and adds the sync half. It is copied into `gestura-index`, so it is written before any code depends on it.
 
+**A door left open on purpose:** R3 syncs against gestura.eu and says so in its texts. A later release could offer the user's own storage as a **complete alternative mode** — the server never holds a key, so its identity is a question of availability, not of trust. Nothing in this plan needs to change for that, and [2026-09-03-sync-alternative-backend-idea.md](../specs/2026-09-03-sync-alternative-backend-idea.md) records which seams it relies on. Read it before refactoring `js/eu-sync.js` or the `euSync` shape.
+
 ## Global Constraints
 
 - **No build step.** The repo folder *is* the unpacked extension. All five new `js/*.js` files are classic scripts (IIFE, `root.GesturaX = api`, `module.exports` for vitest); components under `js/components/` stay ES modules. Never mix the two worlds.
