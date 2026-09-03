@@ -53,10 +53,12 @@ If you enable *gestura.eu integration* in the settings, and only then:
   their ids and version numbers, plus which version of the interface Gestura
   speaks. Entries you imported from a file are never included,
   because Gestura cannot verify where they came from. The answer is stored on
-  your device and shown as a badge on the entries it concerns; nothing is
-  downloaded or changed until you confirm it in the import dialog. There is no
-  account and no identifier, and this is the only request Gestura makes without a
-  click of yours.
+  your device and shown as a badge on the entries it concerns. The check itself
+  only reports what exists — it downloads no menus and changes nothing. When you
+  then ask for an update, that entry's file is fetched so the import dialog can
+  show you what it contains, and nothing is adopted or changed until you confirm
+  it there. There is no account and no identifier, and the check is the only
+  request Gestura makes without a click of yours.
 - Nothing else is sent while you are not on such a page.
 
 The switch and your consent are stored only on the device where you enabled

@@ -1195,7 +1195,7 @@ In `_locales/en/messages.json`, beside the other consent points:
 
 ```json
 	"euIntegrationConsentPoint5Label": { "message": "Update notices:" },
-	"euIntegrationConsentPoint5": { "message": "When you open these settings, Gestura asks gestura.eu — at most once a day — whether newer versions exist for the entries you took from there. Of those entries it sends nothing but their identifiers and version numbers, plus which version of the interface Gestura speaks: no account, no identifier of you, and nothing about the rest of your settings. Entries you imported from a file are never included. Nothing is downloaded or changed without your confirmation in the import window." },
+	"euIntegrationConsentPoint5": { "message": "When you open these settings, Gestura asks gestura.eu — at most once a day — whether newer versions exist for the entries you took from there. Of those entries it sends nothing but their identifiers and version numbers, plus which version of the interface Gestura speaks: no account, no identifier of you, and nothing about the rest of your settings. Entries you imported from a file are never included. The check itself only reports what exists; an entry’s file is fetched when you ask for its update, and nothing is adopted or changed until you confirm it in the import window." },
 ```
 
 - [ ] **Step 6: Correct the two claims that R2 breaks in en**
@@ -1215,7 +1215,7 @@ Also `euIntegrationIntro` ends with *"Gestura sends nothing at all until you act
 
 ```json
 	"euIntegrationConsentPoint5Label": { "message": "Update-Hinweise:" },
-	"euIntegrationConsentPoint5": { "message": "Wenn du diese Einstellungen öffnest, fragt Gestura höchstens einmal täglich bei gestura.eu nach, ob es für die von dort übernommenen Einträge neuere Versionen gibt. Von diesen Einträgen werden nur Kennungen und Versionsnummern übertragen, dazu die Version der Schnittstelle, die Gestura spricht: kein Konto, keine Kennung von dir und nichts über den Rest deiner Einstellungen. Aus einer Datei importierte Einträge sind nie dabei. Heruntergeladen oder geändert wird nichts ohne deine Bestätigung im Import-Fenster." },
+	"euIntegrationConsentPoint5": { "message": "Wenn du diese Einstellungen öffnest, fragt Gestura höchstens einmal täglich bei gestura.eu nach, ob es für die von dort übernommenen Einträge neuere Versionen gibt. Von diesen Einträgen werden nur Kennungen und Versionsnummern übertragen, dazu die Version der Schnittstelle, die Gestura spricht: kein Konto, keine Kennung von dir und nichts über den Rest deiner Einstellungen. Aus einer Datei importierte Einträge sind nie dabei. Die Prüfung selbst meldet nur, was es gibt; die Datei eines Eintrags wird geladen, wenn du sein Update anforderst, und übernommen oder geändert wird nichts, bevor du im Import-Fenster bestätigst." },
 	"euIntegrationConsentPoint1Label": { "message": "Durchweg anonym:" },
 	"euIntegrationConsentPoint1": { "message": "Kein Konto, keine Anmeldung, keine Kennung von dir. Außer der unten beschriebenen Update-Prüfung wendet sich Gestura nur dann an gestura.eu, wenn du etwas anklickst – und gibt niemals eines deiner Menüs, eine Suchmaschine oder eine Einstellung ohne deine Bestätigung weiter." },
 	"euIntegrationConsentPoint4Label": { "message": "Lokal und flexibel:" },
@@ -1947,10 +1947,12 @@ The current text reads *"Nothing is sent while you are not on such a page. There
   their ids and version numbers, plus which version of the interface Gestura
   speaks. Entries you imported from a file are never included,
   because Gestura cannot verify where they came from. The answer is stored on
-  your device and shown as a badge on the entries it concerns; nothing is
-  downloaded or changed until you confirm it in the import dialog. There is no
-  account and no identifier, and this is the only request Gestura makes without a
-  click of yours.
+  your device and shown as a badge on the entries it concerns. The check itself
+  only reports what exists — it downloads no menus and changes nothing. When you
+  then ask for an update, that entry's file is fetched so the import dialog can
+  show you what it contains, and nothing is adopted or changed until you confirm
+  it there. There is no account and no identifier, and the check is the only
+  request Gestura makes without a click of yours.
 - Nothing else is sent while you are not on such a page.
 ```
 
@@ -2261,6 +2263,47 @@ in the *answer*, where it is now checked against the kind the client asked about
 which is also the extra test the review asked for. The texts name the interface
 version explicitly.
 
+## Third external review, 2026-09-03 (codex)
+
+Three findings against the finished branch, all verified against the code before
+anything was changed. All three held.
+
+**1. A withdrawal could revive the cache — confirmed, fixed.** `persist()`
+checked the consent, then `await read()` yielded, and a *Withdraw* landing in
+that gap was overwritten by the write that followed: the deleted key came back.
+The same gap let a developer origin removed mid-run keep its slot, because
+`allowedOrigins` came from the state read *before* it. Reproduced deterministically
+in `tests/eu-updates-persist.test.mjs` (both cases failed on the old code), then
+fixed three ways: the live state is now read **after** the cache and supplies
+`allowedOrigins`; `clear()` increments a revocation counter that `persist()`
+compares before writing; and a third check after the write repairs the one gap no
+check can cover — the instant between the last check and `set()`. The counter is
+also incremented from `storage.onChanged` when the key is removed, so a
+withdrawal in a second tab stops an in-flight `persist()` here too.
+
+The review's second half — that the read-modify-write is not atomic across tabs —
+is correct and **stays**. `chrome.storage` has no transactions; `applySlots`
+merges into whatever the cache holds at write time, which narrows the window but
+cannot close it. The cost of losing that race is one slot update that the next
+check re-fetches, and it is bounded by the throttle, so it does not justify a
+lock. Recorded here rather than silently accepted.
+
+**2. Consent and privacy text promised the wrong download moment — confirmed,
+fixed.** `euIntegrationConsentPoint5` and `PRIVACY.md` said nothing is
+downloaded before the confirmation in the import window. `#importUrl()` fetches
+the exchange JSON *before* it can open that window — the dialog needs the payload
+to show a preview at all. Both texts now separate the two moments: the check
+itself reports only what exists and downloads nothing; the entry's file is fetched
+when the user asks for its update; nothing is **adopted or changed** before the
+confirmation. Corrected in `en`/`de` and in this plan, which carried the same
+sentence verbatim.
+
+**3. The recorded test count was stale — confirmed, fixed.** The status section
+still said 597/60 from before the `/simplify` pass removed `dropOrigin` and its
+test. It now reads 601 across 29 files and says why the number moved twice.
+
+All 50 manual checks were re-run after these fixes and stayed green.
+
 ## Open for the owner
 
 1. **Issue #5's global conflict policy** — pull into R2 (it is worth more with badges than alone) or leave standing? Not folded in; it changes the dialog's model.
@@ -2274,8 +2317,11 @@ version explicitly.
 ## Execution status, 2026-09-02
 
 Implemented on `feature/eu-integration-r2`, seven commits, `004923d`…`9706cbc`.
-**`npm test`: 28 files, 597 tests green** (baseline before R2 was 27 files / 536).
-`tests/eu-updates.test.mjs` contributes 60 of them.
+**`npm test`: 29 files, 601 tests green** (baseline before R2 was 27 files / 536).
+`tests/eu-updates.test.mjs` contributes 59 of them and
+`tests/eu-updates-persist.test.mjs` 5. The figure moved twice after the tasks:
+the `/simplify` pass removed `dropOrigin` and its test, and the review pass added
+the persist file - so a count taken mid-branch will not match.
 
 | Task | State |
 |---|---|

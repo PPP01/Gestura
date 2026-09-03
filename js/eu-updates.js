@@ -322,7 +322,14 @@
 		try { await chrome.storage.local.set({ [KEY]: normalizeCache(cache) }); } catch { /* see read() */ }
 	}
 
+	// Counted, not just performed: persist() takes a reading before it starts and
+	// compares it before it writes, which is what lets a withdrawal that lands
+	// between two awaits win over a run that had already been cleared to write.
+	let revocations = 0;
+
 	async function clear() {
+		// Incremented before the await, so an in-flight persist() sees it at once.
+		revocations++;
 		try { await chrome.storage.local.remove(KEY); } catch { /* see read() */ }
 	}
 
@@ -330,18 +337,32 @@
 	// read again here, after every request has finished, so a revoke or a changed
 	// developer origin during the run wins over the run's own findings. Writes
 	// nothing when nothing would change, so nothing re-renders for a no-op.
+	//
+	// Every `await` below is a gap a withdrawal can land in, and the promise in
+	// PRIVACY.md - withdrawing deletes the stored notices - is only kept if the
+	// LAST word belongs to the withdrawal. Hence the state is read after the
+	// cache rather than before it, and checked once more after the write.
 	async function persist(slots) {
-		// GesturaEuLocal is loaded before this file (pages/options.html), and read()
-		// hands back its live cache, which storage.onChanged keeps current - so this
-		// sees a revoke that landed mid-run.
-		const local = await root.GesturaEuLocal.read();
-		if (!EU.effectiveEnabled(local)) return false;
+		const seen = revocations;
 		const fresh = await read();
-		const next = applySlots(fresh, slots, EU.allowedOrigins(local));
+		// Read here, not before `fresh`: what decides is the state that holds
+		// immediately before the write, and `allowedOrigins` must come from it too
+		// - otherwise a developer origin removed mid-run is still treated as
+		// allowed and its slot is written back.
+		const live = await root.GesturaEuLocal.read();
+		if (seen !== revocations || !EU.effectiveEnabled(live)) return false;
+		const next = applySlots(fresh, slots, EU.allowedOrigins(live));
 		// EU.canonicalize is R1's stable stringifier; plain JSON.stringify would
 		// report a change whenever a key order happened to differ.
 		if (EU.canonicalize(next) === EU.canonicalize(fresh)) return false;
 		await write(next);
+		// The one gap no check can cover is between that check and the set() it
+		// guards. Landing there is repaired rather than left standing: a cache
+		// that outlives its permission is exactly what must not happen.
+		if (seen !== revocations || !EU.effectiveEnabled(await root.GesturaEuLocal.read())) {
+			await clear();
+			return false;
+		}
 		return true;
 	}
 
@@ -389,11 +410,14 @@
 	// runs where chrome exists, this one is also imported bare by vitest.
 	if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
 		chrome.storage.onChanged.addListener((changes, area) => {
-			if (area !== 'local') return;
+			if (area !== 'local' || !changes[KEY]) return;
+			// A removal from ANOTHER tab has to stop an in-flight persist() here just
+			// as a local clear() does - the counter is what carries that across.
+			if (changes[KEY].newValue === undefined) revocations++;
 			// One announcement per actual write, wherever it came from - including a
 			// SECOND OPTIONS TAB, which a window event could never have reached. That
 			// is the concurrency runUpdateCheck's own comment reasons about.
-			if (changes[KEY] && typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
+			if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
 		});
 	}
 
