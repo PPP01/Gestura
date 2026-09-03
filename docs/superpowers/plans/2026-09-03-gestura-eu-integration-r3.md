@@ -4059,7 +4059,7 @@ few, and the preview shows what actually arrived.
    it, which is a task of its own — and one that would finally give
    `menu-exchange.js` and the schema a single shared definition of an entry.
 
-## Review, 2026-09-03 (gemini)
+## External review, 2026-09-03
 
 Two findings, both verified against the code before anything was changed. Both
 were real; both are fixed above. The verification is recorded because in one

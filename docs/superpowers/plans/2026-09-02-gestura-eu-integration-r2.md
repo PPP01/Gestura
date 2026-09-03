@@ -2160,7 +2160,7 @@ git commit -m "docs(plan): record R2's execution state"
 
 ## External review, 2026-09-02
 
-An external review (Gemini) raised three blockers and two risks against the first
+An external review raised three blockers and two risks against the first
 draft. Each was checked against the code before anything was changed; three
 findings held, one held for a different reason than the one given, and one did
 not hold.
