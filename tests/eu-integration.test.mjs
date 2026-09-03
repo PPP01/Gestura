@@ -21,8 +21,8 @@ describe('normalizeLocal', () => {
 
 describe('API_LEVEL', () => {
 	it('announces the level the update endpoint belongs to', () => {
-		expect(EU.API_LEVEL).toBe(2);
-		expect(EU.helloAnswer({ requestId: 'r' }, '2.8.0')).toEqual({ requestId: 'r', version: '2.8.0', apiLevel: 2 });
+		expect(EU.API_LEVEL).toBe(3);
+		expect(EU.helloAnswer({ requestId: 'r' }, '2.8.0')).toEqual({ requestId: 'r', version: '2.8.0', apiLevel: 3 });
 	});
 });
 
