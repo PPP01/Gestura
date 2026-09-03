@@ -1,6 +1,7 @@
 import { html, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { icon } from '../icons.js';
 import { importedOf, clearImported } from './import-marker.js';
+import { tooltip } from '../tooltip.js';
 
 // Was nach einem Import zu sehen ist: eine Meldung über der Liste, ein Abzeichen an
 // jeder betroffenen Zeile, ein Sprung zum ersten neuen Eintrag und ein einmaliger
@@ -34,6 +35,99 @@ export function renderImportDone(i18n, imported) {
 
 export function renderImportBadge(i18n) {
 	return html`<span class="import-badge">${i18n.getMessage('importBadgeNew')}</span>`;
+}
+
+// Ein Update-Hinweis aus dem Cache (js/eu-updates.js). Zwei Formen, weil sie
+// Verschiedenes bedeuten: eine neuere Version ist ein Angebot, eine Abkündigung
+// ist eine Information - für die es nichts zu übernehmen gibt.
+export function renderUpdateBadge(i18n, up) {
+	if (!up) return '';
+	// Ein Absatz, kein Zeilenumbruch: der Tooltip setzt textContent und trägt kein
+	// white-space: pre-line - ein Zeilenumbruch verschwände lautlos mitten im Satz.
+	const parts = [];
+	// Abkündigung und neue Version schließen sich nicht aus: ein Index kann einen
+	// Eintrag einstellen und dafür eine letzte Fassung nachliefern. Dann steht die
+	// Abkündigung auf dem Abzeichen - sie ist die größere Nachricht - und die
+	// Version steht trotzdem im Tooltip, wo sie zum Übernehmen-Knopf daneben passt.
+	if (up.deprecated) {
+		parts.push(up.successor
+			? i18n.getMessage('euIntegrationRetiredSuccessor').replace('{id}', up.successor)
+			: i18n.getMessage('euIntegrationRetiredTooltip'));
+	}
+	if (up.newer) parts.push(i18n.getMessage('euIntegrationUpdateTooltip').replace('{version}', up.version));
+	if (up.changelog) parts.push(up.changelog);
+	const cls = up.deprecated ? 'retired-badge' : 'update-badge';
+	const label = up.deprecated ? 'euIntegrationRetiredBadge' : 'euIntegrationUpdateBadge';
+	return html`<span class="${cls}" .tooltip=${tooltip(parts.join(' — '))}>${i18n.getMessage(label)}</span>`;
+}
+
+// Der Update-Cache einer Liste: liest ihn, hört auf Änderungen und beantwortet je
+// Zeile, ob es etwas zu melden gibt. Menü- und Engine-Manager teilen sich das aus
+// demselben Grund wie ImportHighlight - zwei Fassungen könnten denselben Cache
+// verschieden deuten, und beide Listen liegen auf derselben Seite.
+//
+// Eine Klasse und kein reaktives Feld: der Cache ist nichts, was gerendert wird,
+// sondern etwas, das gefragt wird. Als `_updates`-Property löste jedes Zuweisen
+// einen zweiten Renderdurchlauf aus, weil read() jedes Mal ein neues Objekt
+// liefert - auch dann, wenn sich inhaltlich nichts geändert hat.
+export class UpdateWatch {
+	#onChange;
+	#cache = { origins: [] };
+	#enabled = false;
+	#offLocal = null;
+
+	constructor(onChange) {
+		this.#onChange = onChange;
+	}
+
+	#refresh = () => {
+		// Beide Lesevorgänge in einer Kette: effectiveEnabled() fragt die synchrone
+		// GesturaEuLocal.current(), die bis zum ersten Laden Vorgaben liefert. Erst
+		// danach steht fest, ob überhaupt ein Abzeichen erscheinen darf - sonst
+		// unterdrückte der erste Renderdurchlauf jedes.
+		window.GesturaEuLocal.read().then(local => {
+			const enabled = window.FlowMouseEuIntegration.effectiveEnabled(local);
+			// Kein Abzeichen, solange die Integration nichts erlaubt. Widerruf und
+			// Abschalten löschen den Cache beide, eine VERALTETE Zustimmung aber
+			// nicht: sie lässt enabled:true neben einer überholten consent.version
+			// stehen - genau der Zustand, in dem jeder landet, sobald R3 die Nummer
+			// erneut anhebt. Dann ist auch der Cache nicht zu lesen.
+			if (!enabled) return this.#absorb(false, { origins: [] });
+			return window.GesturaEuUpdates.read().then(cache => this.#absorb(true, cache));
+		});
+	};
+
+	#absorb(enabled, cache) {
+		const EU = window.FlowMouseEuIntegration;
+		if (enabled === this.#enabled && EU.canonicalize(cache) === EU.canonicalize(this.#cache)) return;
+		this.#enabled = enabled;
+		this.#cache = cache;
+		this.#onChange();
+	}
+
+	connect() {
+		this.#refresh();
+		window.addEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this.#refresh);
+		// Zwei Quellen, weil zwei Dinge das Abzeichen bestimmen: der Cache und die
+		// Erlaubnis. Auf letztere zu hören ist nicht optional - Abschalten und eine
+		// veraltete Zustimmung ändern nur `euIntegration`, und ohne dieses Abo
+		// bliebe das zuletzt gelesene `enabled` stehen, bis irgendwer sonst ein
+		// Rendern auslöst.
+		this.#offLocal = window.GesturaEuLocal.onChange(this.#refresh);
+	}
+
+	disconnect() {
+		window.removeEventListener(window.GesturaEuUpdates.CHANGED_EVENT, this.#refresh);
+		if (this.#offLocal) { this.#offLocal(); this.#offLocal = null; }
+	}
+
+	// `stored` ist der gespeicherte Eintrag selbst - die Zeilen beider Listen
+	// tragen ihr `source` bereits mit sich. Ein zweites Nachschlagen über die id
+	// wäre nicht nur Arbeit doppelt, es könnte einen anderen Datensatz treffen:
+	// getBaseMenu() bevorzugt `edited` vor `custom`, findStored() umgekehrt.
+	for(stored) {
+		return this.#enabled ? window.GesturaEuUpdates.updateFor(this.#cache, stored) : null;
+	}
 }
 
 // Der Zustand dahinter. Die Komponente hält eine Instanz, meldet sie an und ab und

@@ -1,0 +1,53 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Gestura bridge test</title>
+<style>
+	body { font: 14px system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+	pre { background: #f4f4f4; padding: 8px; min-height: 3em; white-space: pre-wrap; }
+	button { margin: 4px 4px 4px 0; }
+</style>
+<h1>Gestura bridge test</h1>
+<p>Serve this folder on the origin you configured as <em>Developer origin</em>
+(e.g. <code>npx serve -l 8123 docs/test-bundles</code> → <code>http://localhost:8123</code>).
+With the integration off, every button below stays silent.</p>
+
+<h2>Bridge</h2>
+<button id="hello">gestura:hello</button>
+<label>ids (comma-separated): <input id="ids" value="com.example.demo, google, bing, nope" size="50"></label>
+<button id="status">gestura:query-status</button>
+<button id="bad">oversized request (must be silent)</button>
+<pre id="out">—</pre>
+
+<h2>Hand-off</h2>
+<button data-gestura-inline>Inline hand-off (a demo bundle)</button>
+<a rel="gestura-menu" href="./demo-menu.json">rel="gestura-menu" link</a>
+<pre id="result">—</pre>
+
+<script>
+	const out = document.getElementById('out');
+	const log = (label, e) => { out.textContent = label + '\n' + JSON.stringify(JSON.parse(e.detail), null, 2); };
+	document.addEventListener('gestura:hello-result', e => log('hello-result', e));
+	document.addEventListener('gestura:query-status-result', e => log('query-status-result', e));
+	document.addEventListener('gestura:import-result', e => { document.getElementById('result').textContent = e.detail; });
+
+	const send = (type, body) => {
+		out.textContent = type + ' sent — waiting (silence after 2 s means: off, wrong origin, or rejected)';
+		document.dispatchEvent(new CustomEvent(type, { detail: JSON.stringify(body) }));
+	};
+	document.getElementById('hello').onclick = () => send('gestura:hello', { requestId: 'h-' + Date.now() });
+	document.getElementById('status').onclick = () => {
+		const ids = document.getElementById('ids').value.split(',').map(s => s.trim()).filter(Boolean);
+		send('gestura:query-status', { requestId: 's-' + Date.now(), ids });
+	};
+	document.getElementById('bad').onclick = () => send('gestura:query-status', { requestId: 'x', ids: ['com.a'], junk: 'z'.repeat(40000) });
+
+	document.querySelector('[data-gestura-inline]').addEventListener('click', () => {
+		const bundle = { gesturaBundle: 1, entries: [{
+			gesturaMenu: 1, id: 'com.example.demo', version: '1.0.0',
+			name: { en: 'Demo menu' }, icon: 'menu', patterns: ['*example.com*'],
+			items: [{ id: 'home', label: { en: 'Home' }, action: 'openCustomUrl', customUrl: 'https://example.com/' }],
+		}] };
+		document.getElementById('result').textContent = 'hand-off dispatched — waiting for gestura:import-result';
+		document.dispatchEvent(new CustomEvent('gestura:import', { detail: JSON.stringify(bundle) }));
+	});
+</script>

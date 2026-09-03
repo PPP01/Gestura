@@ -2,6 +2,20 @@
 
 Import-Dateien, um `siteMenus` schrittweise zu füllen und zu beobachten, was an der Grenze passiert. Sie liegen unter `docs/`, werden also weder vom Chrome-Paket (`git archive` listet nur `manifest.json js _locales icons pages css LICENSE NOTICE THIRD_PARTY_LICENSES.md`) noch vom Firefox-Build eingepackt (`docs/**` steht in `ignoreFiles`).
 
+## Bridge and hand-off check
+
+`bridge-test.html` exercises the gestura.eu bridge (`gestura:hello`,
+`gestura:query-status`) and the gated hand-off against a locally served origin.
+Serve this folder (`npx serve -l 8123 docs/test-bundles`), enter
+`http://localhost:8123` as *Developer origin* in the options page, enable the
+integration and follow the buttons. See `docs/gestura-eu-api.md` for the contract.
+
+After merging `main` into `firefox-build`: add `js/eu-integration.js`,
+`js/eu-local.js` (after `js/constants.js`) and `js/eu-bridge.js` (before
+`js/content.js`) to the Gecko manifest's `content_scripts`, and
+`js/eu-integration.js`, `js/eu-local.js` to `background.scripts` — the same
+order as `importScripts` in `js/background.js`. `npx web-ext lint` must stay at 0 errors.
+
 Alle Dateien sind formal gültig — sie scheitern also nie an der Validierung, nur am Speicher. Die URLs zeigen auf `*.example.com` und sind absichtlich tot.
 
 ## Der Deckel

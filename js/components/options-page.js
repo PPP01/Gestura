@@ -347,7 +347,20 @@ class OptionsPage extends LitElement {
 			this.#handleHashNavigation();
 			window.addEventListener('hashchange', () => this.#handleHashNavigation());
 			this.#resumeAfterImport();
+			this.#checkForEntryUpdates();
 		});
+	}
+
+	// The update check for imported entries (js/eu-updates.js). Deliberately here
+	// and nowhere else: no alarm, no worker, no traffic while the settings are
+	// closed. It is throttled per origin, so calling it on every open costs at
+	// most one request a day per index.
+	//
+	// Started after the first render and never awaited: the check must not delay
+	// the page, and it has nothing to show until its answer is in. Failures are
+	// swallowed inside checkAndPersist - the next open simply tries again.
+	#checkForEntryUpdates() {
+		window.GesturaEuUpdates.checkAndPersist(this._store.current);
 	}
 
 	// Operator-button import hand-off (see js/content.js + js/background.js
@@ -389,7 +402,8 @@ class OptionsPage extends LitElement {
 			dialog.addEventListener('import-done', () => this.requestUpdate());
 			this.shadowRoot.appendChild(dialog);
 		}
-		dialog.openWith(pending.json, { type: 'site', url: pending.url },
+		dialog.openWith(pending.json,
+			{ type: 'site', url: pending.url, ...(pending.indexOrigin ? { indexOrigin: pending.indexOrigin } : {}) },
 			{ tabId: pending.tabId, frameId: pending.frameId });
 	}
 
@@ -1053,6 +1067,13 @@ class OptionsPage extends LitElement {
 					</div>
 				</div>
 
+				<div class="section ${this._activeSection === 'websiteIntegration' ? 'active' : ''} ${(this._settings.sectionAdvanced?.websiteIntegration) ? 'advanced-expanded' : ''}" data-nav="websiteIntegration">
+					<h2><span class="section-icon">${unsafeHTML(icon('globe', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euIntegrationTitle')}</span>${this.#renderAdvancedToggle('websiteIntegration')}</h2>
+					<div class="section-body">
+						<eu-integration-panel ?advanced-mode=${this._settings.sectionAdvanced?.websiteIntegration}></eu-integration-panel>
+					</div>
+				</div>
+
 				<div class="section ${this._activeSection === 'data' ? 'active' : ''}" data-nav="data">
 					<h2><span class="section-icon">${unsafeHTML(icon('hardDrive', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('dataManagement')}</span></h2>
 					<div class="section-body">
@@ -1197,6 +1218,7 @@ class OptionsPage extends LitElement {
 			{ id: 'siteMenus', label: i18n.getMessage('siteMenusTitle'), icon: icons.layoutList, flag: 'enableSiteMenus' },
 			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff, flag: 'enableBlacklist' },
 			{ id: 'contextMenu', label: i18n.getMessage('contextMenuSection'), icon: icons.menu },
+			{ id: 'websiteIntegration', label: i18n.getMessage('euIntegrationTitle'), icon: icons.globe },
 			{ id: 'data', label: i18n.getMessage('dataManagement'), icon: icons.hardDrive },
 			{ id: 'support', label: i18n.getMessage('supportAndFeedback'), icon: icons.messageCircleMore },
 		];

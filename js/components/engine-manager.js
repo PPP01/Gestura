@@ -5,7 +5,7 @@ import { settingsStore } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
-import { ImportHighlight, renderImportDone, renderImportBadge } from './import-feedback.js';
+import { ImportHighlight, UpdateWatch, renderImportDone, renderImportBadge, renderUpdateBadge } from './import-feedback.js';
 
 function downloadJson(obj, filename) {
 	const blob = new Blob([JSON.stringify(obj, null, '\t')], { type: 'application/json' });
@@ -287,10 +287,12 @@ class EngineManager extends LitElement {
 	}
 
 	#highlight = new ImportHighlight('engine', () => this.requestUpdate());
+	#updates = new UpdateWatch(() => this.requestUpdate());
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.#highlight.connect();
+		this.#updates.connect();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore = settingsStore.onChange((changed) => {
 			if ('searchEngines' in changed || 'engineManagerLocalOnly' in changed) this.requestUpdate();
@@ -300,6 +302,7 @@ class EngineManager extends LitElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.#highlight.disconnect();
+		this.#updates.disconnect();
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribeStore?.();
 		this._unsubscribeStore = null;
@@ -351,6 +354,7 @@ class EngineManager extends LitElement {
 				rawResult: !!merged.rawResult,
 				type: b.type === 'image' ? 'image' : 'text',
 				builtin: true,
+				source: merged.source,
 				isHidden: window.FlowMouseEngineRegistry.isEngineHidden(b, se.hidden || []),
 			});
 		}
@@ -369,6 +373,7 @@ class EngineManager extends LitElement {
 				transformRawResult: !!c.transformRawResult,
 				rawResult: !!c.rawResult,
 				type: c.type === 'image' ? 'image' : 'text',
+				source: c.source,
 				builtin: false,
 				isHidden: false,
 			});
@@ -457,6 +462,7 @@ class EngineManager extends LitElement {
 			if (catalogEntry) {
 				// Store only the fields that differ from catalog base, but keep it simple: store the whole subset
 				const overrides = { ...(se.overrides || {}) };
+				const prev = overrides[id] || {};
 				overrides[id] = {
 					name,
 					url,
@@ -469,13 +475,15 @@ class EngineManager extends LitElement {
 					transformClipboard: draft.transformClipboard,
 					transformRawResult: draft.transformRawResult,
 					rawResult: draft.rawResult,
+					type: draft.type,
+					...(prev.source ? { source: prev.source } : {}),
 				};
 				this.#save({ ...se, overrides });
 			}
 		} else {
 			const custom = (se.custom || []).map(c => {
 				if (c.id !== id) return c;
-				return { id, name, url, plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode, rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode, transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult, type: c.type };
+				return { id, name, url, plus: draft.plus, slug: draft.slug, suffix: draft.suffix, clipboardMode: draft.clipboardMode, rawResult: draft.rawResult, transformEnabled: draft.transformEnabled, transformCode: draft.transformCode, transformClipboard: draft.transformClipboard, transformRawResult: draft.transformRawResult, type: c.type, builtin: false, ...(c.source ? { source: c.source } : {}) };
 			});
 			this.#save({ ...se, custom });
 		}
@@ -697,12 +705,21 @@ class EngineManager extends LitElement {
 		input.click();
 	}
 
-	async #importUrl(url) {
+	async #importUrl(url, expectOrigin) {
 		if (!url) return;
 		try {
 			const res = await fetch(url);
 			const obj = await res.json();
-			this.#dialog().openWith(obj, { type: 'url', url });
+			// Provenance from the final URL after redirects, never from what was typed.
+			const indexOrigin = window.FlowMouseEuIntegration.qualifiedOrigin(res.url, await window.GesturaEuLocal.read());
+			// Adopting an update names the origin it expects. A redirect that leaves
+			// it is refused outright rather than imported as an unqualified entry:
+			// the user asked for gestura.eu's version of this entry, not for whatever
+			// a redirect chain ended up pointing at. Thrown, not handled here: from
+			// the user's side this IS a failed fetch, and the catch below already
+			// says so.
+			if (expectOrigin && indexOrigin !== expectOrigin) throw new Error('origin mismatch');
+			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
 		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
 	}
 
@@ -719,6 +736,7 @@ class EngineManager extends LitElement {
 		const isEditing = this._editingId === eng.id;
 		const hidden = eng.isHidden;
 		const hasOverride = eng.builtin && this.#isBuiltinModified(eng.id);
+		const up = this.#updates.for(eng);
 
 		return html`
 			<div class="engine-row ${hidden ? 'is-hidden' : ''}"
@@ -739,6 +757,7 @@ class EngineManager extends LitElement {
 						<span class="engine-name">${eng.name || eng.id}</span>
 						${eng.builtin ? html`<span class="engine-badge">${i18n.getMessage('engineBuiltinBadge')}</span>` : ''}
 						${hidden ? html`<span class="engine-badge">${i18n.getMessage('engineHiddenBadge')}</span>` : ''}
+						${renderUpdateBadge(i18n, up)}
 						${this.#highlight.isMarked(eng.id) ? renderImportBadge(i18n) : ''}
 					</div>
 					${eng.url ? html`<span class="engine-url">${eng.url}</span>` : ''}
@@ -749,6 +768,13 @@ class EngineManager extends LitElement {
 						.tooltip=${tooltip(i18n.getMessage('engineEdit'))}>
 						${unsafeHTML(icon('squarePen', { size: 14, strokeWidth: 2 }))}
 					</button>
+
+					${up && up.newer ? html`
+						<button class="engine-btn" .tooltip=${tooltip(i18n.getMessage('euIntegrationUpdateApply'))}
+							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url, up.origin); }}>
+							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
+						</button>
+					` : ''}
 
 					${eng.builtin ? html`
 						<button class="engine-btn" @click=${() => this.#toggleHide(eng.id)}

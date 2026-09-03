@@ -6,7 +6,7 @@ import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
 import { renderStorageLine } from './storage-line.js';
 import { AVG_FALLBACK } from '../storage-usage.js';
-import { ImportHighlight, renderImportDone, renderImportBadge } from './import-feedback.js';
+import { ImportHighlight, UpdateWatch, renderImportDone, renderImportBadge, renderUpdateBadge } from './import-feedback.js';
 
 const CATALOG = () => window.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
 const M = () => window.FlowMouseMenuModel;
@@ -132,10 +132,12 @@ class SiteMenuManager extends LitElement {
 	}
 
 	#highlight = new ImportHighlight('menu', () => this.requestUpdate());
+	#updates = new UpdateWatch(() => this.requestUpdate());
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.#highlight.connect();
+		this.#updates.connect();
 		window.addEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe = settingsStore.onChange((changed) => {
 			if ('siteMenus' in changed || 'customMenuSwitcher' in changed || 'customMenuTheme' in changed || 'menuAppend' in changed || 'menuOpenBehavior' in changed || 'siteMenuAddAsk' in changed) this.requestUpdate();
@@ -145,6 +147,7 @@ class SiteMenuManager extends LitElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.#highlight.disconnect();
+		this.#updates.disconnect();
 		window.removeEventListener('action-catalog-changed', this._onCatalogChanged);
 		this._unsubscribe?.();
 		this._unsubscribe = null;
@@ -230,12 +233,21 @@ class SiteMenuManager extends LitElement {
 		input.click();
 	}
 
-	async #importUrl(url) {
+	async #importUrl(url, expectOrigin) {
 		if (!url) return;
 		try {
 			const res = await fetch(url);
 			const obj = await res.json();
-			this.#dialog().openWith(obj, { type: 'url', url });
+			// Provenance from the final URL after redirects, never from what was typed.
+			const indexOrigin = window.FlowMouseEuIntegration.qualifiedOrigin(res.url, await window.GesturaEuLocal.read());
+			// Adopting an update names the origin it expects. A redirect that leaves
+			// it is refused outright rather than imported as an unqualified entry:
+			// the user asked for gestura.eu's version of this entry, not for whatever
+			// a redirect chain ended up pointing at. Thrown, not handled here: from
+			// the user's side this IS a failed fetch, and the catch below already
+			// says so.
+			if (expectOrigin && indexOrigin !== expectOrigin) throw new Error('origin mismatch');
+			this.#dialog().openWith(obj, { type: 'url', url, ...(indexOrigin ? { indexOrigin } : {}) });
 		} catch { this.#dialog().openWith({}, { type: 'url', url }); }
 	}
 
@@ -431,6 +443,7 @@ class SiteMenuManager extends LitElement {
 		const menuIcon = (window.FlowMouseMenuIcons || {})[m.def.icon] || '';
 		const expanded = this._expandedId === m.id;
 		const isDefault = (this.siteMenus.defaultMenuId || '') === m.id;
+		const up = this.#updates.for(m.def);
 		return html`
 			<div class="menu-row ${m.disabled ? 'disabled' : ''}"
 				data-import-id=${this.#highlight.isMarked(m.id) ? m.id : nothing}>
@@ -442,6 +455,7 @@ class SiteMenuManager extends LitElement {
 					${menuDisplayName(m.def, 'menuNamePlaceholder')}
 					<span class="menu-count">(${count})</span>
 					${m.isEdited ? html`<span class="edited-badge">${i18n.getMessage('siteMenuEdited')}</span>` : ''}
+					${renderUpdateBadge(i18n, up)}
 					${this.#highlight.isMarked(m.id) ? renderImportBadge(i18n) : ''}
 				</span>
 				<div class="menu-buttons">
@@ -450,6 +464,12 @@ class SiteMenuManager extends LitElement {
 						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('siteMenuReset'))}
 							@click=${() => this.#resetMenu(m)}>
 							${unsafeHTML(icon('rotateCcw', { size: 14, strokeWidth: 2 }))}
+						</button>
+					` : ''}
+					${up && up.newer ? html`
+						<button class="menu-btn" .tooltip=${tooltip(i18n.getMessage('euIntegrationUpdateApply'))}
+							@click=${(e) => { e.stopPropagation(); this.#importUrl(up.url, up.origin); }}>
+							${unsafeHTML(icon('download', { size: 14, strokeWidth: 2 }))}
 						</button>
 					` : ''}
 					${(m.isCustom || m.isEdited) ? html`

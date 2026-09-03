@@ -36,7 +36,7 @@
         "<all_urls>"
     ],
     "background": {
-        "scripts": ["js/menu-patterns.js", "js/menu-catalog.js", "js/menu-model.js", "js/search-url.js", "js/favicon-util.js", "js/background.js"]
+        "scripts": ["js/menu-patterns.js", "js/menu-catalog.js", "js/menu-model.js", "js/search-url.js", "js/favicon-util.js", "js/eu-integration.js", "js/eu-local.js", "js/background.js"]
     },
     "content_scripts": [
         {
@@ -45,6 +45,8 @@
             ],
             "js": [
                 "js/constants.js",
+                "js/eu-integration.js",
+                "js/eu-local.js",
                 "js/gesture-visual.js",
                 "js/gesture-recognizer.js",
                 "js/search-url.js",
@@ -53,6 +55,7 @@
                 "js/favicon-util.js",
                 "js/menu-catalog.js",
                 "js/menu-model.js",
+                "js/eu-bridge.js",
                 "js/content.js"
             ],
             "run_at": "document_start",

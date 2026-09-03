@@ -6,3 +6,7 @@ web-ext-artifacts/
 # Reports handed over from/to other environments (WSL2 <-> Windows).
 # Working material, never part of the product - see CLAUDE.md, "exchange/".
 exchange/
+
+# Playwright MCP scratch output (snapshots, screenshots) - never part of the
+# product; web-ext packages the working tree, so this must stay ignored.
+.playwright-mcp/

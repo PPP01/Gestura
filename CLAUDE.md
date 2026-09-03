@@ -56,7 +56,7 @@ v2.8.0
   gestura-2.8.0-firefox.xpi    signed by Mozilla, added when AMO is done
 ```
 
-Bump `version` in `manifest.json`, add a `CHANGELOG.md` entry (that is the only changelog file), commit, then tag the `release:` commit itself, annotated, and push the tag:
+Bump `version` in `manifest.json` and rename the `### Unreleased` section of `CHANGELOG.md` (that is the only changelog file) to `### vX.Y.Z (YYYY-MM-DD)`, then open a fresh, empty `### Unreleased` above it. Without that fresh section the next entries are written under the released version and go out again with the next tag. Commit, then tag the `release:` commit itself, annotated, and push the tag:
 
 ```sh
 git tag -a v2.8.0 <release-commit> -m "Gestura v2.8.0"
@@ -88,6 +88,17 @@ git add --renormalize manifest.json
 ```
 
 **Switching branches with a stamped manifest fails.** `git checkout <branch>` aborts with *"Please commit your changes or stash them"* even though `git diff` is empty — checkout decides from the cached stat without running the clean filter, and the stamp changed the file's size. Nothing is at stake: the filtered content hashes to exactly the committed blob. But `commit`, `stash` and `git checkout HEAD -- manifest.json` all fail to clear it, the last because `post-checkout` re-stamps immediately. Use **`git checkout -f <branch>`** — the stamp is the only thing it can discard, and the hook re-stamps for the new branch. Commit or stash real work first.
+
+**`git merge` trips over it too, and `-f` is not an option there.** After a checkout the hook has already re-stamped, so a merge into the branch you just switched to aborts with the same *"Please commit your changes"* — while `git diff manifest.json` stays empty, because through the clean filter the content does equal the commit. Neither `git update-index --refresh` nor `--really-refresh` clears it. For a fast-forward, move the pointer instead of merging:
+
+```sh
+git merge-base --is-ancestor main <branch>   # prove it is a fast-forward first
+git checkout -f <branch>
+git branch -f main <branch>                  # main is not checked out, so this is allowed
+git checkout -f main
+```
+
+That is exactly what a fast-forward merge does, and nothing but the stamp is ever discarded. A merge that is *not* a fast-forward needs the stamp gone for real: `git stash push -- manifest.json` fails for the same reason, so reset the file from the index in a clone with the filter configured, or merge from a fresh clone.
 
 ## Architecture
 
@@ -124,6 +135,7 @@ In both cases **stored settings hold deltas, not full copies** — a menu the us
 ## Gotchas the test suite enforces
 
 - **New `siteMenu*`, `menuMode*`, `iconPicker*` and `fork*` keys must land in all 39 locales**, not just `en` — `tests/site-menu-locales.test.mjs` fails otherwise. Relying on the `en` fallback is not enough. Where a locale already translates the same word for another key, reuse that value rather than inventing one.
+- **Text still being drafted may live in `en` and `de` alone**, but only by being listed in `PENDING_TRANSLATION` in `tests/site-menu-locales.test.mjs`. That list is the release checklist: translate the keys into all 39 locales and delete them from it — a test fails once a key is everywhere but still listed, so the list cannot quietly become permanent. Keys already present in all 39 locales whose `en`/`de` wording changed are *not* caught by any test; note those by hand.
 - **Never put an undeclared `$WORD$` into a message string.** `chrome.i18n` reads it as a placeholder and the extension fails to load entirely. Use `{token}` plus `.replace()` instead; `tests/locale-placeholders.test.mjs` guards this.
 - **`js/background.js`'s `importScripts` list must match `background.scripts` in the Firefox manifest.** Firefox has no `importScripts` in a background script, so every new top-level dependency has to be registered in both places. Nothing warns you — check after each merge into `firefox-build`.
 - **`web-ext build` packages the working tree, not the git tree.** Untracked files land in the xpi unless they are listed in `ignoreFiles` in `web-ext-config.mjs`.

@@ -79,8 +79,25 @@ payload is validated against the exchange format, and the user confirms it in a
 preview dialog. Search engines that carry a transform script need a separate,
 explicit acknowledgement.
 
-**By link, for JSON you host yourself.** The link must be same-origin with the
-page — the extension will not fetch a third-party URL on a page's behalf.
+**Only gestura.eu can hand over anything today.** Both mechanisms below are
+gated on the page's own origin: they work on `gestura.eu` and on the single
+developer origin a user may configure, and nowhere else. Opening the interface to
+third-party sites is planned as its own opt-in with its own warning; until that
+switch exists, treat this section as documentation of the format rather than an
+interface you can use on your own domain.
+
+**And the user has to opt in first.** Hand-offs only work while the user has
+enabled *gestura.eu integration* in Gestura's settings — it is off by default.
+While it is off, or on any other origin, Gestura ignores the click entirely: a
+`rel="gestura-menu"` link is simply followed by the browser (so point it at a URL
+that makes sense to open), and an inline button does nothing Gestura-related (so
+offer a plain download as fallback). Gestura does not tell your page whether the
+integration is on.
+
+**By link, for JSON you host yourself.** The link's `href` must be same-origin
+with the page. The extension follows redirects when it fetches that URL, so a
+same-origin link can end up served from another origin; provenance is judged by
+the final URL, not the one written in the link.
 
 ```html
 <a rel="gestura-menu" href="/gestura-menu.json">Add to Gestura</a>

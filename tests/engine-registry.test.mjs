@@ -203,3 +203,19 @@ describe('rawResult field', () => {
     expect(resolveEngines([], se).find(e => e.id === 'r').rawResult).toBe(true);
   });
 });
+
+describe('source pass-through', () => {
+	const CAT = [{ id: 'bing', name: 'Bing', url: 'https://b/%s', type: 'text' }];
+	it('custom engines keep source through resolveEngines and getEngineById', () => {
+		const se = { custom: [{ id: 'eng_1', name: 'E', url: 'https://e/%s', type: 'text', source: { type: 'site', indexId: 'com.e', indexOrigin: 'https://gestura.eu' } }], overrides: {}, hidden: [], order: [] };
+		expect(resolveEngines(CAT, se).find(e => e.id === 'eng_1').source).toEqual(se.custom[0].source);
+		expect(getEngineById(CAT, se, 'eng_1').source).toEqual(se.custom[0].source);
+	});
+	it('an override with source exposes it on the resolved builtin', () => {
+		const se = { custom: [], overrides: { bing: { name: 'B2', source: { type: 'file', indexId: 'bing' } } }, hidden: [], order: [] };
+		expect(resolveEngines(CAT, se).find(e => e.id === 'bing').source).toEqual({ type: 'file', indexId: 'bing' });
+	});
+	it('engines without source have no source key set to a value', () => {
+		expect(resolveEngines(CAT, { custom: [], overrides: {}, hidden: [], order: [] })[0].source).toBeUndefined();
+	});
+});

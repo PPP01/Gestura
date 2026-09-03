@@ -5,6 +5,71 @@
 > features (configurable search engines, context-aware menus, image search) are
 > the entries under v2.3.
 
+### Unreleased
+
+**New Features:**
+
+- **gestura.eu integration, off by default:** a new settings section with a
+  single switch. Turning it on opens a consent overlay that explains what the
+  service does for you and what it does not do; agreeing enables the
+  integration, declining leaves it off. The section then states that consent
+  with the date it was given, and a *Withdraw* button clears it and switches the
+  integration off in one step. While it is off — the default —
+  Gestura is fully standalone: it communicates with neither gestura.eu nor any
+  other website, and ignores every hand-off a website triggers (operator links,
+  inline buttons, `gestura:import`).
+  Turning it on lets gestura.eu pages ask which of their entries you have
+  installed, in which version and whether you changed them — answered only for
+  entries imported from that origin, only to that origin, as an array of the
+  ids the page asked about. The consent is versioned; a later change to what the
+  integration does re-asks before anything is sent again.
+- **Imports remember where they came from — verifiably:** entries now carry the
+  origin they were imported from (`source.indexOrigin`), set only when the
+  extension itself verified it, plus a baseline hash of the imported state.
+  That is what lets an index page tell "installed" from "modified locally"
+  without ever seeing the change itself. Replacing a catalog menu or overriding
+  a built-in engine keeps this provenance too — until now those two import
+  modes forgot it, and editing a search engine used to drop it as well.
+- **Update notices for imported entries:** with the gestura.eu integration
+  enabled, opening the settings asks gestura.eu — at most once a day, and
+  separately per index — whether newer versions exist for the entries you took
+  from there. Only their ids and version numbers are sent; entries imported from
+  a file are never included. Entries with a newer version get an *Update* badge
+  and a button that opens the usual import window, where you decide what happens;
+  entries the index has retired say so and are left alone. A failed check
+  changes nothing and is simply retried the next time the settings open.
+  Because the extension now sends a request you did not click, the consent text
+  says so and asks once more — the integration stays off until you confirm it.
+
+**Fixes & Improvements:**
+
+- **The import dialog no longer overwrites your own entry by default.** A row
+  whose id you already have arrived pre-selected as *replace*, and the choice
+  between replacing and adding a copy was only visible after expanding the row —
+  so the default discarded your edits and the way out was hidden. The choice is
+  now shown beside the row, and when the existing entry was changed after you
+  imported it, the row arrives unselected with a warning that says what replacing
+  would cost.
+- **The import preview no longer promises a fit it cannot keep.** It measured the
+  entries without the provenance hash that gets stored with them, so close to the
+  8192-byte limit it could report a percentage under 100 and then fail the save.
+- *Select all* checkboxes are hidden where they have nothing to select: a group
+  with a single entry, and the overall one when the bundle has only one group.
+- **Re-imports no longer guess.** A repeat import matches an existing entry only
+  when the origin agrees; the same id arriving from a file, from gestura.eu and
+  from a development index are three different entries, and when several could
+  be meant the dialog imports a new entry instead of overwriting one. A catalog
+  replacement or engine override imported before this release carries no
+  provenance, so re-importing it now lands as a new entry instead of updating
+  the old one; that is a one-off, worth tidying up by hand once.
+- **Behaviour change for site operators:** the operator hand-off shipped in
+  2.8.0 (`rel="gestura-menu"`, `[data-gestura-inline]`) now works **only** on
+  gestura.eu and on a developer origin the user configures — and only with
+  *gestura.eu integration* enabled. On every other site both mechanisms are
+  inert, and the click behaves as if Gestura were not installed. Opening the
+  hand-off to third-party sites is planned as its own opt-in with its own
+  warning. See *For site operators* in the README.
+
 ### v2.8.0 (2026-09-02)
 
 **New Features:**
