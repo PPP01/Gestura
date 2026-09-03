@@ -4105,7 +4105,7 @@ release.
 **Executed 2026-09-03** on `feature/eu-integration-r3`, branched off `main`
 (`4762945`). All eleven tasks are done. `npm test`: **34 files, 718 tests**,
 green — 117 of them new (18 code, 15 crypto, 41 schema, 18 tier-2 state, 25
-endpoints).
+endpoints). The amendment below takes it to 729.
 
 | Task | Commit |
 |---|---|
@@ -4206,6 +4206,46 @@ requirement), and the real endpoint, which does not answer yet.
    and whether the rows *look* right are not what a script checks. The harness
    README says which tool to reach for when that is the question.
 
+### Amendment, 2026-09-03: the write token
+
+Raised by the gestura-index side while implementing the contract, and it was
+right: `PUT /api/v1/sync/state` replaced unconditionally, so two browsers
+uploading the same state overwrote each other in silence. The `payloadHash`
+inside the meta blob does not cover it — it binds the two blobs of *one*
+upload to each other, never an upload to the state it replaces. The plan's own
+"Rollback is outside the threat model" paragraph is about the **server**, and
+was quietly doing duty for a case it does not describe.
+
+`a32f7df` adds **`basePayloadHash`** to the upload: absent means unconditional
+(a new state, an older extension, or the user answering a conflict with
+*overwrite anyway*), a match writes, a mismatch comes back as **412**
+`conflict` with the current `updatedAt`. Additive, no `apiLevel` bump. The
+hash was chosen over a server-side counter because it needs no new server
+field and no new response field — and it works as a token only because every
+encryption uses a fresh IV, which the contract now states outright so nobody
+"tidies it up" later.
+
+It merges nothing, and is not meant to: it makes a lost write visible instead
+of silent, and it is the precondition for merging later, because a client can
+only merge if it can be told its base is stale. Merging itself needs per-entry
+versions and deletion markers inside the payload — a different data model,
+decided together with the move of the settings to `chrome.storage.local`
+(the storage display spec of 2026-08-30 calls that "Vorhaben zwei"), because
+both answer the same question: what is one unit of settings?
+
+`npm test` is at **729** (11 new). The browser verification grew to **47**
+checks in `drive5.mjs`, three runs in a row green, including a foreign write
+landing between read and upload: 412, the server's state provably unchanged,
+and the *overwrite anyway* path sending no token and writing through. The mock
+recomputes the hash over the bytes it stores rather than comparing a
+remembered value, so it is strict in the same way a real implementation has to
+be.
+
+**Found in the same pass, deliberately not fixed here:** 10 states × 512 KiB
+contradicts the 4 MiB per-locator total, the client has no total to pre-check
+against, and no error code describes "this locator is full" (`quota-states` is
+the *count*, `too-large` a *single* blob). Those numbers move with the storage
+decision, so they are decided with it rather than twice.
 ### Open, and blocking the release
 
 Unchanged from the plan's own gate, restated because this is where someone will
