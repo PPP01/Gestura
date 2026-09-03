@@ -124,7 +124,11 @@
 		const se = (settings && settings.searchEngines) || {};
 		for (const [id, def] of Object.entries(sm.custom || {})) if (def && def.source) out.push({ kind: 'menu', id, stored: def });
 		for (const [id, def] of Object.entries(sm.edited || {})) if (def && def.source) out.push({ kind: 'menu', id, stored: def });
-		for (const e of se.custom || []) if (e && e.source) out.push({ kind: 'engine', id: e.id, stored: e });
+		// Array.isArray, not `|| []`: this runs in the bridge answer path, in every
+		// frame, where a throw over a stored `custom: {}` is a silently unanswered
+		// request. js/eu-settings-schema.js keeps new imports from looking like
+		// that; what is already in storage.sync is not covered by anything else.
+		for (const e of (Array.isArray(se.custom) ? se.custom : [])) if (e && e.source) out.push({ kind: 'engine', id: e.id, stored: e });
 		for (const [id, ov] of Object.entries(se.overrides || {})) if (ov && ov.source) out.push({ kind: 'engine', id, stored: ov });
 		return out;
 	}
@@ -133,7 +137,7 @@
 		const sm = (settings && settings.siteMenus) || {};
 		const se = (settings && settings.searchEngines) || {};
 		if (kind === 'menu') return (sm.custom && sm.custom[id]) || (sm.edited && sm.edited[id]) || null;
-		return (se.custom || []).find(e => e && e.id === id) || (se.overrides && se.overrides[id]) || null;
+		return (Array.isArray(se.custom) ? se.custom : []).find(e => e && e.id === id) || (se.overrides && se.overrides[id]) || null;
 	}
 
 	// --- bridge protocol ----------------------------------------------------------------

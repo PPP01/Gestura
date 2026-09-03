@@ -1,0 +1,255 @@
+import { describe, it, expect, beforeAll } from 'vitest';
+
+let S, DEFAULTS;
+
+beforeAll(async () => {
+	// constants.js is a browser IIFE that assigns to window.GestureConstants -
+	// the same shim tests/settings-defaults.test.mjs uses.
+	globalThis.window = globalThis;
+	await import('../js/constants.js');
+	await import('../js/eu-integration.js');
+	await import('../js/eu-settings-schema.js');
+	S = globalThis.GesturaSettingsSchema;
+	DEFAULTS = globalThis.GestureConstants.DEFAULT_SETTINGS;
+});
+
+const settings = () => ({ ...structuredClone(DEFAULTS), theme: 'dark', trailWidth: 9 });
+
+describe('export', () => {
+	it('carries the format version and the extension version', () => {
+		const out = S.buildExport(settings(), '2.8.0');
+		expect(out.gesturaSettings).toBe(1);
+		expect(out._version).toBe('2.8.0');
+	});
+
+	it('never exports the local-only keys', () => {
+		const out = S.buildExport({ ...settings(), euIntegration: { enabled: true }, euSync: { secret: 'x' } }, '2.8.0');
+		expect(out).not.toHaveProperty('euIntegration');
+		expect(out).not.toHaveProperty('euSync');
+	});
+
+	// It changes on every save and means nothing in another browser. Carrying it
+	// would also make the "changed since last upload" hint fire after a save that
+	// changed nothing else.
+	it('does not export lastSyncTime', () => {
+		expect(S.buildExport({ ...settings(), lastSyncTime: '2026-09-03T00:00:00Z' }, '2.8.0'))
+			.not.toHaveProperty('lastSyncTime');
+	});
+
+	it('round-trips through the validator unchanged', () => {
+		const before = settings();
+		const res = S.validate(S.exportText(before, '2.8.0'));
+		expect(res.ok).toBe(true);
+		expect(res.dropped).toEqual([]);
+		expect(res.settings.theme).toBe('dark');
+		expect(res.settings.trailWidth).toBe(9);
+	});
+});
+
+describe('validation', () => {
+	it('accepts the current format', () => {
+		const res = S.validate({ gesturaSettings: 1, theme: 'dark' });
+		expect(res.ok).toBe(true);
+		expect(res.legacy).toBe(false);
+		expect(res.settings.theme).toBe('dark');
+	});
+
+	it('fills every key it was not given from the defaults', () => {
+		const res = S.validate({ gesturaSettings: 1, theme: 'dark' });
+		expect(res.settings.trailWidth).toBe(DEFAULTS.trailWidth);
+		expect(Object.keys(res.settings).sort()).toEqual(Object.keys(DEFAULTS).sort());
+	});
+
+	it('refuses an unknown format version instead of guessing', () => {
+		expect(S.validate({ gesturaSettings: 2, theme: 'dark' }))
+			.toMatchObject({ ok: false, error: 'unknown-format' });
+	});
+
+	it('refuses text that is not JSON', () => {
+		expect(S.validate('{ not json')).toMatchObject({ ok: false, error: 'not-json' });
+	});
+
+	it.each([['an array', '[]'], ['a number', '42'], ['null', 'null']])
+		('refuses %s at the top level', (_label, text) => {
+			expect(S.validate(text)).toMatchObject({ ok: false, error: 'not-object' });
+		});
+
+	it('refuses a file that holds no settings at all', () => {
+		expect(S.validate({ gesturaSettings: 1, nothing: 'here' }))
+			.toMatchObject({ ok: false, error: 'not-settings' });
+	});
+
+	it('refuses text above the size cap', () => {
+		const big = JSON.stringify({ gesturaSettings: 1, theme: 'x'.repeat(S.MAX_BYTES) });
+		expect(S.validate(big)).toMatchObject({ ok: false, error: 'too-large' });
+	});
+
+	it('drops unknown top-level keys and names them', () => {
+		const res = S.validate({ gesturaSettings: 1, theme: 'dark', evil: 1, alsoEvil: 2 });
+		expect(res.ok).toBe(true);
+		expect(res.settings).not.toHaveProperty('evil');
+		expect(res.dropped).toEqual(['evil', 'alsoEvil']);
+	});
+
+	// A crafted file must not be able to turn the integration on, plant a secret,
+	// or hand this browser somebody else's locator.
+	it('drops euIntegration and euSync out of a crafted file', () => {
+		const res = S.validate({ gesturaSettings: 1, theme: 'dark', euIntegration: { enabled: true }, euSync: { secret: 'GS1-…' } });
+		expect(res.settings).not.toHaveProperty('euIntegration');
+		expect(res.settings).not.toHaveProperty('euSync');
+		expect(res.dropped).toEqual(['euIntegration', 'euSync']);
+	});
+
+	it('falls back to the default when an allowlisted value has the wrong shape', () => {
+		const res = S.validate({ gesturaSettings: 1, siteMenus: 'not an object', trailWidth: 7 });
+		expect(res.ok).toBe(true);
+		expect(res.settings.siteMenus).toEqual(DEFAULTS.siteMenus);
+		expect(res.retyped).toEqual(['siteMenus']);
+		expect(res.settings.trailWidth).toBe(7);
+	});
+});
+
+// The container shapes inside the record keys. This is not tidiness: consumers
+// iterate these. `for (const c of {})` throws, and engine-registry.js does
+// exactly that over searchEngines.custom on every page load.
+describe('the shapes inside a record key', () => {
+	it.each([
+		['searchEngines.custom as an object', 'searchEngines', { custom: {} }, 'custom'],
+		['searchEngines.custom as a string', 'searchEngines', { custom: 'invalid' }, 'custom'],
+		['searchEngines.hidden as an object', 'searchEngines', { hidden: {} }, 'hidden'],
+		['searchEngines.order as an object', 'searchEngines', { order: {} }, 'order'],
+		['searchEngines.overrides as an array', 'searchEngines', { overrides: [] }, 'overrides'],
+		['siteMenus.custom as an array', 'siteMenus', { custom: [] }, 'custom'],
+		['siteMenus.disabled as an object', 'siteMenus', { disabled: {} }, 'disabled'],
+		['menuAppend.items as an object', 'menuAppend', { items: {} }, 'items'],
+	])('repairs %s', (_label, key, value, child) => {
+		const res = S.validate({ gesturaSettings: 1, [key]: value });
+		expect(res.ok).toBe(true);
+		expect(res.settings[key][child]).toEqual(DEFAULTS[key][child]);
+		expect(res.retyped).toContain(`${key}.${child}`);
+	});
+
+	// Only the offending child. Losing every engine override because `custom` was
+	// mistyped would be a worse outcome than the file caused.
+	it('keeps the children that were fine', () => {
+		const res = S.validate({
+			gesturaSettings: 1,
+			searchEngines: { custom: {}, overrides: { google: { name: 'G' } }, order: ['google'] },
+		});
+		expect(res.settings.searchEngines.custom).toEqual([]);
+		expect(res.settings.searchEngines.overrides).toEqual({ google: { name: 'G' } });
+		expect(res.settings.searchEngines.order).toEqual(['google']);
+		expect(res.retyped).toEqual(['searchEngines.custom']);
+	});
+
+	// mouseGestures is keyed by gesture patterns: its default entries are DATA,
+	// not a schema. Filling in "missing" ones would hand back every gesture the
+	// user deliberately removed.
+	it('does not treat mouseGestures as a record', () => {
+		const res = S.validate({ gesturaSettings: 1, mouseGestures: { '→': { action: 'forward' } } });
+		expect(res.settings.mouseGestures).toEqual({ '→': { action: 'forward' } });
+		expect(res.retyped).toEqual([]);
+	});
+
+	it('leaves a child the default does not describe alone', () => {
+		const res = S.validate({ gesturaSettings: 1, siteMenus: { custom: { mine: { name: 'Mine' } } } });
+		expect(res.settings.siteMenus.custom).toEqual({ mine: { name: 'Mine' } });
+		expect(res.retyped).toEqual([]);
+	});
+
+	// The consumer's own guard, tested through the consumer: even settings that
+	// never passed the validator - anything already in chrome.storage.sync, which
+	// content scripts read directly - must not take the engine list down.
+	it('leaves engine resolution standing for every malformed custom', async () => {
+		await import('../js/search-url.js');
+		await import('../js/search-engines-catalog.js');
+		await import('../js/engine-registry.js');
+		const R = globalThis.FlowMouseEngineRegistry;
+		for (const custom of [{}, 'invalid', 42, [null], [{ id: 'x' }], []]) {
+			expect(() => R.resolveEngines([], { custom, overrides: {}, hidden: [], order: [] })).not.toThrow();
+		}
+		for (const hidden of [{}, 42]) {
+			expect(() => R.resolveEngines([], { custom: [], overrides: {}, hidden, order: [] })).not.toThrow();
+		}
+		for (const order of [{}, 42]) {
+			expect(() => R.resolveEngines([], { custom: [], overrides: {}, hidden: [], order })).not.toThrow();
+		}
+	});
+
+	it('leaves the provenance walk standing for every malformed custom', () => {
+		const EU = globalThis.FlowMouseEuIntegration;
+		for (const custom of [{}, 'invalid', 42, [null], []]) {
+			expect(() => EU.listProvenanced({ siteMenus: {}, searchEngines: { custom } })).not.toThrow();
+			expect(() => EU.findStored({ siteMenus: {}, searchEngines: { custom } }, 'engine', 'x')).not.toThrow();
+		}
+	});
+
+	// Written as TEXT, not as object literals: `__proto__:` in a literal sets the
+	// prototype instead of creating a property, so JSON.stringify would silently
+	// drop the very thing under test. This is also the form the attack arrives in.
+	it.each([
+		['at the top level', '{"gesturaSettings":1,"theme":"dark","__proto__":{"polluted":1}}'],
+		['nested in an object', '{"gesturaSettings":1,"siteMenus":{"custom":{"m1":{"constructor":1}}}}'],
+		['nested in an array', '{"gesturaSettings":1,"blacklist":[{"prototype":1}]}'],
+		['deeply nested', '{"gesturaSettings":1,"siteMenus":{"custom":{"m1":{"items":[{"__proto__":{"x":1}}]}}}}'],
+	])('refuses a forbidden key %s', (_label, text) => {
+		expect(S.validate(text)).toMatchObject({ ok: false, error: 'forbidden-key' });
+	});
+
+	it('is not polluted by a rejected file', () => {
+		S.validate('{"gesturaSettings":1,"theme":"dark","__proto__":{"polluted":1}}');
+		expect({}.polluted).toBeUndefined();
+	});
+});
+
+describe('legacy files', () => {
+	it('are recognised by the missing format field', () => {
+		const res = S.validate({ _version: '2.3.1', enableGesture: true, theme: 'dark' });
+		expect(res.ok).toBe(true);
+		expect(res.legacy).toBe(true);
+	});
+
+	it('migrate the pre-2.4 gesture keys into mouseGestures', () => {
+		const res = S.validate({
+			enableGesture: true,
+			gestures: { '→': 'forward' },
+			customGestures: { '←': 'openUrl' },
+			customGestureUrls: { '←': 'https://example.org' },
+		});
+		expect(res.settings.mouseGestures['→']).toEqual({ action: 'forward' });
+		expect(res.settings.mouseGestures['←']).toEqual({ action: 'openUrl', customUrl: 'https://example.org' });
+		expect(res.dropped).not.toContain('gestures');
+	});
+
+	it('drop a gesture the old file had switched off', () => {
+		const res = S.validate({ enableGesture: true, gestures: { '→': 'forward' }, customGestures: { '→': null } });
+		expect(res.settings.mouseGestures).not.toHaveProperty('→');
+	});
+
+	it('leave mouseGestures alone when the file already has it', () => {
+		const res = S.validate({ enableGesture: true, mouseGestures: { '↑': { action: 'top' } }, gestures: { '→': 'forward' } });
+		expect(res.settings.mouseGestures).toEqual({ '↑': { action: 'top' } });
+	});
+});
+
+describe('the upload hash', () => {
+	it('ignores key order', async () => {
+		const a = await S.hashOf({ gesturaSettings: 1, theme: 'dark', trailWidth: 5 });
+		const b = await S.hashOf({ trailWidth: 5, gesturaSettings: 1, theme: 'dark' });
+		expect(a).toBe(b);
+	});
+
+	// The reminder answers "did I change anything since I uploaded", and updating
+	// the extension is not a change to the settings.
+	it('ignores the extension version', async () => {
+		const a = await S.hashOf({ gesturaSettings: 1, _version: '2.8.0', theme: 'dark' });
+		const b = await S.hashOf({ gesturaSettings: 1, _version: '2.9.0', theme: 'dark' });
+		expect(a).toBe(b);
+	});
+
+	it('changes when a value changes', async () => {
+		const a = await S.hashOf({ gesturaSettings: 1, theme: 'dark' });
+		const b = await S.hashOf({ gesturaSettings: 1, theme: 'light' });
+		expect(a).not.toBe(b);
+	});
+});

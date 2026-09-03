@@ -31,15 +31,22 @@
 	}
 	function resolveEngines(catalog, se, type) {
 		const s = se || {};
-		const overrides = s.overrides || {};
-		const custom = s.custom || [];
-		const order = s.order || [];
+		// Array.isArray, not `|| []`: a stored `custom: {}` is truthy and
+		// `for (const c of {})` throws - which takes out the whole engine list on
+		// every page load. `hidden: {}` has no .includes and `order: {}` no
+		// .indexOf, with the same result one line later.
+		const overrides = (s.overrides && typeof s.overrides === 'object' && !Array.isArray(s.overrides)) ? s.overrides : {};
+		const custom = Array.isArray(s.custom) ? s.custom : [];
+		const hidden = Array.isArray(s.hidden) ? s.hidden : [];
+		const order = Array.isArray(s.order) ? s.order : [];
 		const list = [];
 		for (const b of (catalog || [])) {
-			if (isEngineHidden(b, s.hidden || [])) continue;
+			if (isEngineHidden(b, hidden)) continue;
 			list.push(toEngine(mergeOverride(b, overrides[b.id]), true));
 		}
-		for (const c of custom) list.push(toEngine(c, false));
+		// toEngine reads src.id straight away, so a null element would throw here
+		// rather than produce a useless entry.
+		for (const c of custom) if (c && typeof c === 'object') list.push(toEngine(c, false));
 		const filtered = type ? list.filter(e => e.type === type) : list;
 		const pos = id => { const i = order.indexOf(id); return i === -1 ? Infinity : i; };
 		// stable sort: ordered ids first (by order index), the rest keep natural order
@@ -50,11 +57,11 @@
 	}
 	function getEngineById(catalog, se, id) {
 		const s = se || {};
-		const overrides = s.overrides || {};
-		const custom = s.custom || [];
+		const overrides = (s.overrides && typeof s.overrides === 'object' && !Array.isArray(s.overrides)) ? s.overrides : {};
+		const custom = Array.isArray(s.custom) ? s.custom : [];
 		const b = (catalog || []).find(e => e.id === id);
 		if (b) return toEngine(mergeOverride(b, overrides[id]), true);
-		const c = custom.find(e => e.id === id);
+		const c = custom.find(e => e && e.id === id);
 		if (c) return toEngine(c, false);
 		return undefined;
 	}
