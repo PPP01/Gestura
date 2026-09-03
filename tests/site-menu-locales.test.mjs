@@ -33,7 +33,20 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'settingsPreviewCancel',
 	'settingsPreviewErrorTooLarge', 'settingsPreviewErrorNotJson', 'settingsPreviewErrorNotObject',
 	'settingsPreviewErrorNotSettings', 'settingsPreviewErrorUnknownFormat',
-	'settingsPreviewErrorForbiddenKey'];
+	'settingsPreviewErrorForbiddenKey',
+	'euSyncHeading', 'euSyncToggle', 'euSyncToggleDesc',
+	'euSyncConsentTitle', 'euSyncConsentLead', 'euSyncConsentPoint1Label',
+	'euSyncConsentPoint1', 'euSyncConsentPoint2Label', 'euSyncConsentPoint2',
+	'euSyncConsentPoint3Label', 'euSyncConsentPoint3', 'euSyncConsentPoint4Label',
+	'euSyncConsentPoint4', 'euSyncConsentAccept', 'euSyncConsentCancel',
+	'euSyncConsentGranted', 'euSyncConsentDate', 'euSyncConsentRevoke',
+	'euSyncReconfirmTitle', 'euSyncReconfirmDesc', 'euSyncSecretTitle',
+	'euSyncSecretDesc', 'euSyncSecretCopy', 'euSyncSecretCopied',
+	'euSyncSecretSave', 'euSyncSecretNew', 'euSyncSecretNewConfirm',
+	'euSyncSecretPair', 'euSyncSecretPairDesc', 'euSyncSecretPairApply',
+	'euSyncSecretFileHeader', 'euSyncDevOriginNotice', 'euSyncCodeErrorPrefix',
+	'euSyncCodeErrorCharset', 'euSyncCodeErrorLength', 'euSyncCodeErrorPadding',
+	'euSyncCodeErrorChecksum'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)
