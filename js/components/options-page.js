@@ -346,6 +346,12 @@ class OptionsPage extends LitElement {
 			this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
 		});
 
+		// The sync panel lives in a shadow tree of its own and cannot call
+		// #applySettings. It sends the validated object here, so the file import and
+		// the sync download take the same single write path - reload included,
+		// without which the subcomponents would keep their old state.
+		window.addEventListener('gestura:settings-apply', (e) => this.#applySettings(e.detail));
+
 		this.updateComplete.then(() => {
 			this.#handleHashNavigation();
 			window.addEventListener('hashchange', () => this.#handleHashNavigation());

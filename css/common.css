@@ -731,6 +731,18 @@ textarea.input-mono {
 }
 .sync-hint { font-size: 12px; color: var(--warning-color); }
 
+.sync-state-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 0;
+	border-top: 1px solid var(--border-color);
+}
+.sync-state-row .name { font-weight: 600; }
+.sync-state-row .meta { font-size: 12px; color: var(--text-secondary); }
+.sync-state-row .grow { flex: 1 1 auto; min-width: 0; }
+.sync-state-row .row-actions { display: flex; gap: 8px; flex: none; }
+
 @keyframes gestura-breath {
 	0%, 100% { box-shadow: 0 0 0 0 transparent; }
 	50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--success-color) 55%, transparent); }

@@ -1,6 +1,8 @@
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons } from '../icons.js';
+import { settingsStore } from '../settings-store.js';
+import { settingsErrorMessage } from './settings-preview-dialog.js';
 
 // The second switch. It sits below the first and is not there at all while the
 // first is not effectively enabled - not greyed out, not disabled, but absent:
@@ -23,6 +25,22 @@ class EuSyncPanel extends LitElement {
 		checksum: 'euSyncCodeErrorChecksum',
 	};
 
+	// The same reasoning as CODE_ERRORS: written out, so the key is greppable and
+	// a typo shows up here rather than as a blank error line.
+	static SYNC_ERRORS = {
+		network: 'euSyncErrorNetwork',
+		'bad-request': 'euSyncErrorBadRequest',
+		'not-found': 'euSyncErrorNotFound',
+		'too-large': 'euSyncErrorTooLarge',
+		'quota-states': 'euSyncErrorQuotaStates',
+		'rate-limited': 'euSyncErrorRateLimited',
+		server: 'euSyncErrorServer',
+		malformed: 'euSyncErrorMalformed',
+		decrypt: 'euSyncErrorDecrypt',
+		disabled: 'euSyncErrorDisabled',
+		'no-secret': 'euSyncErrorNoSecret',
+	};
+
 	static properties = {
 		_local: { state: true },
 		_sync: { state: true },
@@ -32,6 +50,10 @@ class EuSyncPanel extends LitElement {
 		_copied: { state: true },
 		_busy: { state: true },
 		_error: { state: true },
+		_states: { state: true },
+		_newName: { state: true },
+		_currentHash: { state: true },
+		_preview: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -72,7 +94,13 @@ class EuSyncPanel extends LitElement {
 		this._copied = false;
 		this._busy = false;
 		this._error = '';
+		this._states = null;      // null = not read yet, [] = read and empty
+		this._newName = '';
+		this._currentHash = '';
+		this._preview = null;
+		this._onSaved = () => this.#recomputeHash();
 		this._offLocal = null;
+		this._offStore = null;
 		this._offSync = null;
 		this._onKeydown = (e) => {
 			if (e.key === 'Escape' && this._consentOpen) { e.stopPropagation(); this.#decline(); }
@@ -89,6 +117,13 @@ class EuSyncPanel extends LitElement {
 		window.GesturaSyncLocal.read().then(sync => { this._sync = sync; });
 		this._offLocal = window.GesturaEuLocal.onChange(local => { this._local = local; });
 		this._offSync = window.GesturaSyncLocal.onChange(sync => { this._sync = sync; });
+		this.#recomputeHash();
+		// settingsStore.onChange() reports EXTERNAL changes only - deliberately, so
+		// a component does not react to its own write. The "changed since last
+		// upload" hint needs exactly the other half: a change made on THIS page.
+		// That is what gestura:settings-saved is for (js/settings-store.js).
+		window.addEventListener('gestura:settings-saved', this._onSaved);
+		this._offStore = settingsStore.onChange(() => this.#recomputeHash());
 		document.addEventListener('keydown', this._onKeydown, true);
 	}
 
@@ -96,6 +131,8 @@ class EuSyncPanel extends LitElement {
 		super.disconnectedCallback();
 		if (this._offLocal) this._offLocal();
 		if (this._offSync) this._offSync();
+		window.removeEventListener('gestura:settings-saved', this._onSaved);
+		if (this._offStore) this._offStore();
 		document.removeEventListener('keydown', this._onKeydown, true);
 		this.#lockScroll(false);
 	}
@@ -212,9 +249,227 @@ class EuSyncPanel extends LitElement {
 		await this.#refreshStates();
 	}
 
-	// Task 10 fills these in. Here already so the two callers above can stand.
-	async #refreshStates() { /* Task 10 */ }
-	#renderStates() { return ''; }
+	#exportNow() {
+		return window.GesturaSettingsSchema.buildExport(settingsStore.current, window.i18n.version);
+	}
+
+	async #recomputeHash() {
+		try {
+			this._currentHash = await window.GesturaSettingsSchema.hashOf(this.#exportNow());
+		} catch {
+			this._currentHash = '';
+		}
+	}
+
+	#fail(e) {
+		this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS[e && e.code] || 'euSyncErrorServer');
+	}
+
+	// Every server access goes through here: an error lands in a line, never in a
+	// dialog, and `_busy` locks the buttons while it runs. A failed fetch leaves
+	// the last list that was read standing - it is still the best information
+	// there is.
+	async #run(fn) {
+		this._busy = true;
+		this._error = '';
+		try {
+			return await fn();
+		} catch (e) {
+			this.#fail(e);
+			return null;
+		} finally {
+			this._busy = false;
+		}
+	}
+
+	async #refreshStates() {
+		if (!this.#effective) return;
+		const list = await this.#run(() => window.GesturaSync.list());
+		if (list) this._states = list;
+	}
+
+	// The name comes from the decrypted meta blob and not from the local map: a
+	// freshly paired second browser has no map, and the meta blob is the
+	// information that belongs to the state itself.
+	#nameOf(state) {
+		if (state.meta && typeof state.meta.name === 'string' && state.meta.name) return state.meta.name;
+		const local = this.#state.states[state.stateId];
+		return (local && local.name) || state.stateId.slice(0, 8);
+	}
+
+	#openPreview(preview) { this._preview = preview; }
+
+	async #onPreviewConfirm() {
+		const preview = this._preview;
+		this._preview = null;
+		if (preview) await preview.commit();
+	}
+
+	// Uploading and overwriting are the same path with different ids - the preview
+	// in front of it is the same both times and cannot be skipped: it IS the
+	// promise made in the consent text.
+	#uploadTo(stateId, name) {
+		const exportObj = this.#exportNow();
+		const json = JSON.stringify(exportObj, null, 2);
+		this.#openPreview({
+			mode: 'upload',
+			json,
+			dropped: [],
+			retyped: [],
+			legacy: false,
+			commit: async () => {
+				const id = stateId || window.GesturaSyncCrypto.newStateId();
+				const existing = this.#state.states[id];
+				const done = await this.#run(() => window.GesturaSync.upload({
+					stateId: id,
+					name,
+					createdAt: (existing && existing.lastUploadDate) || new Date().toISOString(),
+					exportObj,
+					extVersion: window.i18n.version,
+				}));
+				if (!done) return;
+				await window.GesturaSyncLocal.setState(id, {
+					name,
+					lastUploadHash: await window.GesturaSettingsSchema.hashOf(exportObj),
+					lastUploadDate: new Date().toISOString(),
+				});
+				this._newName = '';
+				await this.#refreshStates();
+			},
+		});
+	}
+
+	// Downloading means: decrypt, validate, show - and only then write. The
+	// validator is the same one the file import uses, so a state from a newer
+	// Gestura can be refused here just as clearly.
+	async #downloadState(state) {
+		// Without the hash from the meta blob nothing is even asked: it is the only
+		// tie between meta and payload, and a state whose meta does not carry one is
+		// not a state this client may open. GesturaSync.download() refuses it too -
+		// it stands here so the user sees a sentence rather than an error out of the
+		// network path.
+		const expectPayloadHash = state.meta && state.meta.payloadHash;
+		if (typeof expectPayloadHash !== 'string' || !expectPayloadHash) {
+			this._error = window.i18n.getMessage('euSyncStateBroken');
+			return;
+		}
+		const payload = await this.#run(() => window.GesturaSync.download({
+			stateId: state.stateId,
+			expectPayloadHash,
+		}));
+		if (!payload) return;
+		const result = window.GesturaSettingsSchema.validate(payload);
+		if (!result.ok) {
+			this._error = settingsErrorMessage(window.i18n, result.error);
+			return;
+		}
+		this.#openPreview({
+			mode: 'import',
+			json: result.json,
+			dropped: result.dropped,
+			retyped: result.retyped,
+			legacy: result.legacy,
+			commit: () => window.dispatchEvent(new CustomEvent('gestura:settings-apply', { detail: result.settings })),
+		});
+	}
+
+	async #deleteState(state) {
+		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(state)))) return;
+		const done = await this.#run(() => window.GesturaSync.remove(state.stateId));
+		if (!done) return;
+		await window.GesturaSyncLocal.removeState(state.stateId);
+		await this.#refreshStates();
+	}
+
+	async #deleteAll() {
+		if (!confirm(window.i18n.getMessage('euSyncDeleteAllConfirm'))) return;
+		// No stateId: this deletes everything under this locator.
+		const done = await this.#run(() => window.GesturaSync.remove());
+		if (!done) return;
+		await window.GesturaSyncLocal.write({ states: {} });
+		this._states = [];
+	}
+
+	#formatDate(iso) {
+		const d = new Date(iso);
+		if (Number.isNaN(d.getTime())) return '';
+		try {
+			return d.toLocaleString(window.i18n.getHtmlLang(), { dateStyle: 'medium', timeStyle: 'short' });
+		} catch {
+			return d.toISOString().slice(0, 16).replace('T', ' ');
+		}
+	}
+
+	#renderStateRow(state) {
+		const i18n = window.i18n;
+		const local = this.#state.states[state.stateId];
+		// The hint is per state and only for states THIS browser uploaded to: for a
+		// foreign state there is nothing here to compare against, and a "changed"
+		// would be a claim with no basis.
+		const changed = !!(local && local.lastUploadHash && this._currentHash && local.lastUploadHash !== this._currentHash);
+		return html`
+			<div class="sync-state-row">
+				<div class="grow">
+					<div class="name">${this.#nameOf(state)}</div>
+					<div class="meta">
+						${state.updatedAt ? i18n.getMessage('euSyncUploadedAt').replace('{date}', this.#formatDate(state.updatedAt)) : ''}
+						${state.broken ? html`<span class="sync-hint"> — ${i18n.getMessage('euSyncStateBroken')}</span>` : ''}
+						${!local ? html`<span> — ${i18n.getMessage('euSyncNeverUploadedHere')}</span>` : ''}
+					</div>
+					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
+				</div>
+				<div class="row-actions">
+					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
+						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
+					<button class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state))}>${i18n.getMessage('euSyncUpload')}</button>
+					<button class="btn btn-danger" ?disabled=${this._busy}
+						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
+				</div>
+			</div>`;
+	}
+
+	#renderStates() {
+		const i18n = window.i18n;
+		const states = this._states || [];
+		const full = states.length >= window.GesturaSync.LIMITS.statesMax;
+		const duplicate = states.some(s => this.#nameOf(s) === this._newName.trim());
+		return html`
+			<div class="setting-row">
+				<div class="setting-label">
+					<span>${i18n.getMessage('euSyncStatesTitle')}</span>
+					<span>${this._states === null || states.length ? '' : i18n.getMessage('euSyncStatesEmpty')}</span>
+				</div>
+				<div class="row-actions">
+					<button class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${this.#refreshStates}>${i18n.getMessage('euSyncRefresh')}</button>
+					${states.length ? html`
+						<button class="btn btn-danger" ?disabled=${this._busy}
+							@click=${this.#deleteAll}>${i18n.getMessage('euSyncDeleteAll')}</button>` : ''}
+				</div>
+			</div>
+			${states.map(s => this.#renderStateRow(s))}
+			${full ? html`
+				<div class="notice">${i18n.getMessage('euSyncQuotaReached').replace('{max}', String(window.GesturaSync.LIMITS.statesMax))}</div>` : html`
+				<div class="pair">
+					<input type="text" class="input-lg" placeholder=${i18n.getMessage('euSyncStateNamePlaceholder')}
+						.value=${this._newName}
+						@input=${e => { this._newName = e.target.value; }}
+						@keydown=${e => { if (e.key === 'Enter' && this._newName.trim()) this.#uploadTo(null, this._newName.trim()); }}>
+					<button class="btn btn-primary" ?disabled=${this._busy || !this._newName.trim()}
+						@click=${() => this.#uploadTo(null, this._newName.trim())}>${i18n.getMessage('euSyncCreate')}</button>
+				</div>
+				${duplicate ? html`<div class="notice">${i18n.getMessage('euSyncDuplicateName')}</div>` : ''}`}
+			<settings-preview-dialog
+				?open=${!!this._preview}
+				mode=${this._preview ? this._preview.mode : 'upload'}
+				.json=${this._preview ? this._preview.json : ''}
+				.dropped=${this._preview ? this._preview.dropped : []}
+				.retyped=${this._preview ? this._preview.retyped : []}
+				?legacy=${!!(this._preview && this._preview.legacy)}
+				@preview-confirm=${this.#onPreviewConfirm}
+				@preview-cancel=${() => { this._preview = null; }}></settings-preview-dialog>`;
+	}
 
 	#consentDate() {
 		const iso = this.#state && this.#state.consent && this.#state.consent.date;
@@ -288,6 +543,9 @@ class EuSyncPanel extends LitElement {
 
 	updated() {
 		if (this._consentOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
+		// Once per switch-on, not once per render pass: _states stays null until an
+		// answer has arrived, and that null is exactly the condition.
+		if (this.#effective && this._states === null && !this._busy) this.#refreshStates();
 	}
 
 	render() {
