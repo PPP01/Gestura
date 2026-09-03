@@ -39,6 +39,7 @@ class EuSyncPanel extends LitElement {
 		decrypt: 'euSyncErrorDecrypt',
 		disabled: 'euSyncErrorDisabled',
 		'no-secret': 'euSyncErrorNoSecret',
+		conflict: 'euSyncErrorConflict',
 	};
 
 	static properties = {
@@ -54,6 +55,7 @@ class EuSyncPanel extends LitElement {
 		_newName: { state: true },
 		_currentHash: { state: true },
 		_preview: { state: true },
+		_conflict: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -98,6 +100,8 @@ class EuSyncPanel extends LitElement {
 		this._newName = '';
 		this._currentHash = '';
 		this._preview = null;
+		this._conflict = null;
+		this._errorCode = '';
 		this._onSaved = () => this.#recomputeHash();
 		this._offLocal = null;
 		this._offStore = null;
@@ -262,7 +266,14 @@ class EuSyncPanel extends LitElement {
 	}
 
 	#fail(e) {
-		this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS[e && e.code] || 'euSyncErrorServer');
+		this._errorCode = (e && e.code) || '';
+		this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS[this._errorCode] || 'euSyncErrorServer');
+		// The contract puts the current updatedAt in a conflict so this line can say
+		// when the state moved, without a second request.
+		if (this._errorCode === 'conflict' && e.updatedAt) {
+			this._error += ' ' + window.i18n.getMessage('euSyncConflictChangedAt')
+				.replace('{date}', this.#formatDate(e.updatedAt));
+		}
 	}
 
 	// Every server access goes through here: an error lands in a line, never in a
@@ -272,6 +283,7 @@ class EuSyncPanel extends LitElement {
 	async #run(fn) {
 		this._busy = true;
 		this._error = '';
+		this._errorCode = '';
 		try {
 			return await fn();
 		} catch (e) {
@@ -284,6 +296,9 @@ class EuSyncPanel extends LitElement {
 
 	async #refreshStates() {
 		if (!this.#effective) return;
+		// Re-reading is one of the two answers to a conflict, so it clears it: what
+		// the list shows afterwards is the state as it now stands.
+		this._conflict = null;
 		const list = await this.#run(() => window.GesturaSync.list());
 		if (list) this._states = list;
 	}
@@ -308,7 +323,13 @@ class EuSyncPanel extends LitElement {
 	// Uploading and overwriting are the same path with different ids - the preview
 	// in front of it is the same both times and cannot be skipped: it IS the
 	// promise made in the consent text.
-	#uploadTo(stateId, name) {
+	//
+	// `basePayloadHash` is the hash out of the meta blob of the state being
+	// replaced: it turns the write into "replace what I saw". Passing null means
+	// unconditional - a new state, or the user answering a conflict with
+	// "overwrite anyway". Both go through the preview again; the second transfer
+	// is a transfer like any other.
+	#uploadTo(stateId, name, basePayloadHash) {
 		const exportObj = this.#exportNow();
 		const json = JSON.stringify(exportObj, null, 2);
 		this.#openPreview({
@@ -326,8 +347,15 @@ class EuSyncPanel extends LitElement {
 					createdAt: (existing && existing.lastUploadDate) || new Date().toISOString(),
 					exportObj,
 					extVersion: window.i18n.version,
+					basePayloadHash,
 				}));
-				if (!done) return;
+				if (!done) {
+					// Nothing was written. Remember which state it was, so the two ways
+					// out below know what they are acting on.
+					if (this._errorCode === 'conflict') this._conflict = { stateId: id, name };
+					return;
+				}
+				this._conflict = null;
 				await window.GesturaSyncLocal.setState(id, {
 					name,
 					lastUploadHash: await window.GesturaSettingsSchema.hashOf(exportObj),
@@ -422,7 +450,7 @@ class EuSyncPanel extends LitElement {
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state))}>${i18n.getMessage('euSyncUpload')}</button>
+						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state), state.meta && state.meta.payloadHash)}>${i18n.getMessage('euSyncUpload')}</button>
 					<button class="btn btn-danger" ?disabled=${this._busy}
 						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
 				</div>
@@ -590,6 +618,13 @@ class EuSyncPanel extends LitElement {
 			${this.#effective && this.#state.secret ? this.#renderSecret() : ''}
 			${this.#effective ? this.#renderStates() : ''}
 			${this._error ? html`<div class="error">${this._error}</div>` : ''}
+			${this._conflict ? html`
+				<div class="row-actions">
+					<button class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${this.#refreshStates}>${i18n.getMessage('euSyncConflictReload')}</button>
+					<button class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${() => this.#uploadTo(this._conflict.stateId, this._conflict.name, null)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+				</div>` : ''}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 		`;
 	}

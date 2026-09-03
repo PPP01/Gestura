@@ -232,3 +232,70 @@ describe('the gate', () => {
 		globalThis.fetch = original;
 	});
 });
+
+// The write token. Without it the second browser to press Overwrite discards
+// the first one's work in silence - the payloadHash inside the meta blob binds
+// the two blobs of ONE upload to each other, never an upload to the state it
+// replaces.
+describe('the write token', () => {
+	const upload = (over = {}) => S.uploadState({
+		secret: null, origin: 'https://gestura.eu', stateId: ID,
+		name: 'Work', createdAt: 'x', exportObj: { gesturaSettings: 1 }, extVersion: '2.8.0',
+		fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', size: 1 }),
+		...over,
+	});
+
+	it('travels in the body when the upload replaces a known state', async () => {
+		await upload({ secret: await secretBytes(), basePayloadHash: 'the-hash-we-read' });
+		expect(calls[0].body.basePayloadHash).toBe('the-hash-we-read');
+	});
+
+	// Absent means "write unconditionally" - that is how a new state is created,
+	// and how the user says "overwrite anyway" after seeing the conflict. It is
+	// also what keeps an older extension working against the same server.
+	it('is absent for a new state, and the body keeps its five fields', async () => {
+		await upload({ secret: await secretBytes() });
+		expect(calls[0].body).not.toHaveProperty('basePayloadHash');
+		expect(Object.keys(calls[0].body).sort()).toEqual(['apiLevel', 'locator', 'meta', 'payload', 'stateId']);
+	});
+
+	it.each([['an empty string', ''], ['null', null], ['a number', 42]])
+		('is left out for %s rather than sent as junk', async (_label, basePayloadHash) => {
+			await upload({ secret: await secretBytes(), basePayloadHash });
+			expect(calls[0].body).not.toHaveProperty('basePayloadHash');
+		});
+
+	it('maps 412 to conflict', async () => {
+		await expect(upload({ secret: await secretBytes(), basePayloadHash: 'stale', fetchImpl: fetchStatus(412, { error: 'conflict', updatedAt: '2026-09-03T14:12:00Z' }) }))
+			.rejects.toMatchObject({ code: 'conflict' });
+	});
+
+	// The contract puts updatedAt in the refusal for exactly one reason: so the
+	// panel can say WHEN the state moved without asking a second time.
+	it('carries the date out of the refusal', async () => {
+		await upload({ secret: await secretBytes(), basePayloadHash: 'stale', fetchImpl: fetchStatus(412, { error: 'conflict', updatedAt: '2026-09-03T14:12:00Z' }) })
+			.catch(e => { expect(e.updatedAt).toBe('2026-09-03T14:12:00Z'); });
+	});
+
+	it.each([['no body at all', ''], ['a body that is not JSON', 'nope'], ['a body without the date', '{}']])
+		('is still a clean conflict with %s', async (_label, text) => {
+			const fetchImpl = async (url, init) => {
+				calls.push({ url, init, body: JSON.parse(init.body) });
+				return { ok: false, status: 412, headers: { get: () => null }, text: async () => text };
+			};
+			await expect(upload({ secret: await secretBytes(), basePayloadHash: 'stale', fetchImpl }))
+				.rejects.toMatchObject({ code: 'conflict', updatedAt: '' });
+		});
+
+	// Every other status keeps behaving as it did; reading the body is a
+	// conflict-only detour and must not become a second failure mode.
+	it('does not read the body of any other error', async () => {
+		let read = 0;
+		const fetchImpl = async (url, init) => {
+			calls.push({ url, init, body: JSON.parse(init.body) });
+			return { ok: false, status: 500, headers: { get: () => null }, text: async () => { read++; return '{}'; } };
+		};
+		await expect(upload({ secret: await secretBytes(), fetchImpl })).rejects.toMatchObject({ code: 'server' });
+		expect(read).toBe(0);
+	});
+});

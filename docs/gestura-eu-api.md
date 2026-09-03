@@ -11,6 +11,11 @@ extension at level 1 never calls `/api/v1/updates`, and one below level 3 never
 calls any `/api/v1/sync/*` endpoint. Levels are additive — nothing that
 answered at level 2 changes shape at level 3.
 
+Within a level, a **request** field may be added when its absence keeps the old
+behaviour exactly. `basePayloadHash` (below) is such a field: an extension that
+never sends it is served as it was before the field existed, so the addition
+needs no new level.
+
 ## Bridge (page → extension, DOM events)
 
 - Events are dispatched on and listened to on `document`.
@@ -361,6 +366,22 @@ few, and the preview before writing shows what actually arrived. What the
 `payloadHash` in the meta blob does prevent is a *mismatched pair* — this
 meta with a different state's or an older upload's payload.
 
+That paragraph is about the **server**. Two **clients** writing the same state
+are a different matter, and one the client cannot solve alone: the
+`payloadHash` binds the two blobs of *one* upload to each other, never an
+upload to the state it replaces. Without help from the server, the second
+browser to press *Overwrite* silently discards the first one's work, and nobody
+learns of it. The endpoint therefore takes a **write token**, below.
+
+**The write token is the `payloadHash` of the state being replaced.** It needs
+no field of its own on the server: the server recomputes it over the payload
+bytes it stores, and the client already holds it — it is in the meta blob it
+decrypted when it listed or opened the state. It works as a token because
+**every encryption uses a fresh IV**, so two uploads of byte-identical settings
+still produce different payloads and different hashes. That is a property of
+the envelope, not a coincidence, and it is what makes a hash usable where a
+version counter would otherwise be needed.
+
 ## Sync — endpoints
 
 All under `/api/v1`, all anonymous, all with the locator in the body. Request
@@ -369,12 +390,37 @@ bodies always carry `apiLevel`.
 | Endpoint | Body | Answer |
 |---|---|---|
 | `POST /api/v1/sync/list` | `{ apiLevel, locator }` | `{ states: [{ stateId, size, updatedAt, meta }] }` |
-| `PUT /api/v1/sync/state` | `{ apiLevel, locator, stateId, meta, payload }` | `{ stateId, updatedAt, size }` |
+| `PUT /api/v1/sync/state` | `{ apiLevel, locator, stateId, meta, payload, basePayloadHash? }` | `{ stateId, updatedAt, size }` |
 | `POST /api/v1/sync/get` | `{ apiLevel, locator, stateId }` | `{ stateId, updatedAt, payload }` |
 | `POST /api/v1/sync/delete` | `{ apiLevel, locator, stateId }` — `stateId` omitted deletes every state under the locator | `{ deleted: <count> }` |
 
 `size` is the payload envelope's length in bytes as transmitted; `updatedAt` is
 an ISO-8601 UTC timestamp. `meta` and `payload` are the base64 envelope strings.
+
+**`basePayloadHash` — what the upload is built on.** Base64url `SHA-256` over
+the raw bytes of the payload envelope currently stored, i.e. the same value the
+replaced state's meta blob carries. Three cases, and the first is what keeps
+older extensions working:
+
+| `basePayloadHash` | Server does |
+|---|---|
+| absent | Writes unconditionally, exactly as before. This is how a **new** state is created, and how a client that has seen the conflict says *overwrite anyway*. |
+| present, matches the stored payload | Writes. |
+| present, does not match | Refuses with **412** and `{ "error": "conflict", "updatedAt": "<ISO-8601>" }`. Nothing is written. |
+
+The `updatedAt` in the refusal is there so the client can say *when* the state
+changed under it without a second request; it then re-reads the state and lets
+the user decide.
+
+**This does not merge anything.** It makes a lost write visible instead of
+silent, and it is the precondition for merging later: a client can only merge
+if it can be told "your base is stale" and try again. Merging itself needs
+per-entry versions and deletion markers inside the payload, and is deliberately
+not part of `apiLevel` 3.
+
+**`POST /api/v1/sync/delete` stays unconditional** and takes no token. Deleting
+is a deliberate act behind a confirmation, and unlike a silent overwrite it is
+one the user is looking at while it happens.
 
 **Errors** answer with an HTTP status and `{ "error": "<code>" }`:
 
@@ -382,6 +428,7 @@ an ISO-8601 UTC timestamp. `meta` and `payload` are the base64 envelope strings.
 |---|---|---|
 | `bad-request` | 400 | Malformed body, unknown `apiLevel`, bad `stateId` or locator shape. |
 | `not-found` | 404 | No such state under this locator. |
+| `conflict` | 412 | `basePayloadHash` does not describe the stored state — someone else wrote it first. The answer carries the current `updatedAt`. |
 | `too-large` | 413 | A single blob exceeds its limit. |
 | `quota-states` | 409 | The locator already holds the maximum number of states. |
 | `rate-limited` | 429 | Per-IP rate limit (the July design's RateLimiter). |

@@ -28,12 +28,16 @@
 
 	const STATUS = {
 		400: 'bad-request', 404: 'not-found', 409: 'quota-states',
-		413: 'too-large', 429: 'rate-limited',
+		412: 'conflict', 413: 'too-large', 429: 'rate-limited',
 	};
 
-	function syncError(code) {
+	// `updatedAt` is carried only by a conflict, where the contract puts it in the
+	// refusal so the panel can say WHEN the state moved under the upload without
+	// asking a second time. Empty everywhere else.
+	function syncError(code, updatedAt) {
 		const e = new Error(code);
 		e.code = code;
+		e.updatedAt = typeof updatedAt === 'string' ? updatedAt : '';
 		return e;
 	}
 
@@ -60,7 +64,18 @@
 			throw syncError('network');
 		}
 		try {
-			if (!res.ok) throw syncError(STATUS[res.status] || 'server');
+			if (!res.ok) {
+				const code = STATUS[res.status] || 'server';
+				// The body of an error is read for exactly one code, and defensively:
+				// a conflict carries the current updatedAt, and a body that is missing,
+				// truncated or not JSON must still arrive as a clean conflict rather
+				// than as a second, unrelated failure.
+				let updatedAt = '';
+				if (code === 'conflict') {
+					try { updatedAt = JSON.parse(await res.text()).updatedAt; } catch { /* no date, still a conflict */ }
+				}
+				throw syncError(code, updatedAt);
+			}
 			const declared = Number(res.headers?.get?.('content-length'));
 			if (Number.isFinite(declared) && declared > LIMITS.responseMaxBytes) throw syncError('too-large');
 			const text = await res.text();
@@ -107,8 +122,14 @@
 		return out;
 	}
 
+	// `basePayloadHash` names the state this upload is built on: the payloadHash
+	// out of the meta blob the client read. Sending it turns the write into
+	// "replace what I saw"; leaving it out means "write unconditionally", which is
+	// how a new state is created and how the user says "overwrite anyway" after a
+	// conflict. It works as a token because every encryption uses a fresh IV, so
+	// two uploads of identical settings still hash differently.
 	async function uploadState(opts) {
-		const { secret, origin, stateId, name, createdAt, exportObj, extVersion, fetchImpl } = opts;
+		const { secret, origin, stateId, name, createdAt, exportObj, extVersion, basePayloadHash, fetchImpl } = opts;
 		const X = root.GesturaSyncCrypto;
 		const key = await X.deriveKey(secret);
 		const payload = await X.encryptBlob(key, stateId, 'payload', exportObj);
@@ -123,10 +144,11 @@
 			payloadHash: await X.blobHash(payload),
 		});
 		if (meta.length > LIMITS.metaMaxBytes) throw syncError('too-large');
-		return request({
-			origin, path: PATHS.state, method: 'PUT', fetchImpl,
-			body: { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId, meta, payload },
-		});
+		const body = { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId, meta, payload };
+		// Only a usable hash travels. Anything else - '', null, a number - would be
+		// a token the server has to reject, and the caller meant "unconditional".
+		if (typeof basePayloadHash === 'string' && basePayloadHash) body.basePayloadHash = basePayloadHash;
+		return request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
 	}
 
 	// expectPayloadHash is REQUIRED, and deliberately so. It is the only
