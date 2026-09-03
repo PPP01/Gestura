@@ -2294,15 +2294,35 @@ Nothing was deferred from the plan's task list. Two deviations, both noted below
 1. **The mock ran on `http://localhost:8199`, not `:8123`.** Port 8123 is taken
    on this machine by the `gestura-index` dev server. The port is only ever a
    developer origin, so nothing depends on the number.
-2. **The manual checks were driven programmatically, in Edge.** Chrome 152 has
-   removed `--load-extension`, so an isolated Chrome could not load the unpacked
-   extension at all (`--disable-features=DisableLoadExtensionCommandLineSwitch`
-   and `--enable-unsafe-extension-debugging` were both tried; neither restores
-   it). Edge — which this extension also targets, same Chromium — still honours
-   the switch, so the checks ran there against a real network and a real
-   `chrome.storage`, driven over CDP from a throwaway profile. Every claim below
-   was asserted, not eyeballed. **The one thing this does not cover is Firefox**,
-   which R2 does not touch beyond the shared `pages/options.html` line.
+2. **The manual checks were driven programmatically, in Edge.** Chrome 152
+   ignores the **`--load-extension` command-line switch**, so a throwaway Chrome
+   started that way came up without the extension
+   (`--disable-features=DisableLoadExtensionCommandLineSwitch`,
+   `--enable-unsafe-extension-debugging` and `--test-type` were all tried; none
+   restores it). Note what this does *not* say: Chrome still runs the extension
+   perfectly well from a profile it was loaded into by hand via
+   `chrome://extensions`, which is how a normal development browser has it — an
+   earlier draft of this section overstated the limitation as "Chrome cannot
+   load an unpacked extension at all", and that is wrong.
+
+   Edge — which this extension also targets, same Chromium — still honours the
+   switch, so a throwaway profile was one command instead of a manual setup step,
+   and the checks ran there against a real network and a real `chrome.storage`,
+   driven over CDP. Every claim below was asserted, not eyeballed.
+
+   Playwright would not have changed this either way: `@playwright/mcp` has **no
+   option to load an unpacked extension** (`--extension` means "attach to a
+   running Edge/Chrome that has the Playwright Extension installed"), so it too
+   can only drive a browser that already carries it. Its `--cdp-endpoint` does
+   make the two approaches combinable — start the browser once, attach both the
+   CDP script and Playwright — which is the better setup when screenshots are
+   wanted alongside assertions.
+
+   **The one thing none of this covers is Firefox**, which R2 does not touch
+   beyond the shared `pages/options.html` line.
+
+   The scripts, the mock and the environment notes live outside this repo, in
+   `browser-verify/` beside the project's memory directory.
 
 ### Verified by hand (driven over CDP, Edge 152 + a local mock)
 
@@ -2386,8 +2406,9 @@ Task 4 step 14 (the R1 draft defect):
 
 **In the first pass, none** — every check passed on its first run. Two
 environment findings, recorded because the next executor will hit them: Chrome
-152 cannot load an unpacked extension from the command line at all, and port
-8123 belongs to the index dev server on this machine.
+152 ignores `--load-extension` on the command line (a profile prepared by hand
+still works, and so does Edge), and port 8123 belongs to the index dev server on
+this machine.
 
 **In the `/simplify` pass afterwards, two** — both introduced by that refactor
 and both caught by re-running these same checks, which is the reason they were
