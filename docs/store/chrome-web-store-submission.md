@@ -124,7 +124,7 @@ Alles aus `permission-justifications.md` übernehmen:
   jede Frage, sondern eine bewusste Entscheidung beim Ausfüllen, mit obigem Absatz
   als Grundlage. Die drei „Ich verkaufe/übertrage/nutze Nutzerdaten nicht für
   sachfremde Zwecke/Kreditwürdigkeit"-Zusicherungen bleiben zutreffend — nichts
-  davon geschieht. (Die verschlüsselte Sync wird hier nicht vorweggenommen.)
+  davon geschieht.
 - **Datennutzung, Update-Prüfung (seit R2):** ist der Schalter eingeschaltet,
   fragt die Extension beim Öffnen ihrer Einstellungen — höchstens einmal täglich
   und getrennt je Index — bei gestura.eu nach neueren Versionen der von dort
@@ -135,8 +135,21 @@ Alles aus `permission-justifications.md` übernehmen:
   Formularkategorien bleiben also wie oben. Neu ist allein, dass eine Anfrage
   auch ohne Klick der Nutzerin den Browser verlässt; genau das steht in der
   Zustimmung (Consent-Version 2) und in `PRIVACY.md`.
+- **Datennutzung, Abgleich zwischen Browsern (seit R3):** hier ändert sich die
+  Antwort tatsächlich. Ist der zweite Schalter *Abgleich* eingeschaltet (aus per
+  Default, mit eigener Zustimmung), lädt die Extension auf **ausdrücklichen
+  Klick** die **eigenen Einstellungen der Nutzerin** zu gestura.eu hoch — **im
+  Browser verschlüsselt**, unter einem Schlüssel, der aus einem lokal erzeugten
+  Code abgeleitet wird und den Browser nie verlässt. Der Dienst speichert
+  ausschließlich Geheimtext, dessen Größe und Datum; auch der Name eines Standes
+  liegt im verschlüsselten Teil. Kein Konto, keine Kennung, kein Personenbezug.
+  Im Formular ist das **Nutzerinhalt** („user content") und nicht mehr „Nein":
+  es sind die von der Nutzerin selbst erstellten Einstellungen. „Personal
+  communications", „Website content", „Web history", „Location" bleiben Nein.
+  Die drei Zusicherungen (nicht verkaufen, nicht für sachfremde Zwecke, nicht
+  für Kreditwürdigkeit) bleiben zutreffend.
 - **Privacy policy URL:** die oben gewählte öffentliche URL eintragen (PRIVACY.md,
-  Abschnitt „gestura.eu integration").
+  Abschnitte „gestura.eu integration" und „Sync between browsers").
 
 ### 4. Distribution (Tab „Distribution")
 - Sichtbarkeit (öffentlich / nicht gelistet), Regionen wählen.

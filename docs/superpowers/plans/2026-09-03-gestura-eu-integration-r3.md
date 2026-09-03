@@ -108,7 +108,7 @@ Nothing else in R3 can be written first. Five constants — the code alphabet, t
 - Consumes: nothing.
 - Produces: every constant and field name Tasks 2–6 encode — `GS1`, the Crockford alphabet, `gestura-sync-locator-v1`, `gestura-sync-key-v1`, `gestura-sync-v1`, the four endpoint paths, the request/response bodies, the quota names, `gesturaSettings: 1`.
 
-- [ ] **Step 1: Raise the level line**
+- [x] **Step 1: Raise the level line**
 
 Replace the `apiLevel: 2` paragraph near the top of `docs/gestura-eu-api.md`:
 
@@ -120,7 +120,7 @@ calls any `/api/v1/sync/*` endpoint. Levels are additive — nothing that
 answered at level 2 changes shape at level 3.
 ````
 
-- [ ] **Step 2: Add the sync sections**
+- [x] **Step 2: Add the sync sections**
 
 Insert after the "Update check" section, before "Provenance":
 
@@ -343,7 +343,7 @@ and both directions of sync. One validator implements it
   settings object, never a partial application, never a merge.
 ````
 
-- [ ] **Step 3: Add the consent row**
+- [x] **Step 3: Add the consent row**
 
 The "Consent versions" table keeps its two rows for tier 1. Add beneath it:
 
@@ -356,7 +356,7 @@ current consent for tier 2 to authorize anything:
 | 1 | Encrypted settings states are stored on gestura.eu under a locator derived from a secret only this browser holds. The server sees ciphertext, sizes and timestamps — not the state names, not the settings. Upload and download are explicit clicks; before every upload the complete content is shown. |
 ````
 
-- [ ] **Step 4: Read the finished file as one contract**
+- [x] **Step 4: Read the finished file as one contract**
 
 Run: `npm test`
 Expected: PASS, unchanged count — no test reads this file, so this step only
@@ -365,7 +365,7 @@ proves nothing else broke.
 Then read `docs/gestura-eu-api.md` top to bottom once. Every constant Tasks 2–6
 need must be findable here without opening the spec.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/gestura-eu-api.md
@@ -392,7 +392,7 @@ The one file that knows the alphabet. Everything else deals in `Uint8Array(32)` 
   `checksum(Uint8Array(32)) -> Promise<string>` (4 chars),
   and `toHex(bytes)` / `fromHex(string)` for the tests and the vectors.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/eu-sync-code.test.mjs`:
 
@@ -477,12 +477,12 @@ describe('secret code', () => {
 });
 ```
 
-- [ ] **Step 2: Run it to make sure it fails**
+- [x] **Step 2: Run it to make sure it fails**
 
 Run: `npx vitest run tests/eu-sync-code.test.mjs`
 Expected: FAIL — `Cannot find module '../js/eu-sync-code.js'`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `js/eu-sync-code.js`:
 
@@ -607,7 +607,7 @@ Create `js/eu-sync-code.js`:
 })(typeof self !== 'undefined' ? self : globalThis);
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/eu-sync-code.test.mjs`
 Expected: PASS, all cases.
@@ -617,7 +617,7 @@ Then run the whole suite so a stray global cannot break another file:
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add js/eu-sync-code.js tests/eu-sync-code.test.mjs
@@ -648,7 +648,7 @@ plain objects and base64 strings and never handles a key.
   `blobHash(envelope) -> Promise<string>` (base64url SHA-256 over the envelope's raw bytes),
   `aad(stateId, role) -> Uint8Array`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/eu-sync-crypto.test.mjs`:
 
@@ -761,12 +761,12 @@ describe('envelope', () => {
 > from. Key order in an object literal is insertion order, so a single-property
 > object is unambiguous.
 
-- [ ] **Step 2: Run it to make sure it fails**
+- [x] **Step 2: Run it to make sure it fails**
 
 Run: `npx vitest run tests/eu-sync-crypto.test.mjs`
 Expected: FAIL — `Cannot find module '../js/eu-sync-crypto.js'`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `js/eu-sync-crypto.js`:
 
@@ -886,7 +886,7 @@ Create `js/eu-sync-crypto.js`:
 })(typeof self !== 'undefined' ? self : globalThis);
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/eu-sync-crypto.test.mjs`
 Expected: PASS. If the two derivation vectors fail, **stop** — a parameter is
@@ -895,7 +895,7 @@ wrong, and no amount of downstream code will make the states readable later.
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add js/eu-sync-crypto.js tests/eu-sync-crypto.test.mjs
@@ -939,7 +939,7 @@ One validator for every settings blob that enters the extension, whatever door i
   }
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/eu-settings-schema.test.mjs`:
 
@@ -1201,12 +1201,12 @@ describe('the upload hash', () => {
 });
 ```
 
-- [ ] **Step 2: Run it to make sure it fails**
+- [x] **Step 2: Run it to make sure it fails**
 
 Run: `npx vitest run tests/eu-settings-schema.test.mjs`
 Expected: FAIL — `Cannot find module '../js/eu-settings-schema.js'`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `js/eu-settings-schema.js`:
 
@@ -1407,7 +1407,7 @@ Create `js/eu-settings-schema.js`:
 })(typeof self !== 'undefined' ? self : globalThis);
 ```
 
-- [ ] **Step 4: Harden the two consumers that iterate those containers**
+- [x] **Step 4: Harden the two consumers that iterate those containers**
 
 The validator stops a malformed shape from being *written*. It does not help
 with what is already in `chrome.storage.sync` — from an older import, which
@@ -1464,7 +1464,7 @@ where a throw is a silently unanswered request:
 `[]` for a number and index/character pairs for a string, and the `def &&
 def.source` test drops both.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/eu-settings-schema.test.mjs`
 Expected: PASS, including the two consumer-guard cases at the end.
@@ -1474,7 +1474,7 @@ Expected: PASS. `tests/engine-registry.test.mjs` and
 `tests/eu-integration.test.mjs` both exercise the functions changed in Step 4,
 so a guard that broke the normal path shows up here.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add js/eu-settings-schema.js js/engine-registry.js js/eu-integration.js tests/eu-settings-schema.test.mjs
@@ -1510,7 +1510,7 @@ This task also raises `API_LEVEL` and corrects the comment in `js/eu-integration
   without conversion, and a corrupted store fails its own checksum instead of
   deriving a locator nobody owns.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/eu-sync-local.test.mjs`:
 
@@ -1672,13 +1672,13 @@ describe('when tier 1 goes away', () => {
 Add to `tests/eu-integration.test.mjs`, wherever `apiLevel` is asserted, the new
 value — `expect(...apiLevel).toBe(3)`.
 
-- [ ] **Step 2: Run it to make sure it fails**
+- [x] **Step 2: Run it to make sure it fails**
 
 Run: `npx vitest run tests/eu-sync-local.test.mjs tests/eu-integration.test.mjs`
 Expected: FAIL — `Cannot find module '../js/eu-sync-local.js'`, and the
 `apiLevel` expectation fails at 2.
 
-- [ ] **Step 3: Raise the API level**
+- [x] **Step 3: Raise the API level**
 
 In `js/eu-integration.js`, replace the constant and the comment above it:
 
@@ -1694,7 +1694,7 @@ In `js/eu-integration.js`, replace the constant and the comment above it:
 	const API_LEVEL = 3;
 ```
 
-- [ ] **Step 4: Write `js/eu-sync-local.js`**
+- [x] **Step 4: Write `js/eu-sync-local.js`**
 
 ```js
 // The only reader/writer of the sync state in chrome.storage.local: the tier-2
@@ -1865,7 +1865,7 @@ In `js/eu-integration.js`, replace the constant and the comment above it:
 })(typeof self !== 'undefined' ? self : globalThis);
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/eu-sync-local.test.mjs tests/eu-integration.test.mjs`
 Expected: PASS.
@@ -1873,7 +1873,7 @@ Expected: PASS.
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add js/eu-sync-local.js js/eu-integration.js tests/eu-sync-local.test.mjs tests/eu-integration.test.mjs
@@ -1905,7 +1905,7 @@ Four requests and the gate around them. The gate is the reason this is not four 
   Every failure is an `Error` whose `.code` is one of
   `disabled | no-secret | network | bad-request | not-found | too-large | quota-states | rate-limited | server | malformed | decrypt`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/eu-sync.test.mjs`:
 
@@ -2146,12 +2146,12 @@ describe('the gate', () => {
 });
 ```
 
-- [ ] **Step 2: Run it to make sure it fails**
+- [x] **Step 2: Run it to make sure it fails**
 
 Run: `npx vitest run tests/eu-sync.test.mjs`
 Expected: FAIL — `Cannot find module '../js/eu-sync.js'`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `js/eu-sync.js`:
 
@@ -2354,7 +2354,7 @@ Create `js/eu-sync.js`:
 })(typeof self !== 'undefined' ? self : globalThis);
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/eu-sync.test.mjs`
 Expected: PASS.
@@ -2362,7 +2362,7 @@ Expected: PASS.
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add js/eu-sync.js tests/eu-sync.test.mjs
@@ -2390,7 +2390,7 @@ Issue #1's promise in one component: *the user must always be able to see the co
   and the named export `settingsErrorMessage(i18n, code) -> string` that turns a
   validator error code into a sentence.
 
-- [ ] **Step 1: Add the messages**
+- [x] **Step 1: Add the messages**
 
 Into `_locales/en/messages.json`:
 
@@ -2442,7 +2442,7 @@ Note the `{bytes}` and `{keys}` tokens: braces, never `$WORD$` —
 `tests/locale-placeholders.test.mjs` fails on the latter and the extension does
 not load at all with an undeclared one.
 
-- [ ] **Step 2: Register the prefix and the pending keys**
+- [x] **Step 2: Register the prefix and the pending keys**
 
 In `tests/site-menu-locales.test.mjs`, extend the prefix list:
 
@@ -2456,7 +2456,7 @@ Run: `npx vitest run tests/site-menu-locales.test.mjs tests/locale-placeholders.
 Expected: PASS. Both are guards; if the completeness test fails now, a key was
 added to `en` without being listed as pending.
 
-- [ ] **Step 3: Write the component**
+- [x] **Step 3: Write the component**
 
 Create `js/components/settings-preview-dialog.js`:
 
@@ -2629,7 +2629,7 @@ class SettingsPreviewDialog extends LitElement {
 customElements.define('settings-preview-dialog', SettingsPreviewDialog);
 ```
 
-- [ ] **Step 4: Load it**
+- [x] **Step 4: Load it**
 
 In `pages/options.html`, after the five classic scripts (which Task 8 adds) and
 among the module scripts, before `options-page.js`:
@@ -2638,7 +2638,7 @@ among the module scripts, before `options-page.js`:
 	<script type="module" src="../js/components/settings-preview-dialog.js"></script>
 ```
 
-- [ ] **Step 5: Check it renders**
+- [x] **Step 5: Check it renders**
 
 Load the unpacked extension, open the options page, and in the page console:
 
@@ -2651,7 +2651,7 @@ Object.assign(d, { mode: 'import', json: '{\n\t"a": 1\n}', dropped: ['evil'], le
 Expected: the overlay appears, shows both notes and the JSON, Escape closes it.
 Remove the element afterwards.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add js/components/settings-preview-dialog.js pages/options.html css/common.css \
@@ -2674,7 +2674,7 @@ The two paths that exist today get the validator and the preview. This is worth 
 - Consumes: `GesturaSettingsSchema.exportText` / `validate`, `settingsErrorMessage`, `<settings-preview-dialog>`.
 - Produces: the window event `gestura:settings-saved`, which Task 10's reminder listens for.
 
-- [ ] **Step 1: Load the classic scripts**
+- [x] **Step 1: Load the classic scripts**
 
 In `pages/options.html`, after the existing `js/eu-updates.js` line:
 
@@ -2691,7 +2691,7 @@ The order is the dependency order: `eu-sync-local.js` reads
 them. `eu-settings-schema.js` needs `constants.js` and `eu-integration.js`,
 which are already above.
 
-- [ ] **Step 2: Announce a local save**
+- [x] **Step 2: Announce a local save**
 
 In `js/settings-store.js`, at the end of the successful branch of `save()`:
 
@@ -2708,7 +2708,7 @@ In `js/settings-store.js`, at the end of the successful branch of `save()`:
 		} catch (e) {
 ```
 
-- [ ] **Step 3: Rewrite the two handlers**
+- [x] **Step 3: Rewrite the two handlers**
 
 In `js/components/options-page.js`, add the import at the top:
 
@@ -2824,7 +2824,7 @@ In `render()`, beside the existing `<input type="file" …>`:
 				@preview-cancel=${this.#onPreviewCancel}></settings-preview-dialog>
 ```
 
-- [ ] **Step 4: Verify the old code is gone**
+- [x] **Step 4: Verify the old code is gone**
 
 Run:
 
@@ -2839,7 +2839,7 @@ deleting one key out of 39 catalogues buys nothing and risks a typo in each.
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 5: Verify by hand**
+- [x] **Step 5: Verify by hand**
 
 Load the unpacked extension and open the settings:
 
@@ -2854,7 +2854,7 @@ Load the unpacked extension and open the settings:
 5. Import an export from 2.3.x if one is at hand → the "older version" note
    appears and the gestures arrive under `mouseGestures`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add js/components/options-page.js js/settings-store.js pages/options.html
@@ -2881,7 +2881,7 @@ The states come in Task 10. This task ends with a panel that can be switched on,
 - Consumes: `GesturaEuLocal`, `GesturaSyncLocal`, `GesturaSyncCode`, `FlowMouseEuIntegration`, `window.i18n`.
 - Produces: the element `<eu-sync-panel>`, and the private methods Task 10 extends (`#refreshStates`, `#renderStates`).
 
-- [ ] **Step 1: Add the messages**
+- [x] **Step 1: Add the messages**
 
 Into `_locales/en/messages.json`:
 
@@ -2973,7 +2973,7 @@ Add every one of these keys to `PENDING_TRANSLATION` in
 Run: `npx vitest run tests/site-menu-locales.test.mjs tests/locale-placeholders.test.mjs`
 Expected: PASS.
 
-- [ ] **Step 2: Add the styles**
+- [x] **Step 2: Add the styles**
 
 Into `css/common.css`, beside the existing badge rules:
 
@@ -2993,7 +2993,7 @@ Into `css/common.css`, beside the existing badge rules:
 .sync-hint { font-size: 12px; color: var(--warning-color); }
 ```
 
-- [ ] **Step 3: Write the panel**
+- [x] **Step 3: Write the panel**
 
 Create `js/components/eu-sync-panel.js`:
 
@@ -3340,7 +3340,7 @@ class EuSyncPanel extends LitElement {
 customElements.define('eu-sync-panel', EuSyncPanel);
 ```
 
-- [ ] **Step 4: Put it on the page**
+- [x] **Step 4: Put it on the page**
 
 In `pages/options.html`, before `options-page.js`:
 
@@ -3355,7 +3355,7 @@ after `<eu-integration-panel …>`:
 						<eu-sync-panel></eu-sync-panel>
 ```
 
-- [ ] **Step 5: Verify by hand**
+- [x] **Step 5: Verify by hand**
 
 Load the unpacked extension, open the settings, go to the website-integration
 section:
@@ -3376,7 +3376,7 @@ section:
    `euSync` reads `enabled: false, consent: null` while `secret` is still there.
    Turn tier 1 back on → sync is off and asks for consent again.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add js/components/eu-sync-panel.js js/components/options-page.js pages/options.html \
@@ -3401,7 +3401,7 @@ The half of the panel that talks to the server. Everything here goes through `Ge
 - Consumes: `GesturaSync.list` / `upload` / `download` / `remove`, `GesturaSettingsSchema.buildExport` / `validate` / `hashOf`, `GesturaSyncCrypto.newStateId`, `settingsErrorMessage`, `<settings-preview-dialog>`.
 - Produces: the window event `gestura:settings-apply` (detail = a validated settings object), which `options-page.js` turns into a save and a reload.
 
-- [ ] **Step 1: Add the messages**
+- [x] **Step 1: Add the messages**
 
 Into `_locales/en/messages.json`:
 
@@ -3471,7 +3471,7 @@ Into `_locales/de/messages.json`:
 
 Add all of them to `PENDING_TRANSLATION`.
 
-- [ ] **Step 2: Add the row styles**
+- [x] **Step 2: Add the row styles**
 
 Into `css/common.css`:
 
@@ -3489,7 +3489,7 @@ Into `css/common.css`:
 .sync-state-row .row-actions { display: flex; gap: 8px; flex: none; }
 ```
 
-- [ ] **Step 3: Let the options page apply a downloaded state**
+- [x] **Step 3: Let the options page apply a downloaded state**
 
 In `js/components/options-page.js`, at the end of `#init()`:
 
@@ -3501,7 +3501,7 @@ In `js/components/options-page.js`, at the end of `#init()`:
 		window.addEventListener('gestura:settings-apply', (e) => this.#applySettings(e.detail));
 ```
 
-- [ ] **Step 4: Fill in the states half of the panel**
+- [x] **Step 4: Fill in the states half of the panel**
 
 In `js/components/eu-sync-panel.js`, add the imports:
 
@@ -3806,14 +3806,14 @@ instead, beside the existing focus line:
 	}
 ```
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `npm test`
 Expected: PASS. The panel has no unit test of its own — its logic lives in
 `eu-sync.js` and `eu-settings-schema.js`, which do. What the locale tests check
 here is that every new key exists in `en` and `de` and is listed as pending.
 
-- [ ] **Step 6: Verify against a mock**
+- [x] **Step 6: Verify against a mock**
 
 The endpoint does not exist yet, so this runs against a local mock on the
 developer origin. The harness from R2 is outside the repo at
@@ -3839,7 +3839,7 @@ locator is enough) and set the developer origin in the panel to it.
 8. Turn sync off while a request is in flight (throttle the mock) → the answer
    is discarded and the error line says sync is off.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add js/components/eu-sync-panel.js js/components/options-page.js css/common.css \
@@ -3860,7 +3860,7 @@ R3 changes what the extension can send in a way no earlier release did: with tie
 - Modify: `docs/superpowers/plans/2026-09-03-gestura-eu-integration-r3.md` (this file — the execution record)
 - Copy: `docs/gestura-eu-api.md` into the `gestura-index` exchange folder
 
-- [ ] **Step 1: The privacy text**
+- [x] **Step 1: The privacy text**
 
 In `PRIVACY.md`, the summary paragraph currently ends with the update check. Add
 the sync to it in one clause, then add a section directly after *"gestura.eu
@@ -3896,7 +3896,7 @@ stay, so switching it back on does not orphan what you already uploaded. *Delete
 everything under this code* removes your states from gestura.eu.
 ```
 
-- [ ] **Step 2: The store declarations**
+- [x] **Step 2: The store declarations**
 
 In `docs/store/chrome-web-store-submission.md` and
 `docs/store/firefox-amo-submission.md`, the data-disclosure sections gain one
@@ -3914,7 +3914,7 @@ Check both files for a sentence claiming the extension transmits nothing — R2
 already corrected one such claim, and R3 makes any survivor wrong for a second
 reason.
 
-- [ ] **Step 3: The changelog**
+- [x] **Step 3: The changelog**
 
 Under `### Unreleased` in `CHANGELOG.md`:
 
@@ -3928,7 +3928,7 @@ Under `### Unreleased` in `CHANGELOG.md`:
   instead of being written, and a file cannot smuggle in switches or a sync code.
 ```
 
-- [ ] **Step 4: Hand the contract over**
+- [x] **Step 4: Hand the contract over**
 
 `docs/gestura-eu-api.md` is the source; `gestura-index` gets a byte-identical
 copy in its `exchange/` folder, the way R2's was handed over. Note in the
@@ -3938,7 +3938,7 @@ constants are pinned by the test vectors in the same document.
 Nothing in `exchange/` is committed here — [CLAUDE.md](../../../CLAUDE.md) is
 explicit that the folder crosses the WSL2/Windows boundary and stays out of git.
 
-- [ ] **Step 5: The release gate**
+- [x] **Step 5: The release gate**
 
 Run: `npm test`
 Expected: PASS, every suite.
@@ -3961,7 +3961,7 @@ in their own language. The release therefore needs, in this order:
 3. `manifest.json`'s `version` bumped and `CHANGELOG.md`'s `### Unreleased`
    renamed — one tag, one release, both browsers' packages on it.
 
-- [ ] **Step 6: Record the state and commit**
+- [x] **Step 6: Record the state and commit**
 
 Add an "Execution status" section to the end of this plan: what landed, what was
 verified by hand and against what, what deviates from the plan and why.
@@ -4097,3 +4097,133 @@ its default and named in the preview as `searchEngines.custom`; and
 `engine-registry.js` and `eu-integration.js` guard their own iteration, which
 also repairs data that is already in storage from an import made before this
 release.
+
+---
+
+## Execution status
+
+**Executed 2026-09-03** on `feature/eu-integration-r3`, branched off `main`
+(`4762945`). All eleven tasks are done. `npm test`: **34 files, 718 tests**,
+green — 117 of them new (18 code, 15 crypto, 41 schema, 18 tier-2 state, 25
+endpoints).
+
+| Task | Commit |
+|---|---|
+| 1 — the contract | `3916069` docs(api): the sync half of the contract, with its test vectors |
+| 2 — the code | `137cfa3` feat(sync): the secret as a code a person can carry |
+| 3 — derivation and envelope | `0b10a5f` feat(sync): derive locator and key, seal the envelope |
+| 4 — the validator | `5fe28de` feat(settings): one validator for every door settings come in by |
+| 5 — the second switch | `34de0b0` feat(sync): the second switch, with a consent of its own |
+| 6 — the endpoints | `7ab70d7` feat(sync): four endpoints, and the gate that outlives the request |
+| 7 — the preview | `6e0f747` feat(settings): show the whole thing before writing any of it |
+| 8 — export and file import | `5591514` feat(settings): the file paths go through the validator and the preview |
+| 9 — the sync panel | `d4f4cf8` feat(sync): the second switch, and the code behind it |
+| 10 — the states | `1b46d88` feat(sync): named states, and the preview before every transfer |
+| 11 — privacy, stores, changelog | this commit |
+
+### Verified in a real browser, not eyeballed
+
+The hands-on steps of Tasks 7–10 were **driven programmatically** in Edge (which
+still honours `--load-extension`; Chrome 152 does not — see the harness README),
+against a local mock of the four endpoints on a developer origin. **77 checks,
+all passing, in both run orders**, repeatable after any refactor:
+
+- `drive4.mjs` (23) — Task 9: the panel is *absent* while tier 1 is off; the
+  switch opens the consent and writes nothing; Escape and Cancel both leave it
+  off with **nothing at all** in `chrome.storage.local`; agreeing stores switch
+  and consent and generates a `GS1-` code that parses back to 32 bytes; the code
+  on screen is the stored one; adopting the same code is accepted, a
+  one-character typo is refused with its own message and the stored secret is
+  untouched; the developer-origin notice names the port; withdrawing tier 1
+  makes the whole block vanish, clears tier 2 and its consent, and **keeps** the
+  code.
+- `drive5.mjs` (37) — Task 10 against the mock: the upload preview shows the
+  complete export (with `gesturaSettings: 1`, without `lastSyncTime`);
+  **cancelling makes no request at all**, asserted against the mock's log; the
+  PUT carries the locator and *not* the code, and neither the state's name nor
+  `"theme"` appears anywhere in the body; the body has exactly the five fields
+  the contract names; the state appears under its name with its date; changing a
+  setting on that very page raises the "changed since this upload" hint and
+  overwriting clears it again, with one PUT and no second state; a state whose
+  blobs are noise is flagged, does not hide the good one, and cannot be opened;
+  deleting removes it locally and on the server; a 500 shows a line and keeps
+  the list; **an answer arriving after the switch went off is discarded**
+  (`disabled`); open-here previews what would be written while the local
+  settings are still untouched, and confirming writes them and reloads.
+- `drive6.mjs` (17) — Task 8 through the **real** file input, via
+  `DOM.setFileInputFiles`: a file carrying `__proto__` is refused with a reason,
+  without a preview, without a write, and without polluting `Object.prototype`;
+  a JSON file with no settings in it is refused; unknown keys are named in the
+  preview, absent from the shown JSON, and absent from storage; cancelling
+  writes nothing; a pre-2.4 export is recognised as legacy and its
+  `gestures` / `customGestures` / `customGestureUrls` arrive under
+  `mouseGestures` with the custom URL intact.
+
+The harness, the mock and what it cost to get there live outside this repo, in
+`browser-verify/` beside the project's memory directory. **Not covered:**
+Firefox (neither Edge nor Chrome says anything about it — there `npm run ff:run`
+and `web-ext lint` apply, and the CORS preflight in the contract is *its*
+requirement), and the real endpoint, which does not answer yet.
+
+### Deviations from the plan, and why
+
+1. **Comments in the new components are English, not German.** The plan wrote
+   Tasks 7, 9 and 10's component comments in German. [CLAUDE.md](../../../CLAUDE.md)
+   says the repo language is English, and R1/R2's own new files
+   (`eu-integration-panel.js`, `eu-local.js`, `eu-updates.js`) are English —
+   including the comment R2 added *inside* the otherwise German
+   `options-page.js`. Same wording, same reasoning, English.
+2. **`PRIVACY.md`'s summary sentence was rewritten, not just extended.** It
+   claimed *"does not collect, transmit, or sell any personal data … and no
+   remote servers operated by Gestura"*. With sync on, the extension transmits
+   the user's own settings to a server the author runs; the sentence was
+   becoming a claim the product does not keep. It now says what is true — no
+   collecting, selling or profiling, no account, and two optional switches as
+   the only reason a server is contacted at all — and the second switch is named
+   in the next sentence. **This is a legal text: the owner should read it.**
+3. **`docs/store/edge-addons-submission.md` was corrected too**, though the plan
+   does not list it. Its disclosure paragraph still said the integration was the
+   *one* exception and that *"nothing is sent while the user is not on such a
+   page"* — already wrong with R2's update check, and wrong twice with R3. Since
+   R2 and R3 release together and that paragraph is pasted into the submission
+   form, leaving it would have meant filing an inaccurate declaration.
+4. **The AMO category is stated with a caveat.** Sync uploads *settings* data,
+   which is what Mozilla's `technicalAndInteraction` is defined over, so
+   `required: ["none"] / optional: ["technicalAndInteraction"]` stands. Mozilla's
+   category list changes; the file now carries a 👤 step to check it against the
+   current list before submitting rather than trusting this reading.
+5. **`css/common.css` carries the new rules, `.preview-json` excepted.** The
+   preview dialog defines its own `pre.preview-json` in its shadow styles, so a
+   second copy in `common.css` would have been dead. `.secret-code`,
+   `.sync-hint` and `.sync-state-row` *are* in `common.css` — `commonStyles`
+   reads that file's text at runtime and injects it into every shadow root,
+   which is how the panel gets them.
+6. **The update-check examples in the contract now say `apiLevel: 3`.** The plan
+   only asked for the level paragraph. An implementer reads the example bodies
+   as normative, and the client sends its own level in every request.
+7. **Task 8's step 5 and Task 9's step 5 were driven, not clicked** — see above.
+   Nothing was skipped, but no human has looked at the panel: colour, contrast
+   and whether the rows *look* right are not what a script checks. The harness
+   README says which tool to reach for when that is the question.
+
+### Open, and blocking the release
+
+Unchanged from the plan's own gate, restated because this is where someone will
+look for it:
+
+1. `https://gestura.eu/api/v1/updates` (R2) and the four `/api/v1/sync/*`
+   endpoints (R3) must answer. The hand-over is written:
+   `exchange/2026-09-03-r3-sync-endpoints.md`, with a byte-identical copy of the
+   contract beside it. Nothing in `exchange/` is committed.
+2. **108 keys** are still in `PENDING_TRANSLATION` — 24 `euIntegration*` from
+   R2, 18 `settingsPreview*` and 65 `euSync*` from R3, plus
+   `exchangeConflictModified`. All of them are consent, privacy and error copy:
+   the one text a user must be able to read in their own language. R2 and R3
+   release together, in one version, once these are in all 39 locales and off
+   that list.
+3. Then, and only then: `version` in `manifest.json`, `### Unreleased` renamed,
+   one annotated tag, both browsers' packages on one release.
+
+Also still open and **for the owner to decide** (unchanged from "Open for the
+owner" above): whether a QR code is wanted after all, and whether the retention
+period should be stated in the panel as well as in `PRIVACY.md`.

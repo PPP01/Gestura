@@ -40,6 +40,19 @@
   changes nothing and is simply retried the next time the settings open.
   Because the extension now sends a request you did not click, the consent text
   says so and asks once more — the integration stays off until you confirm it.
+- **Sync between browsers, off by default, behind its own consent:** settings can
+  be saved as named states on gestura.eu and opened in another browser. End-to-end
+  encrypted with a code this browser generates — gestura.eu stores ciphertext, its
+  size and its date, and never sees a key, a state's name or a setting. It is a
+  second switch underneath the website integration and cannot be on while that
+  one is off; upload and download are always your own click, and the code can be
+  copied, saved to a file, replaced, or taken from another browser to pair with it.
+- **Export and import show you the whole thing first.** Both now display the
+  complete content before anything is written, and check it against a real schema:
+  entries Gestura does not know are listed and dropped instead of written, values
+  with the wrong shape fall back to their default, and a file cannot smuggle in a
+  switch, a consent or a sync code. The old *are you sure?* — which came before
+  anything had been checked — is gone.
 
 **Fixes & Improvements:**
 
