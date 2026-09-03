@@ -2078,6 +2078,22 @@ before R2), and sharing `SEMVER_RE` with `js/menu-exchange.js` (which needs a
 script-tag reorder in `options.html` for a cosmetic gain, and mirrors the split
 `ID_RE` already has). Both are noted for whoever touches those files next.
 
+### Release decision, 2026-09-03
+
+**R2 and R3 ship together.** The spec designed all three stages to be
+independently shippable, and R2 technically is — but the owner decided against a
+release of its own. Consequences, so the gate below is read correctly:
+
+- The 24 en/de-only `euIntegration*` keys stop being a *branch* blocker. They
+  are still a **store-release** blocker: whoever installs from a store must be
+  able to read the consent in their own language. Translate once, when the R3
+  texts are final — doing it now would mean doing it twice, since R3 adds tier 2's
+  own consent and may renumber tier 1's.
+- `/api/v1/updates` no longer gates anything on its own. It is needed together
+  with the sync endpoints.
+- Until then the extension is used by its author only, which is why the untranslated
+  consent is not currently in front of anyone who cannot read it.
+
 ### Not releasable until
 
 1. `PENDING_TRANSLATION` in `tests/site-menu-locales.test.mjs` holds none of
