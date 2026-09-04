@@ -46,6 +46,23 @@
 		};
 	}
 
+	// A tier-2 consent that is on record but no longer counts. Two ways: its
+	// version is not the current one (the text changed), or tier 1 was consented
+	// AGAIN after it. The second case is the tier-1 version bump: the user
+	// accepts the new integration text, and the sync consent they gave on top
+	// of the OLD one would otherwise come back to life with it - nobody agreed
+	// to sync a second time. The storage listener below cannot catch this,
+	// because a version bump writes nothing. Dates are the ISO strings both
+	// panels store, so they compare as text; a consent without a date (older
+	// storage) is given the benefit of the doubt.
+	function syncConsentStale(local, sync) {
+		const s = normalizeSync(sync).euSync;
+		if (s.consent === null) return false;
+		if (s.consent.version !== CURRENT_SYNC_CONSENT) return true;
+		const tier1 = EU.normalizeLocal(local).euIntegration.consent;
+		return !!(tier1 && tier1.date && s.consent.date && s.consent.date < tier1.date);
+	}
+
 	// The composed invariant from the design: tier 2 rides on tier 1 and can
 	// never authorise anything by itself. Both halves are checked against their
 	// own current consent version, so either one going stale stops sync.
@@ -54,7 +71,7 @@
 		return EU.effectiveEnabled(local)
 			&& s.enabled === true
 			&& s.consent !== null
-			&& s.consent.version === CURRENT_SYNC_CONSENT;
+			&& !syncConsentStale(local, sync);
 	}
 
 	// Sync talks to exactly one server, unlike the update check which asks every
@@ -158,7 +175,7 @@
 
 	const api = {
 		KEY, CURRENT_SYNC_CONSENT, STATES_MAX, CHANGED_EVENT,
-		normalizeSync, syncEnabled, syncOrigin,
+		normalizeSync, syncConsentStale, syncEnabled, syncOrigin,
 		read, current, write, setState, removeState, onChange,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

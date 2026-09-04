@@ -91,6 +91,36 @@ describe('the tier-2 invariant', () => {
 	])('fails when %s', (_label, local, s) => {
 		expect(L.syncEnabled(local, s)).toBe(false);
 	});
+
+	// Tier 2 was agreed to on top of a PARTICULAR tier-1 consent. When tier 1 is
+	// consented again later - its version was bumped and the user accepted the
+	// new text - the old tier-2 consent must not come back to life with it:
+	// nobody agreed to sync a second time. The storage listener that clears
+	// tier 2 on withdrawal never fires here, because a version bump writes
+	// nothing.
+	it('fails when tier 1 was consented again after tier 2', () => {
+		const local = integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date: '2026-09-04T10:00:00.000Z' } });
+		const s = sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date: '2026-09-03T10:00:00.000Z' } });
+		expect(L.syncEnabled(local, s)).toBe(false);
+	});
+
+	it('holds when tier 2 was consented after tier 1', () => {
+		const local = integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date: '2026-09-03T10:00:00.000Z' } });
+		const s = sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date: '2026-09-04T10:00:00.000Z' } });
+		expect(L.syncEnabled(local, s)).toBe(true);
+	});
+
+	// The panel shows a reconfirm row for exactly the consents syncEnabled()
+	// refuses - so the same function has to say which those are.
+	it.each([
+		['no consent', integration(), sync({ consent: null }), false],
+		['a current consent', integration(), sync(), false],
+		['a consent of an older version', integration(), sync({ consent: { version: 0, date: 'x' } }), true],
+		['a consent tier 1 outranks', integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date: '2026-09-04T10:00:00.000Z' } }),
+			sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date: '2026-09-03T10:00:00.000Z' } }), true],
+	])('calls %s stale: %s', (_label, local, s, stale) => {
+		expect(L.syncConsentStale(local, s)).toBe(stale);
+	});
 });
 
 describe('syncOrigin', () => {

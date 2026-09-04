@@ -151,9 +151,12 @@ class EuSyncPanel extends LitElement {
 	get #effective() {
 		return !!(this._local && this._sync && window.GesturaSyncLocal.syncEnabled(this._local, this._sync));
 	}
+	// The switch is on but its consent no longer counts - a new sync text, or
+	// tier 1 consented again since (see GesturaSyncLocal.syncConsentStale). Shows
+	// the reconfirm row instead of a switch that silently reads "off".
 	get #stale() {
 		const s = this.#state;
-		return !!(s && s.enabled && s.consent && s.consent.version !== window.GesturaSyncLocal.CURRENT_SYNC_CONSENT);
+		return !!(s && s.enabled && window.GesturaSyncLocal.syncConsentStale(this._local, this._sync));
 	}
 
 	#lockScroll(on) { document.documentElement.style.overflow = on ? 'hidden' : ''; }
@@ -468,7 +471,7 @@ class EuSyncPanel extends LitElement {
 				<div class="row-actions">
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
-					<button class="btn btn-secondary" ?disabled=${this._busy}
+					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state), state.meta && state.meta.payloadHash, state.meta && state.meta.createdAt)}>${i18n.getMessage('euSyncUpload')}</button>
 					<button class="btn btn-danger" ?disabled=${this._busy}
 						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
