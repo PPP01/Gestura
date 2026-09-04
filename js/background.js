@@ -1,3 +1,5 @@
+importScripts('constants.js');
+importScripts('settings-storage.js');
 importScripts('menu-patterns.js');
 importScripts('menu-catalog.js');
 importScripts('menu-model.js');
@@ -928,11 +930,12 @@ async function handleAction(request, sender) {
 			const url = sender.tab?.url;
 			if (!menuId || !url) return { success: false };
 			const pattern = self.FlowMouseMenuPatterns.siteToPattern(url);
-			const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], items => res(items.siteMenus || {})));
+			const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 			const { siteMenus, added } = self.FlowMouseMenuModel.addPatternToMenu(
 				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, pattern);
-			if (added) await chrome.storage.sync.set({ siteMenus });
-			return { success: true, added };
+			if (!added) return { success: true, added: false };
+			const res = await GesturaSettingsStorage.set({ siteMenus });
+			return res.ok ? { success: true, added: true } : { success: false, added: false, error: res.error };
 		}
 
 		case 'gestureStateUpdate':
@@ -1540,6 +1543,12 @@ chrome.runtime.onInstalled.addListener((details) => {
 		});
 	}
 
+	// Deliberately on chrome.storage.sync, not the façade. Everything in this
+	// block migrates keys that predate the storage move (`gestures`,
+	// `customGestures`, `scrollAmount`, `enableAdvancedSettings`, `includeTitle`),
+	// and such data can only exist in storage.sync: a browser in state 'local' was
+	// created by a Gestura that had already run these. The façade would also drop
+	// the legacy keys as unknown and the migrations would silently do nothing.
 	if (details.reason === 'update' && details.previousVersion) {
 		if (details.previousVersion.startsWith('1.1')) {
 			chrome.storage.sync.get(['imageDragGestures'], (items) => {
@@ -1837,6 +1846,22 @@ async function isContentScriptLoaded(tabId) {
 	}
 }
 
+// A refused or failed settings write, reported where the user acted. The toast
+// is the channel "Already in menu" already uses; the data section of the options
+// page is where the decision between the three ways is made (storage-move
+// design §6). `storageFullHint` arrives with the other texts in Task 11 - until
+// then getMsg's fallback is what shows.
+function reportWriteFailure(tab, frameId, res) {
+	if (!tab || !tab.id) return;
+	const full = res.error === 'branch-full' || res.error === 'total-full';
+	chrome.tabs.sendMessage(tab.id, {
+		action: 'ctxToast',
+		text: full
+			? getMsg('storageFullHint', 'Storage is full. Open the data section of the settings to decide how to continue.')
+			: getMsg('saveFailure', 'Save failure'),
+	}, { frameId: frameId || 0 }).catch(() => {});
+}
+
 function getMsg(key, fallback) {
 	try {
 		if (typeof key !== 'string') {
@@ -1916,7 +1941,7 @@ async function updateMenuForTab(tab) {
 		return;
 	}
 
-	const items = await chrome.storage.sync.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist', 'enableSiteMenus', 'enableContextMenu', 'ctxMenuAddSite', 'ctxMenuAssignSite', 'ctxMenuSiteMenu', 'ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId', 'ctxMenuOptions', 'siteMenuAddAsk', 'siteMenus']);
+	const items = await GesturaSettingsStorage.get(['showRestrictedNotice', 'blacklist', 'enableBlacklistContextMenu', 'enableBlacklist', 'enableSiteMenus', 'enableContextMenu', 'ctxMenuAddSite', 'ctxMenuAssignSite', 'ctxMenuSiteMenu', 'ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId', 'ctxMenuOptions', 'siteMenuAddAsk', 'siteMenus']);
 	if (stale()) return;
 	self._siteMenusCache = items.siteMenus || {};
 
@@ -2126,14 +2151,15 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 			try {
 				const hostname = new URL(tab.url).hostname;
 				if (!hostname) return;
-				const storageItems = await chrome.storage.sync.get(['blacklist']);
+				const storageItems = await GesturaSettingsStorage.get(['blacklist']);
 				let blacklist = storageItems.blacklist || [];
 				if (blacklist.includes(hostname)) {
 					blacklist = blacklist.filter(d => d !== hostname);
 				} else {
 					blacklist = [...blacklist, hostname];
 				}
-				await chrome.storage.sync.set({ blacklist });
+				const res = await GesturaSettingsStorage.set({ blacklist });
+				if (!res.ok) reportWriteFailure(tab, info.frameId, res);
 			} catch (e) {
 			}
 		}
@@ -2143,7 +2169,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		await openOptionsPage('');
 	} else if (info.menuItemId === MENU_ID_SITEMENU) {
 		if (!tab || !tab.id) return;
-		const cfg = await chrome.storage.sync.get(['ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId']);
+		const cfg = await GesturaSettingsStorage.get(['ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId']);
 		const menuId = cfg.ctxMenuSiteMenuId || '';
 		const config = (cfg.ctxMenuSiteMenuMode === 'standard' && menuId) ? { mode: 'standard', menuId } : { mode: 'contextual' };
 		chrome.tabs.sendMessage(tab.id, { action: 'openSiteMenuOverlay', config }, { frameId: info.frameId || 0 })
@@ -2152,19 +2178,20 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		// Nur im Seiten-/Bild-Kontext vorhanden, dort gibt es keine linkUrl.
 		if (!tab || !tab.url) return;
 		const menuId = info.menuItemId.slice(CTX_REMOVE_PREFIX.length);
-		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
+		const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 		const { siteMenus, removed } = self.FlowMouseMenuModel.removeLinkFromMenu(
 			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url);
 		if (!removed) return;
-		self._siteMenusCache = siteMenus;
-		await chrome.storage.sync.set({ siteMenus });
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
 	} else if (typeof info.menuItemId === 'string' &&
 			(info.menuItemId.startsWith(CTX_ADD_PREFIX) || info.menuItemId.startsWith(CTX_ADD_LINK_PREFIX))) {
 		if (!tab || !tab.url) return;
 		const isLink = !!info.linkUrl;
 		const menuId = info.menuItemId.slice((isLink ? CTX_ADD_LINK_PREFIX : CTX_ADD_PREFIX).length);
 		const url = info.linkUrl || tab.url;
-		const cur = await new Promise(res => chrome.storage.sync.get(['siteMenus'], it => res(it.siteMenus || {})));
+		const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 		self._siteMenusCache = cur;
 
 		// Beim Link-Eintrag kann das Ziel längst im Menü stehen — der Eintrag wird
@@ -2200,19 +2227,22 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 			const pat = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
 			({ siteMenus } = self.FlowMouseMenuModel.addPatternToMenu(catalog, siteMenus, menuId, pat));
 		}
-		await chrome.storage.sync.set({ siteMenus });
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
 	} else if (info.menuItemId === MENU_ID_ASSIGN_CLEAR) {
 		if (!tab || !tab.url) return;
-		const cur = await chrome.storage.sync.get(['siteMenus']);
+		const cur = await GesturaSettingsStorage.get(['siteMenus']);
 		const { siteMenus, patterns } = detachSitePatterns(cur.siteMenus || {}, tab.url);
 		if (!patterns.length) return;
-		self._siteMenusCache = siteMenus;
-		await chrome.storage.sync.set({ siteMenus });
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
 	} else if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith(CTX_ASSIGN_PREFIX)) {
 		if (!tab || !tab.url) return;
 		const menuId = info.menuItemId.slice(CTX_ASSIGN_PREFIX.length);
 		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
-		const cur = await chrome.storage.sync.get(['siteMenus']);
+		const cur = await GesturaSettingsStorage.get(['siteMenus']);
 		const model = self.FlowMouseMenuModel;
 
 		// Bestehende Zuordnung → Muster unverändert umhängen (ohne Dialog).
@@ -2235,22 +2265,21 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		for (const p of patterns) {
 			({ siteMenus } = model.addPatternToMenu(catalog, siteMenus, menuId, p));
 		}
-		self._siteMenusCache = siteMenus;
-		await chrome.storage.sync.set({ siteMenus });
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
 	}
 });
 
-chrome.storage.onChanged.addListener((changes, namespace) => {
-	if (namespace === 'sync') {
-		if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist || changes.enableBlacklist ||
-			changes.enableSiteMenus || changes.enableContextMenu || changes.ctxMenuAddSite || changes.ctxMenuAssignSite || changes.ctxMenuSiteMenu ||
-			changes.ctxMenuSiteMenuMode || changes.ctxMenuSiteMenuId || changes.ctxMenuOptions || changes.siteMenuAddAsk || changes.siteMenus) {
-			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-				if (tabs[0]) {
-					updateMenuForTab(tabs[0]);
-				}
-			});
-		}
+GesturaSettingsStorage.onChanged((changes) => {
+	if (changes.showRestrictedNotice || changes.language || changes.enableBlacklistContextMenu || changes.blacklist || changes.enableBlacklist ||
+		changes.enableSiteMenus || changes.enableContextMenu || changes.ctxMenuAddSite || changes.ctxMenuAssignSite || changes.ctxMenuSiteMenu ||
+		changes.ctxMenuSiteMenuMode || changes.ctxMenuSiteMenuId || changes.ctxMenuOptions || changes.siteMenuAddAsk || changes.siteMenus) {
+		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+			if (tabs[0]) {
+				updateMenuForTab(tabs[0]);
+			}
+		});
 	}
 });
 

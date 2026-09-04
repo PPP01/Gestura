@@ -12,6 +12,7 @@ const pagesDir = join(__dirname, '..', 'pages');
 // or window.FlowMouseSearchUrl.matchesPatterns).
 const REQUIRED_BEFORE_CONTENT = [
 	'constants.js',
+	'settings-storage.js',
 	'gesture-visual.js',
 	'gesture-recognizer.js',
 	'search-url.js',
@@ -44,5 +45,32 @@ describe('extension pages that load content.js', () => {
 				expect(depIdx).toBeLessThan(contentIdx);
 			});
 		}
+	}
+});
+
+// The façade needs DEFAULT_SETTINGS, and i18n.js reads theme and language THROUGH
+// the façade at load time (js/i18n.js: `initPromise = init()` runs synchronously up
+// to its first await, which is that read). So on every page that loads i18n.js the
+// order is constants.js → settings-storage.js → i18n.js. Nothing in the browser
+// says so - a wrong order is an exception in the console and an unstyled page.
+const i18nPages = pages.filter(f =>
+	scriptSrcOrder(readFileSync(join(pagesDir, f), 'utf8')).includes('i18n.js'));
+
+describe('extension pages that load i18n.js', () => {
+	it('finds at least one such page', () => {
+		expect(i18nPages.length).toBeGreaterThan(0);
+	});
+
+	for (const page of i18nPages) {
+		it(`${page} loads constants.js, then settings-storage.js, then i18n.js`, () => {
+			const scripts = scriptSrcOrder(readFileSync(join(pagesDir, page), 'utf8'));
+			const c = scripts.indexOf('constants.js');
+			const s = scripts.indexOf('settings-storage.js');
+			const i = scripts.indexOf('i18n.js');
+			expect(c, `${page} is missing constants.js`).toBeGreaterThanOrEqual(0);
+			expect(s, `${page} is missing settings-storage.js`).toBeGreaterThanOrEqual(0);
+			expect(c).toBeLessThan(s);
+			expect(s).toBeLessThan(i);
+		});
 	}
 });
