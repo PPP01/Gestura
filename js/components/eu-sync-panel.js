@@ -271,13 +271,33 @@ class EuSyncPanel extends LitElement {
 		await this.#refreshStates();
 	}
 
-	#exportNow() {
-		return window.GesturaSettingsSchema.buildExport(settingsStore.current, window.i18n.version);
+	// What leaves this browser goes through the validator like what enters it.
+	// The receiving browser validates on download and repairs a malformed
+	// container (searchEngines.custom = {} …) with a warning - if the upload did
+	// not, the preview here would show the broken form and the warning would
+	// appear only over there, on a state this side previewed as "exactly what
+	// will be transferred". So the upload carries the repaired export, the
+	// preview names the repair, and the "changed since" hash is over the same
+	// object the receiver gets. Null only if the settings validate as nothing,
+	// which DEFAULT_SETTINGS rules out.
+	#validatedExport() {
+		const S = window.GesturaSettingsSchema;
+		const version = window.i18n.version;
+		const result = S.validate(S.buildExport(settingsStore.current, version));
+		if (!result.ok) return null;
+		return { exportObj: S.buildExport(result.settings, version), result };
 	}
 
+	// Serialise, canonicalise and hash the whole settings tree - on every save
+	// of the options page. Only while a row could show the result: for the many
+	// users without sync the work would be done for nobody. #refreshStates()
+	// calls this when the panel becomes effective, so a hash is there by the
+	// time the first list arrives.
 	async #recomputeHash() {
+		if (!this.#effective) return;
 		try {
-			this._currentHash = await window.GesturaSettingsSchema.hashOf(this.#exportNow());
+			const v = this.#validatedExport();
+			this._currentHash = v ? await window.GesturaSettingsSchema.hashOf(v.exportObj) : '';
 		} catch {
 			this._currentHash = '';
 		}
@@ -315,6 +335,7 @@ class EuSyncPanel extends LitElement {
 	async #refreshStates() {
 		if (!this.#effective) return;
 		this._listRequested = true;
+		if (!this._currentHash) this.#recomputeHash();
 		// Re-reading is one of the two answers to a conflict, so it clears it: what
 		// the list shows afterwards is the state as it now stands.
 		this._conflict = null;
@@ -353,13 +374,17 @@ class EuSyncPanel extends LitElement {
 	// date belongs to the state, and a second browser has no local record of it.
 	// Empty for a new state, which is created now.
 	#uploadTo(stateId, name, basePayloadHash, createdAt) {
-		const exportObj = this.#exportNow();
-		const json = JSON.stringify(exportObj, null, 2);
+		const v = this.#validatedExport();
+		if (!v) {
+			this._error = settingsErrorMessage(window.i18n, 'not-settings');
+			return;
+		}
+		const { exportObj, result } = v;
 		this.#openPreview({
 			mode: 'upload',
-			json,
-			dropped: [],
-			retyped: [],
+			json: result.json,
+			dropped: result.dropped,
+			retyped: result.retyped,
 			legacy: false,
 			commit: async () => {
 				const id = stateId || window.GesturaSyncCrypto.newStateId();
