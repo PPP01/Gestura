@@ -58,7 +58,13 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'euSyncErrorBadRequest', 'euSyncErrorNotFound', 'euSyncErrorTooLarge',
 	'euSyncErrorQuotaStates', 'euSyncErrorRateLimited', 'euSyncErrorServer',
 	'euSyncErrorMalformed', 'euSyncErrorDecrypt', 'euSyncErrorDisabled',
-	'euSyncErrorNoSecret'];
+	'euSyncErrorNoSecret',
+	'storageBranchFullTitle', 'storageTotalFullTitle', 'storageLocalFullTitle',
+	'storageWayShrink', 'storageWayShrinkDesc', 'storageWayEu', 'storageWayEuDesc',
+	'storageWayLocal', 'storageWayLocalDesc',
+	'storageBrowserSync', 'storageBrowserSyncOnDesc', 'storageBrowserSyncOffDesc',
+	'storageSwitchRefusedBranch', 'storageSwitchRefusedTotal', 'storageSwitchRefusedTier2', 'storageSwitchFailed',
+	'storageMovedNote', 'storageMovedSwitch', 'storageFullHint'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

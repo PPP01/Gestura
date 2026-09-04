@@ -1,7 +1,7 @@
 import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { settingsStore, isStorageFull } from '../settings-store.js';
-import { usageOf } from '../storage-usage.js';
+import { usageOf, percentOf } from '../storage-usage.js';
 import { markImported } from './import-marker.js';
 
 const X = () => window.FlowMouseMenuExchange;
@@ -295,7 +295,24 @@ class MenuImportDialog extends LitElement {
 	#projectedUsage(patch, imported) {
 		const cur = settingsStore.current;
 		const measured = window.FlowMouseEuIntegration.withBaselinePlaceholders(patch, imported);
+		const S = window.GesturaSettingsStorage;
+		const now = S.usage(cur);
 		const out = {};
+		if (now.quota.item === null) {
+			// Browser sync off: no per-branch ceiling exists, so the number that
+			// matters is the TOTAL after the import, against 1 MiB. Every touched
+			// branch reports that same total - the percentage means "of the storage",
+			// and #overflowing / #tightBranches keep working unchanged.
+			let total = now.total;
+			for (const { key } of BRANCHES) {
+				if (key in measured) total += S.entryBytes(key, measured[key]) - (now.branches[key] || 0);
+			}
+			for (const { key } of BRANCHES) {
+				const touched = key in measured;
+				out[key] = { bytes: total, quota: now.quota.total, percent: percentOf(total, now.quota.total), touched };
+			}
+			return out;
+		}
 		for (const { key } of BRANCHES) {
 			const touched = key in measured;
 			const value = touched ? measured[key] : cur[key];

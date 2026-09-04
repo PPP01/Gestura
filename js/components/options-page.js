@@ -3,8 +3,13 @@ import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
-import { usageOf, entryBytes, percentOf, TOTAL_QUOTA } from '../storage-usage.js';
+// Only the rounding rule is still imported: every ceiling the user sees comes
+// from the façade's usage(), which knows the active area. ITEM_QUOTA and
+// TOTAL_QUOTA in storage-usage.js are the SYNC quotas and would be wrong in
+// state 'local' (storage-move design §6, §11).
+import { percentOf } from '../storage-usage.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
+import { branchLabel } from './storage-full-dialog.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -20,6 +25,8 @@ class OptionsPage extends LitElement {
 		_activeSection: { state: true },
 		_navProximityShow: { state: true },
 		_preview: { state: true },
+		_storageFailure: { state: true },
+		_syncNote: { state: true },
 	};
 
 	static styles = [
@@ -280,6 +287,8 @@ class OptionsPage extends LitElement {
 		this._pendingPatch = null;
 		this._statusTimer = null;
 		this._preview = null;
+		this._storageFailure = null;
+		this._syncNote = null;
 		this._store = settingsStore;
 	}
 
@@ -295,6 +304,12 @@ class OptionsPage extends LitElement {
 		// zwar live aus settingsStore.current, aber ohne ein requestUpdate() hier würde ohne
 		// eine andere Nebenwirkung gar nicht neu gerendert.
 		this._boundCatalogChanged = () => this.requestUpdate();
+		// settingsStore.save() emits this for EVERY caller whose write the façade
+		// refused for size - this page, the managers, the import dialog. The page
+		// owns the one dialog that offers the three ways out, so the refusal is
+		// answered in one place instead of once per caller.
+		this._boundStorageFull = (e) => { this._storageFailure = e.detail; };
+		window.addEventListener('gestura:storage-full', this._boundStorageFull);
 		window.addEventListener('beforeunload', this._boundBeforeUnload);
 		window.addEventListener('mousemove', this._boundMouseMove, { passive: true });
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
@@ -310,6 +325,7 @@ class OptionsPage extends LitElement {
 		window.removeEventListener('mousemove', this._boundMouseMove);
 		window.removeEventListener('scroll', this._boundScroll);
 		window.removeEventListener('action-catalog-changed', this._boundCatalogChanged);
+		window.removeEventListener('gestura:storage-full', this._boundStorageFull);
 		this.removeEventListener('navigate-section', this._boundNavigateSection);
 	}
 
@@ -333,6 +349,7 @@ class OptionsPage extends LitElement {
 	async #init() {
 		await this._store.waitForLoad();
 		this._settings = { ...this._store.current };
+		await this.#refreshSyncNote();
 		this._ready = true;
 
 		this._store.onChange((changed) => {
@@ -1220,6 +1237,11 @@ class OptionsPage extends LitElement {
 				@preview-confirm=${this.#onPreviewConfirm}
 				@preview-cancel=${this.#onPreviewCancel}></settings-preview-dialog>
 
+			<storage-full-dialog
+				?open=${!!this._storageFailure}
+				.failure=${this._storageFailure}
+				@storage-way=${this.#onStorageWay}></storage-full-dialog>
+
 			<gesture-recorder id="gestureRecorder" data-gesture-ignore></gesture-recorder>
 		`;
 	}
@@ -1369,48 +1391,133 @@ class OptionsPage extends LitElement {
 	// meldet ein Problem. Überall sonst genügt der Prozentwert.
 	//
 	// Bewusst aus settingsStore.current statt this._settings gelesen: settingsStore.save()
-	// (siehe #importSettings) aktualisiert #current, bevor die Fassade set()
-	// feuert, also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
+	// (siehe #importSettings) aktualisiert #current, bevor die Fassade schreibt,
+	// also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
 	// auf altem Stand, bis ein Reload sie neu zieht. Ein Lesezugriff auf den Store selbst
 	// zeigt dagegen immer den aktuellen Wert; das erneute Rendern nach dem Import besorgt
 	// der 'action-catalog-changed'-Listener in connectedCallback().
+	//
+	// The ceiling follows the area (storage-move design §6): browser sync on, the
+	// three growing branches against 8192 bytes and the sum against 102 400;
+	// browser sync off, one total against 1 MiB.
 	#renderStorageRows(i18n) {
 		const cur = this._store.current;
+		const u = window.GesturaSettingsStorage.usage(cur);
+		const detail = (bytes, quota) => i18n.getMessage('storageDetail')
+			.replace('{used}', bytes).replace('{total}', quota).replace('{percent}', percentOf(bytes, quota));
+		const cls = (bytes, quota) => { const p = percentOf(bytes, quota); return p >= 100 ? 'over' : (p >= 75 ? 'near' : ''); };
+		const totalRow = html`
+			<div class="setting-row">
+				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
+				<span class="storage-value ${cls(u.total, u.quota.total)}">${detail(u.total, u.quota.total)}</span>
+			</div>`;
+		if (u.quota.item === null) return html`${totalRow}${this.#renderAreaSwitch(i18n)}`;
 		const branches = [
 			['siteMenus', i18n.getMessage('siteMenusTitle')],
 			['searchEngines', i18n.getMessage('sectionSearchEngines')],
 			['mouseGestures', i18n.getMessage('basicSettings')],
 		];
-		const rows = branches.map(([key, label]) => {
-			const u = usageOf(key, cur[key]);
-			return html`
-				<div class="setting-row">
-					<div class="setting-label"><span>${label}</span></div>
-					<span class="storage-value ${u.percent >= 100 ? 'over' : (u.percent >= 75 ? 'near' : '')}">
-						${i18n.getMessage('storageDetail')
-							.replace('{used}', u.bytes).replace('{total}', u.quota).replace('{percent}', u.percent)}
-					</span>
-				</div>`;
-		});
-		// Die Summenzeile zählt über ALLE gespeicherten Schlüssel, nicht nur die
-		// drei angezeigten Zweige - sonst meldet sie eine viel zu niedrige Gesamt-
-		// belegung (die übrigen 60-plus Schlüssel sind zwar einzeln klein, in
-		// Summe aber nicht null). Die Zeilen darunter zeigen weiterhin nur die
-		// drei wachsenden Zweige.
-		let sum = 0;
-		for (const [key, value] of Object.entries(cur)) {
-			sum += entryBytes(key, value);
+		const rows = branches.map(([key, label]) => html`
+			<div class="setting-row">
+				<div class="setting-label"><span>${label}</span></div>
+				<span class="storage-value ${cls(u.branches[key] || 0, u.quota.item)}">${detail(u.branches[key] || 0, u.quota.item)}</span>
+			</div>`);
+		return html`${totalRow}${rows}${this.#renderAreaSwitch(i18n)}${this.#renderSyncNote(i18n)}`;
+	}
+
+	// note() reads chrome.storage.sync and has no try/catch of its own: a broken
+	// sync store REJECTS instead of resolving null, and an unhandled rejection
+	// while the options page is opening is a page that never renders. Hence the
+	// catch here, and hence the area check first - in state 'local' the note is
+	// meaningless and the read pointless.
+	async #refreshSyncNote() {
+		const S = window.GesturaSettingsStorage;
+		if (S.area() !== 'sync') { this._syncNote = null; return; }
+		try {
+			this._syncNote = await S.note();
+		} catch {
+			this._syncNote = null;
 		}
-		const totalPercent = percentOf(sum, TOTAL_QUOTA);
+	}
+
+	// The switch of storage-move design §4, both directions. A refusal names its
+	// reason and changes nothing; a success re-renders the rows against the new
+	// ceiling. settingsStore keeps its #current - the values did not change, only
+	// where they live.
+	//
+	// What the user is told comes from area(), not from res.ok: switchTo() answers
+	// { ok: false, error: 'write' } when its sequence broke, and a failed rollback
+	// inside it can leave the browser genuinely switched. "Nothing was changed" on
+	// the strength of ok: false alone would then be a lie, so the area itself is
+	// asked where the browser ended up - and that answer is also what the caller
+	// gets back.
+	async #switchArea(toSync, reason = 'local') {
+		const S = window.GesturaSettingsStorage;
+		const i18n = window.i18n;
+		const target = toSync ? 'sync' : 'local';
+		const res = await S.switchTo(target, reason);
+		const landed = S.area() === target;
+		if (!res.ok && !landed) {
+			// res.branch / res.bytes / res.quota describe the TARGET area's ceiling
+			// here - unlike a set() failure, where they describe the active one.
+			const fill = (key) => i18n.getMessage(key)
+				.replace('{branch}', branchLabel(i18n, res.branch))
+				.replace('{used}', String(res.bytes))
+				.replace('{total}', String(res.quota));
+			const msg = res.error === 'branch-full' ? fill('storageSwitchRefusedBranch')
+				: res.error === 'total-full' ? fill('storageSwitchRefusedTotal')
+				: res.error === 'tier2-enabled' ? i18n.getMessage('storageSwitchRefusedTier2')
+				: i18n.getMessage('storageSwitchFailed');
+			this.#showStatus(msg, 'error');
+		}
+		await this.#refreshSyncNote();
+		this.requestUpdate();
+		return landed;
+	}
+
+	async #onStorageWay(e) {
+		const way = e.detail.way;
+		this._storageFailure = null;
+		if (way === 'local') {
+			await this.#switchArea(false, 'local');
+		} else if (way === 'eu') {
+			// Way two is way three plus tier 2. The switch happens here; the tier-2
+			// consent is the sync panel's, so the page scrolls there.
+			if (await this.#switchArea(false, 'gestura.eu')) this.#scrollToSection('websiteIntegration');
+		}
+	}
+
+	#renderAreaSwitch(i18n) {
+		const S = window.GesturaSettingsStorage;
+		const on = S.area() === 'sync';
 		return html`
 			<div class="setting-row">
-				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
-				<span class="storage-value">
-					${i18n.getMessage('storageDetail')
-						.replace('{used}', sum).replace('{total}', TOTAL_QUOTA).replace('{percent}', totalPercent)}
-				</span>
-			</div>
-			${rows}`;
+				<div class="setting-label">
+					<span>${i18n.getMessage('storageBrowserSync')}</span>
+					<span>${i18n.getMessage(on ? 'storageBrowserSyncOnDesc' : 'storageBrowserSyncOffDesc')}</span>
+				</div>
+				<label class="toggle">
+					<input type="checkbox" .checked=${on} @change=${(e) => { const want = e.target.checked; e.target.checked = on; this.#switchArea(want); }}>
+					<span class="slider"></span>
+				</label>
+			</div>`;
+	}
+
+	// A date, not a time: #formatSyncTime renders toLocaleTimeString() for the
+	// "saved at" line, and "not synchronised since 14:32" would name the wrong thing.
+	#formatDate(iso) {
+		try {
+			return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+		} catch { return String(iso).slice(0, 10); }
+	}
+
+	#renderSyncNote(i18n) {
+		if (!this._syncNote) return '';
+		return html`
+			<div class="notice">
+				${i18n.getMessage('storageMovedNote').replace('{date}', this.#formatDate(this._syncNote.movedAt))}
+				<button class="btn btn-secondary" @click=${() => this.#switchArea(false, this._syncNote.movedTo)}>${i18n.getMessage('storageMovedSwitch')}</button>
+			</div>`;
 	}
 
 	#renderFeatureToggle(key, sectionId, label, first = false) {

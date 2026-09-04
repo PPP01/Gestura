@@ -213,7 +213,7 @@ class SiteMenuManager extends LitElement {
 
 	#renderStorageLine(i18n) {
 		const cur = settingsStore.current.siteMenus || {};
-		return renderStorageLine(i18n, 'siteMenus', cur, Object.values(cur.custom || {}), AVG_FALLBACK.menu);
+		return renderStorageLine(i18n, 'siteMenus', settingsStore.current, Object.values(cur.custom || {}), AVG_FALLBACK.menu);
 	}
 
 	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }

@@ -178,6 +178,22 @@ class EuSyncPanel extends LitElement {
 	// existing code is kept - switching off and on again must not orphan the
 	// states.
 	async #accept() {
+		// gestura.eu sync requires browser sync off (storage-move design §4): one
+		// switch, two consumers, no state in which both run. A refused switch keeps
+		// the dialog open with the reason, exactly like a failed write below.
+		const S = window.GesturaSettingsStorage;
+		if (S.area() === 'sync') {
+			const moved = await S.switchTo('local', 'gestura.eu');
+			// Asked of the area, not of moved.ok: switchTo() answers
+			// { ok: false, error: 'write' } when its sequence broke, and a failed
+			// rollback inside it can leave the browser genuinely switched. Then the
+			// requirement is met and "nothing was changed" would be untrue, so the
+			// consent goes through.
+			if (!moved.ok && S.area() !== 'local') {
+				this._error = window.i18n.getMessage('storageSwitchFailed');
+				return;
+			}
+		}
 		const patch = {
 			enabled: true,
 			consent: { version: window.GesturaSyncLocal.CURRENT_SYNC_CONSENT, date: new Date().toISOString() },
