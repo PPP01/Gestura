@@ -153,11 +153,15 @@ describe('a failing load', () => {
 });
 
 describe('10.1 · absence means nothing', () => {
-	it('a missing key in an external change leaves the local copy standing', async () => {
-		await store.save({ trailWidth: 11 });
-		const r = store.handleExternalChange({ trailWidth: { oldValue: 11 } });
+	it('when an external change removes a key with a null default, the local copy stands', async () => {
+		// lastSyncTime is the one DEFAULT_SETTINGS key with null default.
+		// sameShape(undefined, null) returns true, so the shape check does not reject it.
+		// Only the newValue === undefined clause stops the update.
+		const isoTime = new Date().toISOString();
+		await store.save({ lastSyncTime: isoTime });
+		const r = store.handleExternalChange({ lastSyncTime: { oldValue: isoTime } });
 		expect(r.hasChange).toBe(false);
-		expect(store.current.trailWidth).toBe(11);
+		expect(store.current.lastSyncTime).toBe(isoTime);
 	});
 
 	it('a value of the wrong shape leaves the local copy standing', async () => {
@@ -169,7 +173,7 @@ describe('10.1 · absence means nothing', () => {
 		expect(store.current.siteMenus).toEqual(before);
 	});
 
-	it('a key outside DEFAULT_SETTINGS is ignored even if it arrives', () => {
+	it('a key outside DEFAULT_SETTINGS never reaches #current', () => {
 		const r = store.handleExternalChange({ syncFormat: { newValue: 2 } });
 		expect(r.hasChange).toBe(false);
 		expect(store.current).not.toHaveProperty('syncFormat');

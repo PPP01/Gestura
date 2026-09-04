@@ -211,6 +211,9 @@ class SettingsStore {
 			// values, so nothing legitimate is lost here - and a future change of
 			// what storage.sync holds cannot wipe an older Gestura's settings.
 			const newValue = storageChange.newValue;
+			// The !(key in DEFAULT_SETTINGS) check is redundant with !sameShape when the
+			// default is any non-null value (sameShape(x, undefined) is false for defined x).
+			// It is kept as defence in depth against a regression in the façade's own unknown-key filter.
 			if (newValue === undefined || !(key in DEFAULT_SETTINGS) || !sameShape(newValue, DEFAULT_SETTINGS[key])) continue;
 
 			const normalized = normalizeSetting(key, newValue);
