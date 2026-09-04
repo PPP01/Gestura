@@ -20,6 +20,11 @@ beforeEach(async () => {
 	await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'sync', movedAt: '', movedTo: '' } });
 });
 
+// Thirteen tests need the façade in state 'local' without going through
+// switchTo() - the switch is not what they are about. One shape, one place.
+const seedLocal = (movedAt = 'x', movedTo = 'local') =>
+	chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt, movedTo } });
+
 describe('area', () => {
 	it('defaults to sync when nothing is stored', async () => {
 		fake.clear();
@@ -28,7 +33,7 @@ describe('area', () => {
 	});
 
 	it('follows the stored value', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: '2026-09-04T00:00:00.000Z', movedTo: 'local' } });
+		await seedLocal('2026-09-04T00:00:00.000Z');
 		expect(S.area()).toBe('local');
 	});
 
@@ -52,7 +57,7 @@ describe('area', () => {
 		vi.resetModules();
 		const loading = import('../js/settings-storage.js');
 		await snapshotTaken;
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		release();
 		await loading;
 		const fresh = globalThis.GesturaSettingsStorage;
@@ -72,7 +77,7 @@ describe('get and set address the selected area', () => {
 	});
 
 	it('reads and writes storage.local in state local', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		await S.set({ theme: 'dark' });
 		expect(fake.raw('local').theme).toBe('dark');
 		expect(fake.raw('sync').theme).toBeUndefined();
@@ -80,7 +85,7 @@ describe('get and set address the selected area', () => {
 	});
 
 	it('get(null) returns the known keys only and omits a foreign one', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		await chrome.storage.local.set({ theme: 'dark', faviconCache: { 'https://a': { icon: null, ts: 1 } } });
 		const items = await S.get(null);
 		expect(items.theme).toBe('dark');
@@ -127,7 +132,7 @@ describe('remove', () => {
 	});
 
 	it('refuses an unknown key and touches nothing', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		await chrome.storage.local.set({ euIntegration: { enabled: true }, faviconCache: { a: 1 } });
 		await S.remove(['euIntegration', 'faviconCache']);
 		expect(fake.raw('local').euIntegration).toEqual({ enabled: true });
@@ -147,7 +152,7 @@ describe('onChanged', () => {
 	});
 
 	it('drops faviconCache and passes siteMenus', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		const seen = [];
 		const off = S.onChanged(c => seen.push(c));
 		await chrome.storage.local.set({ faviconCache: { a: 1 } });
@@ -167,7 +172,7 @@ describe('onChanged', () => {
 	it('follows the area after a switch through storage', async () => {
 		const seen = [];
 		const off = S.onChanged(c => seen.push(c));
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		await chrome.storage.sync.set({ theme: 'dark' });
 		await chrome.storage.local.set({ theme: 'light' });
 		off();
@@ -183,7 +188,7 @@ describe('onChanged', () => {
 	// discovered so. A fresh module instance, with 'local' already the real area
 	// in storage before it loads, so load() is in flight when the change lands.
 	it('delivers a change that arrives while the first read of a local area is still in flight', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		let release;
 		const snapshotTaken = new Promise(taken => {
 			fake.hooks.beforeGetReturns = () => { taken(); return new Promise(r => { release = r; }); };
@@ -234,7 +239,7 @@ describe('usage', () => {
 	});
 
 	it('has no per-item quota in state local', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		expect(S.usage({}).quota).toEqual({ item: null, total: 1024 * 1024 });
 	});
 
@@ -246,7 +251,7 @@ describe('usage', () => {
 		const marker = S.entryBytes(S.FORMAT_KEY, 1);
 		expect(marker).toBe(11);
 		expect(S.usage({}).total).toBe(marker);
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		expect(S.usage({}).total).toBe(0);
 	});
 
@@ -268,7 +273,7 @@ const valueOfSize = (key, bytes) => 'x'.repeat(bytes - key.length - 2);
 describe('the pre-check', () => {
 	it('refuses at 8193 bytes on a branch in state sync, names it, and writes nothing', async () => {
 		const res = await S.set({ theme: 'dark', siteMenus: valueOfSize('siteMenus', 8193) });
-		expect(res).toEqual({ ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 8193, quota: 8192, area: 'sync' });
+		expect(res).toEqual({ ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 8193, quota: 8192, checkedArea: 'sync' });
 		expect(fake.raw('sync')).not.toHaveProperty('theme');
 		expect(fake.raw('sync')).not.toHaveProperty('siteMenus');
 	});
@@ -303,15 +308,15 @@ describe('the pre-check', () => {
 	});
 
 	it('writes a branch over 8192 bytes without complaint in state local', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		expect(await S.set({ siteMenus: valueOfSize('siteMenus', 300000) })).toEqual({ ok: true });
 		expect(fake.raw('local').siteMenus).toHaveLength(300000 - 11);
 	});
 
 	it('refuses over 1 MiB in total in state local', async () => {
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		await seedLocal();
 		const res = await S.set({ siteMenus: valueOfSize('siteMenus', 1024 * 1024 + 1) });
-		expect(res).toMatchObject({ ok: false, error: 'total-full', quota: 1024 * 1024, area: 'local' });
+		expect(res).toMatchObject({ ok: false, error: 'total-full', quota: 1024 * 1024, checkedArea: 'local' });
 		expect(fake.raw('local')).not.toHaveProperty('siteMenus');
 	});
 
@@ -392,7 +397,7 @@ describe('switchTo sync', () => {
 	it('is refused while a branch exceeds 8192 bytes, naming it', async () => {
 		await S.set({ siteMenus: valueOfSize('siteMenus', 300000) });
 		const res = await S.switchTo('sync');
-		expect(res).toEqual({ ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 300000, quota: 8192, area: 'sync' });
+		expect(res).toEqual({ ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 300000, quota: 8192, checkedArea: 'sync' });
 		expect(S.area()).toBe('local');
 		expect(fake.raw('sync').syncMovedAt).toBeDefined();
 	});
@@ -565,7 +570,7 @@ describe('save, export and import share one ceiling', () => {
 		await import('../js/eu-integration.js');
 		await import('../js/eu-settings-schema.js');
 		const Schema = globalThis.GesturaSettingsSchema;
-		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: '2026-09-04T00:00:00.000Z', movedTo: 'local' } });
+		await seedLocal('2026-09-04T00:00:00.000Z');
 
 		const settings = settingsAtCeiling();
 		const total = S.usage(settings).total;

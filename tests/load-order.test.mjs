@@ -37,6 +37,20 @@ describe('manifest.json content scripts', () => {
 	});
 });
 
+// Inert here and load-bearing after the merge into firefox-build: that branch
+// carries its own complete manifest.json, where background.scripts replaces the
+// service worker. Firefox has no importScripts, so a missing entry there is the
+// same dead extension - on the first context-menu click instead of at
+// document_start. This file travels with the merge, so the guard arrives with it.
+describe('the Gecko manifest background.scripts list', () => {
+	const manifest = JSON.parse(readFileSync(join(repo, 'manifest.json'), 'utf8'));
+	const scripts = manifest.background && manifest.background.scripts;
+
+	it.skipIf(!Array.isArray(scripts))('begins with constants.js, then settings-storage.js', () => {
+		expect(scripts.slice(0, 2)).toEqual(FIRST_TWO);
+	});
+});
+
 describe('the service worker importScripts block', () => {
 	// Relative to js/, which is where background.js runs from.
 	const src = readFileSync(join(repo, 'js', 'background.js'), 'utf8');

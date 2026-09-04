@@ -30,6 +30,15 @@ export function branchLabel(i18n, key) {
 	return i18n.getMessage(BRANCH_LABELS[key] || 'storageBranchOther');
 }
 
+// The tokens a refusal message supports, in one place: the dialog's title and
+// the switch's refusal notice both fill the same three, from the same shape.
+export function fillRefusal(i18n, key, res) {
+	return i18n.getMessage(key)
+		.replace('{branch}', branchLabel(i18n, res.branch))
+		.replace('{used}', String(res.bytes))
+		.replace('{total}', String(res.quota));
+}
+
 class StorageFullDialog extends LitElement {
 	static properties = {
 		open: { type: Boolean, reflect: true },
@@ -95,11 +104,8 @@ class StorageFullDialog extends LitElement {
 
 	#title(i18n) {
 		const f = this.failure;
-		const fill = (key) => i18n.getMessage(key)
-			.replace('{branch}', branchLabel(i18n, f.branch))
-			.replace('{used}', String(f.bytes))
-			.replace('{total}', String(f.quota));
-		if (f.area === 'local') return fill('storageLocalFullTitle');
+		const fill = (key) => fillRefusal(i18n, key, f);
+		if (f.checkedArea === 'local') return fill('storageLocalFullTitle');
 		return fill(f.error === 'branch-full' ? 'storageBranchFullTitle' : 'storageTotalFullTitle');
 	}
 
@@ -114,7 +120,7 @@ class StorageFullDialog extends LitElement {
 	render() {
 		if (!this.open || !this.failure) return html``;
 		const i18n = window.i18n;
-		const local = this.failure.area === 'local';
+		const local = this.failure.checkedArea === 'local';
 		return html`
 			<div class="backdrop" @click=${(e) => { if (e.target === e.currentTarget) this.#choose('shrink'); }}>
 				<div class="modal" role="dialog" aria-modal="true" aria-labelledby="storageFullTitle"

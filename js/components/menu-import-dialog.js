@@ -303,10 +303,13 @@ class MenuImportDialog extends LitElement {
 			// matters is the TOTAL after the import, against 1 MiB. Every touched
 			// branch reports that same total - the percentage means "of the storage",
 			// and #overflowing / #tightBranches keep working unchanged.
-			let total = now.total;
+			// The façade owns this arithmetic. Rebuilding it from entryBytes here is
+			// how a preview starts disagreeing with the save it is predicting.
+			const after = { ...cur };
 			for (const { key } of BRANCHES) {
-				if (key in measured) total += S.entryBytes(key, measured[key]) - (now.branches[key] || 0);
+				if (key in measured) after[key] = measured[key];
 			}
+			const total = S.usage(after).total;
 			for (const { key } of BRANCHES) {
 				const touched = key in measured;
 				out[key] = { bytes: total, quota: now.quota.total, percent: percentOf(total, now.quota.total), touched };

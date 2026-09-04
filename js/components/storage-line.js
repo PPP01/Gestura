@@ -16,19 +16,23 @@ import { remainingEntries, percentOf } from '../storage-usage.js';
 // translated. `settings` is the whole settings object; `key` says which branch
 // this line stands under.
 export function renderStorageLine(i18n, key, settings, entries, avgFallback) {
-	const u = window.GesturaSettingsStorage.usage(settings);
-	if (u.quota.item === null) {
-		const percent = percentOf(u.total, u.quota.total);
+	const S = window.GesturaSettingsStorage;
+	const quota = S.QUOTA[S.area()];
+	if (quota.item === null) {
+		const percent = percentOf(S.usage(settings).total, quota.total);
 		if (percent >= 100) return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}</div>`;
 		if (percent < 75) return '';
 		return html`<div class="notice">${i18n.getMessage('storageUsed').replace('{percent}', percent)}</div>`;
 	}
-	const bytes = u.branches[key] || 0;
-	const percent = percentOf(bytes, u.quota.item);
+	// One branch, not seventy: this runs on every re-render of the menu and engine
+	// managers, and usage() would re-serialise the whole settings tree to answer
+	// a question about a single key.
+	const bytes = key in settings ? S.entryBytes(key, settings[key]) : 0;
+	const percent = percentOf(bytes, quota.item);
 	if (percent >= 100) {
 		return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}</div>`;
 	}
-	const left = remainingEntries(u.quota.item - bytes, entries, avgFallback);
+	const left = remainingEntries(quota.item - bytes, entries, avgFallback);
 	// Bei 0 passt kein weiterer Eintrag mehr - "noch etwa 0" wäre nur
 	// verwirrend, deshalb entfällt die Restanzahl dann.
 	const text = i18n.getMessage('storageUsed').replace('{percent}', percent)

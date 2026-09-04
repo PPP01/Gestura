@@ -136,15 +136,12 @@
 		if (q.item !== null) {
 			for (const [k, v] of Object.entries(patch)) {
 				const bytes = entryBytes(k, v);
-				if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, area: cache.area };
+				if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, checkedArea: cache.area };
 			}
 		}
-		const stored = pickKnown(await store().get(knownKeys()));
-		const merged = { ...stored, ...patch };
-		let total = 0;
-		for (const [k, v] of Object.entries(merged)) total += entryBytes(k, v);
-		if (cache.area === 'sync') total += entryBytes(FORMAT_KEY, FORMAT_VERSION);
-		if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, area: cache.area };
+		const merged = { ...pickKnown(await store().get(knownKeys())), ...patch };
+		const total = usage(merged, cache.area).total;
+		if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, checkedArea: cache.area };
 		return { ok: true };
 	}
 
@@ -196,8 +193,8 @@
 	// Pure over the object it is given: the façade caches the AREA, never the
 	// settings, so a synchronous usage() with no argument would have nothing to
 	// measure.
-	function usage(settings) {
-		const q = QUOTA[cache.area];
+	function usage(settings, area = cache.area) {
+		const q = QUOTA[area];
 		const branches = {};
 		let total = 0;
 		for (const [k, v] of Object.entries(settings || {})) {
@@ -211,8 +208,8 @@
 		// but it is 11 of the 102 400 bytes, and leaving it out of the display let
 		// the data section read "102 395 of 102 400" over a save that was refused.
 		// What is shown and what is enforced have to be the same number.
-		if (cache.area === 'sync') total += entryBytes(FORMAT_KEY, FORMAT_VERSION);
-		return { area: cache.area, branches, total, quota: { item: q.item, total: q.total } };
+		if (area === 'sync') total += entryBytes(FORMAT_KEY, FORMAT_VERSION);
+		return { area, branches, total, quota: { item: q.item, total: q.total } };
 	}
 
 	async function writeArea(next) {
@@ -278,20 +275,21 @@
 	async function toSync() {
 		let eu, items;
 		try {
-			eu = await chrome.storage.local.get(EU_SYNC_KEY);
-			items = pickKnown(await chrome.storage.local.get(knownKeys()));
+			// Independent of each other and against the same store: one round trip.
+			eu = await chrome.storage.local.get([EU_SYNC_KEY, ...knownKeys()]);
+			items = pickKnown(eu);
 		} catch {
 			return { ok: false, error: 'write' };
 		}
 		if (eu[EU_SYNC_KEY] && eu[EU_SYNC_KEY].enabled === true) return { ok: false, error: 'tier2-enabled' };
+		// Measured against the TARGET area's ceiling, by the one function that
+		// knows the format marker counts against it.
 		const q = QUOTA.sync;
-		let total = entryBytes(FORMAT_KEY, FORMAT_VERSION);
-		for (const [k, v] of Object.entries(items)) {
-			const bytes = entryBytes(k, v);
-			total += bytes;
-			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, area: 'sync' };
+		const u = usage(items, 'sync');
+		for (const [k, bytes] of Object.entries(u.branches)) {
+			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, checkedArea: 'sync' };
 		}
-		if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, area: 'sync' };
+		if (u.total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: u.total, quota: q.total, checkedArea: 'sync' };
 		try {
 			await chrome.storage.sync.set({ ...items, [FORMAT_KEY]: FORMAT_VERSION });
 			await writeArea({ area: 'sync', movedAt: '', movedTo: '' });
@@ -352,9 +350,14 @@
 
 	load();
 
+	// Recognising the typed refusal belongs beside the code that mints it. The
+	// service worker cannot import an ES module, so this is the copy every
+	// context can reach; js/settings-store.js re-exports it for the pages.
+	const isFull = (res) => !!res && (res.error === 'branch-full' || res.error === 'total-full');
+
 	const api = {
 		AREA_KEY, NOTE_KEYS, FORMAT_KEY, EU_SYNC_KEY, QUOTA,
-		byteLength, entryBytes,
+		byteLength, entryBytes, isFull,
 		area, ready, get, set, remove, onChanged, usage,
 		switchTo, note,
 	};

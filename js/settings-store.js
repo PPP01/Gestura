@@ -75,7 +75,7 @@ function sameShape(value, def) {
 // page turns it into the dialog with the three ways out; every other caller
 // skips its own generic message when this is true, so the user sees one answer.
 export function isStorageFull(res) {
-	return !!res && (res.error === 'branch-full' || res.error === 'total-full');
+	return Storage.isFull(res);
 }
 
 function emit(name, detail) {

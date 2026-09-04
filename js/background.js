@@ -4,7 +4,8 @@
 // importScripts; a missing background.scripts entry surfaces as
 // `GesturaSettingsStorage is not defined` on the first context-menu click, a
 // missing content_scripts entry is the same error at document_start in every
-// frame. No test catches either — see FORK-NOTES.md's "Updating from upstream".
+// frame. tests/load-order.test.mjs checks both lists once it arrives on that
+// branch by merge — see FORK-NOTES.md's "Updating from upstream".
 importScripts('constants.js');
 importScripts('settings-storage.js');
 importScripts('menu-patterns.js');
@@ -1871,7 +1872,7 @@ async function isContentScriptLoaded(tabId) {
 // then getMsg's fallback is what shows.
 function reportWriteFailure(tab, frameId, res) {
 	if (!tab || !tab.id) return;
-	const full = res.error === 'branch-full' || res.error === 'total-full';
+	const full = GesturaSettingsStorage.isFull(res);
 	chrome.tabs.sendMessage(tab.id, {
 		action: 'ctxToast',
 		text: full

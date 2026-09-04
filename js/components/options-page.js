@@ -9,7 +9,7 @@ import { tooltip } from '../tooltip.js';
 // state 'local' (storage-move design §6, §11).
 import { percentOf } from '../storage-usage.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
-import { branchLabel } from './storage-full-dialog.js';
+import { branchLabel, fillRefusal } from './storage-full-dialog.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -1417,11 +1417,10 @@ class OptionsPage extends LitElement {
 				<span class="storage-value ${cls(u.total, u.quota.total)}">${detail(u.total, u.quota.total)}</span>
 			</div>`;
 		if (u.quota.item === null) return html`${totalRow}${this.#renderAreaSwitch(i18n)}`;
-		const branches = [
-			['siteMenus', i18n.getMessage('siteMenusTitle')],
-			['searchEngines', i18n.getMessage('sectionSearchEngines')],
-			['mouseGestures', i18n.getMessage('basicSettings')],
-		];
+		// The label for a branch is BRANCH_LABELS' business, so that this section
+		// and the refusal dialog cannot end up calling the same branch two things.
+		const branches = ['siteMenus', 'searchEngines', 'mouseGestures']
+			.map((key) => [key, branchLabel(i18n, key)]);
 		const rows = branches.map(([key, label]) => html`
 			<div class="setting-row">
 				<div class="setting-label"><span>${label}</span></div>
@@ -1469,10 +1468,7 @@ class OptionsPage extends LitElement {
 		if (!res.ok && !landed) {
 			// res.branch / res.bytes / res.quota describe the TARGET area's ceiling
 			// here - unlike a set() failure, where they describe the active one.
-			const fill = (key) => i18n.getMessage(key)
-				.replace('{branch}', branchLabel(i18n, res.branch))
-				.replace('{used}', String(res.bytes))
-				.replace('{total}', String(res.quota));
+			const fill = (key) => fillRefusal(i18n, key, res);
 			const msg = res.error === 'branch-full' ? fill('storageSwitchRefusedBranch')
 				: res.error === 'total-full' ? fill('storageSwitchRefusedTotal')
 				: res.error === 'tier2-enabled' ? i18n.getMessage('storageSwitchRefusedTier2')
