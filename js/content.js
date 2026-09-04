@@ -2116,7 +2116,7 @@ window.ContentContextMenu = ContentContextMenu;
 		if (!isBlacklisted) {
 			initGestures();
 		}
-	}).catch((e) => console.error(e));
+	}).catch((e) => console.error('Gestura: blacklist init failed - settings facade unavailable?', e));
 
 	window.GesturaSettingsStorage.onChanged((changes) => {
 		if (changes.blacklist || changes.enableBlacklist) {
@@ -2401,7 +2401,7 @@ window.ContentContextMenu = ContentContextMenu;
 				}
 
 				eventManager.update();
-			}).catch((e) => console.error(e));
+			}).catch((e) => console.error('Gestura: gestures failed to initialise', e));
 		}
 
 		window.GesturaSettingsStorage.onChanged((changes) => {

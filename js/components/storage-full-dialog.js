@@ -5,14 +5,29 @@ import { commonStyles } from './shared-styles.js';
 // with a branch and two numbers; this is where the user sees them and chooses
 // one of three ways out. In state 'local' there is one way - make it smaller -
 // because the other two lead here.
+//
+// Every settings branch that can realistically grow past a quota, named the way
+// the user sees it named elsewhere in the page. Three of them - the three the
+// data section shows rows for - were mapped; the rest printed their internal
+// identifier into a sentence, and `customCss` reaches this dialog for real: it
+// is capped at 7500 CHARACTERS, which non-ASCII plus JSON escaping pushes past
+// 8192 BYTES. Anything still unmapped gets an honest generic rather than a
+// variable name.
 const BRANCH_LABELS = {
 	siteMenus: 'siteMenusTitle',
 	searchEngines: 'sectionSearchEngines',
 	mouseGestures: 'basicSettings',
+	textDragGestures: 'textDragGestures',
+	linkDragGestures: 'linkDragGestures',
+	imageDragGestures: 'imageDragGestures',
+	wheelGestures: 'wheelGestures',
+	specialGestures: 'specialGestures',
+	customCss: 'customCss',
+	blacklist: 'blacklist',
 };
 
 export function branchLabel(i18n, key) {
-	return BRANCH_LABELS[key] ? i18n.getMessage(BRANCH_LABELS[key]) : key;
+	return i18n.getMessage(BRANCH_LABELS[key] || 'storageBranchOther');
 }
 
 class StorageFullDialog extends LitElement {
@@ -38,7 +53,37 @@ class StorageFullDialog extends LitElement {
 		super();
 		this.open = false;
 		this.failure = null;
+		this._returnFocus = null;
 		this._onKeydown = (e) => { if (e.key === 'Escape' && this.open) { e.stopPropagation(); this.#choose('shrink'); } };
+	}
+
+	// aria-modal="true" tells a screen reader the rest of the page is gone; until
+	// something moves focus in here, the reader is still sitting on the control
+	// the user just used and has nothing to read. So: remember where focus was,
+	// put it on the first way out, and hand it back when the dialog closes.
+	updated(changed) {
+		if (!changed.has('open')) return;
+		if (this.open) {
+			this._returnFocus = document.activeElement;
+			const first = this.shadowRoot && this.shadowRoot.querySelector('.way');
+			if (first) first.focus();
+			return;
+		}
+		const back = this._returnFocus;
+		this._returnFocus = null;
+		if (back && typeof back.focus === 'function') back.focus();
+	}
+
+	// Tab must not walk out of a modal into a page that is not there any more.
+	// Three buttons at most, all in this shadow tree, so the trap is the list.
+	#onTrapKeydown(e) {
+		if (e.key !== 'Tab') return;
+		const ways = [...this.shadowRoot.querySelectorAll('.way')];
+		if (!ways.length) return;
+		const edge = e.shiftKey ? ways[0] : ways[ways.length - 1];
+		if (this.shadowRoot.activeElement !== edge) return;
+		e.preventDefault();
+		(e.shiftKey ? ways[ways.length - 1] : ways[0]).focus();
 	}
 
 	connectedCallback() { super.connectedCallback(); document.addEventListener('keydown', this._onKeydown, true); }
@@ -72,8 +117,9 @@ class StorageFullDialog extends LitElement {
 		const local = this.failure.area === 'local';
 		return html`
 			<div class="backdrop" @click=${(e) => { if (e.target === e.currentTarget) this.#choose('shrink'); }}>
-				<div class="modal" role="dialog" aria-modal="true">
-					<div class="modal-header">${this.#title(i18n)}</div>
+				<div class="modal" role="dialog" aria-modal="true" aria-labelledby="storageFullTitle"
+					@keydown=${(e) => this.#onTrapKeydown(e)}>
+					<div class="modal-header" id="storageFullTitle">${this.#title(i18n)}</div>
 					<div class="ways">
 						${this.#way(i18n, 'shrink', 'storageWayShrink', 'storageWayShrinkDesc')}
 						${local ? '' : this.#way(i18n, 'eu', 'storageWayEu', 'storageWayEuDesc')}

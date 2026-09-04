@@ -357,14 +357,19 @@ class MenuImportDialog extends LitElement {
 	// Die eigentliche Absage sitzt vorgelagert in #blockedFor()/#confirm(): die
 	// Auswahl soll scheitern, bevor der Nutzer sich für sie entschieden hat, nicht
 	// erst nach einem fehlgeschlagenen Schreibversuch. settingsStore.save() hier
-	// bleibt trotzdem die zweite Instanz, kein toter Rest: die Vorausrechnung
-	// sieht nur die Größe des einzelnen Branches, nicht das QUOTA_BYTES-Budget
-	// über alle Einstellungs-Keys hinweg, und nicht ein gleichzeitiges Schreiben
-	// von einem anderen Gerät, das zwischen Vorausrechnung und save() landet.
-	// Schlägt set() aus einem dieser Gründe fehl, nimmt settingsStore.save()
-	// seinen Zustand zurück, liefert false, und der Nutzer sieht dieselbe Meldung.
-	// Die Bundle-Limits (200 Einträge, 1 MB) sind ohnehin der Transport-Vertrag
-	// mit dem Index-Backend, eine andere Grenze als diese.
+	// bleibt trotzdem die zweite Instanz, kein toter Rest: im Zustand 'lokal'
+	// rechnet #projectedUsage() das Gesamtbudget zwar mit, im Zustand
+	// 'Browser-Sync an' aber nur die einzelnen Zweige gegen 8192 - die 102 400
+	// über alle Einstellungs-Keys hinweg sieht erst die Fassade. Und ein
+	// gleichzeitiges Schreiben von einem anderen Gerät, das zwischen
+	// Vorausrechnung und save() landet, sieht sie in keinem Zustand. Schlägt set()
+	// aus einem dieser Gründe fehl, nimmt settingsStore.save() seinen Zustand
+	// zurück und liefert eine typisierte
+	// Absage - bei einer Größenabsage (isStorageFull) zeigt die Optionsseite ihren
+	// Dialog mit den drei Auswegen, und dieser Dialog schweigt; menuSyncSaveError
+	// kommt nur bei jedem anderen Fehler. Die Bundle-Limits (200 Einträge, 1 MB)
+	// sind ohnehin der Transport-Vertrag mit dem Index-Backend, eine andere Grenze
+	// als diese.
 	async #commitPatch(patch, imported) {
 		const withBaselines = await window.FlowMouseEuIntegration.addBaselines(patch, imported);
 		const res = await settingsStore.save(withBaselines);
