@@ -26,6 +26,7 @@
 - **`js/storage-usage.js` is inherited unchanged** (§11). The façade carries its own copy of the two-line formula, pinned by a test.
 - **i18n: new keys use the `storage` prefix**, which is already in `NEW_KEY_PREFIXES` of `tests/site-menu-locales.test.mjs`; every new key lands in `en` and `de` **and** in `PENDING_TRANSLATION` there. Never put an undeclared `$WORD$` in a message — `{token}` plus `.replace()`.
 - **Compression: payload only**, recognised by the `1f 8b` magic, decompression bounded at 1 MiB, the contract's envelope test vector unchanged byte for byte (§8).
+- **The upload door is measured, not promised** (§8). Three of the four doors — save, export, import — share the 1 MiB ceiling exactly. The fourth, upload, is bounded by the contract's 512 KiB *envelope*: base64, IV and tag leave about 393 KiB of compressed plaintext, so a 1 MiB settings set uploads only because gzip makes it small enough, and a pathologically incompressible one is refused at upload with the existing `too-large` message. No task may claim otherwise in a name, a test title or a user-facing text.
 - **`version_name` in `manifest.json` is generated** — never edit it; this plan bumps no version.
 - **`js/background.js`'s `importScripts` list and `background.scripts` in the Firefox manifest on `firefox-build` must agree.** Task 4 changes the first; the second is changed at the next merge into `firefox-build` and is written out in Task 4 so it is not forgotten.
 - **Nothing in `exchange/` is committed**, here or referenced from tracked files.
@@ -55,6 +56,12 @@ The spec leaves these to the plan, or does not foresee them. Decided here with t
 9. **`hashOf` strips the seven device-local keys itself**, in addition to `_version`. The spec says the hash uses the sync shape; making the caller responsible would let a theme change offer an upload the moment one caller forgets `forSync`. Stripping inside `hashOf` is idempotent on an already-stripped object.
 
 10. **The three ways are a dialog owned by the options page.** `save()` dispatches `gestura:storage-full` (a window event, like the existing `gestura:settings-saved`) with the typed failure; `<options-page>` hosts one `<storage-full-dialog>` that renders it. Callers that used to `alert()` a generic message skip it when `isStorageFull(res)` is true, so the user sees the dialog once and not an alert on top. The popup and the CSS editor have no dialog: the popup keeps its silent rollback, the CSS editor shows one short hint pointing at the data section.
+
+11. **`switchTo`'s point of no return is the area write, and everything after it is either recoverable or reported.** The switch is several writes (§4 names them) and any one can fail. Before the area is written, a failure changes nothing anyone reads — a partial copy in `storage.local` is data no context looks at while `area === 'sync'`. After it, a failed second copy puts the area *back*: `storage.sync` still holds everything, so the pre-switch state is fully valid. The note is a courtesy for other browsers; if it cannot be written or removed the switch has still happened, and the answer says so with `noted: false` rather than pretending nothing changed. On the way back the order is data → area → note, so a failure leaves the browser in state `local` with a *fresher* stale copy in `storage.sync`, which is consistent. One fault-injection test per write pins this.
+
+12. **The worker reports a refused write where the user acted.** The façade no longer throws, so a context-menu action whose write did not fit would otherwise vanish in silence and `_siteMenusCache` would hold a state that was never saved. Every worker write checks `.ok`; a refusal becomes a `ctxToast` in the page (the same channel "Already in menu" uses), the cache is updated only after a successful write, and `addSiteToMenu` answers `success: false` with the error code.
+
+13. **The area cache never lets a slow first read overwrite a newer event.** `load()`'s `get` and a `storage.onChanged` for `settingsArea` can cross: the read snapshot is older than the event. `load()` therefore keeps the cache if an event already filled it, and a test with a delayed read pins it — without that guard a context could sit on the wrong area until the next switch.
 
 ---
 
@@ -150,17 +157,32 @@ Create `tests/helpers/fake-chrome-storage.mjs`:
 // of defaults); every write dispatches onChanged with its namespace, synchronously,
 // which is how the façade's area cache is exercised without a browser.
 //
-// `hooks.onSet` is a ONE-SHOT hook run inside the next set(), before its onChanged
-// fires: the race test of switchTo() uses it to land a write in storage.sync while
-// the first copy is in flight.
+// Three ONE-SHOT hooks, each cleared the moment it fires:
+// - `hooks.onSet(name, obj)` runs inside the next set(), after the write and before
+//   its onChanged: the switchTo() race test lands a write in storage.sync while
+//   the first copy is in flight.
+// - `hooks.beforeGetReturns()` runs inside the next get(), AFTER the snapshot is
+//   taken and BEFORE it is returned: the load() race test lets a newer write land
+//   while a read is still in flight.
+// - `hooks.failNext = { area, op, after }` makes the (after+1)-th matching set() or
+//   remove() throw before it changes anything: the fault-injection tests of
+//   switchTo() fail one write at a time.
 export function fakeChromeStorage() {
 	const areas = { sync: new Map(), local: new Map() };
 	const listeners = new Set();
-	const hooks = { onSet: null };
+	const hooks = { onSet: null, beforeGetReturns: null, failNext: null };
 	const clone = (v) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
 
 	function emit(changes, name) {
 		for (const fn of [...listeners]) fn(changes, name);
+	}
+
+	function maybeFail(name, op) {
+		const f = hooks.failNext;
+		if (!f || f.area !== name || f.op !== op) return;
+		if (f.after > 0) { f.after--; return; }
+		hooks.failNext = null;
+		throw new Error(`injected failure: ${name}.${op}`);
 	}
 
 	function makeArea(name) {
@@ -172,17 +194,23 @@ export function fakeChromeStorage() {
 				const out = {};
 				if (keys === null || keys === undefined) {
 					for (const [k, v] of m) out[k] = clone(v);
-					return out;
+				} else {
+					if (typeof keys === 'string') keys = [keys];
+					if (Array.isArray(keys)) {
+						for (const k of keys) if (m.has(k)) out[k] = clone(m.get(k));
+					} else {
+						for (const [k, def] of Object.entries(keys)) out[k] = m.has(k) ? clone(m.get(k)) : clone(def);
+					}
 				}
-				if (typeof keys === 'string') keys = [keys];
-				if (Array.isArray(keys)) {
-					for (const k of keys) if (m.has(k)) out[k] = clone(m.get(k));
-					return out;
+				if (hooks.beforeGetReturns) {
+					const hook = hooks.beforeGetReturns;
+					hooks.beforeGetReturns = null;
+					await hook();
 				}
-				for (const [k, def] of Object.entries(keys)) out[k] = m.has(k) ? clone(m.get(k)) : clone(def);
 				return out;
 			},
 			async set(obj) {
+				maybeFail(name, 'set');
 				const changes = {};
 				for (const [k, v] of Object.entries(obj)) {
 					changes[k] = { oldValue: clone(m.get(k)), newValue: clone(v) };
@@ -196,6 +224,7 @@ export function fakeChromeStorage() {
 				emit(changes, name);
 			},
 			async remove(keys) {
+				maybeFail(name, 'remove');
 				const changes = {};
 				for (const k of (Array.isArray(keys) ? keys : [keys])) {
 					if (!m.has(k)) continue;
@@ -231,8 +260,15 @@ export function fakeChromeStorage() {
 		emit,
 		// Raw access for assertions: what is REALLY in an area, unfiltered.
 		raw: (name) => Object.fromEntries(areas[name]),
-		// Empties both areas WITHOUT dispatching - a test fixture, not a user action.
-		clear: () => { areas.sync.clear(); areas.local.clear(); },
+		// Empties both areas WITHOUT dispatching and drops any armed hook - a test
+		// fixture, not a user action.
+		clear: () => {
+			areas.sync.clear();
+			areas.local.clear();
+			hooks.onSet = null;
+			hooks.beforeGetReturns = null;
+			hooks.failNext = null;
+		},
 		listenerCount: () => listeners.size,
 	};
 }
@@ -243,7 +279,7 @@ export function fakeChromeStorage() {
 Create `tests/settings-storage.test.mjs`:
 
 ```js
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { fakeChromeStorage } from './helpers/fake-chrome-storage.mjs';
 import * as U from '../js/storage-usage.js';
 
@@ -280,6 +316,31 @@ describe('area', () => {
 	it('treats anything that is not "local" as sync', async () => {
 		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'somewhere' } });
 		expect(S.area()).toBe('sync');
+	});
+
+	// load()'s read and a storage.onChanged for the area can cross: the snapshot
+	// the read returns is OLDER than the event. Without a guard the stale read
+	// would win and this context would sit on the wrong area until the next
+	// switch. A fresh module instance, so load() is in flight when the change lands.
+	it('does not let a slow first read overwrite a change that arrived meanwhile', async () => {
+		// Wait for the hook itself, not for a timer: under a loaded test runner the
+		// module import can take longer than a macrotask, and a timer would let the
+		// change land BEFORE the read even started - which is not the race.
+		let release;
+		const snapshotTaken = new Promise(taken => {
+			fake.hooks.beforeGetReturns = () => { taken(); return new Promise(r => { release = r; }); };
+		});
+		vi.resetModules();
+		const loading = import('../js/settings-storage.js');
+		await snapshotTaken;
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		release();
+		await loading;
+		const fresh = globalThis.GesturaSettingsStorage;
+		await fresh.ready();
+		expect(fresh.area()).toBe('local');
+		// The rest of this file talks to the first instance.
+		globalThis.GesturaSettingsStorage = S;
 	});
 });
 
@@ -525,7 +586,10 @@ Create `js/settings-storage.js`:
 			} catch (e) {
 				promise = Promise.reject(e);
 			}
-			loading = promise.then(absorb).catch(() => {
+			// An onChanged for the area that arrived while this read was in flight
+			// is NEWER than what the read returns. If one already filled the cache,
+			// the read's snapshot is stale and must not overwrite it.
+			loading = promise.then((raw) => (loaded ? cache : absorb(raw))).catch(() => {
 				// Same reasoning as js/eu-local.js: a failed read must not become this
 				// context's answer for good. The default is 'sync' - today's behaviour.
 				loading = null;
@@ -799,7 +863,7 @@ The one-time copy, in the three-step sequence of §4 (copy → set area → copy
 
 **Interfaces:**
 - Consumes: Tasks 1–2.
-- Produces: `switchTo(target, reason)` → `Promise<{ ok, error?, branch?, bytes?, quota?, area? }>`; `target` is `'sync' | 'local'`, `reason` is `'local' | 'gestura.eu'` and only read when `target === 'local'`. Errors: `'bad-area'`, `'tier2-enabled'`, `'branch-full'`, `'total-full'`, `'write'`. `note()` → `Promise<{ movedAt, movedTo } | null>`, read from `storage.sync`.
+- Produces: `switchTo(target, reason)` → `Promise<{ ok, noted?, error?, branch?, bytes?, quota?, area? }>`; `target` is `'sync' | 'local'`, `reason` is `'local' | 'gestura.eu'` and only read when `target === 'local'`. A successful switch answers `{ ok: true, noted: true | false }` — `noted: false` means the switch happened but the note in `storage.sync` could not be written (or removed); a no-op answers `{ ok: true }`. Errors: `'bad-area'`, `'tier2-enabled'`, `'branch-full'`, `'total-full'`, `'write'`. After any answer the caller reads `area()` for where the browser actually ended up. `note()` → `Promise<{ movedAt, movedTo } | null>`, read from `storage.sync`.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -814,7 +878,7 @@ describe('switchTo local', () => {
 
 	it('copies every known key, sets the area with date and reason, and deletes nothing in sync', async () => {
 		const before = fake.raw('sync');
-		expect(await S.switchTo('local', 'local')).toEqual({ ok: true });
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: true, noted: true });
 		expect(S.area()).toBe('local');
 		for (const k of KNOWN) expect(fake.raw('local')[k]).toEqual(before[k]);
 		const area = fake.raw('local')[S.AREA_KEY];
@@ -890,7 +954,7 @@ describe('switchTo sync', () => {
 
 	it('clears the note and writes every key when the data fits', async () => {
 		await S.set({ theme: 'dark' });
-		expect(await S.switchTo('sync')).toEqual({ ok: true });
+		expect(await S.switchTo('sync')).toEqual({ ok: true, noted: true });
 		expect(S.area()).toBe('sync');
 		const sync = fake.raw('sync');
 		expect(sync).not.toHaveProperty('syncMovedAt');
@@ -905,6 +969,78 @@ describe('switchTo sync', () => {
 		await S.set({ theme: 'dark' });
 		await S.switchTo('sync');
 		expect(fake.raw('local').theme).toBe('dark');
+	});
+});
+
+// One failing write at a time. `after` counts the matching writes that succeed
+// before the injected one fails - the order of writes is the order the code
+// above makes them, and each test names which one it kills.
+describe('switchTo under a failing write', () => {
+	beforeEach(async () => {
+		for (const k of KNOWN) await chrome.storage.sync.set({ [k]: DEFAULTS[k] });
+	});
+
+	it('to local: a failed first copy changes nothing', async () => {
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 0 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('local')).not.toHaveProperty('theme');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+	});
+
+	it('to local: a failed area write leaves the area on sync and writes no note', async () => {
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 1 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('local')[S.AREA_KEY].area).toBe('sync');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+	});
+
+	it('to local: a failed second copy puts the area back', async () => {
+		// The second copy writes only what changed during the first, so make
+		// something change - otherwise there is no third local write to fail.
+		fake.hooks.onSet = async (name) => {
+			if (name === 'local') await chrome.storage.sync.set({ edgeGestureConflict: true });
+		};
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 2 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('local')[S.AREA_KEY].area).toBe('sync');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+	});
+
+	it('to local: a failed note still counts as switched, and says so', async () => {
+		fake.hooks.failNext = { area: 'sync', op: 'set', after: 0 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: true, noted: false });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+		expect(await S.note()).toBe(null);
+	});
+
+	it('to sync: a failed data write leaves the browser local with the note in place', async () => {
+		await S.switchTo('local', 'local');
+		fake.hooks.failNext = { area: 'sync', op: 'set', after: 0 };
+		expect(await S.switchTo('sync')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
+	});
+
+	it('to sync: a failed area write leaves the browser local, with a fresher copy in sync', async () => {
+		await S.switchTo('local', 'local');
+		await S.set({ theme: 'dark' });
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 0 };
+		expect(await S.switchTo('sync')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync').theme).toBe('dark');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
+	});
+
+	it('to sync: a failed note removal still counts as switched', async () => {
+		await S.switchTo('local', 'local');
+		fake.hooks.failNext = { area: 'sync', op: 'remove', after: 0 };
+		expect(await S.switchTo('sync')).toEqual({ ok: true, noted: false });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
 	});
 });
 ```
@@ -943,41 +1079,78 @@ In `js/settings-storage.js`, insert before the `chrome.storage.onChanged.addList
 	// What remains is the latency of one onChanged delivery; named in the spec so
 	// nobody tries to close it with a lock.
 	//
+	// The point of no return is the area write. Before it, a failure changes
+	// nothing anyone reads - a partial copy in storage.local is data no context
+	// looks at while the area is 'sync'. After it, a failed second copy puts the
+	// area BACK: storage.sync still holds everything, so the pre-switch state is
+	// fully valid. The note is a courtesy for other browsers; if it cannot be
+	// written the switch has still happened, and `noted: false` says so rather
+	// than pretending nothing changed. The stale copies are never deleted (§10.1).
+	async function toLocal(reason) {
+		const movedTo = reason === 'gestura.eu' ? 'gestura.eu' : 'local';
+		const movedAt = new Date().toISOString();
+		let first;
+		try {
+			first = await copySyncToLocal(null);
+			await writeArea({ area: 'local', movedAt, movedTo });
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		try {
+			await copySyncToLocal(first);
+		} catch {
+			try { await writeArea({ area: 'sync', movedAt: '', movedTo: '' }); } catch { /* area() tells the caller where we ended up */ }
+			return { ok: false, error: 'write' };
+		}
+		try {
+			await chrome.storage.sync.set({ [NOTE_KEYS[0]]: movedAt, [NOTE_KEYS[1]]: movedTo });
+			return { ok: true, noted: true };
+		} catch {
+			return { ok: true, noted: false };
+		}
+	}
+
 	// The way back is conditional: every branch must fit its item quota and the
 	// whole set the total, and tier 2 must be off. Refused with numbers, never
-	// silent. The stale copies are never deleted in either direction (§10.1).
+	// silent. Then data → area → note: a failure after the data write leaves the
+	// browser in state 'local' with a FRESHER stale copy in storage.sync, which
+	// is consistent, and the note is removed last and best-effort.
+	async function toSync() {
+		let eu, items;
+		try {
+			eu = await chrome.storage.local.get(EU_SYNC_KEY);
+			items = pickKnown(await chrome.storage.local.get(knownKeys()));
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		if (eu[EU_SYNC_KEY] && eu[EU_SYNC_KEY].enabled === true) return { ok: false, error: 'tier2-enabled' };
+		const q = QUOTA.sync;
+		let total = entryBytes(FORMAT_KEY, FORMAT_VERSION);
+		for (const [k, v] of Object.entries(items)) {
+			const bytes = entryBytes(k, v);
+			total += bytes;
+			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, area: 'sync' };
+		}
+		if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, area: 'sync' };
+		try {
+			await chrome.storage.sync.set({ ...items, [FORMAT_KEY]: FORMAT_VERSION });
+			await writeArea({ area: 'sync', movedAt: '', movedTo: '' });
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		try {
+			await chrome.storage.sync.remove(NOTE_KEYS);
+			return { ok: true, noted: true };
+		} catch {
+			return { ok: true, noted: false };
+		}
+	}
+
 	async function switchTo(target, reason) {
 		await ready();
 		if (target !== 'sync' && target !== 'local') return { ok: false, error: 'bad-area' };
 		if (target === cache.area) return { ok: true };
-		try {
-			if (target === 'local') {
-				const movedTo = reason === 'gestura.eu' ? 'gestura.eu' : 'local';
-				const movedAt = new Date().toISOString();
-				const first = await copySyncToLocal(null);
-				await writeArea({ area: 'local', movedAt, movedTo });
-				await copySyncToLocal(first);
-				await chrome.storage.sync.set({ [NOTE_KEYS[0]]: movedAt, [NOTE_KEYS[1]]: movedTo });
-				return { ok: true };
-			}
-			const eu = await chrome.storage.local.get(EU_SYNC_KEY);
-			if (eu[EU_SYNC_KEY] && eu[EU_SYNC_KEY].enabled === true) return { ok: false, error: 'tier2-enabled' };
-			const items = pickKnown(await chrome.storage.local.get(knownKeys()));
-			const q = QUOTA.sync;
-			let total = entryBytes(FORMAT_KEY, FORMAT_VERSION);
-			for (const [k, v] of Object.entries(items)) {
-				const bytes = entryBytes(k, v);
-				total += bytes;
-				if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, area: 'sync' };
-			}
-			if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, area: 'sync' };
-			await chrome.storage.sync.remove(NOTE_KEYS);
-			await chrome.storage.sync.set({ ...items, [FORMAT_KEY]: FORMAT_VERSION });
-			await writeArea({ area: 'sync', movedAt: '', movedTo: '' });
-			return { ok: true };
-		} catch (e) {
-			return { ok: false, error: 'write' };
-		}
+		return target === 'local' ? toLocal(reason) : toSync();
 	}
 
 	// The note another browser left (§4). Only meaningful in state 'sync'; the
@@ -1129,13 +1302,35 @@ Directly above `if (details.reason === 'update' && details.previousVersion) {` (
 
 Every remaining `chrome.storage.sync.get/set` in `js/background.js` outside the update block goes onto the façade. Reference the global `GesturaSettingsStorage` directly, the way the file already references `GesturaEuLocal` — no local alias.
 
-Line 931–934 (`addSiteToMenu`):
+**Every write checks `.ok`.** The façade does not throw; a refused write comes back as `{ ok: false, error: 'branch-full' | 'total-full' | 'write' }`, and a caller that ignores it drops the user's action in silence. Add this helper directly above `function getMsg(key, fallback)` (line 1840; both are hoisted, so the order does not matter for callers):
+
+```js
+// A refused or failed settings write, reported where the user acted. The toast
+// is the channel "Already in menu" already uses; the data section of the options
+// page is where the decision between the three ways is made (storage-move
+// design §6). `storageFullHint` arrives with the other texts in Task 11 - until
+// then getMsg's fallback is what shows.
+function reportWriteFailure(tab, frameId, res) {
+	if (!tab || !tab.id) return;
+	const full = res.error === 'branch-full' || res.error === 'total-full';
+	chrome.tabs.sendMessage(tab.id, {
+		action: 'ctxToast',
+		text: full
+			? getMsg('storageFullHint', 'Storage is full. Open the data section of the settings to decide how to continue.')
+			: getMsg('saveFailure', 'Save failure'),
+	}, { frameId: frameId || 0 }).catch(() => {});
+}
+```
+
+Line 931–934 (`addSiteToMenu`) — the answer carries the truth:
 
 ```js
 			const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 			const { siteMenus, added } = self.FlowMouseMenuModel.addPatternToMenu(
 				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, pattern);
-			if (added) await GesturaSettingsStorage.set({ siteMenus });
+			if (!added) return { success: true, added: false };
+			const res = await GesturaSettingsStorage.set({ siteMenus });
+			return res.ok ? { success: true, added: true } : { success: false, added: false, error: res.error };
 ```
 
 Line 1919 (`updateMenuForTab`):
@@ -1150,7 +1345,8 @@ Lines 2129 and 2136 (blacklist toggle):
 				const storageItems = await GesturaSettingsStorage.get(['blacklist']);
 ```
 ```js
-				await GesturaSettingsStorage.set({ blacklist });
+				const res = await GesturaSettingsStorage.set({ blacklist });
+				if (!res.ok) reportWriteFailure(tab, info.frameId, res);
 ```
 
 Line 2146:
@@ -1159,25 +1355,52 @@ Line 2146:
 		const cfg = await GesturaSettingsStorage.get(['ctxMenuSiteMenuMode', 'ctxMenuSiteMenuId']);
 ```
 
-Lines 2155 and 2160 (remove link):
+Lines 2155–2160 (remove link). The read changes, and **`_siteMenusCache` moves behind the write** — today it is assigned before `set()`, which in state `local` would leave the worker's menu cache holding a state that was never saved:
+
+```js
+		const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
+		const { siteMenus, removed } = self.FlowMouseMenuModel.removeLinkFromMenu(
+			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url);
+		if (!removed) return;
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
+```
+
+Line 2167 (add link) — the read:
 
 ```js
 		const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 ```
+
+and line 2203, the write at the end of that branch:
+
 ```js
-		await GesturaSettingsStorage.set({ siteMenus });
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
 ```
 
-Lines 2167 and 2203 (add link) — the same two replacements. Lines 2206 and 2210 (assign clear):
+(`self._siteMenusCache = cur;` at line 2168 stays — it caches what was *read*.)
+
+Lines 2206–2210 (assign clear):
 
 ```js
 		const cur = await GesturaSettingsStorage.get(['siteMenus']);
-```
-```js
-		await GesturaSettingsStorage.set({ siteMenus });
+		const { siteMenus, patterns } = detachSitePatterns(cur.siteMenus || {}, tab.url);
+		if (!patterns.length) return;
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
 ```
 
-Lines 2215 and 2239 (assign) — the same two replacements.
+Lines 2215 and 2238–2239 (assign) — the read like line 2206, and the last two lines of the branch become:
+
+```js
+		const res = await GesturaSettingsStorage.set({ siteMenus });
+		if (res.ok) self._siteMenusCache = siteMenus;
+		else reportWriteFailure(tab, info.frameId, res);
+```
 
 Lines 2243–2254, the listener, become:
 
@@ -1203,9 +1426,15 @@ Run:
 grep -n "chrome.storage.sync\.\(get\|set\|remove\|clear\)" js/background.js
 ```
 
-Expected: only lines inside the `details.reason === 'update'` block (between the new comment and the block's closing brace, roughly 1545–1715). Anything else is a miss.
+Expected: only lines inside the `details.reason === 'update'` block (between the new comment and the block's closing brace, roughly 1545–1715). Anything else is a miss. Then:
 
-Load the unpacked extension at `chrome://extensions`, reload it, open the service worker console: no `ReferenceError`. Right-click a page → the Gestura context menu still appears; add the site to a menu → the options page shows it.
+```bash
+grep -n "GesturaSettingsStorage.set(" js/background.js
+```
+
+Expected: every hit is `const res = await GesturaSettingsStorage.set(…)` followed by a check of `res.ok` — a bare `await GesturaSettingsStorage.set(` is a miss.
+
+Load the unpacked extension at `chrome://extensions`, reload it, open the service worker console: no `ReferenceError`. Right-click a page → the Gestura context menu still appears; add the site to a menu → the options page shows it. Fill `siteMenus` to the limit in the options page, then add a link from the context menu → a toast in the page, and the menu is unchanged.
 
 - [ ] **Step 7: Note the Firefox mirror**
 
@@ -2218,15 +2447,20 @@ In `js/eu-sync.js` line 24: `statesMax: 5,`. Line 138:
 In `tests/eu-sync.test.mjs`, the test at line 210 (`refuses an oversized payload without asking the server`) builds `customCss: 'x'.repeat(S.LIMITS.payloadMaxBytes)`. gzip reduces that to a few hundred bytes, so it would now fit and the test would go red for the wrong reason. Add this helper above the `describe('errors', …)` block, and replace the `const big = …` line inside that test with the line that follows it:
 
 ```js
-// Random base64 characters carry six bits each - gzip cannot shrink them
+// Pseudo-random base64 characters carry six bits each - gzip cannot shrink them
 // meaningfully, so a megabyte of them stays over the 512 KiB envelope limit
 // after compression. 'x'.repeat() would compress to nothing and the test would
-// stop testing anything.
+// stop testing anything. xorshift32, not crypto.getRandomValues: WebCrypto caps
+// one call at 65 536 bytes and throws QuotaExceededError above it, and a
+// deterministic sequence makes a failure reproducible.
 const incompressible = (n) => {
 	const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-	const bytes = crypto.getRandomValues(new Uint8Array(n));
+	let x = 0x9e3779b9;
 	let s = '';
-	for (let i = 0; i < n; i++) s += alphabet[bytes[i] & 63];
+	for (let i = 0; i < n; i++) {
+		x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+		s += alphabet[(x >>> 0) & 63];
+	}
 	return s;
 };
 ```
@@ -2373,8 +2607,11 @@ One **existing** test in the same file has to move with the change: `the upload 
 Append to `tests/settings-storage.test.mjs`:
 
 ```js
-describe('one ceiling, true at all four doors', () => {
-	it('the validator cap equals the local total quota', async () => {
+// Save, export and import share one number. The fourth door, upload, is bounded
+// by the contract's 512 KiB envelope and is measured at upload time, not
+// promised here (storage-move design §8).
+describe('the validator cap and the local ceiling', () => {
+	it('are the same number', async () => {
 		await import('../js/eu-integration.js');
 		await import('../js/eu-settings-schema.js');
 		expect(globalThis.GesturaSettingsSchema.MAX_BYTES).toBe(S.QUOTA.local.total);
@@ -2846,17 +3083,25 @@ New methods, placed after `#renderStorageRows`:
 			</div>`;
 	}
 
+	// A date, not a time: #formatSyncTime renders toLocaleTimeString() for the
+	// "saved at" line, and "not synchronised since 14:32" would name the wrong thing.
+	#formatDate(iso) {
+		try {
+			return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+		} catch { return String(iso).slice(0, 10); }
+	}
+
 	#renderSyncNote(i18n) {
 		if (!this._syncNote) return '';
 		return html`
 			<div class="notice">
-				${i18n.getMessage('storageMovedNote').replace('{date}', this.#formatSyncTime(this._syncNote.movedAt))}
+				${i18n.getMessage('storageMovedNote').replace('{date}', this.#formatDate(this._syncNote.movedAt))}
 				<button class="btn btn-secondary" @click=${() => this.#switchArea(false, this._syncNote.movedTo)}>${i18n.getMessage('storageMovedSwitch')}</button>
 			</div>`;
 	}
 ```
 
-(`<label class="toggle">` with `.slider` is exactly the markup `#renderFeatureToggle` in the same file uses; `#formatSyncTime` already exists at line 1343.)
+(`<label class="toggle">` with `.slider` is exactly the markup `#renderFeatureToggle` in the same file uses. `#formatSyncTime` at line 1343 is deliberately *not* reused for the note: it formats a time of day.)
 
 Replace `#renderStorageRows`:
 
@@ -3118,6 +3363,8 @@ git commit -m "docs: gzip in the envelope, five states, the 1 MiB ceiling - and 
 
 **Type consistency.** `set` / `switchTo` failure shape `{ ok, error, branch, bytes, quota, area }` in Tasks 2, 3, 6, 11. `usage()` returns `{ area, branches, total, quota: { item, total } }` in Tasks 1, 11. `renderStorageLine(i18n, key, settings, entries, avgFallback)` in Task 11, both callers. `validate(input, { forSync, local, json })` in Tasks 10, 11. `encryptCompressed(key, stateId, role, value)` in Task 9, called from `eu-sync.js`. `pruneCache(cache, max)` in Task 8, both places. `isStorageFull` exported from `settings-store.js` and imported in five components, Tasks 6 and 11.
 
-**Smoke-tested before commit.** The code blocks of Tasks 1–3 (façade, fake, 31 tests), Task 6–7 (`settings-store.js`, 18 tests), Task 9 (`eu-sync-crypto.js`, the existing suite plus 7) and Task 10 (`eu-settings-schema.js`, the existing suite plus 12) were extracted from this document into a scratch copy of the repo and run under vitest: 130 tests, all green. That run is what found the one existing test Task 10 has to change (`the upload hash › changes when a value changes`). The UI of Task 11 and the wiring of Tasks 4, 5, 8 were not executed and are verified by the browser checks named in their steps.
+**Smoke-tested before commit.** The code blocks of Tasks 1–3 (façade, fake, 50 tests including the seven fault injections and the load race), Tasks 6–7 (`settings-store.js`, 18 tests), Task 9 (`eu-sync-crypto.js`, the existing suite plus 7) and Task 10 (`eu-settings-schema.js`, the existing suite plus 12) were extracted from this document into a scratch copy of the repo and run under vitest: 149 tests, all green, twice in a row. Two mutation checks confirmed the new tests bite: dropping the `loaded ? cache : absorb(raw)` guard fails the race test, dropping the rollback in `toLocal` fails "a failed second copy puts the area back". The smoke run is what found the one existing test Task 10 has to change (`the upload hash › changes when a value changes`), and it confirmed the xorshift fixture of Task 9 stays at about 1 MB of envelope after gzip. The UI of Task 11 and the wiring of Tasks 4, 5, 8 were not executed and are verified by the browser checks named in their steps.
 
 **Deviations from the spec, all named above in "Decisions taken in this plan":** the eighth façade function `note()`; seven pages instead of five; `constants.js` root-agnostic; the update migrations left on `storage.sync`; the incompressible test fixture; `hashOf` stripping the seven itself.
+
+**Review of 2026-09-04 (external, six findings), folded in.** The "one ceiling at four doors" claim is now qualified everywhere it appeared: upload is measured against the envelope, not promised (Global Constraints, Task 10's test title). `switchTo` has a point of no return and a rollback behind it, answers `noted: false` when only the courtesy note failed, and has seven fault-injection tests (Task 3, decision 11). Every worker write checks `.ok`, reports a refusal as a toast and moves `_siteMenusCache` behind the write (Task 4, decision 12). The oversized-payload fixture uses xorshift32 instead of a 1 MiB `getRandomValues`, which throws (Task 9). `load()` no longer lets a stale read overwrite a newer area event, and a delayed-read test pins it (Task 1, decision 13). The note line formats a date, not a time of day (Task 11). The extracted smoke run was repeated after these changes.
