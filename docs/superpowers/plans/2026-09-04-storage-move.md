@@ -12,7 +12,7 @@
 
 **Predecessors:** the storage display ([2026-08-30-speicheranzeige.md](2026-08-30-speicheranzeige.md), which called this "Vorhaben zwei") and R3 sync ([2026-09-03-gestura-eu-integration-r3.md](2026-09-03-gestura-eu-integration-r3.md), whose `a32f7df` / `e3799f7` conflict protection is what makes waiting for the second document safe).
 
-**Successor:** [2026-09-04-sync-reconciliation-design.md](../specs/2026-09-04-sync-reconciliation-design.md) builds on Task 9's `forSync` and Task 8's gzip. Nothing here anticipates it beyond those two.
+**Successor:** [2026-09-04-sync-reconciliation-design.md](../specs/2026-09-04-sync-reconciliation-design.md) builds on Task 10's `forSync` and Task 9's gzip. Nothing here anticipates it beyond those two.
 
 ## Global Constraints
 
@@ -51,7 +51,7 @@ The spec leaves these to the plan, or does not foresee them. Decided here with t
 
 7. **The favicon cap is a pure function in `js/favicon-util.js`.** `js/background.js` cannot be unit-tested (its first line is `importScripts`). `pruneCache(cache, max)` lives beside `parseIconLinks` and gets its test there; the worker calls it.
 
-8. **The transport test fixture becomes incompressible.** `tests/eu-sync.test.mjs` builds its oversized payload from `'x'.repeat(…)`, which gzip reduces to a few hundred bytes — with compression the test would stop refusing and go red for the wrong reason. Task 8 replaces the fixture with a megabyte of random base64 characters, which gzip cannot shrink below the 512 KiB envelope limit. The test's claim ("the upload measures the real envelope and refuses over 512 KiB") is unchanged.
+8. **The transport test fixture becomes incompressible.** `tests/eu-sync.test.mjs` builds its oversized payload from `'x'.repeat(…)`, which gzip reduces to a few hundred bytes — with compression the test would stop refusing and go red for the wrong reason. Task 9 replaces the fixture with a megabyte of deterministic pseudo-random base64 characters, which gzip cannot shrink below the 512 KiB envelope limit. The test's claim ("the upload measures the real envelope and refuses over 512 KiB") is unchanged.
 
 9. **`hashOf` strips the seven device-local keys itself**, in addition to `_version`. The spec says the hash uses the sync shape; making the caller responsible would let a theme change offer an upload the moment one caller forgets `forSync`. Stripping inside `hashOf` is idempotent on an already-stripped object.
 
