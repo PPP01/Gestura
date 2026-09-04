@@ -10,3 +10,9 @@ exchange/
 # Playwright MCP scratch output (snapshots, screenshots) - never part of the
 # product; web-ext packages the working tree, so this must stay ignored.
 .playwright-mcp/
+
+# Local agent & IDE directories - never committed
+.agents/
+.gemini/
+.antigravity/
+
