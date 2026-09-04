@@ -1,7 +1,8 @@
 # Design: reconciling two browsers — a three-way merge against a stored base
 
 - **Date:** 2026-09-04
-- **Status:** approved by the user (brainstorming completed)
+- **Status:** approved by the user (brainstorming completed); implemented by
+  [2026-09-04-sync-reconciliation.md](../plans/2026-09-04-sync-reconciliation.md).
 - **Reviewed 2026-09-04** against the code; the review's corrections are folded
   in. Four of them changed behaviour: the base is written *after* a successful
   upload with the hash the client computed (§3), a state written by a newer

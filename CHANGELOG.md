@@ -63,6 +63,11 @@
   more fits in one state; theme, language and a few device-only facts no longer
   travel with a state and are never overwritten by a download. Five states per
   code instead of ten.
+- gestura.eu sync: a **Sync** button per state merges a state and this browser
+  three-way against what they last agreed on — one-sided changes are taken over
+  without a question, deletions stay deleted, and only an entry both sides
+  changed asks (Mine / Theirs / Both). Uploads are still protected by the write
+  token, so two racing browsers cannot lose a write.
 
 **Fixes & Improvements:**
 
