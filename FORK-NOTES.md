@@ -64,6 +64,15 @@ git push gestura firefox-build
 git checkout main
 ```
 
+The Firefox `manifest.json` needs more than "keep the Firefox form": its
+`content_scripts[0].js` and `background.scripts` lists must each start with
+`js/constants.js` then `js/settings-storage.js`, because Firefox has no
+`importScripts` to fall back on. A missing `content_scripts` entry surfaces as
+`GesturaSettingsStorage is not defined` at `document_start`, in every frame of
+every page; a missing `background.scripts` entry is the same error on the
+first context-menu click. No test catches either, so check both lists by eye
+on every merge into this branch.
+
 Both branches merge — no force-push is needed anywhere. Do *not* rebase
 `feature/search-links` (130 commits = pain); it is only kept for reference.
 

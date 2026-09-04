@@ -1,8 +1,10 @@
-// Firefox mirror (branch firefox-build, not this one): background.scripts in the
-// Gecko manifest must carry "js/constants.js" and "js/settings-storage.js" as its
-// first two entries too. Firefox has no importScripts; a missing entry surfaces
-// as `GesturaSettingsStorage is not defined` on the first context-menu click, and
-// no test catches it.
+// Firefox mirror (branch firefox-build, not this one): both background.scripts
+// and content_scripts[0].js in the Gecko manifest must carry "js/constants.js"
+// and "js/settings-storage.js" as their first two entries. Firefox has no
+// importScripts; a missing background.scripts entry surfaces as
+// `GesturaSettingsStorage is not defined` on the first context-menu click, a
+// missing content_scripts entry is the same error at document_start in every
+// frame. No test catches either — see FORK-NOTES.md's "Updating from upstream".
 importScripts('constants.js');
 importScripts('settings-storage.js');
 importScripts('menu-patterns.js');
