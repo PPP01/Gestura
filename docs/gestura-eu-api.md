@@ -456,6 +456,31 @@ one the user is looking at while it happens.
 | `quota-states` | 409 | The locator already holds the maximum number of states. |
 | `rate-limited` | 429 | Per-IP rate limit on requests and on bytes written (the July design's RateLimiter). |
 
+**How the client reads an answer.** The same rules the update check states for
+itself, written down here too because the sync endpoints are a second service
+surface and nothing about them is implied by the first:
+
+- **The HTTP status decides**, not the body. The client maps `400`, `404`,
+  `409`, `412`, `413` and `429` to the codes above by status alone and never
+  reads the `error` string — it reads a body for exactly one code, `conflict`,
+  and only for its `updatedAt`. So an error announced with `200`, or the right
+  `error` string under the wrong status, is misread. Any other status is a
+  generic failure the user sees as "the service answered with an error".
+- **No redirects.** The client sends `redirect: "error"`; a `3xx` is a failed
+  request, not a hop. A `307`/`308` preserves method *and* body, and the body
+  carries the locator.
+- **A response over 1 MiB is refused**, by an early exit on a declared
+  `Content-Length` and again on the received bytes. No legitimate answer comes
+  close: the largest is a `get` at one 512 KiB payload envelope, and a `list`
+  of five states carries five `meta` blobs of at most 8 KiB.
+- **15 seconds, for the whole answer.** The abort timer covers the body, not
+  just the headers — `fetch` resolves on the headers, so a slow body would
+  otherwise hang forever. A service that needs longer than that to wake up
+  reads to the user as a network error.
+- **No cookies, no session.** The client sends `credentials: "omit"` and
+  `cache: "no-store"`, and CORS allows it only `Content-Type`. Authentication
+  is the locator in the body and nothing else.
+
 **What protects the quota.** Locators are free and unlimited — 32 random bytes,
 no registration, no account — so anyone treating the service as free blob
 storage simply derives more of them. The per-locator limits below are
