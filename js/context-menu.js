@@ -332,7 +332,7 @@ class FmContextMenu extends LitElement {
 
 	async #loadCustomCss() {
 		try {
-			const { customCss } = await chrome.storage.sync.get({ customCss: '' });
+			const { customCss } = await window.GesturaSettingsStorage.get({ customCss: '' });
 			const value = customCss || '';
 			if (value !== this._customCss) {
 				this._customCss = value;

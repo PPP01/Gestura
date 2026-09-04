@@ -2109,35 +2109,29 @@ window.ContentContextMenu = ContentContextMenu;
 	let blacklistFeatureEnabled = true;
 	let currentBlacklist = [];
 
-	chrome.storage.sync.get({ blacklist: [], enableBlacklist: true }, (items) => {
-		if (chrome.runtime.lastError) {
-			console.error(chrome.runtime.lastError);
-			return;
-		}
+	window.GesturaSettingsStorage.get({ blacklist: [], enableBlacklist: true }).then((items) => {
 		blacklistFeatureEnabled = items.enableBlacklist !== false;
 		currentBlacklist = items.blacklist || [];
 		isBlacklisted = checkBlacklist(currentBlacklist);
 		if (!isBlacklisted) {
 			initGestures();
 		}
-	});
+	}).catch((e) => console.error(e));
 
-	chrome.storage.onChanged.addListener((changes, namespace) => {
-		if (namespace === 'sync') {
-			if (changes.blacklist || changes.enableBlacklist) {
-				if (changes.blacklist) {
-					currentBlacklist = changes.blacklist.newValue || [];
-				}
-				if (changes.enableBlacklist) {
-					blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
-				}
-				const nowBlacklisted = checkBlacklist(currentBlacklist);
+	window.GesturaSettingsStorage.onChanged((changes) => {
+		if (changes.blacklist || changes.enableBlacklist) {
+			if (changes.blacklist) {
+				currentBlacklist = changes.blacklist.newValue || [];
+			}
+			if (changes.enableBlacklist) {
+				blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
+			}
+			const nowBlacklisted = checkBlacklist(currentBlacklist);
 
-				if (nowBlacklisted !== isBlacklisted) {
-					isBlacklisted = nowBlacklisted;
-					if (nowBlacklisted === false && !initGesturesCalled) {
-						initGestures();
-					}
+			if (nowBlacklisted !== isBlacklisted) {
+				isBlacklisted = nowBlacklisted;
+				if (nowBlacklisted === false && !initGesturesCalled) {
+					initGestures();
 				}
 			}
 		}
@@ -2340,11 +2334,7 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		function loadSettings() {
-			chrome.storage.sync.get(null, async (items) => {
-				if (chrome.runtime.lastError) {
-					console.error(chrome.runtime.lastError);
-					return;
-				}
+			window.GesturaSettingsStorage.get(null).then(async (items) => {
 				if (items) {
 					const { blacklist, ...otherSettings } = items;
 					// NOTE: upstream v2.3.1 rebuilds from DEFAULT_SETTINGS here so a reset
@@ -2411,16 +2401,14 @@ window.ContentContextMenu = ContentContextMenu;
 				}
 
 				eventManager.update();
-			});
+			}).catch((e) => console.error(e));
 		}
 
-		chrome.storage.onChanged.addListener((changes, namespace) => {
-			if (namespace === 'sync') {
-				const keys = Object.keys(changes);
-				if (keys.length === 1 && keys[0] === 'blacklist') return;
+		window.GesturaSettingsStorage.onChanged((changes) => {
+			const keys = Object.keys(changes);
+			if (keys.length === 1 && keys[0] === 'blacklist') return;
 
-				loadSettings();
-			}
+			loadSettings();
 		});
 
 		loadSettings();
@@ -2756,7 +2744,7 @@ window.ContentContextMenu = ContentContextMenu;
 			macLinuxHintShown = true;
 			toaster.showToast(hintText, {
 				onClick: () => {
-					try { chrome.storage.sync.set({ macLinuxHintDismissed: true }); } catch (e) {}
+					try { window.GesturaSettingsStorage.set({ macLinuxHintDismissed: true }).catch(() => {}); } catch (e) {}
 					SETTINGS.macLinuxHintDismissed = true;
 					safeSendMessage({ action: 'openOptionsPage', hash: '#mac-linux-notice' });
 				},
@@ -2847,7 +2835,7 @@ window.ContentContextMenu = ContentContextMenu;
 					recognizer.reset();
 					if (!SETTINGS.macLinuxHintDismissed) {
 						SETTINGS.macLinuxHintDismissed = true;
-						try { chrome.storage.sync.set({ macLinuxHintDismissed: true }); } catch (e) {}
+						try { window.GesturaSettingsStorage.set({ macLinuxHintDismissed: true }).catch(() => {}); } catch (e) {}
 					}
 					return;
 				} else {
@@ -3462,7 +3450,7 @@ window.ContentContextMenu = ContentContextMenu;
 					edgeGestureBlurCount++;
 					if (edgeGestureBlurCount >= 2 && !SETTINGS.edgeGestureConflict) {
 						SETTINGS.edgeGestureConflict = true;
-						try { chrome.storage.sync.set({ edgeGestureConflict: true }); } catch (e) { }
+						try { window.GesturaSettingsStorage.set({ edgeGestureConflict: true }).catch(() => {}); } catch (e) { }
 					}
 				}
 
@@ -3986,7 +3974,7 @@ window.ContentContextMenu = ContentContextMenu;
 			if (isEdgeDesktop && SETTINGS.edgeGestureConflict) {
 				SETTINGS.edgeGestureConflict = false;
 				edgeGestureBlurCount = 0;
-				try { chrome.storage.sync.set({ edgeGestureConflict: false }); } catch (e) { }
+				try { window.GesturaSettingsStorage.set({ edgeGestureConflict: false }).catch(() => {}); } catch (e) { }
 			}
 
 			const config = SETTINGS.enableGestureCustomization

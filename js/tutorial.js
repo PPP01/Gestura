@@ -267,7 +267,7 @@
 				{
 					if (isMacOrLinux && elements.macLinuxNotice) {
 						elements.macLinuxNotice.style.display = 'block';
-						try { chrome.storage.sync.set({ macLinuxHintDismissed: true }); } catch (e) {}
+						try { window.GesturaSettingsStorage.set({ macLinuxHintDismissed: true }).catch(() => {}); } catch (e) {}
 					}
 				}
 			}

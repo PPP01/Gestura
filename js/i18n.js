@@ -273,7 +273,7 @@
 		} catch (e) {
 		}
 
-		const items = await chrome.storage.sync.get({ language: 'auto', theme: 'auto' });
+		const items = await window.GesturaSettingsStorage.get({ language: 'auto', theme: 'auto' });
 
 		if (items.theme !== cachedTheme) {
 			applyTheme(items.theme);
