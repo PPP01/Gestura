@@ -92,7 +92,7 @@ async function safeSet(patch) {
 		return await Storage.set(patch);
 	} catch (e) {
 		console.error('Settings write failed:', e);
-		return { ok: false, error: 'write' };
+		return { ok: false, error: 'write', message: (e && e.message) ? String(e.message) : String(e) };
 	}
 }
 
@@ -175,7 +175,10 @@ class SettingsStore {
 			emit('gestura:settings-saved');
 			return res;
 		}
-		if (res.error === 'write') console.error('Settings save failed:', res);
+		// The browser's own words, which the façade carries on `message`: without
+		// them this line said { ok: false, error: 'write' } and nothing else, over
+		// the one failure the whole feature exists to handle.
+		if (res.error === 'write') console.error('Settings save failed:', res.message || '(no cause reported)', res);
 		for (const key of Object.keys(previous)) this.#current[key] = previous[key];
 		if (isStorageFull(res)) emit('gestura:storage-full', res);
 		return res;

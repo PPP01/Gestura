@@ -75,7 +75,9 @@ describe('save', () => {
 		const before = { ...store.current };
 		fake.hooks.failNext = { area: 'sync', op: 'get', after: 0 };
 		const res = await store.save({ trailWidth: 42 });
-		expect(res).toEqual({ ok: false, error: 'write' });
+		// The 'write' code, plus the browser's own reason on `message` - which is
+		// what this store logs, and what the pre-branch code lost.
+		expect(res).toEqual({ ok: false, error: 'write', message: 'injected failure: sync.get' });
 		expect(store.current).toEqual(before);
 		expect(fake.raw('sync').trailWidth).not.toBe(42);
 	});

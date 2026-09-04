@@ -155,6 +155,16 @@
 	// throws on synchronously) is reported under the 'write' code because the
 	// contract has no read-specific code, the same imprecision Task 3 already
 	// carries for its own reads.
+	//
+	// The CODE says what happened; `message` says why. 'QUOTA_BYTES quota
+	// exceeded', 'MAX_WRITE_OPERATIONS_PER_HOUR', 'Extension context invalidated'
+	// are the three the user will actually meet, and dropping them cost this
+	// feature the diagnosis of the very failure it exists to handle. It is carried
+	// for the log in js/settings-store.js and for nothing else: no user-facing
+	// text shows a raw browser string, and callers still switch on `error` alone -
+	// isStorageFull() is unchanged by it.
+	const because = (e) => ((e && e.message) ? String(e.message) : String(e));
+
 	async function set(patch) {
 		await ready();
 		const known = pickKnown(patch);
@@ -166,7 +176,7 @@
 			await store().set(toWrite);
 			return { ok: true };
 		} catch (e) {
-			return { ok: false, error: 'write' };
+			return { ok: false, error: 'write', message: because(e) };
 		}
 	}
 
@@ -196,6 +206,12 @@
 			branches[k] = bytes;
 			total += bytes;
 		}
+		// The format marker is written beside the settings in state 'sync' (§10.1)
+		// and precheck() counts it. It is not a branch and gets no row of its own,
+		// but it is 11 of the 102 400 bytes, and leaving it out of the display let
+		// the data section read "102 395 of 102 400" over a save that was refused.
+		// What is shown and what is enforced have to be the same number.
+		if (cache.area === 'sync') total += entryBytes(FORMAT_KEY, FORMAT_VERSION);
 		return { area: cache.area, branches, total, quota: { item: q.item, total: q.total } };
 	}
 

@@ -693,3 +693,14 @@ Order: 1 → 2 → 3 → 4 → (5, 6, 7 independent) → 8 → (9, 10).
 - **No compression in `storage.sync`, no chunking.** ✔
 - **`js/storage-usage.js` is inherited unchanged**; the façade carries its own
   copy of the formula, pinned to it by a test. ✔
+
+**The one deviation from "byte for byte", recorded.** State "browser sync on" is
+today's behaviour byte for byte in the store it uses, the quotas it enforces and
+the API it presents — but not in the last eleven bytes of the total. The format
+marker of §10.1 (`syncFormat: 1`) is written beside the settings from this
+release on, and it costs `entryBytes('syncFormat', 1)` = 11 B of the 102 400.
+`precheck()` counts it, because it is genuinely written; `usage()` counts it too,
+so the data section shows the number the pre-check will refuse on rather than one
+eleven bytes more generous. A user who never switches areas therefore has 102 389
+bytes for settings where an older Gestura had 102 400. The marker is sanctioned
+by §10.1 and the deviation is accepted, not repaired.

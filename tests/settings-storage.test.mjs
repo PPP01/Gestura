@@ -104,11 +104,15 @@ describe('get and set address the selected area', () => {
 		expect(fake.raw('sync')).not.toHaveProperty('faviconCache');
 	});
 
-	it('set reports a failing store as a write error', async () => {
+	// The code stays 'write' - isStorageFull() and every caller switch on it - and
+	// the browser's own words ride along on `message`, which is the whole
+	// diagnosis of the failure this feature exists to handle. Nothing shows the
+	// raw string to the user; js/settings-store.js logs it.
+	it("set reports a failing store as a write error, carrying the browser's reason", async () => {
 		const orig = chrome.storage.sync.set;
 		chrome.storage.sync.set = async () => { throw new Error('QUOTA_BYTES quota exceeded'); };
 		try {
-			expect(await S.set({ theme: 'dark' })).toEqual({ ok: false, error: 'write' });
+			expect(await S.set({ theme: 'dark' })).toEqual({ ok: false, error: 'write', message: 'QUOTA_BYTES quota exceeded' });
 		} finally {
 			chrome.storage.sync.set = orig;
 		}
@@ -225,13 +229,35 @@ describe('usage', () => {
 		expect(u.branches).toHaveProperty('theme');
 		expect(u.branches).toHaveProperty('siteMenus');
 		expect(u.branches).not.toHaveProperty('faviconCache');
-		expect(u.total).toBe(u.branches.theme + u.branches.siteMenus);
+		expect(u.total).toBe(u.branches.theme + u.branches.siteMenus + S.entryBytes(S.FORMAT_KEY, 1));
 		expect(u.quota).toEqual({ item: 8192, total: 102400 });
 	});
 
 	it('has no per-item quota in state local', async () => {
 		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
 		expect(S.usage({}).quota).toEqual({ item: null, total: 1024 * 1024 });
+	});
+
+	// §10.1's marker is written beside the settings in state 'sync' and counted by
+	// the pre-check. Leaving it out of the display let the data section read
+	// "102 395 of 102 400" over a save that was refused - eleven bytes, and the
+	// difference between a number the user can act on and one they cannot.
+	it('counts the format marker in state sync, and not in state local', async () => {
+		const marker = S.entryBytes(S.FORMAT_KEY, 1);
+		expect(marker).toBe(11);
+		expect(S.usage({}).total).toBe(marker);
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		expect(S.usage({}).total).toBe(0);
+	});
+
+	// The point of the marker fix: what the data section shows and what the
+	// pre-check refuses on are the same number.
+	it('reports the same total the pre-check refuses on', async () => {
+		const settings = {};
+		for (const k of KNOWN.slice(0, 13)) settings[k] = valueOfSize(k, 8192);
+		const u = S.usage(settings);
+		expect(u.total).toBeGreaterThan(u.quota.total);
+		expect(await S.set(settings)).toMatchObject({ ok: false, error: 'total-full', bytes: u.total });
 	});
 });
 
@@ -296,7 +322,8 @@ describe('the pre-check', () => {
 	// 'write' - the same imprecision Task 3 already carries for its own reads.
 	it('resolves { ok: false, error: "write" } instead of rejecting when the pre-check read fails', async () => {
 		fake.hooks.failNext = { area: 'sync', op: 'get', after: 0 };
-		await expect(S.set({ theme: 'dark' })).resolves.toEqual({ ok: false, error: 'write' });
+		await expect(S.set({ theme: 'dark' })).resolves
+			.toEqual({ ok: false, error: 'write', message: 'injected failure: sync.get' });
 		expect(fake.raw('sync')).not.toHaveProperty('theme');
 	});
 });
