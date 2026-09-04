@@ -108,9 +108,20 @@ describe('remove, prune, clear', () => {
 	it('prune drops bases for states absent from the listing and keeps the rest', async () => {
 		await B.write(ID1, { hash: 'H1', payload });
 		await B.write(ID2, { hash: 'H2', payload });
-		expect(await B.prune([ID2])).toBe(1);
+		// What survived, not how many were dropped: prune answers with the map
+		// the panel keeps, so the answer is the thing worth asserting.
+		expect(Object.keys(await B.prune([ID2]))).toEqual([ID2]);
 		expect(Object.keys(await B.list())).toEqual([ID2]);
-		expect(await B.prune([ID2])).toBe(0);
+		expect(Object.keys(await B.prune([ID2]))).toEqual([ID2]);
+	});
+	// write and remove answer the same way, so the panel never re-reads the key
+	// just to learn what it already changed.
+	it('write and remove answer with the list map', async () => {
+		expect(Object.keys(await B.write(ID1, { hash: 'H1', payload }))).toEqual([ID1]);
+		expect(Object.keys(await B.write(ID2, { hash: 'H2', payload }))).toEqual([ID1, ID2]);
+		expect(Object.keys(await B.remove(ID1))).toEqual([ID2]);
+		// A refused id changes nothing and still answers with what is there.
+		expect(Object.keys(await B.write('not-a-state-id', { hash: 'H', payload }))).toEqual([ID2]);
 	});
 	it('clear removes the key', async () => {
 		await B.write(ID1, { hash: 'H1', payload });

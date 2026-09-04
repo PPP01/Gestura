@@ -1827,7 +1827,7 @@ class OptionsPage extends LitElement {
 			dropped: result.dropped,
 			retyped: result.retyped,
 			legacy: result.legacy,
-			commit: () => this.#applySettings(result.settings),
+			commit: () => this.#applySettings({ settings: result.settings }),
 		});
 	}
 
@@ -1837,14 +1837,13 @@ class OptionsPage extends LitElement {
 	// therefore reports no change. The subcomponents would otherwise keep their
 	// old state.
 	//
-	// `input` is the settings object, or { settings, afterSave }: the sync panel
-	// stores its base (js/eu-sync-base.js) in afterSave, which must run after the
-	// save succeeded and before the reload takes the page away. A failed save
-	// runs no afterSave - a base that names settings this browser does not hold
-	// would make the next merge overwrite local changes (spec §3).
-	async #applySettings(input) {
-		const settings = input && input.settings && typeof input.settings === 'object' ? input.settings : input;
-		const afterSave = input && typeof input.afterSave === 'function' ? input.afterSave : null;
+	// One shape, whether the call comes through the event or from the file import
+	// in this file: { settings, afterSave }. The sync panel stores its base
+	// (js/eu-sync-base.js) in afterSave, which must run after the save succeeded
+	// and before the reload takes the page away. A failed save runs no afterSave -
+	// a base that names settings this browser does not hold would make the next
+	// merge overwrite local changes (spec §3).
+	async #applySettings({ settings, afterSave = null }) {
 		// A debounce patch still pending comes from the state *before* the import
 		// and would write the old values back over it on beforeunload.
 		if (this._debounceTimer) clearTimeout(this._debounceTimer);

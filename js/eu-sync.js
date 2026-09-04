@@ -155,7 +155,7 @@
 		// a token the server has to reject, and the caller meant "unconditional".
 		if (typeof basePayloadHash === 'string' && basePayloadHash) body.basePayloadHash = basePayloadHash;
 		const answer = await request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
-		return { ...(answer && typeof answer === 'object' ? answer : {}), payloadHash };
+		return { ...answer, payloadHash };
 	}
 
 	// expectPayloadHash is REQUIRED, and deliberately so. It is the only

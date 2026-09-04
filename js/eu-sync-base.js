@@ -64,8 +64,7 @@
 
 	// Which states have a base, and under which hash - for the panel's row
 	// buttons. Nothing is inflated here.
-	async function list() {
-		const all = await readAll();
+	function summarize(all) {
 		const out = {};
 		for (const [id, e] of Object.entries(all)) {
 			if (wellFormed(id, e)) out[id] = { hash: e.hash, date: typeof e.date === 'string' ? e.date : '' };
@@ -73,11 +72,20 @@
 		return out;
 	}
 
+	async function list() {
+		return summarize(await readAll());
+	}
+
+	// write, remove and prune answer with the same map list() would - built from
+	// the object they already hold. The panel keeps that map to decide which rows
+	// offer Sync, and would otherwise re-read the whole key, gzipped payloads and
+	// all, immediately after every write.
 	async function remove(stateId) {
 		const all = await readAll();
-		if (!(stateId in all)) return;
+		if (!(stateId in all)) return summarize(all);
 		delete all[stateId];
 		await writeAll(all);
+		return summarize(all);
 	}
 
 	async function read(stateId) {
@@ -104,14 +112,15 @@
 	// (spec §3): after an upload with the hash uploadState returned, after a
 	// download with the hash the payload was checked against.
 	async function write(stateId, { hash, payload, date }) {
-		if (!X().STATE_ID_RE.test(stateId)) return;
 		const all = await readAll();
+		if (!X().STATE_ID_RE.test(stateId)) return summarize(all);
 		all[stateId] = {
 			hash,
 			gz: await gzipText(JSON.stringify(payload)),
 			date: date || new Date().toISOString(),
 		};
 		await writeAll(all);
+		return summarize(all);
 	}
 
 	// After a SUCCESSFUL listing only: a base for a state the server no longer
@@ -127,7 +136,7 @@
 			}
 		}
 		if (dropped) await writeAll(all);
-		return dropped;
+		return summarize(all);
 	}
 
 	async function clear() {

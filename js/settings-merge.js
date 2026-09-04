@@ -167,6 +167,10 @@
 	function pushConflict(ctx, path, id, kind, s, l, r) {
 		ctx.conflicts.push({
 			path, id, kind, mine: l, theirs: r,
+			// The spec this entry was merged under, kept rather than re-derived
+			// from `path` in apply(): one walk over MERGE_MAP instead of two that
+			// have to agree.
+			spec: s,
 			// Both needs two values to keep; a deletion against an edit has one.
 			canKeepBoth: !!(s.both && l !== undefined && r !== undefined),
 			key: conflictKey(path, id, l, r),
@@ -345,15 +349,6 @@
 		return v === undefined ? undefined : structuredClone(v);
 	}
 
-	function specAt(path) {
-		const parts = path.split('.');
-		let s = spec(MERGE_MAP[parts[0]] || 'scalar');
-		for (let i = 1; i < parts.length; i++) {
-			s = spec((s.children && s.children[parts[i]]) || 'scalar');
-		}
-		return s;
-	}
-
 	// The object holding the last path segment, created on the way if missing.
 	function parentOf(obj, path) {
 		const parts = path.split('.');
@@ -373,7 +368,7 @@
 		const stateName = (opts && opts.stateName) || '';
 		for (const c of conflicts || []) {
 			const choice = (choices && choices[c.key]) || 'mine';
-			const s = specAt(c.path);
+			const s = c.spec;
 			const [parent, last] = parentOf(out, c.path);
 			const keep = choice === 'theirs' ? c.theirs : c.mine;
 			const both = choice === 'both' && c.canKeepBoth;

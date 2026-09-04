@@ -12,6 +12,19 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 // front of this browser. Two bulk buttons make a long list bearable without
 // hiding it. Nothing here writes anything; `merge-confirm` hands the choices
 // back to the panel, which shows the R3 preview next.
+// The one sentence that says what the merge did without asking anything. Two
+// places show it - the dialog above the conflict list, and the panel as the
+// preview's note - and the token list of euSyncMergeSummary is spelled out
+// here alone, so a placeholder cannot be added in one and forgotten in the
+// other.
+export function formatMergeSummary(i18n, summary) {
+	const s = summary || {};
+	return i18n.getMessage('euSyncMergeSummary')
+		.replace('{taken}', String(s.taken || 0))
+		.replace('{uploaded}', String(s.uploaded || 0))
+		.replace('{deleted}', String(s.deleted || 0));
+}
+
 const SECTIONS = [
 	[/^siteMenus\./, 'euSyncMergeSectionSiteMenus'],
 	[/^searchEngines\./, 'euSyncMergeSectionEngines'],
@@ -153,11 +166,7 @@ class SyncMergeDialog extends LitElement {
 	render() {
 		if (!this.open) return html``;
 		const i18n = window.i18n;
-		const s = this.summary || {};
-		const summary = i18n.getMessage('euSyncMergeSummary')
-			.replace('{taken}', String(s.taken || 0))
-			.replace('{uploaded}', String(s.uploaded || 0))
-			.replace('{deleted}', String(s.deleted || 0));
+		const summary = formatMergeSummary(i18n, this.summary);
 		return html`
 			<div class="modal-overlay" @click=${(e) => { if (e.target === e.currentTarget) this.#cancel(); }}>
 				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true">

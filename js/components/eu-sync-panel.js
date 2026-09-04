@@ -3,6 +3,7 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
+import { formatMergeSummary } from './sync-merge-dialog.js';
 
 // The second switch. It sits below the first and is not there at all while the
 // first is not effectively enabled - not greyed out, not disabled, but absent:
@@ -344,8 +345,7 @@ class EuSyncPanel extends LitElement {
 		this._states = list;
 		// A base for a state the server no longer has is dropped - after a
 		// SUCCESSFUL listing only; a failed one proves nothing (spec §3).
-		await window.GesturaSyncBase.prune(list.map(s => s.stateId));
-		this._bases = await window.GesturaSyncBase.list();
+		this._bases = await window.GesturaSyncBase.prune(list.map(s => s.stateId));
 	}
 
 	// The name comes from the decrypted meta blob and not from the local map: a
@@ -530,11 +530,10 @@ class EuSyncPanel extends LitElement {
 		}
 		const baseV = S.validate(base.payload, { forSync: true, local: local0 });
 		if (!baseV.ok) {
-			await window.GesturaSyncBase.remove(state.stateId);
 			// The row's Sync button hangs off _bases; without this it would stay
 			// there, offering the merge that was just refused, until the next
 			// listing.
-			this._bases = await window.GesturaSyncBase.list();
+			this._bases = await window.GesturaSyncBase.remove(state.stateId);
 			this._error = i18n.getMessage('euSyncMergeNoBase');
 			return;
 		}
@@ -561,8 +560,7 @@ class EuSyncPanel extends LitElement {
 			// with the same two values. No upload and no preview: the transfer
 			// they would show carries nothing.
 			if (expect !== base.hash) {
-				await window.GesturaSyncBase.write(state.stateId, { hash: expect, payload, date: new Date().toISOString() });
-				this._bases = await window.GesturaSyncBase.list();
+				this._bases = await window.GesturaSyncBase.write(state.stateId, { hash: expect, payload, date: new Date().toISOString() });
 			}
 			this._conflict = null;
 			this._notice = i18n.getMessage('euSyncMergeInSync');
@@ -620,9 +618,7 @@ class EuSyncPanel extends LitElement {
 			this._error = settingsErrorMessage(i18n, r.error);
 			return;
 		}
-		const s = merged.summary;
-		const summaryLine = i18n.getMessage('euSyncMergeSummary')
-			.replace('{taken}', String(s.taken)).replace('{uploaded}', String(s.uploaded)).replace('{deleted}', String(s.deleted));
+		const summaryLine = formatMergeSummary(i18n, merged.summary);
 		// On a retry the user sees this preview a second time; the reason belongs
 		// in the dialog they are looking at, not in a panel line behind it.
 		const note = attempt > 1 ? `${i18n.getMessage('euSyncMergeMovedAgain')} ${summaryLine}` : summaryLine;
