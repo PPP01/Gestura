@@ -14,8 +14,6 @@
 	const KEY = 'euSync';
 	// Tier 2's own consent, independent of the integration's. R3 = 1.
 	const CURRENT_SYNC_CONSENT = 1;
-	const STATES_MAX = 10;
-	const CHANGED_EVENT = 'gestura:eu-sync-changed';
 
 	const DEFAULTS = { enabled: false, consent: null, secret: '', states: {} };
 
@@ -117,10 +115,6 @@
 		return loaded ? cache : load();
 	}
 
-	function current() {
-		return cache;
-	}
-
 	async function write(patch) {
 		const next = { ...(await read()).euSync, ...(patch || {}) };
 		await chrome.storage.local.set({ [KEY]: next });
@@ -152,7 +146,6 @@
 			if (area !== 'local' || !changes[KEY]) return;
 			absorb({ [KEY]: changes[KEY].newValue });
 			for (const fn of listeners) { try { fn(cache); } catch { /* one listener must not break the others */ } }
-			if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED_EVENT));
 		});
 	}
 
@@ -174,9 +167,9 @@
 	load();
 
 	const api = {
-		KEY, CURRENT_SYNC_CONSENT, STATES_MAX, CHANGED_EVENT,
+		KEY, CURRENT_SYNC_CONSENT,
 		normalizeSync, syncConsentStale, syncEnabled, syncOrigin,
-		read, current, write, setState, removeState, onChange,
+		read, write, setState, removeState, onChange,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSyncLocal = api;
