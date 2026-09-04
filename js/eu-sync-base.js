@@ -97,6 +97,7 @@
 	// (spec §3): after an upload with the hash uploadState returned, after a
 	// download with the hash the payload was checked against.
 	async function write(stateId, { hash, payload, date }) {
+		if (!X().STATE_ID_RE.test(stateId)) return;
 		const all = await readAll();
 		all[stateId] = {
 			hash,

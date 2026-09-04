@@ -82,6 +82,12 @@ describe('read and write', () => {
 		await B.write(ID2, { hash: 'H2', payload, date: 'd2' });
 		expect(await B.list()).toEqual({ [ID1]: { hash: 'H1', date: 'd1' }, [ID2]: { hash: 'H2', date: 'd2' } });
 	});
+	it('write() with a malformed stateId leaves the store untouched', async () => {
+		await B.write(ID1, { hash: 'H1', payload, date: 'd1' });
+		await B.write('not-a-state-id', { hash: 'H2', payload });
+		expect(await B.list()).toEqual({ [ID1]: { hash: 'H1', date: 'd1' } });
+		expect(await B.read('not-a-state-id')).toBeNull();
+	});
 	it('list() skips entries whose id or hash is malformed', async () => {
 		store.set(B.KEY, { nope: { hash: 'H', gz: '' }, [ID1]: { hash: '', gz: '' } });
 		expect(await B.list()).toEqual({});
