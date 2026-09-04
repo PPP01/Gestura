@@ -127,11 +127,34 @@
 		return pickKnown(await store().get(query));
 	}
 
-	// The whole patch or nothing. Task 2 puts the size pre-check in front of the
-	// write; the shape of the answer is fixed here so callers never change.
+	// §6: the size the write would produce, measured the way Chrome measures it,
+	// against the ceiling of the active area. In state 'sync' each branch is an
+	// item with its own quota; in state 'local' there is no item quota and only the
+	// total counts. Reads the store once to know what the untouched keys weigh.
+	async function precheck(patch) {
+		const q = QUOTA[cache.area];
+		if (q.item !== null) {
+			for (const [k, v] of Object.entries(patch)) {
+				const bytes = entryBytes(k, v);
+				if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, area: cache.area };
+			}
+		}
+		const stored = pickKnown(await store().get(knownKeys()));
+		const merged = { ...stored, ...patch };
+		let total = 0;
+		for (const [k, v] of Object.entries(merged)) total += entryBytes(k, v);
+		if (cache.area === 'sync') total += entryBytes(FORMAT_KEY, FORMAT_VERSION);
+		if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, area: cache.area };
+		return { ok: true };
+	}
+
+	// The whole patch or nothing. The pre-check runs first so a write that would
+	// fail never gets partially applied.
 	async function set(patch) {
 		await ready();
 		const known = pickKnown(patch);
+		const check = await precheck(known);
+		if (!check.ok) return check;
 		const toWrite = { ...known };
 		if (cache.area === 'sync') toWrite[FORMAT_KEY] = FORMAT_VERSION;
 		try {

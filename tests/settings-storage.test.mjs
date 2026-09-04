@@ -205,3 +205,58 @@ describe('usage', () => {
 		expect(S.usage({}).quota).toEqual({ item: null, total: 1024 * 1024 });
 	});
 });
+
+// A value that makes `key` weigh exactly `bytes` in storage: the key, two quotes
+// and the payload. entryBytes('siteMenus', 'x'.repeat(n)) = 9 + n + 2.
+const valueOfSize = (key, bytes) => 'x'.repeat(bytes - key.length - 2);
+
+describe('the pre-check', () => {
+	it('refuses at 8193 bytes on a branch in state sync, names it, and writes nothing', async () => {
+		const res = await S.set({ theme: 'dark', siteMenus: valueOfSize('siteMenus', 8193) });
+		expect(res).toEqual({ ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 8193, quota: 8192, area: 'sync' });
+		expect(fake.raw('sync')).not.toHaveProperty('theme');
+		expect(fake.raw('sync')).not.toHaveProperty('siteMenus');
+	});
+
+	it('accepts exactly 8192 bytes on a branch', async () => {
+		expect(await S.set({ siteMenus: valueOfSize('siteMenus', 8192) })).toEqual({ ok: true });
+	});
+
+	it('refuses over 102 400 bytes in total in state sync', async () => {
+		// Thirteen branches of 8000 bytes are each under the item quota and together
+		// over the total. Each is a real key, so the filter keeps them.
+		const patch = {};
+		const keys = KNOWN.slice(0, 13);
+		for (const k of keys) patch[k] = valueOfSize(k, 8000);
+		const res = await S.set(patch);
+		expect(res.ok).toBe(false);
+		expect(res.error).toBe('total-full');
+		expect(res.branch).toBe('');
+		expect(res.quota).toBe(102400);
+		expect(res.bytes).toBeGreaterThan(102400);
+		expect(fake.raw('sync')).not.toHaveProperty(keys[0]);
+	});
+
+	it('counts what is already stored toward the total', async () => {
+		const keys = KNOWN.slice(0, 12);
+		const first = {};
+		for (const k of keys) first[k] = valueOfSize(k, 8000);
+		expect((await S.set(first)).ok).toBe(true);
+		// 96 000 stored; one more branch of 8000 tips the total.
+		const res = await S.set({ [KNOWN[12]]: valueOfSize(KNOWN[12], 8000) });
+		expect(res).toMatchObject({ ok: false, error: 'total-full' });
+	});
+
+	it('writes a branch over 8192 bytes without complaint in state local', async () => {
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		expect(await S.set({ siteMenus: valueOfSize('siteMenus', 300000) })).toEqual({ ok: true });
+		expect(fake.raw('local').siteMenus).toHaveLength(300000 - 11);
+	});
+
+	it('refuses over 1 MiB in total in state local', async () => {
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		const res = await S.set({ siteMenus: valueOfSize('siteMenus', 1024 * 1024 + 1) });
+		expect(res).toMatchObject({ ok: false, error: 'total-full', quota: 1024 * 1024, area: 'local' });
+		expect(fake.raw('local')).not.toHaveProperty('siteMenus');
+	});
+});
