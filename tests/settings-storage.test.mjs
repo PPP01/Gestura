@@ -474,3 +474,14 @@ describe('switchTo under a failing write', () => {
 		expect(fake.raw('sync').syncMovedAt).toBeDefined();
 	});
 });
+
+// Save, export and import share one number. The fourth door, upload, is bounded
+// by the contract's 512 KiB envelope and is measured at upload time, not
+// promised here (storage-move design §8).
+describe('the validator cap and the local ceiling', () => {
+	it('are the same number', async () => {
+		await import('../js/eu-integration.js');
+		await import('../js/eu-settings-schema.js');
+		expect(globalThis.GesturaSettingsSchema.MAX_BYTES).toBe(S.QUOTA.local.total);
+	});
+});

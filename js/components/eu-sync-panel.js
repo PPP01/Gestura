@@ -260,10 +260,10 @@ class EuSyncPanel extends LitElement {
 		await this.#adoptSecret(window.GesturaSyncCode.generateSecret());
 	}
 
-	// The export as the receiver will get it - validated and repaired on the way
-	// out, see GesturaSettingsSchema.validatedExport. `opts` is passed through.
+	// Always the sync shape: the seven device-local keys stay home (storage-move
+	// design §7). `opts` is passed through on top.
 	#validatedExport(opts) {
-		return window.GesturaSettingsSchema.validatedExport(settingsStore.current, window.i18n.version, opts);
+		return window.GesturaSettingsSchema.validatedExport(settingsStore.current, window.i18n.version, { forSync: true, ...(opts || {}) });
 	}
 
 	// Validate, canonicalise and hash the whole settings tree - on every save of
@@ -411,7 +411,7 @@ class EuSyncPanel extends LitElement {
 			expectPayloadHash,
 		}));
 		if (!payload) return;
-		const result = window.GesturaSettingsSchema.validate(payload);
+		const result = window.GesturaSettingsSchema.validate(payload, { forSync: true, local: settingsStore.current });
 		if (!result.ok) {
 			this._error = settingsErrorMessage(window.i18n, result.error);
 			return;

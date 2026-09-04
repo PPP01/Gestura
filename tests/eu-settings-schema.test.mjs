@@ -314,8 +314,85 @@ describe('the upload hash', () => {
 	});
 
 	it('changes when a value changes', async () => {
-		const a = await S.hashOf({ gesturaSettings: 1, theme: 'dark' });
-		const b = await S.hashOf({ gesturaSettings: 1, theme: 'light' });
+		const a = await S.hashOf({ gesturaSettings: 1, trailWidth: 5 });
+		const b = await S.hashOf({ gesturaSettings: 1, trailWidth: 6 });
 		expect(a).not.toBe(b);
+	});
+});
+
+describe('device-local keys', () => {
+	const SEVEN = ['theme', 'language', 'macLinuxHintDismissed', 'edgeGestureConflict', 'navCollapsed', 'engineManagerLocalOnly', 'sectionAdvanced'];
+
+	it('names exactly the seven', () => {
+		expect([...S.DEVICE_LOCAL].sort()).toEqual([...SEVEN].sort());
+	});
+
+	it('buildExport keeps them by default', () => {
+		const out = S.buildExport(settings(), '2.8.0');
+		for (const k of SEVEN) expect(out).toHaveProperty(k);
+	});
+
+	it('buildExport omits them for sync', () => {
+		const out = S.buildExport(settings(), '2.8.0', { forSync: true });
+		for (const k of SEVEN) expect(out).not.toHaveProperty(k);
+		expect(out.trailWidth).toBe(9);
+	});
+
+	// The flag has to survive the rebuild inside validate(), or the object that is
+	// uploaded and hashed is not the one the preview showed.
+	it('validatedExport for sync hands back an object without them', () => {
+		const res = S.validatedExport(settings(), '2.8.0', { forSync: true });
+		expect(res.ok).toBe(true);
+		for (const k of SEVEN) expect(res.exportObj).not.toHaveProperty(k);
+		expect(JSON.parse(res.json)).not.toHaveProperty('theme');
+	});
+
+	it('import from a file accepts them either way', () => {
+		const res = S.validate({ gesturaSettings: 1, theme: 'dark', navCollapsed: true });
+		expect(res.settings.theme).toBe('dark');
+		expect(res.settings.navCollapsed).toBe(true);
+	});
+
+	// Adopting a sync state keeps THIS device's seven. validate() seeds its result
+	// from the defaults, and the adopt path writes that result whole - so without
+	// this a downloaded state that carries no theme would write 'auto' over 'dark'.
+	it('validate for sync fills them from the supplied local copy, not the defaults', () => {
+		const local = { ...structuredClone(DEFAULTS), theme: 'dark', language: 'de', navCollapsed: true };
+		const res = S.validate({ gesturaSettings: 1, trailWidth: 3 }, { forSync: true, local });
+		expect(res.ok).toBe(true);
+		expect(res.settings.theme).toBe('dark');
+		expect(res.settings.language).toBe('de');
+		expect(res.settings.navCollapsed).toBe(true);
+		expect(res.settings.trailWidth).toBe(3);
+	});
+
+	it('validate for sync ignores a device-local key the payload carries', () => {
+		const local = { ...structuredClone(DEFAULTS), theme: 'dark' };
+		const res = S.validate({ gesturaSettings: 1, trailWidth: 3, theme: 'light' }, { forSync: true, local });
+		expect(res.settings.theme).toBe('dark');
+		expect(res.dropped).toEqual([]);
+	});
+
+	it('validate for sync without a local copy falls back to the defaults', () => {
+		const res = S.validate({ gesturaSettings: 1, trailWidth: 3 }, { forSync: true });
+		expect(res.settings.theme).toBe(DEFAULTS.theme);
+	});
+
+	it('hashOf ignores a theme change', async () => {
+		const a = S.buildExport(settings(), '2.8.0');
+		const b = S.buildExport({ ...settings(), theme: 'light' }, '2.8.0');
+		expect(await S.hashOf(a)).toBe(await S.hashOf(b));
+	});
+
+	it('hashOf still sees a real change', async () => {
+		const a = S.buildExport(settings(), '2.8.0');
+		const b = S.buildExport({ ...settings(), trailWidth: 1 }, '2.8.0');
+		expect(await S.hashOf(a)).not.toBe(await S.hashOf(b));
+	});
+});
+
+describe('the size cap', () => {
+	it('is 1 MiB of JSON text', () => {
+		expect(S.MAX_BYTES).toBe(1024 * 1024);
 	});
 });
