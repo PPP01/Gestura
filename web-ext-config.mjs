@@ -12,6 +12,13 @@ export default {
 		// Untracked working material that crosses the WSL2/Windows boundary. It is
 		// git-ignored, so nothing else keeps it out of the package.
 		'exchange', 'exchange/**',
+		// Per-machine agent and IDE state, git-ignored for the same reason and
+		// kept out of the xpi for the same reason: web-ext packages the working
+		// tree, so .gitignore alone does not keep anything out of a release.
+		'.agents', '.agents/**',
+		'.gemini', '.gemini/**',
+		'.antigravity', '.antigravity/**',
+		'.playwright-mcp', '.playwright-mcp/**',
 		'web-ext-artifacts', 'web-ext-artifacts/**',
 		'package.json', 'package-lock.json',
 		'web-ext-config.mjs',
