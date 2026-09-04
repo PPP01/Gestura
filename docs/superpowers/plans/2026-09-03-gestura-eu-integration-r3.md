@@ -4246,6 +4246,34 @@ contradicts the 4 MiB per-locator total, the client has no total to pre-check
 against, and no error code describes "this locator is full" (`quota-states` is
 the *count*, `too-large` a *single* blob). Those numbers move with the storage
 decision, so they are decided with it rather than twice.
+
+### Review, 2026-09-04
+
+A review of the whole branch against `main`: eight reading angles over the
+diff, every candidate verified against the code before it counted, the unit
+suite and the drive scripts run. Fixed in the order the review recommended,
+one commit per step, each behind a test that failed first — a unit test where
+the module allows it, a drive-script check where only the panel does.
+
+| Finding | Commit |
+|---|---|
+| **The list was requested once per failed render, not once per switch-on.** `updated()` re-asked whenever `_states` was null and `_busy` false; a failure leaves the first and flips the second. 378 requests in 5.5 s against a mock answering 500 — and gestura.eu answers the API path with HTML today, so this was the production case. A code change also kept the old code's rows on screen when the new list failed. | `74d2388` — `drive7.mjs` (9 checks, outside the repo beside the other drive scripts) |
+| **Every export of the shipped version got two false warnings on import** — "older version, converted" for the missing format field, and "unknown to Gestura: lastSyncTime". `legacy` is now true only when a conversion happened; the three never-imported keys are skipped in silence. Same commit: a state without a meta envelope is marked broken rather than failing the whole list; non-base64 payload is `malformed`, not a numeric DOMException code; a file nested too deep is refused instead of escaping as a RangeError; overwriting keeps the state's `createdAt`; a failed clipboard copy says so instead of showing "Copy" (`euSyncSecretCopyFailed`, en/de, pending). | `5ce6862` |
+| **Two decisions taken the strict way.** Overwrite on a broken state went out without a write token — disabled like open-here. And a tier-1 consent given *after* the tier-2 consent (the version-bump case, which writes nothing and so never reaches the storage listener) now makes the tier-2 consent stale: `syncConsentStale()`, used by `syncEnabled()` and by the panel's reconfirm row alike. | `628bf6e` |
+| **The upload goes through the validator**, as the contract's "both directions" already claimed. The preview names a repaired container and shows the repaired form; the "changed since" hash is over the object the receiver gets. The hash is no longer recomputed for users without sync. | `40c2ab5` — `drive7.mjs` at 11 |
+| Locator stored hashed (contract + `PRIVACY.md`), pending-key count, retention item closed. | `bed1e28` |
+| Dead exports in `eu-sync-local.js`. | `4c500be` |
+
+**Left as noted, not done here:** the response body is still read whole before
+its size is checked (both transports, trusted origin, low value for the churn
+in two test fixtures); the consent overlay, the transport hardening and the
+storage cache exist as copies of their tier-1 counterparts, and the record-key
+shape is declared in two consumers — both are a task before R4, not a patch
+on this branch. `menu-model.js` iterates `siteMenus.disabled` / `order` without
+the array guard `engine-registry.js` now has.
+
+After the review: `npm test` **740**, drive4 23, drive5 48, drive6 17, drive7 11.
+
 ### Open, and blocking the release
 
 Unchanged from the plan's own gate, restated because this is where someone will
