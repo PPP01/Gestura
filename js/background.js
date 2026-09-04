@@ -1,3 +1,8 @@
+// Firefox mirror (branch firefox-build, not this one): background.scripts in the
+// Gecko manifest must carry "js/constants.js" and "js/settings-storage.js" as its
+// first two entries too. Firefox has no importScripts; a missing entry surfaces
+// as `GesturaSettingsStorage is not defined` on the first context-menu click, and
+// no test catches it.
 importScripts('constants.js');
 importScripts('settings-storage.js');
 importScripts('menu-patterns.js');

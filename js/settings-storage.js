@@ -301,21 +301,31 @@
 		return { movedAt, movedTo: items[NOTE_KEYS[1]] === 'gestura.eu' ? 'gestura.eu' : 'local' };
 	}
 
+	function fanOut(changes, namespace) {
+		if (namespace !== cache.area) return;
+		const known = {};
+		for (const k of Object.keys(changes)) {
+			if (isKnown(k)) known[k] = changes[k];
+		}
+		if (!Object.keys(known).length) return;
+		for (const fn of listeners) {
+			try { fn(known); } catch { /* one listener must not break the others */ }
+		}
+	}
+
 	if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
 		chrome.storage.onChanged.addListener((changes, namespace) => {
 			// The switch itself, whichever context wrote it.
 			if (namespace === 'local' && Object.prototype.hasOwnProperty.call(changes, AREA_KEY)) {
 				absorb({ [AREA_KEY]: changes[AREA_KEY].newValue });
 			}
-			if (namespace !== cache.area) return;
-			const known = {};
-			for (const k of Object.keys(changes)) {
-				if (isKnown(k)) known[k] = changes[k];
-			}
-			if (!Object.keys(known).length) return;
-			for (const fn of listeners) {
-				try { fn(known); } catch { /* one listener must not break the others */ }
-			}
+			// Before the first read resolves, cache.area is only the default 'sync' -
+			// deciding the namespace against it now would silently drop a change that
+			// arrives during that window (a cold context already in state 'local',
+			// whose first change lands before it has discovered so). Defer the
+			// decision until the area is known rather than guessing it.
+			if (loaded) fanOut(changes, namespace);
+			else load().then(() => fanOut(changes, namespace));
 		});
 	}
 

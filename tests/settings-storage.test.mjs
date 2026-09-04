@@ -170,6 +170,35 @@ describe('onChanged', () => {
 		expect(seen).toHaveLength(1);
 		expect(seen[0].theme.newValue).toBe('light');
 	});
+
+	// Same race as load()'s area test above, but for a settings change rather than
+	// the area itself: a storage.local change can land while the first read is
+	// still in flight. Deciding the namespace against cache.area right then would
+	// measure it against the not-yet-loaded default 'sync' and drop it - a cold
+	// context already in state 'local' whose first change arrives before it has
+	// discovered so. A fresh module instance, with 'local' already the real area
+	// in storage before it loads, so load() is in flight when the change lands.
+	it('delivers a change that arrives while the first read of a local area is still in flight', async () => {
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		let release;
+		const snapshotTaken = new Promise(taken => {
+			fake.hooks.beforeGetReturns = () => { taken(); return new Promise(r => { release = r; }); };
+		});
+		vi.resetModules();
+		const loading = import('../js/settings-storage.js');
+		await snapshotTaken;
+		const fresh = globalThis.GesturaSettingsStorage;
+		const seen = [];
+		const off = fresh.onChanged(c => seen.push(c));
+		await chrome.storage.local.set({ theme: 'dark' });
+		release();
+		await loading;
+		off();
+		expect(seen).toHaveLength(1);
+		expect(seen[0].theme.newValue).toBe('dark');
+		// The rest of this file talks to the first instance.
+		globalThis.GesturaSettingsStorage = S;
+	});
 });
 
 describe('the formula', () => {
