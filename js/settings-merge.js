@@ -217,6 +217,57 @@
 		return out;
 	}
 
+	// A set is a record whose entries are their own names: presence is the
+	// value. mergeEntry then never conflicts - an element present on both sides
+	// is equal, one present on one side alone is either newly added or was
+	// deleted from the base - and the summary comes out of the same table.
+	function mergeSet(ctx, path, s, b, l, r) {
+		const B = new Set(arr(b));
+		const L = new Set(arr(l));
+		const R = new Set(arr(r));
+		const out = [];
+		for (const x of union(arr(l), arr(r), arr(b))) {
+			const e = mergeEntry(B.has(x) ? x : undefined, L.has(x) ? x : undefined, R.has(x) ? x : undefined);
+			count(ctx, e.status);
+			if (e.value !== undefined) out.push(x);
+		}
+		return out;
+	}
+
+	// The ids a record or keyed-list holds - for the order rule's "does this
+	// entry still exist".
+	function idsOf(s, value) {
+		if (s.kind === 'keyed-list') return arr(value).map(it => (isObj(it) ? it[s.key] : undefined)).filter(id => typeof id === 'string');
+		return isObj(value) ? Object.keys(value) : [];
+	}
+
+	// Spec §4: the same three-way rule as everything else, then the other
+	// side's ids appended, then ids whose entry this merge deleted dropped.
+	// Deleted = existed in the `of` sibling on some side, absent from the merged
+	// sibling. Catalogue ids are never in `custom`, so never dropped.
+	function mergeOrder(ctx, path, s, b, l, r, sib) {
+		const B = arr(b);
+		const L = arr(l);
+		const R = arr(r);
+		const chosen = deepEqual(R, B) ? L : R;
+		const other = chosen === L ? R : L;
+		let gone = new Set();
+		if (sib && s.of) {
+			const os = spec(sib.spec.children[s.of]);
+			const existed = union(idsOf(os, sib.b[s.of]), idsOf(os, sib.l[s.of]), idsOf(os, sib.r[s.of]));
+			const kept = new Set(idsOf(os, sib.out[s.of]));
+			gone = new Set(existed.filter(id => !kept.has(id)));
+		}
+		const out = [];
+		for (const id of [...chosen, ...other]) {
+			if (!gone.has(id) && !out.includes(id)) out.push(id);
+		}
+		const sameL = deepEqual(out, L);
+		const sameR = deepEqual(out, R);
+		count(ctx, sameL && sameR ? 'unchanged' : sameL ? 'uploaded' : sameR ? 'taken' : 'uploaded');
+		return out;
+	}
+
 	function mergeValue(ctx, path, s, b, l, r, sib) {
 		// A key nobody has is not an empty record, it is nothing: no entry in the
 		// result, nothing counted.
@@ -225,6 +276,8 @@
 			case 'scalar': return mergeScalar(ctx, path, s, b, l, r);
 			case 'record': return mergeRecord(ctx, path, s, b, l, r);
 			case 'container': return mergeContainer(ctx, path, s, b, l, r);
+			case 'set': return mergeSet(ctx, path, s, b, l, r);
+			case 'order': return mergeOrder(ctx, path, s, b, l, r, sib);
 			default: throw new Error('settings-merge: unknown kind ' + s.kind);
 		}
 	}

@@ -195,3 +195,99 @@ describe('merge - scalars and containers', () => {
 		// taken: trailWidth · uploaded: hudBlurRadius · deleted: c1 · unchanged: customCss
 	});
 });
+
+describe('merge - set', () => {
+	const bl = (list) => ({ blacklist: list });
+	it('keeps what was added on either side', () => {
+		const m = M.merge(bl(['a.com']), bl(['a.com', 'b.com']), bl(['a.com', 'c.com']));
+		expect(m.result.blacklist.sort()).toEqual(['a.com', 'b.com', 'c.com']);
+		expect(m.conflicts).toEqual([]);
+	});
+	it('drops what was removed on either side, and what both removed', () => {
+		const m = M.merge(bl(['a.com', 'b.com', 'c.com']), bl(['a.com', 'b.com']), bl(['a.com', 'c.com']));
+		expect(m.result.blacklist).toEqual(['a.com']);
+		const both = M.merge(bl(['a.com', 'b.com']), bl(['a.com']), bl(['a.com']));
+		expect(both.result.blacklist).toEqual(['a.com']);
+	});
+	it('never reports a conflict for a set', () => {
+		const m = M.merge(bl(['a.com']), bl(['b.com']), bl(['c.com']));
+		expect(m.conflicts).toEqual([]);
+		expect(m.result.blacklist.sort()).toEqual(['b.com', 'c.com']);
+	});
+	it('counts added-there as taken, added-here as uploaded, removed-there as deleted', () => {
+		const m = M.merge(bl(['a.com']), bl(['a.com', 'b.com']), bl(['c.com']));
+		expect(m.summary).toMatchObject({ taken: 1, uploaded: 1, deleted: 1 });
+	});
+	it('tolerates a set that is not an array', () => {
+		expect(M.merge(bl(null), bl('x'), bl(['a.com'])).result.blacklist).toEqual(['a.com']);
+	});
+});
+
+describe('merge - order', () => {
+	const sm = (order, custom = {}) => ({ siteMenus: { order, custom } });
+	it('keeps a local-only reorder when remote equals the base', () => {
+		const m = M.merge(sm(['a', 'b', 'c']), sm(['c', 'a', 'b']), sm(['a', 'b', 'c']));
+		expect(m.result.siteMenus.order).toEqual(['c', 'a', 'b']);
+		expect(m.conflicts).toEqual([]);
+	});
+	it('takes a remote-only reorder', () => {
+		const m = M.merge(sm(['a', 'b', 'c']), sm(['a', 'b', 'c']), sm(['b', 'c', 'a']));
+		expect(m.result.siteMenus.order).toEqual(['b', 'c', 'a']);
+	});
+	it('lets remote win when both reordered, without a conflict', () => {
+		const m = M.merge(sm(['a', 'b', 'c']), sm(['c', 'b', 'a']), sm(['b', 'a', 'c']));
+		expect(m.result.siteMenus.order).toEqual(['b', 'a', 'c']);
+		expect(m.conflicts).toEqual([]);
+	});
+	it('appends a local-only id at the end', () => {
+		const m = M.merge(sm(['a', 'b']), sm(['a', 'b', 'menu_new'], { menu_new: A }), sm(['b', 'a']));
+		expect(m.result.siteMenus.order).toEqual(['b', 'a', 'menu_new']);
+	});
+	it('drops an id whose custom entry the merge deleted, but never a catalogue id', () => {
+		// `search` is a catalogue id: never in `custom`, so never dropped.
+		const m = M.merge(
+			sm(['search', 'menu_x'], { menu_x: A }),
+			sm(['search', 'menu_x'], { menu_x: A }),
+			sm(['search'], {}),
+		);
+		expect(m.result.siteMenus.custom).toEqual({});
+		expect(m.result.siteMenus.order).toEqual(['search']);
+	});
+	it('drops an id deleted here that the untouched remote order still lists', () => {
+		const m = M.merge(
+			sm(['search', 'menu_x'], { menu_x: A }),
+			sm(['search'], {}),
+			sm(['search', 'menu_x'], { menu_x: A }),
+		);
+		expect(m.result.siteMenus.order).toEqual(['search']);
+	});
+	// Task 4 lands the 'keyed-list' kind that searchEngines.custom needs; until
+	// then this fails with "unknown kind keyed-list", as the brief expects.
+	it.skip('works for the engine order against a keyed-list', () => {
+		const se = (order, custom) => ({ searchEngines: { order, custom } });
+		const e = { id: 'engine_x', name: 'X', url: 'https://x/?q=%s' };
+		const m = M.merge(se(['google', 'engine_x'], [e]), se(['google', 'engine_x'], [e]), se(['google'], []));
+		expect(m.result.searchEngines.order).toEqual(['google']);
+	});
+});
+
+describe('merge - records inside the siteMenus container', () => {
+	it('merges custom menus like any record, with Both on offer', () => {
+		const m = M.merge(menus({ m1: A }), menus({ m1: A1 }), menus({ m1: A2 }));
+		expect(m.conflicts[0]).toMatchObject({ path: 'siteMenus.custom', id: 'm1', kind: 'record', canKeepBoth: true });
+		expect(m.result.siteMenus.custom.m1).toEqual(A1);
+	});
+	it('does not offer Both for an edited catalogue copy', () => {
+		const m = M.merge({ siteMenus: { edited: {} } }, { siteMenus: { edited: { search: A1 } } }, { siteMenus: { edited: { search: A2 } } });
+		expect(m.conflicts[0]).toMatchObject({ path: 'siteMenus.edited', id: 'search', canKeepBoth: false });
+	});
+	it('leaves a domain attached to a menu the other side deleted (spec §7: resolvers tolerate it)', () => {
+		const b = { siteMenus: { custom: { m1: A }, domains: {} } };
+		const l = { siteMenus: { custom: {}, domains: {} } };
+		const r = { siteMenus: { custom: { m1: A }, domains: { m1: 'example.com' } } };
+		const m = M.merge(b, l, r);
+		expect(m.result.siteMenus.custom).toEqual({});
+		expect(m.result.siteMenus.domains).toEqual({ m1: 'example.com' });
+		expect(m.conflicts).toEqual([]);
+	});
+});
