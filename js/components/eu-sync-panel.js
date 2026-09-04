@@ -216,8 +216,9 @@ class EuSyncPanel extends LitElement {
 			setTimeout(() => { this._copied = false; }, 2000);
 		} catch {
 			// The clipboard refused (focus, permission): the code is on screen in full
-			// and user-select: all selects it in a single click.
-			this._error = window.i18n.getMessage('euSyncSecretCopy');
+			// and user-select: all selects it in a single click - which is what the
+			// message says.
+			this._error = window.i18n.getMessage('euSyncSecretCopyFailed');
 		}
 	}
 
@@ -344,7 +345,11 @@ class EuSyncPanel extends LitElement {
 	// unconditional - a new state, or the user answering a conflict with
 	// "overwrite anyway". Both go through the preview again; the second transfer
 	// is a transfer like any other.
-	#uploadTo(stateId, name, basePayloadHash) {
+	//
+	// `createdAt` is the one out of the meta blob being replaced: the creation
+	// date belongs to the state, and a second browser has no local record of it.
+	// Empty for a new state, which is created now.
+	#uploadTo(stateId, name, basePayloadHash, createdAt) {
 		const exportObj = this.#exportNow();
 		const json = JSON.stringify(exportObj, null, 2);
 		this.#openPreview({
@@ -355,11 +360,10 @@ class EuSyncPanel extends LitElement {
 			legacy: false,
 			commit: async () => {
 				const id = stateId || window.GesturaSyncCrypto.newStateId();
-				const existing = this.#state.states[id];
 				const done = await this.#run(() => window.GesturaSync.upload({
 					stateId: id,
 					name,
-					createdAt: (existing && existing.lastUploadDate) || new Date().toISOString(),
+					createdAt: createdAt || new Date().toISOString(),
 					exportObj,
 					extVersion: window.i18n.version,
 					basePayloadHash,
@@ -367,7 +371,7 @@ class EuSyncPanel extends LitElement {
 				if (!done) {
 					// Nothing was written. Remember which state it was, so the two ways
 					// out below know what they are acting on.
-					if (this._errorCode === 'conflict') this._conflict = { stateId: id, name };
+					if (this._errorCode === 'conflict') this._conflict = { stateId: id, name, createdAt };
 					return;
 				}
 				this._conflict = null;
@@ -465,7 +469,7 @@ class EuSyncPanel extends LitElement {
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state), state.meta && state.meta.payloadHash)}>${i18n.getMessage('euSyncUpload')}</button>
+						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state), state.meta && state.meta.payloadHash, state.meta && state.meta.createdAt)}>${i18n.getMessage('euSyncUpload')}</button>
 					<button class="btn btn-danger" ?disabled=${this._busy}
 						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
 				</div>
@@ -642,7 +646,7 @@ class EuSyncPanel extends LitElement {
 					<button class="btn btn-secondary" ?disabled=${this._busy}
 						@click=${this.#refreshStates}>${i18n.getMessage('euSyncConflictReload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#uploadTo(this._conflict.stateId, this._conflict.name, null)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+						@click=${() => this.#uploadTo(this._conflict.stateId, this._conflict.name, null, this._conflict.createdAt)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
 				</div>` : ''}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 		`;

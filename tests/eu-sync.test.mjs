@@ -123,6 +123,23 @@ describe('reading a list', () => {
 		expect(out[1].meta.name).toBe('Work');
 	});
 
+	// A meta that is not even an envelope string is the same failure as one that
+	// does not decrypt: that ONE state is unreadable. Throwing for the whole
+	// list would hide every other state and, with them, the button that could
+	// delete the broken one.
+	it('marks a state whose meta is missing and keeps the rest', async () => {
+		const key = await X.deriveKey(await secretBytes());
+		const good = await X.encryptBlob(key, ID, 'meta', { name: 'Work' });
+		const other = 'ffffffffffffffffffffffffffffffff';
+		const out = await S.listStates({
+			secret: await secretBytes(), origin: 'https://gestura.eu',
+			fetchImpl: fetchOk({ states: [{ stateId: other, size: 1, updatedAt: 'x', meta: null }, { stateId: ID, size: 10, updatedAt: 'x', meta: good }] }),
+		});
+		expect(out).toHaveLength(2);
+		expect(out[0].broken).toBe(true);
+		expect(out[1].meta.name).toBe('Work');
+	});
+
 	it.each([
 		['a non-object answer', '[]'],
 		['a missing states array', '{"ok":true}'],
@@ -156,6 +173,17 @@ describe('downloading', () => {
 			expectPayloadHash: 'a-hash-of-something-else',
 			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', payload }),
 		})).rejects.toMatchObject({ code: 'decrypt' });
+	});
+
+	// The hash is computed over the decoded bytes, and decoding is the first
+	// thing that can fail on a payload the server made up. That failure belongs
+	// to the answer, not to the server's status.
+	it('reports a payload that is not base64 as malformed', async () => {
+		await expect(S.downloadState({
+			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+			expectPayloadHash: 'whatever-the-meta-said',
+			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', payload: 'not base64!!' }),
+		})).rejects.toMatchObject({ code: 'malformed' });
 	});
 
 	// The binding must not be skippable. A server that leaves payloadHash out of

@@ -79,6 +79,18 @@ describe('validation', () => {
 			.toMatchObject({ ok: false, error: 'not-settings' });
 	});
 
+	// JSON.parse is iterative and accepts this; the walk over the tree is not.
+	// A RangeError out of validate() would escape the import as an unhandled
+	// rejection - no message, no preview, the file picker already reset.
+	it('refuses a file nested too deep to walk, instead of throwing', () => {
+		const depth = 60000;
+		const text = '{"a":'.repeat(depth) + '1' + '}'.repeat(depth);
+		expect(new TextEncoder().encode(text).length).toBeLessThan(S.MAX_BYTES);
+		let res;
+		expect(() => { res = S.validate(text); }).not.toThrow();
+		expect(res.ok).toBe(false);
+	});
+
 	it('refuses text above the size cap', () => {
 		const big = JSON.stringify({ gesturaSettings: 1, theme: 'x'.repeat(S.MAX_BYTES) });
 		expect(S.validate(big)).toMatchObject({ ok: false, error: 'too-large' });
@@ -93,11 +105,24 @@ describe('validation', () => {
 
 	// A crafted file must not be able to turn the integration on, plant a secret,
 	// or hand this browser somebody else's locator.
-	it('drops euIntegration and euSync out of a crafted file', () => {
+	// Skipped, not "dropped": dropped is what the preview calls "unknown to
+	// Gestura", and these are keys Gestura itself defines. Saying it does not
+	// know them would be false, and they are left out for a different reason.
+	it('skips euIntegration and euSync in a crafted file without calling them unknown', () => {
 		const res = S.validate({ gesturaSettings: 1, theme: 'dark', euIntegration: { enabled: true }, euSync: { secret: 'GS1-…' } });
 		expect(res.settings).not.toHaveProperty('euIntegration');
 		expect(res.settings).not.toHaveProperty('euSync');
-		expect(res.dropped).toEqual(['euIntegration', 'euSync']);
+		expect(res.dropped).toEqual([]);
+	});
+
+	// Every export the shipped version wrote is {...store.current, _version} and
+	// so carries lastSyncTime. A warning on every one of those files would be a
+	// warning about nothing.
+	it('does not warn about lastSyncTime, which every older export carries', () => {
+		const res = S.validate({ _version: '2.7.0', theme: 'dark', lastSyncTime: 1725000000000 });
+		expect(res.ok).toBe(true);
+		expect(res.dropped).toEqual([]);
+		expect(res.settings.lastSyncTime).toBe(DEFAULTS.lastSyncTime);
 	});
 
 	it('falls back to the default when an allowlisted value has the wrong shape', () => {
@@ -203,8 +228,17 @@ describe('the shapes inside a record key', () => {
 });
 
 describe('legacy files', () => {
-	it('are recognised by the missing format field', () => {
-		const res = S.validate({ _version: '2.3.1', enableGesture: true, theme: 'dark' });
+	// `legacy` is what the preview turns into "converted as it is written". The
+	// shipped version's export has no format field either, and nothing in it is
+	// converted - so the missing field alone must not earn that sentence.
+	it('are not recognised by the missing format field alone', () => {
+		const res = S.validate({ _version: '2.7.0', enableGesture: true, theme: 'dark' });
+		expect(res.ok).toBe(true);
+		expect(res.legacy).toBe(false);
+	});
+
+	it('are recognised by the pre-2.4 gesture keys that get converted', () => {
+		const res = S.validate({ _version: '2.3.1', gestures: { '→': 'forward' } });
 		expect(res.ok).toBe(true);
 		expect(res.legacy).toBe(true);
 	});

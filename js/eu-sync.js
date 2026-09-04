@@ -106,11 +106,16 @@
 		const out = [];
 		for (const s of answer.states) {
 			if (!s || typeof s !== 'object') throw syncError('malformed');
-			if (!X.STATE_ID_RE.test(s.stateId) || !isEnvelope(s.meta)) throw syncError('malformed');
+			// The id has to be right, or the state cannot even be addressed to delete
+			// it. The meta blob does not: one that is missing is the same failure as
+			// one that will not decrypt - THAT state is unreadable, and it is
+			// reported as such rather than thrown, because a throw here would read as
+			// "all your states are gone" and take the delete button with it.
+			if (!X.STATE_ID_RE.test(s.stateId)) throw syncError('malformed');
 			let meta = null;
-			// A blob that will not decrypt is reported, not thrown: one damaged
-			// upload must not read as "all your states are gone".
-			try { meta = await X.decryptBlob(key, s.stateId, 'meta', s.meta); } catch { /* broken below */ }
+			if (isEnvelope(s.meta)) {
+				try { meta = await X.decryptBlob(key, s.stateId, 'meta', s.meta); } catch { /* broken below */ }
+			}
 			out.push({
 				stateId: s.stateId,
 				size: Number(s.size) || 0,
@@ -165,7 +170,12 @@
 			body: { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId },
 		});
 		if (!isEnvelope(answer.payload)) throw syncError('malformed');
-		if (await X.blobHash(answer.payload) !== expectPayloadHash) throw syncError('decrypt');
+		// blobHash decodes the base64 first, and a payload that is not base64 is a
+		// malformed answer - not a server status, which is what an uncaught
+		// DOMException would be reported as.
+		let hash;
+		try { hash = await X.blobHash(answer.payload); } catch { throw syncError('malformed'); }
+		if (hash !== expectPayloadHash) throw syncError('decrypt');
 		const key = await X.deriveKey(secret);
 		try {
 			return await X.decryptBlob(key, stateId, 'payload', answer.payload);

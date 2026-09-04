@@ -121,7 +121,20 @@
 
 	const fail = (error) => ({ ok: false, error, legacy: false, settings: null, dropped: [], retyped: [], json: '' });
 
+	// JSON.parse is iterative and accepts any depth under the size cap; the walk
+	// over the tree (hasForbiddenKey, structuredClone, JSON.stringify) is not. A
+	// RangeError out of here would escape the import as an unhandled rejection -
+	// no message, no preview - so it is answered like any other unusable file.
 	function validate(input) {
+		try {
+			return validateShape(input);
+		} catch (e) {
+			if (e instanceof RangeError) return fail('not-settings');
+			throw e;
+		}
+	}
+
+	function validateShape(input) {
 		let raw = input;
 		if (typeof input === 'string') {
 			if (new TextEncoder().encode(input).length > MAX_BYTES) return fail('too-large');
@@ -132,10 +145,16 @@
 		// Before anything is copied, spread or merged.
 		if (hasForbiddenKey(raw)) return fail('forbidden-key');
 
-		const legacy = !Object.prototype.hasOwnProperty.call(raw, FORMAT_FIELD);
-		if (!legacy && raw[FORMAT_FIELD] !== FORMAT_VERSION) return fail('unknown-format');
+		const hasFormat = Object.prototype.hasOwnProperty.call(raw, FORMAT_FIELD);
+		if (hasFormat && raw[FORMAT_FIELD] !== FORMAT_VERSION) return fail('unknown-format');
 
-		const source = legacy ? migrateLegacy(raw) : raw;
+		// A missing format field is not "legacy" by itself: the export of every
+		// version before this one is {...settings, _version} and nothing in it is
+		// converted. `legacy` is what the preview turns into "converted as it is
+		// written", so it is true exactly when a conversion happened -
+		// migrateLegacy() hands the object back untouched otherwise.
+		const source = hasFormat ? raw : migrateLegacy(raw);
+		const legacy = source !== raw;
 		const allowed = new Set(allowedKeys());
 		const settings = structuredClone(defaults());
 		const dropped = [];
@@ -144,6 +163,11 @@
 
 		for (const [key, value] of Object.entries(source)) {
 			if (key === FORMAT_FIELD || key === '_version') continue;
+			// Skipped in silence, not reported: `dropped` is what the preview calls
+			// "unknown to Gestura", and these three are keys Gestura defines itself.
+			// Every older export carries lastSyncTime, so reporting it would put a
+			// warning about nothing on every legitimate file.
+			if (NEVER.has(key)) continue;
 			if (!allowed.has(key)) { dropped.push(key); continue; }
 			if (!sameShape(value, defaults()[key])) { retyped.push(key); continue; }
 			if (RECORD_KEYS.has(key)) {

@@ -3097,6 +3097,7 @@
 	"euSyncSecretTitle": { "message": "Dein Abgleich-Code" },
 	"euSyncSecretDesc": { "message": "Dieser Code ist der Schlüssel zu deinen Ständen. Leg ihn in deinen Passwortspeicher — und in den zweiten Browser, um ihn zu verbinden." },
 	"euSyncSecretCopy": { "message": "Kopieren" },
+	"euSyncSecretCopyFailed": { "message": "Kopieren nicht möglich. Der Code steht oben, ein Klick markiert ihn." },
 	"euSyncSecretCopied": { "message": "Kopiert" },
 	"euSyncSecretSave": { "message": "Als Datei sichern" },
 	"euSyncSecretNew": { "message": "Neuer Code" },

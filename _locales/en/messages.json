@@ -3159,6 +3159,7 @@
 	"euSyncSecretTitle": { "message": "Your sync code" },
 	"euSyncSecretDesc": { "message": "This code is the key to your states. Put it in your password manager — and into the second browser to pair it." },
 	"euSyncSecretCopy": { "message": "Copy" },
+	"euSyncSecretCopyFailed": { "message": "Copying failed. The code is shown above; one click selects it." },
 	"euSyncSecretCopied": { "message": "Copied" },
 	"euSyncSecretSave": { "message": "Save as file" },
 	"euSyncSecretNew": { "message": "New code" },
