@@ -261,9 +261,9 @@ describe('merge - order', () => {
 		);
 		expect(m.result.siteMenus.order).toEqual(['search']);
 	});
-	// Task 4 lands the 'keyed-list' kind that searchEngines.custom needs; until
-	// then this fails with "unknown kind keyed-list", as the brief expects.
-	it.skip('works for the engine order against a keyed-list', () => {
+	// searchEngines.custom is a keyed-list; idsOf's keyed-list branch (Task 3)
+	// is what lets mergeOrder find the surviving ids here.
+	it('works for the engine order against a keyed-list', () => {
 		const se = (order, custom) => ({ searchEngines: { order, custom } });
 		const e = { id: 'engine_x', name: 'X', url: 'https://x/?q=%s' };
 		const m = M.merge(se(['google', 'engine_x'], [e]), se(['google', 'engine_x'], [e]), se(['google'], []));
@@ -289,5 +289,46 @@ describe('merge - records inside the siteMenus container', () => {
 		expect(m.result.siteMenus.custom).toEqual({});
 		expect(m.result.siteMenus.domains).toEqual({ m1: 'example.com' });
 		expect(m.conflicts).toEqual([]);
+	});
+});
+
+describe('merge - keyed-list', () => {
+	const se = (custom) => ({ searchEngines: { custom } });
+	const g = { id: 'engine_g', name: 'G', url: 'https://g/?q=%s' };
+	const h = { id: 'engine_h', name: 'H', url: 'https://h/?q=%s' };
+	const h1 = { ...h, name: 'H here' };
+	const h2 = { ...h, name: 'H there' };
+
+	it('identifies items by id, not by array position', () => {
+		// h moved to index 0 on the remote side and was edited there; index-based
+		// identity would compare g with h.
+		const m = M.merge(se([g, h]), se([g, h]), se([h2, g]));
+		expect(m.result.searchEngines.custom).toEqual([h2, g]);
+		expect(m.conflicts).toEqual([]);
+		expect(m.summary.taken).toBe(1);
+	});
+	it('keeps a local edit when remote only reordered', () => {
+		const m = M.merge(se([g, h]), se([h1, g]), se([h, g]));
+		expect(m.result.searchEngines.custom).toEqual([h1, g]);
+		expect(m.summary.uploaded).toBe(1);
+	});
+	it('writes remote items first and appends local-only ones', () => {
+		const x = { id: 'engine_x', name: 'X', url: 'https://x/?q=%s' };
+		const m = M.merge(se([g]), se([g, x]), se([h, g]));
+		expect(m.result.searchEngines.custom.map(e => e.id)).toEqual(['engine_h', 'engine_g', 'engine_x']);
+	});
+	it('reports a conflict with kind keyed-list and offers Both for custom engines', () => {
+		const m = M.merge(se([h]), se([h1]), se([h2]));
+		expect(m.conflicts[0]).toMatchObject({ path: 'searchEngines.custom', id: 'engine_h', kind: 'keyed-list', mine: h1, theirs: h2, canKeepBoth: true });
+		expect(m.result.searchEngines.custom).toEqual([h1]);
+	});
+	it('does not offer Both for a drag gesture (fixed key)', () => {
+		const d = (action) => ({ textDragGestures: [{ direction: '→', action }] });
+		const m = M.merge(d('search'), d('copy'), d('openTab'));
+		expect(m.conflicts[0]).toMatchObject({ path: 'textDragGestures', id: '→', canKeepBoth: false });
+	});
+	it('ignores an item without the key field', () => {
+		const m = M.merge(se([]), se([{ name: 'no id' }]), se([g]));
+		expect(m.result.searchEngines.custom).toEqual([g]);
 	});
 });

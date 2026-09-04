@@ -268,6 +268,31 @@
 		return out;
 	}
 
+	function toMap(s, value) {
+		const m = {};
+		for (const it of arr(value)) {
+			if (isObj(it) && typeof it[s.key] === 'string') m[it[s.key]] = it;
+		}
+		return m;
+	}
+
+	// A record keyed by a field inside each item, written back as an array:
+	// remote items in their sequence, local-only items appended. The array's
+	// own order carries no meaning - `searchEngines.order` does that job.
+	function mergeKeyedList(ctx, path, s, b, l, r) {
+		const B = toMap(s, b);
+		const L = toMap(s, l);
+		const R = toMap(s, r);
+		const out = [];
+		for (const id of union(Object.keys(R), Object.keys(L), Object.keys(B))) {
+			const e = mergeEntry(B[id], L[id], R[id]);
+			if (e.status === 'conflict') pushConflict(ctx, path, id, 'keyed-list', s, L[id], R[id]);
+			else count(ctx, e.status);
+			if (e.value !== undefined) out.push(e.value);
+		}
+		return out;
+	}
+
 	function mergeValue(ctx, path, s, b, l, r, sib) {
 		// A key nobody has is not an empty record, it is nothing: no entry in the
 		// result, nothing counted.
@@ -278,6 +303,7 @@
 			case 'container': return mergeContainer(ctx, path, s, b, l, r);
 			case 'set': return mergeSet(ctx, path, s, b, l, r);
 			case 'order': return mergeOrder(ctx, path, s, b, l, r, sib);
+			case 'keyed-list': return mergeKeyedList(ctx, path, s, b, l, r);
 			default: throw new Error('settings-merge: unknown kind ' + s.kind);
 		}
 	}
