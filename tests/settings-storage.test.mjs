@@ -475,13 +475,102 @@ describe('switchTo under a failing write', () => {
 	});
 });
 
-// Save, export and import share one number. The fourth door, upload, is bounded
-// by the contract's 512 KiB envelope and is measured at upload time, not
-// promised here (storage-move design §8).
-describe('the validator cap and the local ceiling', () => {
-	it('are the same number', async () => {
+// Save, export and import share one CEILING - and, which is the part that broke,
+// one MEASURE. The number was always the same on both sides; what differed was
+// what it was applied to. The façade counts key + JSON value per branch; the
+// validator used to count the UTF-8 length of the file text, and our own
+// exporter writes that file with two-space indentation. On real catalog data
+// that indentation is about 1.72x the compact form, so a settings set that saved
+// fine produced an export the same build refused to read back.
+//
+// The fourth door, upload, is bounded by the contract's 512 KiB envelope and is
+// measured at upload time, not promised here (storage-move design §8).
+describe('save, export and import share one ceiling', () => {
+	// A menu-shaped entry: many small nested values, which is where indentation
+	// costs what it costs. One big string would inflate by almost nothing and
+	// would not reproduce the failure this guards.
+	function menuEntry(i) {
+		return {
+			id: `m${i}`,
+			name: `Menu number ${i}`,
+			icon: 'globe',
+			patterns: [`https://example${i}.test/*`, `https://www.example${i}.test/*`],
+			items: [0, 1, 2, 3].map(n => ({
+				id: `m${i}i${n}`,
+				action: 'searchEngine',
+				engineId: `engine-${n}`,
+				label: `Entry ${n} of menu ${i}`,
+			})),
+		};
+	}
+
+	// Fills siteMenus.custom until the façade's own measure sits just under the
+	// ceiling - "just under" because the two measures differ by JSON's punctuation
+	// (quotes, colons, commas), some four bytes a branch, which is structure and
+	// not formatting.
+	function settingsAtCeiling() {
+		const custom = {};
+		const settings = { ...structuredClone(DEFAULTS), siteMenus: { ...structuredClone(DEFAULTS.siteMenus), custom } };
+		const budget = S.QUOTA.local.total - 4096;
+		// Estimated first, then measured: re-measuring a megabyte after every one
+		// of some thousand entries is quadratic and takes seconds.
+		const base = S.usage(settings).total;
+		const per = S.byteLength(JSON.stringify(menuEntry(0))) + 8;
+		let n = Math.max(0, Math.floor((budget - base) / per));
+		for (let i = 0; i < n; i++) custom[`m${i}`] = menuEntry(i);
+		while (S.usage(settings).total < budget) custom[`m${n++}`] = menuEntry(n);
+		while (S.usage(settings).total > budget) delete custom[`m${--n}`];
+		return settings;
+	}
+
+	it('is the same number on both sides', async () => {
 		await import('../js/eu-integration.js');
 		await import('../js/eu-settings-schema.js');
 		expect(globalThis.GesturaSettingsSchema.MAX_BYTES).toBe(S.QUOTA.local.total);
+	});
+
+	// The assertion that would have caught the break: not two constants compared,
+	// but a settings set at the ceiling carried the whole way round. The
+	// intermediate expectations are the demonstration - the file IS bigger than
+	// the ceiling, and it is accepted anyway, because what is measured is the
+	// content and not the indentation.
+	it('takes back a pretty-printed export of a settings set at the ceiling', async () => {
+		await import('../js/eu-integration.js');
+		await import('../js/eu-settings-schema.js');
+		const Schema = globalThis.GesturaSettingsSchema;
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: '2026-09-04T00:00:00.000Z', movedTo: 'local' } });
+
+		const settings = settingsAtCeiling();
+		const total = S.usage(settings).total;
+		expect(total).toBeLessThanOrEqual(S.QUOTA.local.total);
+		expect(total).toBeGreaterThan(S.QUOTA.local.total - 8192);
+		// It saves.
+		expect(await S.set(settings)).toEqual({ ok: true });
+
+		// It exports, through the exporter the options page uses.
+		const result = Schema.validatedExport(settings, '2.8.0');
+		expect(result.ok).toBe(true);
+		const text = result.json;
+		// The file is larger than the ceiling - two spaces of indentation a line.
+		expect(S.byteLength(text)).toBeGreaterThan(Schema.MAX_BYTES);
+		// And the content is not.
+		expect(S.byteLength(JSON.stringify(JSON.parse(text)))).toBeLessThanOrEqual(Schema.MAX_BYTES);
+
+		// It comes back.
+		const back = Schema.validate(text);
+		expect(back.error).toBe(null);
+		expect(back.ok).toBe(true);
+		expect(Object.keys(back.settings.siteMenus.custom).length)
+			.toBe(Object.keys(settings.siteMenus.custom).length);
+	});
+
+	// The guard in front of JSON.parse still refuses a file no export could be,
+	// and it is far enough above the ceiling that the pretty-printed export above
+	// passes it untouched.
+	it('refuses a file too big to be an export before parsing it', () => {
+		const Schema = globalThis.GesturaSettingsSchema;
+		expect(Schema.RAW_MAX_BYTES).toBeGreaterThan(2 * Schema.MAX_BYTES);
+		const huge = `{"gesturaSettings":1,"theme":"${'x'.repeat(Schema.RAW_MAX_BYTES)}"}`;
+		expect(Schema.validate(huge)).toMatchObject({ ok: false, error: 'too-large' });
 	});
 });

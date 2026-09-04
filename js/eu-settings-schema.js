@@ -16,7 +16,19 @@
 	// façade enforces on save, so what can be stored can be exported and imported.
 	// The 512 KiB payload cap of the contract is a limit on the ENVELOPE as
 	// transmitted; compression sits between the two.
+	//
+	// It is measured on CONTENT, never on the file's formatting: see validate().
 	const MAX_BYTES = 1024 * 1024;
+
+	// The cheap bound that runs BEFORE JSON.parse, so a hostile file is refused
+	// without being parsed. It is not the ceiling - MAX_BYTES is - it is the point
+	// past which no legitimate export can lie. Our own exporter writes
+	// JSON.stringify(obj, null, 2), and that indentation measured 1.72x the
+	// compact form on real catalog data and 1.80x on the menu-shaped fixture of
+	// tests/settings-storage.test.mjs. Four times the ceiling leaves that better
+	// than doubled - the largest legitimate export measured 1 884 077 B, well
+	// inside this - while a multi-megabyte file still never reaches the parser.
+	const RAW_MAX_BYTES = 4 * MAX_BYTES;
 
 	// Rejected anywhere in the tree, at any depth. A settings entry the user
 	// literally named "constructor" cannot travel through a file as a result -
@@ -150,14 +162,19 @@
 		return out;
 	}
 
+	function byteLength(str) {
+		return new TextEncoder().encode(str).length;
+	}
+
 	const fail = (error) => ({ ok: false, error, legacy: false, settings: null, dropped: [], retyped: [], exportObj: null, json: '' });
 
 	// `opts.json === false` leaves the preview text out: the hash path needs the
 	// object only, and the indented text is the most expensive thing made here.
 	function validate(input, opts) {
 		let raw = input;
-		if (typeof input === 'string') {
-			if (new TextEncoder().encode(input).length > MAX_BYTES) return fail('too-large');
+		const fromText = typeof input === 'string';
+		if (fromText) {
+			if (byteLength(input) > RAW_MAX_BYTES) return fail('too-large');
 			try { raw = JSON.parse(input); } catch { return fail('not-json'); }
 		}
 		if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail('not-object');
@@ -167,6 +184,23 @@
 		const bad = scanTree(raw);
 		if (bad === 'forbidden-key') return fail('forbidden-key');
 		if (bad) return fail('not-settings');
+
+		// The ceiling, measured against the compact re-serialisation of what was
+		// parsed rather than against the text of the file. Two spaces of
+		// indentation are not settings: measuring them made a pretty-printed export
+		// of a set that SAVES fine unimportable (600 menus: façade total 610 518 B,
+		// export file 1 054 219 B, re-import refused) - a backup discovered to be
+		// unrestorable exactly when it is needed.
+		//
+		// After scanTree, never before it: JSON.stringify recurses, and the depth
+		// limit above is what keeps a 60 000-deep document from overflowing the
+		// stack here instead of being answered.
+		//
+		// What remains between the two measures is JSON's own punctuation - the
+		// façade counts key + value per branch, this counts the quotes, colons and
+		// commas around them, some four bytes a branch. That is structure, not
+		// formatting, and it is the same on both sides of an export.
+		if (fromText && byteLength(JSON.stringify(raw)) > MAX_BYTES) return fail('too-large');
 
 		const hasFormat = Object.prototype.hasOwnProperty.call(raw, FORMAT_FIELD);
 		if (hasFormat && raw[FORMAT_FIELD] !== FORMAT_VERSION) return fail('unknown-format');
@@ -259,7 +293,7 @@
 	}
 
 	const api = {
-		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, MAX_DEPTH, FORBIDDEN, NEVER, RECORD_KEYS, DEVICE_LOCAL,
+		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, RAW_MAX_BYTES, MAX_DEPTH, FORBIDDEN, NEVER, RECORD_KEYS, DEVICE_LOCAL,
 		allowedKeys, buildExport, exportText, validatedExport, validate, hashOf, migrateLegacy, conformRecord,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
