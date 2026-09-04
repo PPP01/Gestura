@@ -117,6 +117,12 @@ class SettingsStore {
 
 		try {
 			await chrome.storage.sync.set(this.#current);
+			// onChange() fires for EXTERNAL changes only - by design, so a component
+			// does not react to its own write. The sync panel needs the other half:
+			// its "changed since last upload" hint has to notice a save made on this
+			// very page. A window event carries that without changing what onChange
+			// means to its existing listeners.
+			if (typeof window !== 'undefined') window.dispatchEvent(new Event('gestura:settings-saved'));
 			return true;
 		} catch (e) {
 			console.error('Settings save failed:', e);

@@ -4,6 +4,7 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
 import { usageOf, entryBytes, percentOf, TOTAL_QUOTA } from '../storage-usage.js';
+import { settingsErrorMessage } from './settings-preview-dialog.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -18,6 +19,7 @@ class OptionsPage extends LitElement {
 		_ready: { state: true },
 		_activeSection: { state: true },
 		_navProximityShow: { state: true },
+		_preview: { state: true },
 	};
 
 	static styles = [
@@ -277,6 +279,7 @@ class OptionsPage extends LitElement {
 		this._debounceTimer = null;
 		this._pendingPatch = null;
 		this._statusTimer = null;
+		this._preview = null;
 		this._store = settingsStore;
 	}
 
@@ -342,6 +345,12 @@ class OptionsPage extends LitElement {
 			}
 			this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
 		});
+
+		// The sync panel lives in a shadow tree of its own and cannot call
+		// #applySettings. It sends the validated object here, so the file import and
+		// the sync download take the same single write path - reload included,
+		// without which the subcomponents would keep their old state.
+		window.addEventListener('gestura:settings-apply', (e) => this.#applySettings(e.detail));
 
 		this.updateComplete.then(() => {
 			this.#handleHashNavigation();
@@ -1071,6 +1080,7 @@ class OptionsPage extends LitElement {
 					<h2><span class="section-icon">${unsafeHTML(icon('globe', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euIntegrationTitle')}</span>${this.#renderAdvancedToggle('websiteIntegration')}</h2>
 					<div class="section-body">
 						<eu-integration-panel ?advanced-mode=${this._settings.sectionAdvanced?.websiteIntegration}></eu-integration-panel>
+						<eu-sync-panel></eu-sync-panel>
 					</div>
 				</div>
 
@@ -1199,6 +1209,16 @@ class OptionsPage extends LitElement {
 			<div class="status ${this._statusVisible ? 'show' : ''}" style="background:${this._statusType === 'error' ? '#ea4335' : '#34a853'}">${this._statusMessage}</div>
 
 			<input type="file" id="importFile" accept=".json" style="display:none" @change=${this.#importSettings}>
+
+			<settings-preview-dialog
+				?open=${!!this._preview}
+				mode=${this._preview ? this._preview.mode : 'export'}
+				.json=${this._preview ? this._preview.json : ''}
+				.dropped=${this._preview ? this._preview.dropped : []}
+				.retyped=${this._preview ? this._preview.retyped : []}
+				?legacy=${!!(this._preview && this._preview.legacy)}
+				@preview-confirm=${this.#onPreviewConfirm}
+				@preview-cancel=${this.#onPreviewCancel}></settings-preview-dialog>
 
 			<gesture-recorder id="gestureRecorder" data-gesture-ignore></gesture-recorder>
 		`;
@@ -1573,18 +1593,50 @@ class OptionsPage extends LitElement {
 		this._debounceTimer = setTimeout(() => this.#flushPendingPatch(), 500);
 	}
 
+	// Both file paths - writing one and reading one - now go through the same
+	// validator and the same preview as the sync. Before, the import checked that
+	// `enableGesture` existed and laid the rest of the file over the defaults,
+	// and the export went out unasked and unseen.
+	#openPreview(preview) {
+		this._preview = preview;
+	}
+
+	#onPreviewCancel() {
+		this._preview = null;
+	}
+
+	async #onPreviewConfirm() {
+		const preview = this._preview;
+		this._preview = null;
+		if (preview) await preview.commit();
+	}
+
+	// Through the validator, like the import and the sync upload: a malformed
+	// container in storage is repaired on the way out and named in the preview,
+	// instead of being repaired - with a warning - only when the file comes back.
 	#exportSettings() {
-		const data = { ...this._store.current };
-		data._version = window.i18n.version;
-		const dataStr = JSON.stringify(data, null, 2);
-		const blob = new Blob([dataStr], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'Gestura-settings.json';
-		a.click();
-		setTimeout(() => URL.revokeObjectURL(url), 10000);
-		this.#showStatus(window.i18n.getMessage('exportDone'));
+		const result = window.GesturaSettingsSchema.validatedExport(this._store.current, window.i18n.version);
+		if (!result.ok) {
+			this.#showStatus(settingsErrorMessage(window.i18n, result.error), 'error');
+			return;
+		}
+		const text = result.json;
+		this.#openPreview({
+			mode: 'export',
+			json: text,
+			dropped: result.dropped,
+			retyped: result.retyped,
+			legacy: false,
+			commit: () => {
+				const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'Gestura-settings.json';
+				a.click();
+				setTimeout(() => URL.revokeObjectURL(url), 10000);
+				this.#showStatus(window.i18n.getMessage('exportDone'));
+			},
+		});
 	}
 
 	// Zweite Hälfte des Import-Reloads: Datenverwaltung wieder anspringen und die
@@ -1606,64 +1658,51 @@ class OptionsPage extends LitElement {
 
 	async #importSettings(e) {
 		const file = e.target.files[0];
+		e.target.value = '';
 		if (!file) return;
-
-		if (!confirm(window.i18n.getMessage('importConfirm'))) {
-			e.target.value = '';
+		let text;
+		try {
+			text = await file.text();
+		} catch {
+			this.#showStatus(window.i18n.getMessage('importFailed'), 'error');
 			return;
 		}
+		const result = window.GesturaSettingsSchema.validate(text);
+		if (!result.ok) {
+			// No confirm() any more: the "really?" came before any check and had to
+			// be answered from the file name alone. Now the reason is on screen.
+			this.#showStatus(settingsErrorMessage(window.i18n, result.error), 'error');
+			return;
+		}
+		this.#openPreview({
+			mode: 'import',
+			json: result.json,
+			dropped: result.dropped,
+			retyped: result.retyped,
+			legacy: result.legacy,
+			commit: () => this.#applySettings(result.settings),
+		});
+	}
 
-		const reader = new FileReader();
-		reader.onload = async (event) => {
-			try {
-				const imported = JSON.parse(event.target.result);
-				delete imported._version;
-				if (typeof imported.enableGesture === 'undefined') {
-					throw new Error('Invalid configuration file');
-				}
-				const DEFAULT_SETTINGS = structuredClone(window.GestureConstants.DEFAULT_SETTINGS);
-				if ((imported.customGestures || imported.gestures) && !imported.mouseGestures) {
-					const { DEFAULT_GESTURES } = window.GestureConstants;
-					const baseGestures = imported.gestures || DEFAULT_GESTURES;
-					const customGestures = imported.customGestures || {};
-					const customGestureUrls = imported.customGestureUrls || {};
-					const merged = { ...baseGestures, ...customGestures };
-					const mouseGestures = {};
-					for (const [pattern, action] of Object.entries(merged)) {
-						if (action === null) continue;
-						const entry = { action };
-						if (customGestureUrls[pattern]) entry.customUrl = customGestureUrls[pattern];
-						mouseGestures[pattern] = entry;
-					}
-					imported.mouseGestures = mouseGestures;
-					delete imported.gestures;
-					delete imported.customGestures;
-					delete imported.customGestureUrls;
-				}
-				const merged = { ...DEFAULT_SETTINGS, ...imported };
-				// Ein noch offener Debounce-Patch stammt aus dem Stand *vor* dem Import
-				// und würde die importierten Werte beim beforeunload wieder überschreiben.
-				if (this._debounceTimer) clearTimeout(this._debounceTimer);
-				this._debounceTimer = null;
-				this._pendingPatch = null;
-				const ok = await this._store.save(merged);
-				if (!ok) {
-					this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
-					return;
-				}
-				// settingsStore.save() aktualisiert #current vor dem Schreiben, deshalb
-				// meldet handleExternalChange keine Änderung und die Unterkomponenten
-				// (Gesten-Grid, Engine-/Menü-Manager …) behalten ihren alten Stand.
-				// Ein Reload ist der einzige Weg, den ganzen Baum neu aufzubauen.
-				sessionStorage.setItem(IMPORT_RELOAD_KEY, '1');
-				window.location.reload();
-			} catch (err) {
-				console.error('Import failed:', err);
-				this.#showStatus(window.i18n.getMessage('importFailed'), 'error');
-			}
-		};
-		reader.readAsText(file);
-		e.target.value = '';
+	// The one write that the file import and the sync download share: a validated
+	// object, complete, atomic - and a reload afterwards, because
+	// settingsStore.save() updates #current before writing and handleExternalChange
+	// therefore reports no change. The subcomponents would otherwise keep their
+	// old state.
+	async #applySettings(settings) {
+		// A debounce patch still pending comes from the state *before* the import
+		// and would write the old values back over it on beforeunload.
+		if (this._debounceTimer) clearTimeout(this._debounceTimer);
+		this._debounceTimer = null;
+		this._pendingPatch = null;
+		const ok = await this._store.save(settings);
+		if (!ok) {
+			this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
+			return false;
+		}
+		sessionStorage.setItem(IMPORT_RELOAD_KEY, '1');
+		window.location.reload();
+		return true;
 	}
 
 	async #resetSettings() {

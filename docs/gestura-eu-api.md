@@ -5,10 +5,16 @@ gestura.eu index. It is copied into the `gestura-index` repository; changes are
 made here first. Design rationale lives in
 [the integration design](superpowers/specs/2026-09-02-gestura-eu-integration-design.md).
 
-**apiLevel: 2** (R2). The index must tolerate every older extension: no answer
-is indistinguishable from "not installed" and must be handled as such, and an
-extension at level 1 never calls `/api/v1/updates` at all. R3 adds the sync
-endpoints to this file.
+**apiLevel: 3** (R3). The index must tolerate every older extension: no answer
+is indistinguishable from "not installed" and must be handled as such, an
+extension at level 1 never calls `/api/v1/updates`, and one below level 3 never
+calls any `/api/v1/sync/*` endpoint. Levels are additive — nothing that
+answered at level 2 changes shape at level 3.
+
+Within a level, a **request** field may be added when its absence keeps the old
+behaviour exactly. `basePayloadHash` (below) is such a field: an extension that
+never sends it is served as it was before the field existed, so the addition
+needs no new level.
 
 ## Bridge (page → extension, DOM events)
 
@@ -99,7 +105,7 @@ Request body:
 
 ```json
 {
-	"apiLevel": 2,
+	"apiLevel": 3,
 	"entries": [
 		{ "id": "eu.example.shop", "version": "1.2.0" },
 		{ "id": "eu.example.search", "version": null }
@@ -126,7 +132,7 @@ deprecation, or both). Everything up to date is simply absent:
 
 ```json
 {
-	"apiLevel": 2,
+	"apiLevel": 3,
 	"updates": [
 		{
 			"id": "eu.example.shop",
@@ -223,6 +229,269 @@ stores **now**, or when it is `deprecated`. Comparing against the stored version
 rather than trusting the server's "newer" is what makes a badge disappear the
 moment the user adopts the update, instead of at the next check.
 
+## Sync — the secret code
+
+The user's whole sync identity is **32 random bytes**, generated in the
+extension by `crypto.getRandomValues`. It is shown to the user as one string:
+
+```text
+GS1-000G-40R4-0M30-E209-185G-R38E-1W81-24GK-2GAH-C5RR-34D1-P70X-3RFG-CC6W
+```
+
+- **Prefix** `GS1`, then the payload in groups of four separated by `-`. The
+  prefix is a version, not decoration: a future format is `GS2` and an old
+  extension must reject it rather than mis-decode it.
+- **Alphabet:** Crockford base32, `0123456789ABCDEFGHJKMNPQRSTVWXYZ` — no
+  `I`, `L`, `O`, `U`.
+- **Payload:** 56 characters. The first **52** are the 32 secret bytes,
+  big-endian, five bits per character; 52 x 5 = 260 bits, so the final four
+  bits are padding and **must be zero**. The last **4** characters are the
+  checksum.
+- **Checksum:** the top 20 bits of `SHA-256(secret)` as four base32
+  characters. Formally `v = (d[0] << 12) | (d[1] << 4) | (d[2] >> 4)`, then the
+  characters for `(v >> 15) & 31`, `(v >> 10) & 31`, `(v >> 5) & 31`, `v & 31`.
+
+**Parsing is forgiving, verification is not.** Input is uppercased; whitespace
+and `-` are ignored; `I` and `L` read as `1` and `O` as `0` (Crockford's own
+aliases). `U` is not in the alphabet and is an error, never an alias. Whatever
+survives that must still be exactly 56 characters, have zero padding bits and
+match its checksum — a single mistyped character is **rejected with an error**,
+never accepted as a different secret that would silently address an empty blob
+store.
+
+The prefix is matched explicitly before the noise is stripped, because `G`, `S`
+and `1` are themselves alphabet characters and would otherwise be eaten as
+payload.
+
+### Code test vectors
+
+| Secret (hex) | Code |
+|---|---|
+| `000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f` | `GS1-000G-40R4-0M30-E209-185G-R38E-1W81-24GK-2GAH-C5RR-34D1-P70X-3RFG-CC6W` |
+| `6e31aaf7266804808840320a2a6550b0b8fe93f7b88bcc96e016452a69840aa8` | `GS1-DRRT-NXS6-D028-1220-6852-MSAG-P2WF-X4ZQ-Q25W-S5Q0-2S2J-MTC4-1AM0-56KY` |
+
+All of these parse to the first secret: the code itself, the same in lower
+case, the same without separators, the same with spaces instead of `-`, and the
+same with `0M30` written `OM3O`. The code ending `CC6X` (checksum typo) and the
+one ending `CC6U` (`U`) are rejected.
+
+## Sync — key derivation and the envelope
+
+Because the secret carries full entropy, **HKDF-SHA-256** is enough; there is no
+passphrase and therefore no password hash. Fixed parameters:
+
+- **salt:** 32 zero bytes.
+- **info:** `"gestura-sync-locator-v1"` for the locator, `"gestura-sync-key-v1"`
+  for the encryption key. UTF-8, exactly as written.
+- **length:** 256 bits each.
+
+The **locator** is those 32 bytes as **base64url without padding**. It
+identifies the blob store and is the only thing the server sees. It is a bearer
+capability: whoever derives it can list, replace and delete the states. It
+travels in the request **body**, never in the URL, so it stays out of ordinary
+access logs — *the deployment must not log request bodies.* For the same reason
+the server **stores only a hash of it** (SHA-256 is enough — the locator is 256
+uniform bits, so no salt is needed) and looks states up by that hash: access to
+the database must not amount to the right to list or delete anyone's states.
+The ciphertext would still be unreadable, but it could be taken away.
+
+The **key** is an AES-256-GCM key and never leaves the client. The server cannot
+reach it from the locator.
+
+### Derivation test vectors
+
+Secret `000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f`:
+
+```text
+locator (base64url) : zoogXw2lwmt_ZqFnRu-lFOWYxyJaU2kpxfunpy3Umsk
+key (hex)           : ca25c2f6d9e2392b270755cf04b75ff545fa536a387a4c4d4d16fcfeb2e7cba3
+```
+
+Secret `6e31aaf7266804808840320a2a6550b0b8fe93f7b88bcc96e016452a69840aa8`:
+
+```text
+locator (base64url) : 3qzyS44KqXaBNzKvFSontDE8CfLPp8lwOUVHroaeg7M
+key (hex)           : 0f61cd1a7a59f8da90654cb9e2e94aca58af066c15e9ac12e0b0dc4f066d30e6
+```
+
+### Envelope
+
+Every ciphertext on the wire is one base64 string over `iv[12]` followed by the
+ciphertext and its 16-byte tag.
+
+- **IV:** 12 fresh random bytes per encryption, from `crypto.getRandomValues`.
+  GCM is completely broken by IV reuse under the same key, and both blobs of
+  every state share one key — so this is not a preference.
+- **Tag:** 128 bits, WebCrypto's default; it is part of the `ciphertext` output
+  of `crypto.subtle.encrypt` and needs no field of its own.
+- **AAD:** `"gestura-sync-v1" + stateId + role`, UTF-8, where `role` is `"meta"`
+  or `"payload"`. `stateId` is fixed-length hex, so the concatenation is
+  unambiguous. This is what stops the server from moving a valid blob to a
+  different state or a different role: authentication fails before anything
+  decrypts.
+
+### Envelope test vector
+
+Key = the key derived above from secret `0001…1f`, `stateId =
+0123456789abcdef0123456789abcdef`, `role = meta`, `iv =
+0102030405060708090a0b0c` (fixed for the vector only — real IVs are random),
+plaintext `{"name":"Work"}`:
+
+```text
+aad      : gestura-sync-v10123456789abcdef0123456789abcdefmeta
+envelope : AQIDBAUGBwgJCgsMhBezK2ZidsR4vw2Le+JA1vfSdGXw0lkopKj0PjhL9A==
+sha256(envelope bytes), base64url : wTZSj7yLdniic9fTzg1YQgD4WVynX3BgPTYosChka2c
+```
+
+## Sync — states
+
+A **state** is one saved settings snapshot under one locator, stored as **two
+ciphertexts under the same key**:
+
+- **meta** — a few hundred bytes:
+  `{ name, createdAt, updatedAt, extVersion, payloadHash }`. `payloadHash` is
+  `SHA-256` over the payload envelope's **raw bytes** (what the base64 decodes
+  to), as base64url without padding. It binds the two blobs of a state
+  together.
+- **payload** — the settings export (see "Settings exchange format" below).
+
+The split exists for a second browser that has only the code: it lists the
+states, decrypts just the meta blobs to show *"Work — updated 3 September"*, and
+downloads a payload only when the user picks one.
+
+`stateId` is generated **client-side** at creation: 16 random bytes as
+lower-case hex, 32 characters, `^[0-9a-f]{32}$`. It never changes. Names live
+inside the meta blob and are labels only — duplicates are possible, and the
+client warns rather than refuses.
+
+**Rollback is outside the threat model.** A server that serves an older but
+authentic version of a state is not detected: uploads are explicit, states are
+few, and the preview before writing shows what actually arrived. What the
+`payloadHash` in the meta blob does prevent is a *mismatched pair* — this
+meta with a different state's or an older upload's payload.
+
+That paragraph is about the **server**. Two **clients** writing the same state
+are a different matter, and one the client cannot solve alone: the
+`payloadHash` binds the two blobs of *one* upload to each other, never an
+upload to the state it replaces. Without help from the server, the second
+browser to press *Overwrite* silently discards the first one's work, and nobody
+learns of it. The endpoint therefore takes a **write token**, below.
+
+**The write token is the `payloadHash` of the state being replaced.** It needs
+no field of its own on the server: the server recomputes it over the payload
+bytes it stores, and the client already holds it — it is in the meta blob it
+decrypted when it listed or opened the state. It works as a token because
+**every encryption uses a fresh IV**, so two uploads of byte-identical settings
+still produce different payloads and different hashes. That is a property of
+the envelope, not a coincidence, and it is what makes a hash usable where a
+version counter would otherwise be needed.
+
+## Sync — endpoints
+
+All under `/api/v1`, all anonymous, all with the locator in the body. Request
+bodies always carry `apiLevel`.
+
+| Endpoint | Body | Answer |
+|---|---|---|
+| `POST /api/v1/sync/list` | `{ apiLevel, locator }` | `{ states: [{ stateId, size, updatedAt, meta }] }` |
+| `PUT /api/v1/sync/state` | `{ apiLevel, locator, stateId, meta, payload, basePayloadHash? }` | `{ stateId, updatedAt, size }` |
+| `POST /api/v1/sync/get` | `{ apiLevel, locator, stateId }` | `{ stateId, updatedAt, payload }` |
+| `POST /api/v1/sync/delete` | `{ apiLevel, locator, stateId }` — `stateId` omitted deletes every state under the locator | `{ deleted: <count> }` |
+
+`size` is the payload envelope's length in bytes as transmitted; `updatedAt` is
+an ISO-8601 UTC timestamp. `meta` and `payload` are the base64 envelope strings.
+
+**`basePayloadHash` — what the upload is built on.** Base64url `SHA-256` over
+the raw bytes of the payload envelope currently stored, i.e. the same value the
+replaced state's meta blob carries. Three cases, and the first is what keeps
+older extensions working:
+
+| `basePayloadHash` | Server does |
+|---|---|
+| absent | Writes unconditionally, exactly as before. This is how a **new** state is created, and how a client that has seen the conflict says *overwrite anyway*. |
+| present, matches the stored payload | Writes. |
+| present, does not match | Refuses with **412** and `{ "error": "conflict", "updatedAt": "<ISO-8601>" }`. Nothing is written. |
+
+The `updatedAt` in the refusal is there so the client can say *when* the state
+changed under it without a second request; it then re-reads the state and lets
+the user decide.
+
+**This does not merge anything.** It makes a lost write visible instead of
+silent, and it is the precondition for merging later: a client can only merge
+if it can be told "your base is stale" and try again. Merging itself needs
+per-entry versions and deletion markers inside the payload, and is deliberately
+not part of `apiLevel` 3.
+
+**`POST /api/v1/sync/delete` stays unconditional** and takes no token. Deleting
+is a deliberate act behind a confirmation, and unlike a silent overwrite it is
+one the user is looking at while it happens.
+
+**Errors** answer with an HTTP status and `{ "error": "<code>" }`:
+
+| Code | Status | Meaning |
+|---|---|---|
+| `bad-request` | 400 | Malformed body, unknown `apiLevel`, bad `stateId` or locator shape. |
+| `not-found` | 404 | No such state under this locator. |
+| `conflict` | 412 | `basePayloadHash` does not describe the stored state — someone else wrote it first. The answer carries the current `updatedAt`. |
+| `too-large` | 413 | A single blob exceeds its limit. |
+| `quota-states` | 409 | The locator already holds the maximum number of states. |
+| `rate-limited` | 429 | Per-IP rate limit (the July design's RateLimiter). |
+
+**Limits**, enforced server-side and mirrored client-side so the user sees the
+number before the request rather than after it:
+
+| Limit | Value |
+|---|---|
+| `meta` envelope | 8 KiB as transmitted |
+| `payload` envelope | 512 KiB as transmitted |
+| states per locator | 10 |
+| total per locator | 4 MiB |
+
+**Retention:** a state that is neither read nor written for **12 months** is
+deleted. This is the only way blobs under a lost secret can ever go away — the
+user cannot derive their locator any more, so neither the extension nor the user
+can address them. The retention period is named in `PRIVACY.md` and shown in the
+extension when a new secret replaces a lost one.
+
+**CORS:** `Access-Control-Allow-Origin: *`, methods `POST, PUT, OPTIONS`, header
+`Content-Type`. The preflight must be answered — Firefox sends one for these
+requests even from an extension page, where Chromium exempts them.
+
+## Settings exchange format
+
+The format every settings blob must satisfy — the file export, the file import,
+and both directions of sync. One validator implements it
+(`js/eu-settings-schema.js`); nothing writes settings that did not pass it.
+
+```json
+{
+	"gesturaSettings": 1,
+	"_version": "2.8.0",
+	"theme": "auto"
+}
+```
+
+- **`gesturaSettings`** is the **format** version and drives validation and
+  migration. `_version` is the *extension* version and is informational only —
+  it is what today's exports carry, and it never decided anything.
+- A file **without** `gesturaSettings` is a legacy export and goes through the
+  legacy path: the same rules, plus the `customGestures` / `gestures` /
+  `customGestureUrls` migration into `mouseGestures`.
+- An **unknown** `gesturaSettings` (anything but `1`) is refused with a clear
+  message. It is not guessed at.
+- **Allowlist:** the top-level keys of `DEFAULT_SETTINGS`, minus `lastSyncTime`.
+  Unknown keys are **dropped and listed in the preview**, never written. Values
+  are type-checked against the shape of their default.
+- **Forbidden anywhere in the tree:** a property named `__proto__`,
+  `constructor` or `prototype`. Such a file is rejected outright, before any
+  object is merged.
+- **`euIntegration`, `euSync` and the secret are never exported and never
+  imported.** They live in `chrome.storage.local`; a crafted file must not be
+  able to flip a switch or plant a secret.
+- **Maximum size:** 512 KiB of JSON text.
+- The import is **atomic and replacing**: one validated write of the whole
+  settings object, never a partial application, never a merge.
+
 ## Provenance
 
 An imported entry stores `source = { type, url?, version, indexId, indexOrigin?, baselineHash? }`.
@@ -255,6 +524,13 @@ whitespace, `undefined` properties dropped, `null` kept, arrays in order
 
 A stored consent below the current version disables the integration until the
 user confirms again.
+
+The **Sync** switch has a consent of its own, and tier 1 must be enabled with a
+current consent for tier 2 to authorize anything:
+
+| Sync version | Scope |
+|---|---|
+| 1 | Encrypted settings states are stored on gestura.eu under a locator derived from a secret only this browser holds. The server sees ciphertext, sizes and timestamps — not the state names, not the settings. Upload and download are explicit clicks; before every upload the complete content is shown. |
 
 ## Developer origin
 

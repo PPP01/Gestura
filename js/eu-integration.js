@@ -9,9 +9,13 @@
 	const PRODUCTION_ORIGIN = 'https://gestura.eu';
 	// Bumping this re-prompts every user: effectiveEnabled() is false until the
 	// stored consent carries the current number. R1 = 1. R2 = 2 (the update
-	// check sends a request the user did not click). R3 raises it again.
+	// check sends a request the user did not click). R3 does NOT raise it: sync
+	// is a second switch with a consent of its own (GesturaSyncLocal), and tier 1
+	// discloses nothing in R3 that it did not disclose in R2. Raising it here
+	// would sign every existing user out of the integration over a feature they
+	// may never turn on.
 	const CURRENT_INTEGRATION_CONSENT = 2;
-	const API_LEVEL = 2;
+	const API_LEVEL = 3;
 	const LIMITS = { detailMaxBytes: 32 * 1024, requestIdMax: 64, idsMax: 100, idMax: 128 };
 	const ID_RE = /^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$/;
 	const LOCAL_DEFAULTS = { euIntegration: { enabled: false, consent: null, devOrigin: '' } };
@@ -124,7 +128,11 @@
 		const se = (settings && settings.searchEngines) || {};
 		for (const [id, def] of Object.entries(sm.custom || {})) if (def && def.source) out.push({ kind: 'menu', id, stored: def });
 		for (const [id, def] of Object.entries(sm.edited || {})) if (def && def.source) out.push({ kind: 'menu', id, stored: def });
-		for (const e of se.custom || []) if (e && e.source) out.push({ kind: 'engine', id: e.id, stored: e });
+		// Array.isArray, not `|| []`: this runs in the bridge answer path, in every
+		// frame, where a throw over a stored `custom: {}` is a silently unanswered
+		// request. js/eu-settings-schema.js keeps new imports from looking like
+		// that; what is already in storage.sync is not covered by anything else.
+		for (const e of (Array.isArray(se.custom) ? se.custom : [])) if (e && e.source) out.push({ kind: 'engine', id: e.id, stored: e });
 		for (const [id, ov] of Object.entries(se.overrides || {})) if (ov && ov.source) out.push({ kind: 'engine', id, stored: ov });
 		return out;
 	}
@@ -133,7 +141,7 @@
 		const sm = (settings && settings.siteMenus) || {};
 		const se = (settings && settings.searchEngines) || {};
 		if (kind === 'menu') return (sm.custom && sm.custom[id]) || (sm.edited && sm.edited[id]) || null;
-		return (se.custom || []).find(e => e && e.id === id) || (se.overrides && se.overrides[id]) || null;
+		return (Array.isArray(se.custom) ? se.custom : []).find(e => e && e.id === id) || (se.overrides && se.overrides[id]) || null;
 	}
 
 	// --- bridge protocol ----------------------------------------------------------------

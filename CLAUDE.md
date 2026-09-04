@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+It is the **single source of truth** for every coding agent working here.
+[AGENTS.md](AGENTS.md) is a pointer at this file and holds no rules of its own —
+do not copy anything into it. It used to be a duplicate and drifted, which
+produced a false review finding.
+
 ## What this is
 
 Gestura is a **Manifest V3 browser extension** (Chrome/Edge/Firefox) for mouse gestures, super drag, wheel/rocker gestures, area selection, and per-site website menus. It is a GPL-3.0 fork of [FlowMouse](https://github.com/Hmily-LCG/FlowMouse). [README.md](README.md) describes what the fork adds; [FORK-NOTES.md](FORK-NOTES.md) owns remotes, branch roles and the upstream-update workflow.

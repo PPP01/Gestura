@@ -121,8 +121,7 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
   Verändert-Status importierter Einträge mit — anonym, ohne Konto, kein
   Personenbezug. Deckt sich mit `data_collection_permissions: { required: ["none"],
   optional: ["technicalAndInteraction"] }` (siehe oben) und `PRIVACY.md`, Abschnitt
-  „gestura.eu integration". Die verschlüsselte Sync ist hiervon nicht betroffen —
-  sie existiert noch nicht.
+  „gestura.eu integration".
 - **Datennutzung, Update-Prüfung (seit R2):** beim Öffnen der Einstellungen fragt
   die Extension — höchstens einmal täglich und getrennt je Index — bei gestura.eu
   nach neueren Versionen der von dort importierten Einträge und überträgt dafür
@@ -133,6 +132,19 @@ npx web-ext lint --source-dir . --config web-ext-config.mjs   # muss 0 Fehler ze
   `required: ["none"]` bleibt richtig, weil ohne eingeschalteten Schalter nichts
   passiert. Neu ist nur, dass die Anfrage auch ohne Klick der Nutzerin erfolgt;
   das steht in der Zustimmung (Consent-Version 2) und in `PRIVACY.md`.
+- **Datennutzung, Abgleich zwischen Browsern (seit R3):** der zweite Schalter
+  *Abgleich* (aus per Default, eigene Zustimmung, nur einschaltbar solange die
+  Integration an ist) lädt auf **ausdrücklichen Klick** die eigenen
+  Einstellungen der Nutzerin zu gestura.eu — **im Browser verschlüsselt**, unter
+  einem aus einem lokal erzeugten Code abgeleiteten Schlüssel, der den Browser
+  nie verlässt. Gespeichert wird nur Geheimtext, Größe und Datum; der Name eines
+  Standes liegt mit im verschlüsselten Teil. Kein Konto, keine Kennung, kein
+  Personenbezug. Das sind **Einstellungsdaten** und fällt damit weiter unter
+  „technicalAndInteraction", das Mozilla ausdrücklich über Einstellungsdaten
+  definiert; `required: ["none"]` bleibt richtig, weil ohne beide Schalter nichts
+  passiert. 👤 **Vor dem Einreichen mit Mozillas aktueller Kategorienliste
+  abgleichen** — kommt eine Kategorie für Nutzerinhalte hinzu, gehört der
+  Abgleich dorthin. Steht in `PRIVACY.md`, Abschnitt „Sync between browsers".
 - **Permission-Begründungen:** aus `permission-justifications.md`, falls der Review
   nach `<all_urls>` / `tabs` / `clipboardRead` etc. fragt.
 

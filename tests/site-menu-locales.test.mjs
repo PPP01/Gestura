@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 // Alle in diesem Feature eingeführten Keys müssen in JEDER Locale existieren.
-const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration'];
+const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration', 'euSync', 'settingsPreview'];
 const NEW_KEYS_EXPLICIT = ['customMenuOwnLabel', 'menuFallbackLabel', 'menuFallbackNone', 'editGlobalMenuHint', 'openSiteMenusSection',
 	'importDoneTitle', 'importBadgeNew', 'exchangeConflictModified'];
 
@@ -25,7 +25,40 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'euIntegrationLastChecked', 'euIntegrationNeverChecked',
 	'euIntegrationUpdateBadge', 'euIntegrationUpdateTooltip', 'euIntegrationUpdateApply',
 	'euIntegrationRetiredBadge', 'euIntegrationRetiredTooltip', 'euIntegrationRetiredSuccessor',
-	'exchangeConflictModified'];
+	'exchangeConflictModified',
+	'settingsPreviewExportTitle', 'settingsPreviewImportTitle', 'settingsPreviewUploadTitle',
+	'settingsPreviewSize', 'settingsPreviewReplaces', 'settingsPreviewDropped',
+	'settingsPreviewRetyped', 'settingsPreviewLegacy',
+	'settingsPreviewConfirmExport', 'settingsPreviewConfirmImport', 'settingsPreviewConfirmUpload',
+	'settingsPreviewCancel',
+	'settingsPreviewErrorTooLarge', 'settingsPreviewErrorNotJson', 'settingsPreviewErrorNotObject',
+	'settingsPreviewErrorNotSettings', 'settingsPreviewErrorUnknownFormat',
+	'settingsPreviewErrorForbiddenKey',
+	'euSyncHeading', 'euSyncToggle', 'euSyncToggleDesc',
+	'euSyncConsentTitle', 'euSyncConsentLead', 'euSyncConsentPoint1Label',
+	'euSyncConsentPoint1', 'euSyncConsentPoint2Label', 'euSyncConsentPoint2',
+	'euSyncConsentPoint3Label', 'euSyncConsentPoint3', 'euSyncConsentPoint4Label',
+	'euSyncConsentPoint4', 'euSyncConsentAccept', 'euSyncConsentCancel',
+	'euSyncConsentGranted', 'euSyncConsentDate', 'euSyncConsentRevoke',
+	'euSyncReconfirmTitle', 'euSyncReconfirmDesc', 'euSyncSecretTitle',
+	'euSyncSecretDesc', 'euSyncSecretCopy', 'euSyncSecretCopyFailed', 'euSyncSecretCopied',
+	'euSyncSecretSave', 'euSyncSecretNew', 'euSyncSecretNewConfirm',
+	'euSyncSecretPair', 'euSyncSecretPairDesc', 'euSyncSecretPairApply',
+	'euSyncSecretFileHeader', 'euSyncDevOriginNotice', 'euSyncCodeErrorPrefix',
+	'euSyncCodeErrorCharset', 'euSyncCodeErrorLength', 'euSyncCodeErrorPadding',
+	'euSyncCodeErrorChecksum',
+	'euSyncErrorConflict', 'euSyncConflictChangedAt',
+	'euSyncConflictReload', 'euSyncConflictOverwrite',
+	'euSyncStatesTitle', 'euSyncStatesEmpty', 'euSyncStateNamePlaceholder',
+	'euSyncCreate', 'euSyncUpload', 'euSyncDownload',
+	'euSyncDelete', 'euSyncDeleteAll', 'euSyncDeleteConfirm',
+	'euSyncDeleteAllConfirm', 'euSyncRefresh', 'euSyncChanged',
+	'euSyncUploadedAt', 'euSyncNeverUploadedHere', 'euSyncStateBroken',
+	'euSyncDuplicateName', 'euSyncQuotaReached', 'euSyncErrorNetwork',
+	'euSyncErrorBadRequest', 'euSyncErrorNotFound', 'euSyncErrorTooLarge',
+	'euSyncErrorQuotaStates', 'euSyncErrorRateLimited', 'euSyncErrorServer',
+	'euSyncErrorMalformed', 'euSyncErrorDecrypt', 'euSyncErrorDisabled',
+	'euSyncErrorNoSecret'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

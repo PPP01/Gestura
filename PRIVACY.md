@@ -1,18 +1,23 @@
 # Gestura – Privacy Policy
 
-_Last updated: 2026-09-02_
+_Last updated: 2026-09-03_
 
 Gestura is a privacy-focused, open-source mouse gesture extension. Protecting your
 privacy is a core design goal.
 
 ## Summary
 
-**Gestura does not collect, transmit, or sell any personal data.** There are no
-analytics, no tracking, no advertising, and no remote servers operated by Gestura.
-The optional gestura.eu integration (below) is off by default and, when enabled,
+**Gestura does not collect, sell or profile any personal data.** There are no
+analytics, no tracking and no advertising, and there is no account. Two optional
+switches, both off by default, are the only reason Gestura ever contacts a
+server at all — gestura.eu, which is run by Gestura's author.
+
+The **gestura.eu integration** (below), when you enable it,
 answers questions from gestura.eu about entries you imported from there and asks
 that index — at most once a day, when you open the settings — whether newer
-versions of those entries exist.
+versions of those entries exist. Underneath it sits a second switch, *Sync*,
+also off by default: with it on, your own settings can be saved to gestura.eu on
+an explicit click — encrypted in your browser, under a key that never leaves it.
 
 ## What data Gestura processes and where it stays
 
@@ -67,6 +72,37 @@ settings section shows the date you agreed and offers a *Withdraw* button, which
 clears the consent and switches the integration off in one step; turning the
 switch off does the same. Either way everything above stops immediately, the
 stored update notices are deleted, and entries you imported stay on your device.
+
+## Sync between browsers (optional, off by default, a second switch)
+
+Sync is a separate switch underneath the integration, with its own consent. It
+is off until you turn it on, and it cannot be on while the integration is off.
+
+When it is on, and only when you click **Upload**:
+
+- Gestura encrypts your settings **in your browser** and sends the ciphertext to
+  gestura.eu. The key is derived from a code this browser generated; the code is
+  never sent. gestura.eu stores the ciphertext, its size and the date — it can
+  read neither your settings nor the name you gave the state, because that name
+  is inside the encrypted part. Your states are filed under a hash of the
+  locator your browser derives from the code, not under the locator itself, so
+  access to the server's database does not amount to the right to list or
+  delete them.
+- Before every upload Gestura shows you the complete content, exactly as it will
+  be transferred.
+- The code is the only key. Anyone who has it can read, replace and delete your
+  states, so keep it as you would a password. If you lose it, the states saved
+  under it can no longer be reached — not even to delete them; gestura.eu
+  removes states that are neither read nor written for **12 months**.
+- Downloading a state decrypts it in your browser, checks it, and shows it to
+  you in full before anything is written.
+
+The code, the switch and the consent live only on this device
+(`chrome.storage.local`). They are never part of an export, never part of an
+import, and never travel over your browser's own sync. Turning the integration
+off turns sync off with it and clears the sync consent; the code and your states
+stay, so switching it back on does not orphan what you already uploaded. *Delete
+everything under this code* removes your states from gestura.eu.
 
 ## Permissions
 
