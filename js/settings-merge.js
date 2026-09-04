@@ -409,7 +409,54 @@
 		return out;
 	}
 
-	const api = { MERGE_MAP, DEVICE_LOCAL, spec, deepEqual, mergeEntry, merge, apply };
+	// Spec §3, step 7b-7d: upload, then the local write, then the base - in that
+	// order and in no other. Written the other way round - local first, base
+	// second, upload last - a 412 would leave behind a base whose payload is the
+	// merged result and whose hash matches nothing on the server; the next pass
+	// would then find local == base for every entry, conclude that only the
+	// remote side moved, and take theirs everywhere: every local change silently
+	// overwritten. Upload first, and a refused upload has cost nothing.
+	//
+	// The order lives here, in the pure module, and not only in the panel that
+	// runs it, because here it can be tested in Node without a DOM. The three
+	// steps are injected:
+	//
+	//   upload()                  the server's answer, or a falsy value if the
+	//                             upload was refused (412) or failed. Nothing
+	//                             else runs then - neither the local settings
+	//                             nor the base are written.
+	//   applySettings(recordBase) performs the local write and resolves truthy
+	//                             on success; calls `recordBase` once the write
+	//                             has succeeded, and never before.
+	//   recordBase()              writeBase(answer): the base, under the hash
+	//                             this very upload returned. It does not exist
+	//                             before the upload succeeded and writes at most
+	//                             once.
+	//
+	// The base write is handed INTO applySettings rather than run after it
+	// returned, because the caller's write path reloads the page immediately
+	// after its own after-save hook: the base has to be stored inside that hook,
+	// while the save is known to have succeeded and the page is still there. A
+	// local write that fails runs no hook, calls no `recordBase`, and leaves no
+	// base - the second half of the same invariant.
+	//
+	// Returns { ok: true, answer } or { ok: false, reason: 'upload' | 'apply' }.
+	async function commitOrder({ upload, applySettings, writeBase }) {
+		const answer = await upload();
+		if (!answer) return { ok: false, reason: 'upload' };
+		let written = false;
+		const recordBase = async () => {
+			if (written) return false;
+			written = true;
+			await writeBase(answer);
+			return true;
+		};
+		const applied = await applySettings(recordBase);
+		if (!applied) return { ok: false, reason: 'apply' };
+		return { ok: true, answer };
+	}
+
+	const api = { MERGE_MAP, DEVICE_LOCAL, spec, deepEqual, mergeEntry, merge, apply, commitOrder };
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSettingsMerge = api;
 })(typeof self !== 'undefined' ? self : globalThis);

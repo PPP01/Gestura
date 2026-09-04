@@ -506,7 +506,7 @@ starts from the same place.
 - A `412` restarts the loop and writes **no** base and **no** local settings;
   the second pass reuses answers for entries that did not change again and asks
   again for one whose `theirs` moved.
-- The fourth `412` in one press stops the loop and surfaces the conflict.
+- The third `412` in one press stops the loop and surfaces the conflict.
 - A remote payload with a `dropped` key, a `retyped` key, or a greater
   `extVersion` is refused before any merge.
 - A successful upload, download and sync each write a base with the right hash;
@@ -598,4 +598,4 @@ Order: 1 → 2 → (3, 4 independent) → 5 → 6 → 7 → 8 → 9 → 10.
   the R3 preview; the seven device-local keys are never touched; cancelling
   writes nothing. ✔
 - **The `412` write token carries the merge** — no locking of its own, at most
-  three retries per press, answers reused. ✔
+  three passes per press (the third `412` hands over), answers reused. ✔

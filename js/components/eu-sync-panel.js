@@ -490,7 +490,7 @@ class EuSyncPanel extends LitElement {
 	// Spec §3: download, merge against the base, ask where both sides moved,
 	// preview, upload with the write token, and only then write locally and
 	// store the result as the new base. A 412 restarts from the top with the
-	// answers kept; the fourth one hands over to the existing conflict UI.
+	// answers kept; the third one hands over to the existing conflict UI.
 	//
 	// `choices` are the answers from an earlier pass; `attempt` counts passes.
 	async #syncState(state, attempt = 1, choices = {}) {
@@ -634,57 +634,68 @@ class EuSyncPanel extends LitElement {
 			legacy: false,
 			note,
 			commit: () => this.#guarded(async () => {
-				const done = await this.#run(() => window.GesturaSync.upload({
-					stateId: state.stateId,
-					name,
-					createdAt: state.meta && state.meta.createdAt,
-					exportObj: r.exportObj,
-					extVersion: i18n.version,
-					basePayloadHash: expect,
-				}));
-				if (!done) {
-					if (this._errorCode !== 'conflict') return;
-					// Someone wrote between our download and this upload. Nothing has
-					// been written here. Twice more we merge against what is there now;
-					// the third 412 hands over to the existing conflict UI (spec §3
-					// step 8).
-					if (attempt >= 3) {
-						this._conflict = { stateId: state.stateId, name, createdAt: state.meta && state.meta.createdAt, basePayloadHash: null };
-						return;
-					}
-					const list = await this.#run(() => window.GesturaSync.list());
-					if (!list) return;
-					this._states = list;
-					const fresh = list.find(x => x.stateId === state.stateId);
-					if (!fresh) {
-						this._error = i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
-						return;
-					}
-					this._notice = i18n.getMessage('euSyncMergeMovedAgain');
-					await this.#syncState(fresh, attempt + 1, choices);
+				// upload -> local write -> base, and never another order (spec §3
+				// step 7b-7d). The sequence itself lives in settings-merge.js, where
+				// it is testable without a DOM; what stands here are its three steps.
+				// `now` dates the base and the upload record alike, and is taken
+				// where it always was: once the upload has been acknowledged.
+				let now = '';
+				const res = await window.GesturaSettingsMerge.commitOrder({
+					upload: () => this.#run(() => window.GesturaSync.upload({
+						stateId: state.stateId,
+						name,
+						createdAt: state.meta && state.meta.createdAt,
+						exportObj: r.exportObj,
+						extVersion: i18n.version,
+						basePayloadHash: expect,
+					})),
+					// The adopt path saves, runs afterSave, reloads. Its outcome is
+					// not observable from here, which is why `recordBase` goes into
+					// afterSave rather than being awaited after this returns: that
+					// hook runs after the save succeeded and before the reload.
+					applySettings: (recordBase) => {
+						// An earlier conflict has been answered by this write - the same
+						// reasoning as in #uploadTo, and without it the "Reload / Upload
+						// overwriting" row would survive the merge that settled it.
+						this._conflict = null;
+						now = new Date().toISOString();
+						window.dispatchEvent(new CustomEvent('gestura:settings-apply', {
+							detail: {
+								settings: r.settings,
+								afterSave: async () => {
+									await recordBase();
+									await window.GesturaSyncLocal.setState(state.stateId, {
+										name,
+										lastUploadHash: await S.hashOf(r.exportObj),
+										lastUploadDate: now,
+									});
+								},
+							},
+						}));
+						return true;
+					},
+					// The server holds r.exportObj under done.payloadHash.
+					writeBase: done => window.GesturaSyncBase.write(state.stateId, { hash: done.payloadHash, payload: r.exportObj, date: now }),
+				});
+				if (res.ok || res.reason !== 'upload' || this._errorCode !== 'conflict') return;
+				// Someone wrote between our download and this upload. Nothing has
+				// been written here. Twice more we merge against what is there now;
+				// the third 412 hands over to the existing conflict UI (spec §3
+				// step 8).
+				if (attempt >= 3) {
+					this._conflict = { stateId: state.stateId, name, createdAt: state.meta && state.meta.createdAt, basePayloadHash: null };
 					return;
 				}
-				// An earlier conflict has been answered by this write - the same
-				// reasoning as in #uploadTo, and without it the "Reload / Upload
-				// overwriting" row would survive the merge that settled it.
-				this._conflict = null;
-				// The server holds r.exportObj under done.payloadHash. Save locally
-				// through the adopt path; the base and the upload record are written
-				// in afterSave, after the save succeeded and before the reload.
-				const now = new Date().toISOString();
-				window.dispatchEvent(new CustomEvent('gestura:settings-apply', {
-					detail: {
-						settings: r.settings,
-						afterSave: async () => {
-							await window.GesturaSyncBase.write(state.stateId, { hash: done.payloadHash, payload: r.exportObj, date: now });
-							await window.GesturaSyncLocal.setState(state.stateId, {
-								name,
-								lastUploadHash: await S.hashOf(r.exportObj),
-								lastUploadDate: now,
-							});
-						},
-					},
-				}));
+				const list = await this.#run(() => window.GesturaSync.list());
+				if (!list) return;
+				this._states = list;
+				const fresh = list.find(x => x.stateId === state.stateId);
+				if (!fresh) {
+					this._error = i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
+					return;
+				}
+				this._notice = i18n.getMessage('euSyncMergeMovedAgain');
+				await this.#syncState(fresh, attempt + 1, choices);
 			}),
 		});
 	}

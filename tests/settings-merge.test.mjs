@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { readFile } from 'node:fs/promises';
 
 let M, S, DEFAULTS;
 
@@ -77,6 +78,35 @@ describe('deepEqual', () => {
 	it('sees a missing key', () => {
 		expect(M.deepEqual({ a: 1 }, { a: 1, b: undefined })).toBe(false);
 		expect(M.deepEqual({ a: 1, b: 2 }, { a: 1 })).toBe(false);
+	});
+
+	// Spec §5 asks that "one test runs both over the same fixtures". Importing
+	// js/settings-store.js here is impossible: it is an ES module that reads
+	// chrome.* at import time. So its deepEqual is lifted out of the file's TEXT
+	// and compiled on its own - the function recurses only on itself and closes
+	// over nothing, so this is the whole of it. A plain text comparison of the
+	// two bodies would not do: they are the same eleven lines but not the same
+	// characters (obj1/obj2/keys1/keys2 there, a/b/ka/kb here), and it would
+	// prove agreement on no input at all.
+	it('agrees with the original in js/settings-store.js over the same fixtures', async () => {
+		const src = await readFile(new URL('../js/settings-store.js', import.meta.url), 'utf8');
+		const m = src.match(/\nfunction deepEqual\(obj1, obj2\) \{[\s\S]*?\n\}/);
+		// A rename there must fail this test, not silently empty it.
+		expect(m, 'deepEqual not found in js/settings-store.js').not.toBeNull();
+		const original = new Function(`${m[0]}\nreturn deepEqual;`)();
+
+		const values = [
+			undefined, null, 0, 1, '', 'a', true, false, NaN,
+			{}, [], { a: 1 }, { a: 1, b: undefined }, { b: undefined, a: 1 }, { a: 2 },
+			[1, 2], [2, 1], [1, 2, 3], { 0: 1, 1: 2 },
+			{ a: [1, { b: 2 }] }, { a: [1, { b: 3 }] }, { a: { b: { c: [] } } },
+			{ name: 'A', items: [] }, { items: [], name: 'A' },
+		];
+		for (const x of values) {
+			for (const y of values) {
+				expect(M.deepEqual(x, y), `${JSON.stringify(x)} vs ${JSON.stringify(y)}`).toBe(original(x, y));
+			}
+		}
 	});
 });
 
@@ -242,6 +272,9 @@ describe('merge - order', () => {
 	it('appends a local-only id at the end', () => {
 		const m = M.merge(sm(['a', 'b']), sm(['a', 'b', 'menu_new'], { menu_new: A }), sm(['b', 'a']));
 		expect(m.result.siteMenus.order).toEqual(['b', 'a', 'menu_new']);
+		// The order that equals neither side lands in `uploaded`, the bucket
+		// mergeOrder's else-branch chooses - here beside the new menu itself.
+		expect(m.summary).toMatchObject({ taken: 0, uploaded: 2, deleted: 0 });
 	});
 	it('drops an id whose custom entry the merge deleted, but never a catalogue id', () => {
 		// `search` is a catalogue id: never in `custom`, so never dropped.
@@ -438,5 +471,123 @@ describe('apply', () => {
 		expect(m.conflicts[0]).toMatchObject({ path: 'gestureTriggerButtons.right', kind: 'scalar', mine: false, theirs: null });
 		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
 		expect(out.gestureTriggerButtons).toEqual({ right: null, middle: true });
+	});
+});
+
+// Spec §3: "The order of 7b-7d is load-bearing." Written the other way round a
+// 412 would leave a base whose payload is the merged result and whose hash
+// matches nothing on the server; the next pass would read local == base
+// everywhere and take theirs, overwriting every local change. commitOrder is
+// that order, lifted out of <eu-sync-panel> so it can be run without a DOM.
+describe('commitOrder - the write order of spec §3 step 7b-7d', () => {
+	const tick = () => new Promise(r => setTimeout(r, 0));
+
+	// The panel's three steps, faked. Each logs its start and its end, so the log
+	// proves the ORDER and not merely the outcome: two steps running at once
+	// would interleave here. `saveOk: false` is a local write that failed - it
+	// runs no after-save hook, so it never calls recordBase.
+	function harness({ answer = { payloadHash: 'P' }, saveOk = true, recordTwice = false } = {}) {
+		const log = [];
+		const bases = [];
+		const saved = [];
+		const steps = {
+			upload: async () => {
+				log.push('upload:start');
+				await tick();
+				log.push('upload:end');
+				return answer;
+			},
+			applySettings: async (recordBase) => {
+				log.push('apply:start');
+				await tick();
+				if (!saveOk) {
+					log.push('apply:failed');
+					return false;
+				}
+				saved.push('settings');
+				log.push('apply:saved');
+				await recordBase();
+				if (recordTwice) await recordBase();
+				log.push('apply:end');
+				return true;
+			},
+			writeBase: async (ans) => {
+				log.push('base:start');
+				await tick();
+				bases.push(ans);
+				log.push('base:end');
+			},
+		};
+		return { steps, log, bases, saved };
+	}
+
+	it('a refused upload (412) writes neither the local settings nor the base', async () => {
+		const h = harness({ answer: null });
+		const res = await M.commitOrder(h.steps);
+		expect(res).toEqual({ ok: false, reason: 'upload' });
+		expect(h.saved).toEqual([]);
+		expect(h.bases).toEqual([]);
+		expect(h.log).toEqual(['upload:start', 'upload:end']);
+	});
+
+	it('a successful upload followed by a failed local write writes no base', async () => {
+		const h = harness({ saveOk: false });
+		const res = await M.commitOrder(h.steps);
+		expect(res).toEqual({ ok: false, reason: 'apply' });
+		expect(h.saved).toEqual([]);
+		expect(h.bases).toEqual([]);
+		expect(h.log).toEqual(['upload:start', 'upload:end', 'apply:start', 'apply:failed']);
+	});
+
+	it('writes the base with the hash the upload returned, and only after the local write succeeded', async () => {
+		const h = harness({ answer: { payloadHash: 'P-from-this-upload' } });
+		const res = await M.commitOrder(h.steps);
+		expect(res).toEqual({ ok: true, answer: { payloadHash: 'P-from-this-upload' } });
+		expect(h.saved).toEqual(['settings']);
+		expect(h.bases).toEqual([{ payloadHash: 'P-from-this-upload' }]);
+		expect(h.log.indexOf('base:start')).toBeGreaterThan(h.log.indexOf('apply:saved'));
+	});
+
+	it('runs the three steps in that order and never two of them at once', async () => {
+		const h = harness();
+		await M.commitOrder(h.steps);
+		expect(h.log).toEqual([
+			'upload:start', 'upload:end',
+			'apply:start', 'apply:saved',
+			'base:start', 'base:end',
+			'apply:end',
+		]);
+	});
+
+	it('writes the base at most once, however often the hook asks', async () => {
+		const h = harness({ recordTwice: true });
+		await M.commitOrder(h.steps);
+		expect(h.bases).toHaveLength(1);
+	});
+
+	// What <eu-sync-panel> actually does: the local write goes out as an event
+	// the panel cannot follow, so its applySettings reports success at once and
+	// the base is written later, inside the after-save hook of the one write
+	// path - after the save succeeded and before it reloads the page.
+	it('holds for a write path that reports success before its hook runs', async () => {
+		const log = [];
+		const bases = [];
+		let hook = null;
+		const res = await M.commitOrder({
+			upload: async () => { log.push('upload'); return { payloadHash: 'P' }; },
+			applySettings: (recordBase) => {
+				log.push('dispatch');
+				hook = recordBase;
+				return true;
+			},
+			writeBase: async (ans) => { log.push('base'); bases.push(ans); },
+		});
+		expect(res.ok).toBe(true);
+		expect(bases).toEqual([]);
+		// The save succeeded; the page runs the hook.
+		log.push('saved');
+		await hook();
+		expect(log).toEqual(['upload', 'dispatch', 'saved', 'base']);
+		expect(bases).toEqual([{ payloadHash: 'P' }]);
 	});
 });
