@@ -93,6 +93,19 @@ describe('the request body', () => {
 		expect(meta.name).toBe('Work');
 		expect(meta.payloadHash).toBe(await X.blobHash(calls[0].body.payload));
 	});
+
+	// The base (js/eu-sync-base.js) needs the hash the server now holds for this
+	// state. The server's answer does not carry it, and it cannot be derived from
+	// the settings (fresh IV every time) - the uploader is the only one who knows.
+	it('returns the payloadHash it wrote into the meta blob', async () => {
+		const r = await S.uploadState({
+			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+			name: 'Work', createdAt: 'x', exportObj: { gesturaSettings: 1 }, extVersion: '2.8.0',
+			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', size: 1 }),
+		});
+		expect(r).toMatchObject({ stateId: ID, updatedAt: 'x', size: 1 });
+		expect(r.payloadHash).toBe(await X.blobHash(calls[0].body.payload));
+	});
 });
 
 describe('reading a list', () => {

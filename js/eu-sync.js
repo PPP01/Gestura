@@ -137,21 +137,25 @@
 		const key = await X.deriveKey(secret);
 		const payload = await X.encryptCompressed(key, stateId, 'payload', exportObj);
 		if (payload.length > LIMITS.payloadMaxBytes) throw syncError('too-large');
+		// Binds the two blobs of this state to each other, so the server cannot
+		// pair this meta with an older payload. Returned to the caller as well: it
+		// is what the server will hold for this state from now on, and the base
+		// (js/eu-sync-base.js) is written under it.
+		const payloadHash = await X.blobHash(payload);
 		const meta = await X.encryptBlob(key, stateId, 'meta', {
 			name,
 			createdAt: createdAt || new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 			extVersion,
-			// Binds the two blobs of this state to each other, so the server cannot
-			// pair this meta with an older payload.
-			payloadHash: await X.blobHash(payload),
+			payloadHash,
 		});
 		if (meta.length > LIMITS.metaMaxBytes) throw syncError('too-large');
 		const body = { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId, meta, payload };
 		// Only a usable hash travels. Anything else - '', null, a number - would be
 		// a token the server has to reject, and the caller meant "unconditional".
 		if (typeof basePayloadHash === 'string' && basePayloadHash) body.basePayloadHash = basePayloadHash;
-		return request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
+		const answer = await request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
+		return { ...(answer && typeof answer === 'object' ? answer : {}), payloadHash };
 	}
 
 	// expectPayloadHash is REQUIRED, and deliberately so. It is the only
