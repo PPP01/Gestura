@@ -332,3 +332,89 @@ describe('merge - keyed-list', () => {
 		expect(m.result.searchEngines.custom).toEqual([g]);
 	});
 });
+
+describe('apply', () => {
+	const conflictOn = (b, l, r) => M.merge(menus(b), menus(l), menus(r));
+
+	it('keeps mine by default and leaves the inputs alone', () => {
+		const m = conflictOn({ m1: A }, { m1: A1 }, { m1: A2 });
+		const before = structuredClone(m.result);
+		const out = M.apply(m.result, m.conflicts, {}, { stateName: 'office' });
+		expect(out.siteMenus.custom.m1).toEqual(A1);
+		expect(m.result).toEqual(before);
+	});
+	it('takes theirs', () => {
+		const m = conflictOn({ m1: A }, { m1: A1 }, { m1: A2 });
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(out.siteMenus.custom.m1).toEqual(A2);
+	});
+	it('theirs on "changed here, deleted there" deletes here', () => {
+		const m = conflictOn({ m1: A }, { m1: A1 }, {});
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(out.siteMenus.custom).toEqual({});
+	});
+	it('theirs on "deleted here, changed there" restores', () => {
+		const m = conflictOn({ m1: A }, {}, { m1: A2 });
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(out.siteMenus.custom.m1).toEqual(A2);
+	});
+	it('both keeps mine and adds theirs under a fresh id with the state name appended', () => {
+		const m = conflictOn({ m1: A }, { m1: A1 }, { m1: A2 });
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'both' }, { stateName: 'office' });
+		const ids = Object.keys(out.siteMenus.custom);
+		expect(ids).toHaveLength(2);
+		expect(out.siteMenus.custom.m1).toEqual(A1);
+		const fresh = ids.find(id => id !== 'm1');
+		expect(fresh).toMatch(/^menu_[0-9a-f]{10}$/);
+		expect(out.siteMenus.custom[fresh]).toEqual({ ...A2, name: 'A edited there (office)' });
+	});
+	it('both without a state name appends (2)', () => {
+		const m = conflictOn({ m1: A }, { m1: A1 }, { m1: A2 });
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'both' }, {});
+		const fresh = Object.keys(out.siteMenus.custom).find(id => id !== 'm1');
+		expect(out.siteMenus.custom[fresh].name).toBe('A edited there (2)');
+	});
+	it('both on a conflict that cannot keep both falls back to mine', () => {
+		const m = conflictOn({ m1: A }, {}, { m1: A2 });
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'both' }, {});
+		expect(out.siteMenus.custom).toEqual({});
+	});
+	it('rewrites no reference: a domain pointing at the id keeps pointing at mine', () => {
+		const withDomain = (custom) => ({ siteMenus: { custom, domains: { m1: 'example.com' } } });
+		const m = M.merge(withDomain({ m1: A }), withDomain({ m1: A1 }), withDomain({ m1: A2 }));
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'both' }, { stateName: 'office' });
+		expect(out.siteMenus.domains).toEqual({ m1: 'example.com' });
+	});
+	it('handles a keyed-list: theirs replaces in place, both appends a fresh engine', () => {
+		const se = (custom) => ({ searchEngines: { custom } });
+		const g = { id: 'engine_g', name: 'G', url: 'https://g/?q=%s' };
+		const h = { id: 'engine_h', name: 'H', url: 'https://h/?q=%s' };
+		const h1 = { ...h, name: 'H here' };
+		const h2 = { ...h, name: 'H there' };
+		const m = M.merge(se([h, g]), se([h1, g]), se([h2, g]));
+		const theirs = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(theirs.searchEngines.custom).toEqual([h2, g]);
+		const both = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'both' }, { stateName: 'office' });
+		expect(both.searchEngines.custom).toHaveLength(3);
+		expect(both.searchEngines.custom[0]).toEqual(h1);
+		const copy = both.searchEngines.custom[2];
+		expect(copy.id).toMatch(/^engine_[0-9a-f]{10}$/);
+		expect(copy.name).toBe('H there (office)');
+	});
+	it('handles a scalar', () => {
+		const m = M.merge({ trailWidth: 5 }, { trailWidth: 6 }, { trailWidth: 8 });
+		expect(M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {}).trailWidth).toBe(8);
+		expect(M.apply(m.result, m.conflicts, {}, {}).trailWidth).toBe(6);
+	});
+	it('handles a nested scalar', () => {
+		const b = { gestureTriggerButtons: { right: true, middle: false } };
+		const l = { gestureTriggerButtons: { right: false, middle: true } };
+		const r = { gestureTriggerButtons: { right: true, middle: false } };
+		// Give `right` a conflict: local false, remote null-ish -> use a real two-sided change.
+		r.gestureTriggerButtons.right = null;
+		const m = M.merge(b, l, r);
+		expect(m.conflicts[0]).toMatchObject({ path: 'gestureTriggerButtons.right', kind: 'scalar', mine: false, theirs: null });
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(out.gestureTriggerButtons).toEqual({ right: null, middle: true });
+	});
+});

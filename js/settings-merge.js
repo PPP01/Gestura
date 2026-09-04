@@ -321,7 +321,87 @@
 		return { result, conflicts: ctx.conflicts, summary: ctx.summary };
 	}
 
-	const api = { MERGE_MAP, DEVICE_LOCAL, spec, deepEqual, mergeEntry, merge };
+	// --- apply -------------------------------------------------------------------
+
+	function freshId(prefix, existing) {
+		let id;
+		do {
+			id = prefix + crypto.randomUUID().replace(/-/g, '').slice(0, 10);
+		} while (existing.has(id));
+		return id;
+	}
+
+	// "Reading" from state "office" arrives as "Reading (office)" - spec §7.
+	function suffixName(entry, stateName) {
+		if (!isObj(entry) || typeof entry.name !== 'string') return entry;
+		return { ...entry, name: `${entry.name} (${stateName || '2'})` };
+	}
+
+	function specAt(path) {
+		const parts = path.split('.');
+		let s = spec(MERGE_MAP[parts[0]] || 'scalar');
+		for (let i = 1; i < parts.length; i++) {
+			s = spec((s.children && s.children[parts[i]]) || 'scalar');
+		}
+		return s;
+	}
+
+	// The object holding the last path segment, created on the way if missing.
+	function parentOf(obj, path) {
+		const parts = path.split('.');
+		let o = obj;
+		for (let i = 0; i < parts.length - 1; i++) {
+			if (!isObj(o[parts[i]])) o[parts[i]] = {};
+			o = o[parts[i]];
+		}
+		return [o, parts[parts.length - 1]];
+	}
+
+	// result: what merge() returned (holds `mine` for every conflict).
+	// choices: { [conflict.key]: 'mine' | 'theirs' | 'both' }; missing = 'mine'.
+	// Never mutates; returns the final object for validation, preview and upload.
+	function apply(result, conflicts, choices, opts) {
+		const out = structuredClone(result);
+		const stateName = (opts && opts.stateName) || '';
+		for (const c of conflicts || []) {
+			const choice = (choices && choices[c.key]) || 'mine';
+			const s = specAt(c.path);
+			const [parent, last] = parentOf(out, c.path);
+			const keep = choice === 'theirs' ? c.theirs : c.mine;
+			const both = choice === 'both' && c.canKeepBoth;
+
+			if (c.kind === 'scalar') {
+				if (keep === undefined) delete parent[last];
+				else parent[last] = keep;
+				continue;
+			}
+			if (c.kind === 'record') {
+				const rec = isObj(parent[last]) ? parent[last] : (parent[last] = {});
+				if (keep === undefined) delete rec[c.id];
+				else rec[c.id] = keep;
+				if (both) rec[freshId(s.idPrefix, new Set(Object.keys(rec)))] = suffixName(c.theirs, stateName);
+				continue;
+			}
+			// keyed-list: replace in place, delete in place, append the copy.
+			const list = arr(parent[last]).slice();
+			const idx = list.findIndex(it => isObj(it) && it[s.key] === c.id);
+			if (keep === undefined) {
+				if (idx >= 0) list.splice(idx, 1);
+			} else if (idx >= 0) {
+				list[idx] = keep;
+			} else {
+				list.push(keep);
+			}
+			if (both) {
+				const id = freshId(s.idPrefix, new Set(list.map(it => (isObj(it) ? it[s.key] : ''))));
+				list.push({ ...suffixName(c.theirs, stateName), [s.key]: id });
+			}
+			parent[last] = list;
+		}
+		return out;
+	}
+
+	const api = { MERGE_MAP, DEVICE_LOCAL, spec, deepEqual, mergeEntry, merge, apply };
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSettingsMerge = api;
 })(typeof self !== 'undefined' ? self : globalThis);
