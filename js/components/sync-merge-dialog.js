@@ -57,6 +57,33 @@ class SyncMergeDialog extends LitElement {
 		this.stateName = '';
 		this.choices = {};
 		this._choices = {};
+		this._onKeydown = (e) => {
+			if (e.key === 'Escape' && this.open) { e.stopPropagation(); this.#cancel(); }
+		};
+	}
+
+	connectedCallback() {
+		super.connectedCallback();
+		document.addEventListener('keydown', this._onKeydown, true);
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		document.removeEventListener('keydown', this._onKeydown, true);
+		this.#lockScroll(false);
+	}
+
+	#lockScroll(on) {
+		document.documentElement.style.overflow = on ? 'hidden' : '';
+	}
+
+	updated(changed) {
+		if (changed.has('open')) {
+			this.#lockScroll(this.open);
+			// The panel takes focus, not a button: Escape works immediately, and
+			// Enter cannot write anything by accident.
+			if (this.open) this.renderRoot.querySelector('.modal-panel')?.focus();
+		}
 	}
 
 	willUpdate(changed) {
@@ -132,7 +159,7 @@ class SyncMergeDialog extends LitElement {
 			.replace('{deleted}', String(s.deleted || 0));
 		return html`
 			<div class="modal-overlay" @click=${(e) => { if (e.target === e.currentTarget) this.#cancel(); }}>
-				<div class="modal-panel" role="dialog" aria-modal="true" @keydown=${(e) => { if (e.key === 'Escape') this.#cancel(); }}>
+				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true">
 					<div class="modal-header">
 						<h3>${i18n.getMessage('euSyncMergeTitle').replace('{name}', this.stateName || '')}</h3>
 					</div>
