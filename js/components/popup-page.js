@@ -607,8 +607,8 @@ class PopupPage extends LitElement {
 			this._blacklist = [...this._blacklist, this._currentDomain];
 		}
 
-		const ok = await this._store.save({ blacklist: this._blacklist });
-		if (!ok) {
+		const res = await this._store.save({ blacklist: this._blacklist });
+		if (!res.ok) {
 			if (isBlacklisted) {
 				this._blacklist = [...this._blacklist, this._currentDomain];
 			} else {

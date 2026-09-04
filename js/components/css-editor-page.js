@@ -1,4 +1,4 @@
-import { settingsStore } from '../settings-store.js';
+import { settingsStore, isStorageFull } from '../settings-store.js';
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icon, iconDataUri } from '../icons.js';
@@ -429,12 +429,12 @@ class CssEditorPage extends LitElement {
 
 	#save = async () => {
 		if (!this.#isDirty() || this._css.length > CUSTOM_CSS_MAX_LENGTH) return;
-		const ok = await settingsStore.save({ customCss: this._css });
-		if (ok) {
+		const res = await settingsStore.save({ customCss: this._css });
+		if (res.ok) {
 			this._savedCss = this._css;
 			this.#showStatus(window.i18n.getMessage('customCssEditorSaved'), 'success');
 		} else {
-			this.#showStatus('Save failed', 'error');
+			this.#showStatus(isStorageFull(res) ? window.i18n.getMessage('storageFullHint') : 'Save failed', 'error');
 		}
 	};
 

@@ -1,6 +1,6 @@
 import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
-import { settingsStore } from '../settings-store.js';
+import { settingsStore, isStorageFull } from '../settings-store.js';
 import { usageOf } from '../storage-usage.js';
 import { markImported } from './import-marker.js';
 
@@ -350,9 +350,9 @@ class MenuImportDialog extends LitElement {
 	// mit dem Index-Backend, eine andere Grenze als diese.
 	async #commitPatch(patch, imported) {
 		const withBaselines = await window.FlowMouseEuIntegration.addBaselines(patch, imported);
-		const ok = await settingsStore.save(withBaselines);
-		if (!ok) {
-			alert(window.i18n.getMessage('menuSyncSaveError'));
+		const res = await settingsStore.save(withBaselines);
+		if (!res.ok) {
+			if (!isStorageFull(res)) alert(window.i18n.getMessage('menuSyncSaveError'));
 			this.#reportToPage('failed', []);
 			return;
 		}

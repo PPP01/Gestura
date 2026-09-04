@@ -1,4 +1,4 @@
-import { settingsStore } from '../settings-store.js';
+import { settingsStore, isStorageFull } from '../settings-store.js';
 import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
@@ -290,7 +290,7 @@ class OptionsPage extends LitElement {
 		this._boundScroll = () => this.#updateHoveredSection();
 		this._boundNavigateSection = (e) => this.#onNavigateSection(e);
 		// Ein Import aus dem Menü-/Engine-Manager schreibt via settingsStore.save() direkt
-		// in #current, bevor chrome.storage.sync.set() feuert - handleExternalChange meldet
+		// in #current, bevor die Fassade set() feuert - handleExternalChange meldet
 		// dann keine Änderung (siehe #importSettings weiter unten). Die Speicherzeilen lesen
 		// zwar live aus settingsStore.current, aber ohne ein requestUpdate() hier würde ohne
 		// eine andere Nebenwirkung gar nicht neu gerendert.
@@ -321,9 +321,9 @@ class OptionsPage extends LitElement {
 		if (!this._pendingPatch) return;
 		const patch = this._pendingPatch;
 		this._pendingPatch = null;
-		this._store.save(patch).then((ok) => {
-			if (!ok) {
-				this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
+		this._store.save(patch).then((res) => {
+			if (!res.ok) {
+				if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
 				return;
 			}
 			this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
@@ -1369,7 +1369,7 @@ class OptionsPage extends LitElement {
 	// meldet ein Problem. Überall sonst genügt der Prozentwert.
 	//
 	// Bewusst aus settingsStore.current statt this._settings gelesen: settingsStore.save()
-	// (siehe #importSettings) aktualisiert #current, bevor chrome.storage.sync.set()
+	// (siehe #importSettings) aktualisiert #current, bevor die Fassade set()
 	// feuert, also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
 	// auf altem Stand, bis ein Reload sie neu zieht. Ein Lesezugriff auf den Store selbst
 	// zeigt dagegen immer den aktuellen Wert; das erneute Rendern nach dem Import besorgt
@@ -1577,9 +1577,9 @@ class OptionsPage extends LitElement {
 
 	async #savePatch(patch) {
 		this._settings = { ...this._settings, ...patch };
-		const ok = await this._store.save(patch);
-		if (!ok) {
-			this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
+		const res = await this._store.save(patch);
+		if (!res.ok) {
+			if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
 			return false;
 		}
 		this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
@@ -1686,7 +1686,7 @@ class OptionsPage extends LitElement {
 
 	// The one write that the file import and the sync download share: a validated
 	// object, complete, atomic - and a reload afterwards, because
-	// settingsStore.save() updates #current before writing and handleExternalChange
+	// settingsStore.save() updates #current before the façade's set() fires and handleExternalChange
 	// therefore reports no change. The subcomponents would otherwise keep their
 	// old state.
 	async #applySettings(settings) {
@@ -1695,9 +1695,9 @@ class OptionsPage extends LitElement {
 		if (this._debounceTimer) clearTimeout(this._debounceTimer);
 		this._debounceTimer = null;
 		this._pendingPatch = null;
-		const ok = await this._store.save(settings);
-		if (!ok) {
-			this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
+		const res = await this._store.save(settings);
+		if (!res.ok) {
+			if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
 			return false;
 		}
 		sessionStorage.setItem(IMPORT_RELOAD_KEY, '1');
@@ -1707,7 +1707,8 @@ class OptionsPage extends LitElement {
 
 	async #resetSettings() {
 		if (confirm(window.i18n.getMessage('resetConfirm'))) {
-			await this._store.reset();
+			const res = await this._store.reset();
+			if (!res.ok) { this.#showStatus(window.i18n.getMessage('saveFailure'), 'error'); return; }
 			this._settings = { ...this._store.current };
 			this.#showStatus(window.i18n.getMessage('resetDone'));
 		}

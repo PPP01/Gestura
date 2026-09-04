@@ -1,7 +1,11 @@
 const { DEFAULT_SETTINGS } = window.GestureConstants;
+const Storage = window.GesturaSettingsStorage;
 
-function reorderMouseGestures(storedMG) {
-	if (!storedMG) return {};
+// 10.4: storage can hold anything. `p in storedMG` throws for a string or a
+// number - inside the load promise, which then never resolves. A non-object is
+// "nothing stored", which is what the normalisation already does with {}.
+export function reorderMouseGestures(storedMG) {
+	if (!storedMG || typeof storedMG !== 'object' || Array.isArray(storedMG)) return {};
 	const defaultOrder = Object.keys(DEFAULT_SETTINGS.mouseGestures || {});
 	const ordered = {};
 	for (const p of defaultOrder) {
@@ -13,7 +17,7 @@ function reorderMouseGestures(storedMG) {
 	return ordered;
 }
 
-function normalizeSetting(key, value) {
+export function normalizeSetting(key, value) {
 	if (key === 'mouseGestures' && value) {
 		return reorderMouseGestures(value);
 	}
@@ -57,6 +61,28 @@ function deepEqual(obj1, obj2) {
 	return true;
 }
 
+// The shape test of js/eu-settings-schema.js, copied for the same reason the
+// façade copies the byte formula: this module runs in the popup, where the
+// schema is not loaded. Object vs array vs primitive type, against the default.
+function sameShape(value, def) {
+	if (Array.isArray(def)) return Array.isArray(value);
+	if (def === null) return true;
+	if (typeof def === 'object') return value !== null && typeof value === 'object' && !Array.isArray(value);
+	return typeof value === typeof def;
+}
+
+// The typed refusal the façade returns when a write would not fit. The options
+// page turns it into the dialog with the three ways out; every other caller
+// skips its own generic message when this is true, so the user sees one answer.
+export function isStorageFull(res) {
+	return !!res && (res.error === 'branch-full' || res.error === 'total-full');
+}
+
+function emit(name, detail) {
+	if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') return;
+	window.dispatchEvent(new CustomEvent(name, { detail }));
+}
+
 class SettingsStore {
 	#current = structuredClone(DEFAULT_SETTINGS);
 	#listeners = [];
@@ -81,33 +107,30 @@ class SettingsStore {
 
 	async #load() {
 		if (!this.#listening) {
-			chrome.storage.onChanged.addListener((changes, namespace) => {
-				if (namespace === 'sync') {
-					this.handleExternalChange(changes);
-				}
-			});
+			Storage.onChanged((changes) => this.handleExternalChange(changes));
 			this.#listening = true;
 		}
-
-		return new Promise((resolve) => {
-			chrome.storage.sync.get(DEFAULT_SETTINGS, (items) => {
-				this.#current = { ...structuredClone(DEFAULT_SETTINGS), ...items };
-
-				for (const key of ['mouseGestures', 'wheelGestures', 'specialGestures', 'siteMenus']) {
-					this.#current[key] = normalizeSetting(key, this.#current[key]);
-				}
-
-				this.#loaded = true;
-				resolve(this.#current);
-			});
-		});
+		const items = await Storage.get(DEFAULT_SETTINGS);
+		this.#current = structuredClone(DEFAULT_SETTINGS);
+		for (const [key, value] of Object.entries(items)) {
+			// 10.1, on load: a stored value whose shape the reader does not
+			// recognise leaves the default standing rather than being spread into
+			// it. Nothing is written back - the value stays in storage for a
+			// reader that does recognise it.
+			if (sameShape(value, DEFAULT_SETTINGS[key])) this.#current[key] = value;
+		}
+		for (const key of ['mouseGestures', 'wheelGestures', 'specialGestures', 'siteMenus']) {
+			this.#current[key] = normalizeSetting(key, this.#current[key]);
+		}
+		this.#loaded = true;
+		return this.#current;
 	}
 
 	async save(patch = {}) {
 		this.#assertLoaded();
 		const now = new Date().toISOString();
 		// Snapshot what a failed write would otherwise leave mutated: patched keys
-		// plus lastSyncTime, which every save touches. A rejected chrome.storage.sync.set
+		// plus lastSyncTime, which every save touches. A refused or failed write
 		// must be a no-op on #current, or a retried save (e.g. after re-editing a
 		// selection) sees data from the failed attempt as if it had already landed.
 		const previous = {};
@@ -115,35 +138,38 @@ class SettingsStore {
 		previous.lastSyncTime = this.#current.lastSyncTime;
 		Object.assign(this.#current, patch, { lastSyncTime: now });
 
-		try {
-			await chrome.storage.sync.set(this.#current);
+		const res = await Storage.set(this.#current);
+		if (res.ok) {
 			// onChange() fires for EXTERNAL changes only - by design, so a component
 			// does not react to its own write. The sync panel needs the other half:
 			// its "changed since last upload" hint has to notice a save made on this
 			// very page. A window event carries that without changing what onChange
 			// means to its existing listeners.
-			if (typeof window !== 'undefined') window.dispatchEvent(new Event('gestura:settings-saved'));
-			return true;
-		} catch (e) {
-			console.error('Settings save failed:', e);
-			for (const key of Object.keys(previous)) this.#current[key] = previous[key];
-			return false;
+			emit('gestura:settings-saved');
+			return res;
 		}
+		if (res.error === 'write') console.error('Settings save failed:', res);
+		for (const key of Object.keys(previous)) this.#current[key] = previous[key];
+		if (isStorageFull(res)) emit('gestura:storage-full', res);
+		return res;
 	}
 
+	// The defaults written as VALUES, not a clear(): a clear would take
+	// euIntegration, euSync, settingsArea and faviconCache with it in state
+	// 'local', and in state 'sync' a removed key is what makes another browser
+	// fall back to its defaults (10.1) - which is exactly the propagation a reset
+	// wants, and which writing the values achieves through what is there rather
+	// than through what is missing. This is the upstream v2.3.1 behaviour.
 	async reset() {
 		this.#assertLoaded();
-		// NOTE: upstream v2.3.1 also writes DEFAULT_SETTINGS back after clear() so a
-		// reset propagates into open tabs. Deliberately not adopted yet - that change
-		// is evaluated together with the content.js SETTINGS rebuild.
 		this.#resetting = true;
-		return new Promise((resolve) => {
-			chrome.storage.sync.clear(() => {
-				this.#current = structuredClone(DEFAULT_SETTINGS);
-				this.#resetting = false;
-				resolve();
-			});
-		});
+		try {
+			const res = await Storage.set(structuredClone(DEFAULT_SETTINGS));
+			if (res.ok) this.#current = structuredClone(DEFAULT_SETTINGS);
+			return res;
+		} finally {
+			this.#resetting = false;
+		}
 	}
 
 	handleExternalChange(changes) {
@@ -152,17 +178,18 @@ class SettingsStore {
 		let hasChange = false;
 
 		for (const [key, storageChange] of Object.entries(changes)) {
-			let newValue = storageChange.newValue;
+			// 10.1: absence is not "default". A key missing from an external change,
+			// or a value whose shape this reader does not recognise, leaves the
+			// local copy standing. Reset propagates by writing the defaults as
+			// values, so nothing legitimate is lost here - and a future change of
+			// what storage.sync holds cannot wipe an older Gestura's settings.
+			const newValue = storageChange.newValue;
+			if (newValue === undefined || !(key in DEFAULT_SETTINGS) || !sameShape(newValue, DEFAULT_SETTINGS[key])) continue;
 
-			if (newValue === undefined && key in DEFAULT_SETTINGS) {
-				newValue = structuredClone(DEFAULT_SETTINGS[key]);
-			}
-
-			newValue = normalizeSetting(key, newValue);
-
-			if (!deepEqual(this.#current[key], newValue)) {
-				this.#current[key] = newValue;
-				changed[key] = newValue;
+			const normalized = normalizeSetting(key, newValue);
+			if (!deepEqual(this.#current[key], normalized)) {
+				this.#current[key] = normalized;
+				changed[key] = normalized;
 				hasChange = true;
 			}
 		}
