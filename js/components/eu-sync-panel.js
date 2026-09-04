@@ -56,6 +56,7 @@ class EuSyncPanel extends LitElement {
 		_currentHash: { state: true },
 		_preview: { state: true },
 		_conflict: { state: true },
+		_bases: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -101,6 +102,7 @@ class EuSyncPanel extends LitElement {
 		this._currentHash = '';
 		this._preview = null;
 		this._conflict = null;
+		this._bases = {};        // stateId -> { hash, date }, from GesturaSyncBase.list()
 		this._errorCode = '';
 		// Not reactive: what willUpdate() compares against to see the switch-on
 		// and the code change as EDGES, rather than re-deciding on every render.
@@ -333,7 +335,12 @@ class EuSyncPanel extends LitElement {
 		// the list shows afterwards is the state as it now stands.
 		this._conflict = null;
 		const list = await this.#run(() => window.GesturaSync.list());
-		if (list) this._states = list;
+		if (!list) return;
+		this._states = list;
+		// A base for a state the server no longer has is dropped - after a
+		// SUCCESSFUL listing only; a failed one proves nothing (spec §3).
+		await window.GesturaSyncBase.prune(list.map(s => s.stateId));
+		this._bases = await window.GesturaSyncBase.list();
 	}
 
 	// The name comes from the decrypted meta blob and not from the local map: a
@@ -397,10 +404,14 @@ class EuSyncPanel extends LitElement {
 					return;
 				}
 				this._conflict = null;
+				const now = new Date().toISOString();
+				// The server now holds exactly this payload under exactly this hash:
+				// that pair is the base the next Sync merges against (spec §3, §6).
+				await window.GesturaSyncBase.write(id, { hash: done.payloadHash, payload: exportObj, date: now });
 				await window.GesturaSyncLocal.setState(id, {
 					name,
 					lastUploadHash: await window.GesturaSettingsSchema.hashOf(exportObj),
-					lastUploadDate: new Date().toISOString(),
+					lastUploadDate: now,
 				});
 				this._newName = '';
 				await this.#refreshStates();
@@ -438,7 +449,20 @@ class EuSyncPanel extends LitElement {
 			dropped: result.dropped,
 			retyped: result.retyped,
 			legacy: result.legacy,
-			commit: () => window.dispatchEvent(new CustomEvent('gestura:settings-apply', { detail: result.settings })),
+			// The adopt path saves, runs afterSave, reloads. The base is written in
+			// afterSave - after the save succeeded, so a base never names settings
+			// this browser does not hold - under the hash the payload was checked
+			// against, which is the hash the server holds (spec §6).
+			commit: () => window.dispatchEvent(new CustomEvent('gestura:settings-apply', {
+				detail: {
+					settings: result.settings,
+					afterSave: () => window.GesturaSyncBase.write(state.stateId, {
+						hash: expectPayloadHash,
+						payload: result.exportObj,
+						date: new Date().toISOString(),
+					}),
+				},
+			})),
 		});
 	}
 
@@ -447,6 +471,7 @@ class EuSyncPanel extends LitElement {
 		const done = await this.#run(() => window.GesturaSync.remove(state.stateId));
 		if (!done) return;
 		await window.GesturaSyncLocal.removeState(state.stateId);
+		await window.GesturaSyncBase.remove(state.stateId);
 		await this.#refreshStates();
 	}
 
@@ -456,6 +481,8 @@ class EuSyncPanel extends LitElement {
 		const done = await this.#run(() => window.GesturaSync.remove());
 		if (!done) return;
 		await window.GesturaSyncLocal.write({ states: {} });
+		await window.GesturaSyncBase.clear();
+		this._bases = {};
 		this._states = [];
 	}
 
