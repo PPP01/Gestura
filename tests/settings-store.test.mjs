@@ -151,3 +151,45 @@ describe('a failing load', () => {
 		expect(fresh.settingsStore.current).toEqual(DEFAULTS);
 	});
 });
+
+describe('10.1 · absence means nothing', () => {
+	it('a missing key in an external change leaves the local copy standing', async () => {
+		await store.save({ trailWidth: 11 });
+		const r = store.handleExternalChange({ trailWidth: { oldValue: 11 } });
+		expect(r.hasChange).toBe(false);
+		expect(store.current.trailWidth).toBe(11);
+	});
+
+	it('a value of the wrong shape leaves the local copy standing', async () => {
+		// What an older Gestura would receive if storage.sync ever carried a
+		// compressed branch: a string where an object lives.
+		const before = store.current.siteMenus;
+		const r = store.handleExternalChange({ siteMenus: { newValue: 'H4sIAAAAAAAA' } });
+		expect(r.hasChange).toBe(false);
+		expect(store.current.siteMenus).toEqual(before);
+	});
+
+	it('a key outside DEFAULT_SETTINGS is ignored even if it arrives', () => {
+		const r = store.handleExternalChange({ syncFormat: { newValue: 2 } });
+		expect(r.hasChange).toBe(false);
+		expect(store.current).not.toHaveProperty('syncFormat');
+	});
+});
+
+describe('10.4 · reorderMouseGestures on a non-object', () => {
+	it.each([['a string', 'H4sI'], ['a number', 42], ['null', null], ['an array', [1, 2]]])
+		('returns {} for %s', (_label, value) => {
+			expect(mod.reorderMouseGestures(value)).toEqual({});
+		});
+
+	it('keeps the default order first for a real object', () => {
+		const first = Object.keys(DEFAULTS.mouseGestures)[0];
+		const out = mod.reorderMouseGestures({ '↓↓↓': { action: 'back' }, [first]: { action: 'forward' } });
+		expect(Object.keys(out)[0]).toBe(first);
+		expect(out['↓↓↓']).toEqual({ action: 'back' });
+	});
+
+	it('normalizeSetting hands mouseGestures through it', () => {
+		expect(mod.normalizeSetting('mouseGestures', 'garbage')).toEqual({});
+	});
+});
