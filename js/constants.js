@@ -1,4 +1,4 @@
-(function () {
+(function (root) {
 	'use strict';
 
 
@@ -332,7 +332,7 @@
 		return arrows.replace(/[↑↓←→]/g, match => ARROW_SVG[match]);
 	}
 
-	window.GestureConstants = {
+	root.GestureConstants = {
 		DEFAULT_GESTURES,
 		ACTION_KEYS,
 		LOCAL_ACTIONS,
@@ -350,5 +350,5 @@
 		arrowsToSvg,
 	};
 
-	window.litDisableBundleWarning = true;
-})();
+	root.litDisableBundleWarning = true;
+})(typeof self !== 'undefined' ? self : globalThis);
