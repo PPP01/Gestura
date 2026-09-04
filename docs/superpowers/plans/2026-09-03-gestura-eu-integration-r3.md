@@ -4255,9 +4255,10 @@ look for it:
    endpoints (R3) must answer. The hand-over is written:
    `exchange/2026-09-03-r3-sync-endpoints.md`, with a byte-identical copy of the
    contract beside it. Nothing in `exchange/` is committed.
-2. **108 keys** are still in `PENDING_TRANSLATION` — 24 `euIntegration*` from
-   R2, 18 `settingsPreview*` and 65 `euSync*` from R3, plus
-   `exchangeConflictModified`. All of them are consent, privacy and error copy:
+2. **113 keys** are still in `PENDING_TRANSLATION` — 24 `euIntegration*` from
+   R2, 18 `settingsPreview*` and 70 `euSync*` from R3 (the conflict texts of
+   the write-token amendment and the review's copy-failed message included),
+   plus `exchangeConflictModified`. All of them are consent, privacy and error copy:
    the one text a user must be able to read in their own language. R2 and R3
    release together, in one version, once these are in all 39 locales and off
    that list.
@@ -4265,5 +4266,7 @@ look for it:
    one annotated tag, both browsers' packages on one release.
 
 Also still open and **for the owner to decide** (unchanged from "Open for the
-owner" above): whether a QR code is wanted after all, and whether the retention
-period should be stated in the panel as well as in `PRIVACY.md`.
+owner" above): whether a QR code is wanted after all. The retention period is
+no longer open: it is stated in the panel already — in the fourth consent point
+and in the confirmation before a new code replaces the old one — as the
+contract requires, and in `PRIVACY.md`.

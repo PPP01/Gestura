@@ -289,7 +289,11 @@ The **locator** is those 32 bytes as **base64url without padding**. It
 identifies the blob store and is the only thing the server sees. It is a bearer
 capability: whoever derives it can list, replace and delete the states. It
 travels in the request **body**, never in the URL, so it stays out of ordinary
-access logs — *the deployment must not log request bodies.*
+access logs — *the deployment must not log request bodies.* For the same reason
+the server **stores only a hash of it** (SHA-256 is enough — the locator is 256
+uniform bits, so no salt is needed) and looks states up by that hash: access to
+the database must not amount to the right to list or delete anyone's states.
+The ciphertext would still be unreadable, but it could be taken away.
 
 The **key** is an AES-256-GCM key and never leaves the client. The server cannot
 reach it from the locator.

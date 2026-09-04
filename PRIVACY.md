@@ -84,7 +84,10 @@ When it is on, and only when you click **Upload**:
   gestura.eu. The key is derived from a code this browser generated; the code is
   never sent. gestura.eu stores the ciphertext, its size and the date — it can
   read neither your settings nor the name you gave the state, because that name
-  is inside the encrypted part.
+  is inside the encrypted part. Your states are filed under a hash of the
+  locator your browser derives from the code, not under the locator itself, so
+  access to the server's database does not amount to the right to list or
+  delete them.
 - Before every upload Gestura shows you the complete content, exactly as it will
   be transferred.
 - The code is the only key. Anyone who has it can read, replace and delete your
