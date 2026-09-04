@@ -942,7 +942,14 @@ async function handleAction(request, sender) {
 				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, pattern);
 			if (!added) return { success: true, added: false };
 			const res = await GesturaSettingsStorage.set({ siteMenus });
-			return res.ok ? { success: true, added: true } : { success: false, added: false, error: res.error };
+			// The same channel every other worker write uses. The gesture caller in
+			// js/content.js awaits this answer and inspects nothing - without the
+			// toast the user makes a gesture and nothing at all happens.
+			if (!res.ok) {
+				reportWriteFailure(sender.tab, sender.frameId, res);
+				return { success: false, added: false, error: res.error };
+			}
+			return { success: true, added: true };
 		}
 
 		case 'gestureStateUpdate':
