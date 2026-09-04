@@ -22,10 +22,13 @@ an explicit click — encrypted in your browser, under a key that never leaves i
 ## What data Gestura processes and where it stays
 
 - **Your settings** (gestures, menus, search engines, appearance options) are stored
-  **locally** through the browser's extension storage API (`storage.sync` /
-  `storage.local`). If you have browser sync enabled (e.g. Chrome Sync, Firefox
+  **locally** through the browser's extension storage API. By default that is
+  `storage.sync`: if you have browser sync enabled (e.g. Chrome Sync, Firefox
   Sync), your browser — not Gestura — syncs these settings across your signed-in
-  devices, under your browser's own privacy and encryption controls.
+  devices, under your browser's own privacy and encryption controls. You can turn
+  browser sync off for Gestura in the settings' data section; the settings then
+  live in `storage.local` on that device only, and the copy that was already in
+  `storage.sync` is left in place, not deleted.
 - **Page interaction** (detecting gestures, drags, and menus) happens **on your
   device, in the page**. Gestura does not send the pages you visit, their content,
   or your browsing history anywhere.
@@ -84,7 +87,12 @@ When it is on, and only when you click **Upload**:
   gestura.eu. The key is derived from a code this browser generated; the code is
   never sent. gestura.eu stores the ciphertext, its size and the date — it can
   read neither your settings nor the name you gave the state, because that name
-  is inside the encrypted part. Your states are filed under a hash of the
+  is inside the encrypted part.
+  Your settings are compressed before they are encrypted, so the size gestura.eu
+  sees reflects how repetitive your settings are, not how many bytes they take.
+  Your theme, language and a few other facts about this device are not part of
+  the upload and are not overwritten by a download.
+  Your states are filed under a hash of the
   locator your browser derives from the code, not under the locator itself, so
   access to the server's database does not amount to the right to list or
   delete them.

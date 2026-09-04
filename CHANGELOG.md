@@ -53,6 +53,16 @@
   with the wrong shape fall back to their default, and a file cannot smuggle in a
   switch, a consent or a sync code. The old *are you sure?* — which came before
   anything had been checked — is gone.
+- **Browser sync is now a switch.** Off, the settings live on this device only
+  and can grow to 1 MiB in total instead of 8192 bytes per section. On — the
+  default, and unchanged — nothing is different. When a save no longer fits,
+  Gestura names the section and the numbers and offers three ways out: make it
+  smaller, switch to gestura.eu sync, or turn browser sync off. The way back is
+  checked and refused with numbers if the data would not fit.
+- **gestura.eu sync compresses the settings** before encrypting them, so far
+  more fits in one state; theme, language and a few device-only facts no longer
+  travel with a state and are never overwritten by a download. Five states per
+  code instead of ten.
 
 **Fixes & Improvements:**
 
@@ -82,6 +92,10 @@
   inert, and the click behaves as if Gestura were not installed. Opening the
   hand-off to third-party sites is planned as its own opt-in with its own
   warning. See *For site operators* in the README.
+- A settings value of an unexpected shape arriving over browser sync no longer
+  resets that setting to its default, and a malformed `mouseGestures` value no
+  longer keeps the options page from loading.
+- The favicon cache is capped at 48 sites.
 
 ### v2.8.0 (2026-09-02)
 

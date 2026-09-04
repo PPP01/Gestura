@@ -329,6 +329,14 @@ ciphertext and its 16-byte tag.
   unambiguous. This is what stops the server from moving a valid blob to a
   different state or a different role: authentication fails before anything
   decrypts.
+- **Plaintext of `payload`:** either the settings JSON or its **gzip**,
+  recognised by the gzip magic `1f 8b` at the start of the decrypted bytes. A
+  JSON object begins with `{` (`0x7b`), so the test is unambiguous and there is
+  no format field. `meta` is never compressed. The test vectors below are
+  unaffected — they use `role = meta`. Implementations **must bound
+  decompression** (the extension stops at 1 MiB and reports the blob as
+  undecryptable); the server cannot plant a gzip bomb, because GCM
+  authenticates the ciphertext, but a code handed over by a third party can.
 
 ### Envelope test vector
 
@@ -435,7 +443,16 @@ one the user is looking at while it happens.
 | `conflict` | 412 | `basePayloadHash` does not describe the stored state — someone else wrote it first. The answer carries the current `updatedAt`. |
 | `too-large` | 413 | A single blob exceeds its limit. |
 | `quota-states` | 409 | The locator already holds the maximum number of states. |
-| `rate-limited` | 429 | Per-IP rate limit (the July design's RateLimiter). |
+| `rate-limited` | 429 | Per-IP rate limit on requests and on bytes written (the July design's RateLimiter). |
+
+**What protects the quota.** Locators are free and unlimited — 32 random bytes,
+no registration, no account — so anyone treating the service as free blob
+storage simply derives more of them. The per-locator limits below are
+therefore *not* an abuse bound and should not be read as one. What bounds the
+cost is the **per-IP rate limit** on bytes written and the **12-month
+retention**. If abuse ever appears, the levers in order are: tighten the
+per-IP write limit, shorten retention, lower the per-locator total, and only
+then proof of work on a registration call.
 
 **Limits**, enforced server-side and mirrored client-side so the user sees the
 number before the request rather than after it:
@@ -444,8 +461,16 @@ number before the request rather than after it:
 |---|---|
 | `meta` envelope | 8 KiB as transmitted |
 | `payload` envelope | 512 KiB as transmitted |
-| states per locator | 10 |
+| states per locator | 5 |
 | total per locator | 4 MiB |
+
+`5 × 512 KiB + 5 × 8 KiB` fits inside the 4 MiB total; the table cannot
+contradict itself. **The state limit is checked on create only, never
+retroactively:** a locator holding more states than the limit — after the
+limit was lowered — keeps all of them; reading, writing and deleting stay
+possible, only a further create is refused with `quota-states`. There is no
+`locator-full` code: with per-state limits the total is unreachable by
+construction.
 
 **Retention:** a state that is neither read nor written for **12 months** is
 deleted. This is the only way blobs under a lost secret can ever go away — the
@@ -488,7 +513,9 @@ and both directions of sync. One validator implements it
 - **`euIntegration`, `euSync` and the secret are never exported and never
   imported.** They live in `chrome.storage.local`; a crafted file must not be
   able to flip a switch or plant a secret.
-- **Maximum size:** 512 KiB of JSON text.
+- **Maximum size:** 1 MiB of JSON text — the extension's local settings
+  ceiling. The 512 KiB `payload` limit above is a limit on the *envelope* as
+  transmitted; compression sits between the two numbers.
 - The import is **atomic and replacing**: one validated write of the whole
   settings object, never a partial application, never a merge.
 
