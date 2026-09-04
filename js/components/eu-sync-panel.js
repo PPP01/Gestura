@@ -102,6 +102,11 @@ class EuSyncPanel extends LitElement {
 		this._preview = null;
 		this._conflict = null;
 		this._errorCode = '';
+		// Not reactive on purpose. Set the moment the automatic list request goes
+		// out, cleared when the switch goes on again; see updated(). A failed
+		// request must not be retried by the next render pass - and a failure IS a
+		// render pass, because it flips _busy and _error.
+		this._listRequested = false;
 		this._onSaved = () => this.#recomputeHash();
 		this._offLocal = null;
 		this._offStore = null;
@@ -188,6 +193,9 @@ class EuSyncPanel extends LitElement {
 		}
 		this._consentOpen = false;
 		this.#lockScroll(false);
+		// A fresh switch-on reads the list afresh, once.
+		this._states = null;
+		this._listRequested = false;
 	}
 
 	// Off and consent cleared in one step, as with the switch above: "off" then
@@ -241,6 +249,11 @@ class EuSyncPanel extends LitElement {
 		this._codeError = '';
 		this._codeDraft = '';
 		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(parsed.secret), states: {} });
+		// The list on screen belongs to the old code too. Gone before the new one
+		// is asked for - if that request fails, "not read yet" is the truth, and
+		// the old rows would offer to open and overwrite states that do not exist
+		// under this code.
+		this._states = null;
 		await this.#refreshStates();
 	}
 
@@ -250,6 +263,7 @@ class EuSyncPanel extends LitElement {
 			secret: await window.GesturaSyncCode.encode(window.GesturaSyncCode.generateSecret()),
 			states: {},
 		});
+		this._states = null;
 		await this.#refreshStates();
 	}
 
@@ -296,6 +310,7 @@ class EuSyncPanel extends LitElement {
 
 	async #refreshStates() {
 		if (!this.#effective) return;
+		this._listRequested = true;
 		// Re-reading is one of the two answers to a conflict, so it clears it: what
 		// the list shows afterwards is the state as it now stands.
 		this._conflict = null;
@@ -571,9 +586,13 @@ class EuSyncPanel extends LitElement {
 
 	updated() {
 		if (this._consentOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
-		// Once per switch-on, not once per render pass: _states stays null until an
-		// answer has arrived, and that null is exactly the condition.
-		if (this.#effective && this._states === null && !this._busy) this.#refreshStates();
+		// Once per switch-on, not once per render pass. `_states === null` alone is
+		// not that condition: it stays null when the request FAILS, and the failure
+		// re-renders (_busy, _error), so the panel asked again on every failure with
+		// no pause - 378 requests in five seconds against a server that answered
+		// 500. The flag says "asked already"; only the Refresh button, a code
+		// change and a fresh switch-on ask again.
+		if (this.#effective && this._states === null && !this._busy && !this._listRequested) this.#refreshStates();
 	}
 
 	render() {
