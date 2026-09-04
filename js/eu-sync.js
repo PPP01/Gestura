@@ -21,7 +21,7 @@
 	const LIMITS = {
 		metaMaxBytes: 8 * 1024,
 		payloadMaxBytes: 512 * 1024,
-		statesMax: 10,
+		statesMax: 5,
 		responseMaxBytes: 1024 * 1024,
 		timeoutMs: 15000,
 	};
@@ -135,7 +135,7 @@
 		const { secret, origin, stateId, name, createdAt, exportObj, extVersion, basePayloadHash, fetchImpl } = opts;
 		const X = root.GesturaSyncCrypto;
 		const key = await X.deriveKey(secret);
-		const payload = await X.encryptBlob(key, stateId, 'payload', exportObj);
+		const payload = await X.encryptCompressed(key, stateId, 'payload', exportObj);
 		if (payload.length > LIMITS.payloadMaxBytes) throw syncError('too-large');
 		const meta = await X.encryptBlob(key, stateId, 'meta', {
 			name,
