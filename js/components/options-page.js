@@ -27,6 +27,7 @@ class OptionsPage extends LitElement {
 		_preview: { state: true },
 		_storageFailure: { state: true },
 		_syncNote: { state: true },
+		_switchRefusal: { state: true },
 	};
 
 	static styles = [
@@ -289,6 +290,7 @@ class OptionsPage extends LitElement {
 		this._preview = null;
 		this._storageFailure = null;
 		this._syncNote = null;
+		this._switchRefusal = null;
 		this._store = settingsStore;
 	}
 
@@ -1455,6 +1457,9 @@ class OptionsPage extends LitElement {
 		const S = window.GesturaSettingsStorage;
 		const i18n = window.i18n;
 		const target = toSync ? 'sync' : 'local';
+		// Cleared before the attempt, never after it: a second try does not stack a
+		// second line, and a switch that goes through leaves none behind.
+		this._switchRefusal = null;
 		const res = await S.switchTo(target, reason);
 		const landed = S.area() === target;
 		if (!res.ok && !landed) {
@@ -1468,7 +1473,11 @@ class OptionsPage extends LitElement {
 				: res.error === 'total-full' ? fill('storageSwitchRefusedTotal')
 				: res.error === 'tier2-enabled' ? i18n.getMessage('storageSwitchRefusedTier2')
 				: i18n.getMessage('storageSwitchFailed');
-			this.#showStatus(msg, 'error');
+			// Not #showStatus: that hides after 1500 ms, and a two-clause refusal
+			// carrying a branch name and two numbers is functionally silent at that
+			// length. It stands beside the switch it refused until the next attempt.
+			// The design's own words are "refused with numbers, never silent".
+			this._switchRefusal = msg;
 		}
 		await this.#refreshSyncNote();
 		this.requestUpdate();
@@ -1500,7 +1509,8 @@ class OptionsPage extends LitElement {
 					<input type="checkbox" .checked=${on} @change=${(e) => { const want = e.target.checked; e.target.checked = on; this.#switchArea(want); }}>
 					<span class="slider"></span>
 				</label>
-			</div>`;
+			</div>
+			${this._switchRefusal ? html`<div class="notice">${this._switchRefusal}</div>` : ''}`;
 	}
 
 	// A date, not a time: #formatSyncTime renders toLocaleTimeString() for the
