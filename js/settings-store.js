@@ -83,6 +83,19 @@ function emit(name, detail) {
 	window.dispatchEvent(new CustomEvent(name, { detail }));
 }
 
+// Belt-and-braces over the façade's own promise that set() never rejects: if a
+// future regression in js/settings-storage.js ever lets one through, this is
+// the guard that keeps it from un-fixing the store - a throw here still means
+// the rollback in save()/reset() runs instead of an unhandled rejection.
+async function safeSet(patch) {
+	try {
+		return await Storage.set(patch);
+	} catch (e) {
+		console.error('Settings write failed:', e);
+		return { ok: false, error: 'write' };
+	}
+}
+
 class SettingsStore {
 	#current = structuredClone(DEFAULT_SETTINGS);
 	#listeners = [];
@@ -110,13 +123,27 @@ class SettingsStore {
 			Storage.onChanged((changes) => this.handleExternalChange(changes));
 			this.#listening = true;
 		}
-		const items = await Storage.get(DEFAULT_SETTINGS);
+		let items;
+		try {
+			items = await Storage.get(DEFAULT_SETTINGS);
+		} catch (e) {
+			// A failed read must degrade to defaults, not leave the page blank
+			// forever: #loaded has to become true either way, or waitForLoad() and
+			// current keep throwing and the page never renders again. This is what
+			// the old callback-based chrome.storage.sync.get did when it ran with
+			// runtime.lastError set - no items, so { ...defaults, ...undefined } was
+			// the defaults.
+			console.error('Settings load failed, falling back to defaults:', e);
+			items = {};
+		}
 		this.#current = structuredClone(DEFAULT_SETTINGS);
 		for (const [key, value] of Object.entries(items)) {
 			// 10.1, on load: a stored value whose shape the reader does not
-			// recognise leaves the default standing rather than being spread into
-			// it. Nothing is written back - the value stays in storage for a
-			// reader that does recognise it.
+			// recognise leaves the in-memory default standing, so a malformed value
+			// cannot crash this reader. It survives IN STORAGE only until this
+			// browser's next save() - save() writes every key from #current, so the
+			// unrecognised value is then overwritten with the default like any
+			// other key.
 			if (sameShape(value, DEFAULT_SETTINGS[key])) this.#current[key] = value;
 		}
 		for (const key of ['mouseGestures', 'wheelGestures', 'specialGestures', 'siteMenus']) {
@@ -138,7 +165,7 @@ class SettingsStore {
 		previous.lastSyncTime = this.#current.lastSyncTime;
 		Object.assign(this.#current, patch, { lastSyncTime: now });
 
-		const res = await Storage.set(this.#current);
+		const res = await safeSet(this.#current);
 		if (res.ok) {
 			// onChange() fires for EXTERNAL changes only - by design, so a component
 			// does not react to its own write. The sync panel needs the other half:
@@ -164,7 +191,7 @@ class SettingsStore {
 		this.#assertLoaded();
 		this.#resetting = true;
 		try {
-			const res = await Storage.set(structuredClone(DEFAULT_SETTINGS));
+			const res = await safeSet(structuredClone(DEFAULT_SETTINGS));
 			if (res.ok) this.#current = structuredClone(DEFAULT_SETTINGS);
 			return res;
 		} finally {

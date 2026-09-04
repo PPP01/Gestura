@@ -10,9 +10,10 @@
 // - `hooks.beforeGetReturns()` runs inside the next get(), AFTER the snapshot is
 //   taken and BEFORE it is returned: the load() race test lets a newer write land
 //   while a read is still in flight.
-// - `hooks.failNext = { area, op, after }` makes the (after+1)-th matching set() or
-//   remove() throw before it changes anything: the fault-injection tests of
-//   switchTo() fail one write at a time.
+// - `hooks.failNext = { area, op, after }` makes the (after+1)-th matching get(),
+//   set() or remove() throw before it changes anything (get: before it reads
+//   anything): the fault-injection tests of switchTo() fail one write at a time,
+//   and settings-storage's own pre-check read can be failed the same way.
 export function fakeChromeStorage() {
 	const areas = { sync: new Map(), local: new Map() };
 	const listeners = new Set();
@@ -37,6 +38,7 @@ export function fakeChromeStorage() {
 			QUOTA_BYTES_PER_ITEM: 8192,
 			QUOTA_BYTES: 102400,
 			async get(keys) {
+				maybeFail(name, 'get');
 				const out = {};
 				if (keys === null || keys === undefined) {
 					for (const [k, v] of m) out[k] = clone(v);

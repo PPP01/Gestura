@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import { fakeChromeStorage } from './helpers/fake-chrome-storage.mjs';
 
 const fake = fakeChromeStorage();
@@ -66,6 +66,19 @@ describe('save', () => {
 		expect(mod.isStorageFull({ ok: true })).toBe(false);
 		expect(mod.isStorageFull(undefined)).toBe(false);
 	});
+
+	// The façade's own pre-check reads the store, and that read can fail (Finding
+	// 1). The façade resolves { ok: false, error: 'write' } for it rather than
+	// rejecting (see tests/settings-storage.test.mjs); this proves save() rolls
+	// #current back on that same path, exactly as it does for a typed refusal.
+	it('resolves and rolls #current back when the façade read fails, rather than rejecting', async () => {
+		const before = { ...store.current };
+		fake.hooks.failNext = { area: 'sync', op: 'get', after: 0 };
+		const res = await store.save({ trailWidth: 42 });
+		expect(res).toEqual({ ok: false, error: 'write' });
+		expect(store.current).toEqual(before);
+		expect(fake.raw('sync').trailWidth).not.toBe(42);
+	});
 });
 
 describe('reset', () => {
@@ -119,5 +132,22 @@ describe('external changes', () => {
 		expect(seen[0].wheelGestures['↑']).toEqual({ action: 'back' });
 		// normalizeSetting mixes the defaults under a partial wheelGestures.
 		for (const k of Object.keys(DEFAULTS.wheelGestures)) expect(store.current.wheelGestures).toHaveProperty(k);
+	});
+});
+
+// Placed last: it imports a fresh module instance via vi.resetModules(), which
+// must not disturb the `store`/`mod` singleton the describe blocks above share.
+describe('a failing load', () => {
+	// Finding 2: before this fix, a rejecting Storage.get() left #loaded false
+	// forever - waitForLoad() kept re-throwing and the options page never
+	// rendered again. Falling back to defaults on a failed read is what the old
+	// callback-based chrome.storage.sync.get did when it ran with lastError set,
+	// so this is a regression fix, not new behaviour.
+	it('falls back to defaults instead of leaving the store permanently unusable', async () => {
+		fake.hooks.failNext = { area: 'sync', op: 'get', after: 0 };
+		vi.resetModules();
+		const fresh = await import('../js/settings-store.js');
+		await expect(fresh.settingsStore.waitForLoad()).resolves.toBeDefined();
+		expect(fresh.settingsStore.current).toEqual(DEFAULTS);
 	});
 });

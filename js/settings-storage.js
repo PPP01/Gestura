@@ -149,15 +149,20 @@
 	}
 
 	// The whole patch or nothing. The pre-check runs first so a write that would
-	// fail never gets partially applied.
+	// fail never gets partially applied. Both the pre-check's read and the write
+	// itself are inside this try: set() must never reject, for any input, in any
+	// area - a failed read (or a dead extension context, which store() also
+	// throws on synchronously) is reported under the 'write' code because the
+	// contract has no read-specific code, the same imprecision Task 3 already
+	// carries for its own reads.
 	async function set(patch) {
 		await ready();
 		const known = pickKnown(patch);
-		const check = await precheck(known);
-		if (!check.ok) return check;
-		const toWrite = { ...known };
-		if (cache.area === 'sync') toWrite[FORMAT_KEY] = FORMAT_VERSION;
 		try {
+			const check = await precheck(known);
+			if (!check.ok) return check;
+			const toWrite = { ...known };
+			if (cache.area === 'sync') toWrite[FORMAT_KEY] = FORMAT_VERSION;
 			await store().set(toWrite);
 			return { ok: true };
 		} catch (e) {

@@ -288,6 +288,17 @@ describe('the pre-check', () => {
 		expect(res).toMatchObject({ ok: false, error: 'total-full', quota: 1024 * 1024, area: 'local' });
 		expect(fake.raw('local')).not.toHaveProperty('siteMenus');
 	});
+
+	// set() must never reject, for any input, in any area. The pre-check reads
+	// the store to weigh the untouched keys; that read can fail the same way any
+	// other storage call can (a dead extension context, a transient error). A
+	// read failure has no code of its own in the contract, so it is reported as
+	// 'write' - the same imprecision Task 3 already carries for its own reads.
+	it('resolves { ok: false, error: "write" } instead of rejecting when the pre-check read fails', async () => {
+		fake.hooks.failNext = { area: 'sync', op: 'get', after: 0 };
+		await expect(S.set({ theme: 'dark' })).resolves.toEqual({ ok: false, error: 'write' });
+		expect(fake.raw('sync')).not.toHaveProperty('theme');
+	});
 });
 
 describe('switchTo local', () => {
