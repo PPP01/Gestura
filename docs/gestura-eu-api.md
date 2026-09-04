@@ -424,11 +424,22 @@ The `updatedAt` in the refusal is there so the client can say *when* the state
 changed under it without a second request; it then re-reads the state and lets
 the user decide.
 
-**This does not merge anything.** It makes a lost write visible instead of
-silent, and it is the precondition for merging later: a client can only merge
-if it can be told "your base is stale" and try again. Merging itself needs
-per-entry versions and deletion markers inside the payload, and is deliberately
-not part of `apiLevel` 3.
+**The server does not merge anything, and does not need to.** The token makes a
+lost write visible instead of silent, and that turned out to be the whole of
+what a merge needs from the service. The extension reconciles two browsers
+against a **base** it keeps locally — the payload it last agreed on with a
+state, under that payload's `payloadHash` — takes over one-sided changes
+without a question, and asks only where both sides changed the same entry. A
+deletion is "in the base, absent from mine", so there are **no deletion
+markers**, and the base makes per-entry versions unnecessary; the payload
+format is unchanged. The merge then stakes its upload on `basePayloadHash` and
+redoes itself on a `412`.
+
+So merging costs this contract nothing: no new field, no new endpoint, no
+`apiLevel` bump. What it does do is make the three rows above **load-bearing**
+— a `412` that wrote anyway, or a comparison against something other than the
+stored payload envelope, would silently overwrite settings on the other
+browser. The extension side shipped on 2026-09-05.
 
 **`POST /api/v1/sync/delete` stays unconditional** and takes no token. Deleting
 is a deliberate act behind a confirmation, and unlike a silent overwrite it is
