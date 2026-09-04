@@ -554,7 +554,13 @@ class EuSyncPanel extends LitElement {
 
 	#renderOverlay() {
 		const i18n = window.i18n;
-		const points = [1, 2, 3, 4].map(n => [`euSyncConsentPoint${n}Label`, `euSyncConsentPoint${n}`]);
+		// Point five is the trade #accept() makes below: agreeing switches this
+		// browser out of chrome.storage.sync, the browser's own sync stops carrying
+		// the settings, and #revoke() does NOT switch back - putting them back would
+		// blind-overwrite whatever another browser has synced in the meantime, which
+		// is the reconciliation this design leaves to its own plan. A consent that
+		// does not name that is not consent to it.
+		const points = [1, 2, 3, 4, 5].map(n => [`euSyncConsentPoint${n}Label`, `euSyncConsentPoint${n}`]);
 		return html`
 			<div class="modal-overlay" @mousedown=${this.#decline}>
 				<div class="modal-panel" tabindex="-1" @mousedown=${e => e.stopPropagation()}>

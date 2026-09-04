@@ -341,6 +341,9 @@ class OptionsPage extends LitElement {
 		this._pendingPatch = null;
 		this._store.save(patch).then((res) => {
 			if (!res.ok) {
+				// See #savePatch: settingsStore rolled #current back, so the screen
+				// must come back with it.
+				this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
 				if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
 				return;
 			}
@@ -1457,6 +1460,7 @@ class OptionsPage extends LitElement {
 		const S = window.GesturaSettingsStorage;
 		const i18n = window.i18n;
 		const target = toSync ? 'sync' : 'local';
+		if (target === 'sync' && !(await this.#confirmWayBack(i18n))) return false;
 		// Cleared before the attempt, never after it: a second try does not stack a
 		// second line, and a switch that goes through leaves none behind.
 		this._switchRefusal = null;
@@ -1482,6 +1486,28 @@ class OptionsPage extends LitElement {
 		await this.#refreshSyncNote();
 		this.requestUpdate();
 		return landed;
+	}
+
+	// The way back writes this browser's whole local copy over chrome.storage.sync
+	// (js/settings-storage.js, toSync()). Another browser may have kept editing
+	// over browser sync in the months since this one left, and every one of those
+	// edits goes. Reconciliation is a stated non-goal here and the subject of its
+	// own plan, so the switch does the one thing it honestly can: it says what is
+	// about to happen and waits for an answer.
+	//
+	// The date comes from the note the departing browser left, which is the only
+	// thing on record about when this browser stopped syncing. #refreshSyncNote()
+	// deliberately does not read it in state 'local' - it is meaningless there,
+	// right up to the moment of this question - so it is read here, and a failing
+	// read costs the date, not the question.
+	async #confirmWayBack(i18n) {
+		const S = window.GesturaSettingsStorage;
+		let left = null;
+		try { left = await S.note(); } catch { left = null; }
+		const msg = (left && left.movedAt)
+			? i18n.getMessage('storageSwitchToSyncConfirmSince').replace('{date}', this.#formatDate(left.movedAt))
+			: i18n.getMessage('storageSwitchToSyncConfirm');
+		return window.confirm(msg);
 	}
 
 	async #onStorageWay(e) {
@@ -1692,10 +1718,18 @@ class OptionsPage extends LitElement {
 	}
 
 
+	// The optimistic assignment on the first line is what makes the UI feel
+	// immediate; the one in the failure branch is what keeps it honest. Without it
+	// the screen goes on showing a value settingsStore has already rolled back,
+	// and since the refused write is never replayed across a storage switch - way
+	// two and way three change where the settings live, not what is pending - that
+	// phantom would be the only trace left of the edit. All three ways out say the
+	// change has to be made again; this is what makes the screen agree.
 	async #savePatch(patch) {
 		this._settings = { ...this._settings, ...patch };
 		const res = await this._store.save(patch);
 		if (!res.ok) {
+			this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
 			if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
 			return false;
 		}

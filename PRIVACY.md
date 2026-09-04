@@ -28,7 +28,10 @@ an explicit click — encrypted in your browser, under a key that never leaves i
   devices, under your browser's own privacy and encryption controls. You can turn
   browser sync off for Gestura in the settings' data section; the settings then
   live in `storage.local` on that device only, and the copy that was already in
-  `storage.sync` is left in place, not deleted.
+  `storage.sync` is left in place, not deleted. Switching **gestura.eu sync** on
+  does this for you — the consent says so before you agree — and switching it off
+  again does not move the settings back: browser sync stays off for Gestura until
+  you turn it back on yourself in the data section.
 - **Page interaction** (detecting gestures, drags, and menus) happens **on your
   device, in the page**. Gestura does not send the pages you visit, their content,
   or your browsing history anywhere.
