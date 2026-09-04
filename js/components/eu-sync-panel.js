@@ -471,6 +471,22 @@ class EuSyncPanel extends LitElement {
 		});
 	}
 
+	// The merge does a lot of throw-capable work OUTSIDE #run - merge(), apply()
+	// with its structuredClone, buildExport(), JSON.stringify(), validate() - and
+	// every entry into it comes from an event handler that floats the promise. An
+	// unexpected throw would then be an unhandled rejection: no line on screen and
+	// a button that looks dead. This is the one loop that must not fail silently,
+	// so each entry point goes through here. #fail() is the panel's own error
+	// line, and it still reads a `code` off a sync error that reached us unwrapped.
+	async #guarded(fn) {
+		try {
+			await fn();
+		} catch (e) {
+			console.error('[Gestura] Sync failed:', e);
+			this.#fail(e);
+		}
+	}
+
 	// Spec §3: download, merge against the base, ask where both sides moved,
 	// preview, upload with the write token, and only then write locally and
 	// store the result as the new base. A 412 restarts from the top with the
@@ -515,6 +531,10 @@ class EuSyncPanel extends LitElement {
 		const baseV = S.validate(base.payload, { forSync: true, local: local0 });
 		if (!baseV.ok) {
 			await window.GesturaSyncBase.remove(state.stateId);
+			// The row's Sync button hangs off _bases; without this it would stay
+			// there, offering the merge that was just refused, until the next
+			// listing.
+			this._bases = await window.GesturaSyncBase.list();
 			this._error = i18n.getMessage('euSyncMergeNoBase');
 			return;
 		}
@@ -529,6 +549,22 @@ class EuSyncPanel extends LitElement {
 		const merged = window.GesturaSettingsMerge.merge(baseV.settings, local.settings, remote.settings);
 		const s = merged.summary;
 		if (!merged.conflicts.length && !s.taken && !s.uploaded && !s.deleted) {
+			// Nothing to transfer - but that is reached two ways. Either the state
+			// has not moved since we last agreed (expect === base.hash), or it has
+			// and both sides happened to make the SAME change, which the table
+			// resolves to "unchanged". In the second the base still names the
+			// payload from before that change, and returning here would leave it
+			// naming it forever: every later Sync lands on this same return, and a
+			// deletion made here afterwards would be asked about instead of simply
+			// propagating. The server holds `payload` under `expect` - which is
+			// exactly what a base is - so adopt it, the way #downloadState does
+			// with the same two values. No upload and no preview: the transfer
+			// they would show carries nothing.
+			if (expect !== base.hash) {
+				await window.GesturaSyncBase.write(state.stateId, { hash: expect, payload, date: new Date().toISOString() });
+				this._bases = await window.GesturaSyncBase.list();
+			}
+			this._conflict = null;
 			this._notice = i18n.getMessage('euSyncMergeInSync');
 			return;
 		}
@@ -554,12 +590,15 @@ class EuSyncPanel extends LitElement {
 		e.currentTarget.open = false;
 		const ctx = this._merge;
 		this._merge = null;
-		if (ctx) this.#commitMerge({ ...ctx, choices: e.detail.choices });
+		if (ctx) this.#guarded(() => this.#commitMerge({ ...ctx, choices: e.detail.choices }));
 	}
 
+	// Cancelling ends the round: the "changed again" line was about a merge that
+	// is no longer running, and the preview note said the same thing anyway.
 	#onMergeCancel(e) {
 		e.currentTarget.open = false;
 		this._merge = null;
+		this._notice = '';
 	}
 
 	// After the questions: apply, validate the result as one object, show the
@@ -594,7 +633,7 @@ class EuSyncPanel extends LitElement {
 			retyped: r.retyped,
 			legacy: false,
 			note,
-			commit: async () => {
+			commit: () => this.#guarded(async () => {
 				const done = await this.#run(() => window.GesturaSync.upload({
 					stateId: state.stateId,
 					name,
@@ -606,8 +645,9 @@ class EuSyncPanel extends LitElement {
 				if (!done) {
 					if (this._errorCode !== 'conflict') return;
 					// Someone wrote between our download and this upload. Nothing has
-					// been written here. Three times we merge again; then the existing
-					// conflict UI takes over (spec §3 step 8).
+					// been written here. Twice more we merge against what is there now;
+					// the third 412 hands over to the existing conflict UI (spec §3
+					// step 8).
 					if (attempt >= 3) {
 						this._conflict = { stateId: state.stateId, name, createdAt: state.meta && state.meta.createdAt, basePayloadHash: null };
 						return;
@@ -624,6 +664,10 @@ class EuSyncPanel extends LitElement {
 					await this.#syncState(fresh, attempt + 1, choices);
 					return;
 				}
+				// An earlier conflict has been answered by this write - the same
+				// reasoning as in #uploadTo, and without it the "Reload / Upload
+				// overwriting" row would survive the merge that settled it.
+				this._conflict = null;
 				// The server holds r.exportObj under done.payloadHash. Save locally
 				// through the adopt path; the base and the upload record are written
 				// in afterSave, after the save succeeded and before the reload.
@@ -641,7 +685,7 @@ class EuSyncPanel extends LitElement {
 						},
 					},
 				}));
-			},
+			}),
 		});
 	}
 
@@ -696,7 +740,7 @@ class EuSyncPanel extends LitElement {
 				<div class="row-actions">
 					${this._bases[state.stateId] ? html`
 						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#syncState(state)}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
+							@click=${() => this.#guarded(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
@@ -747,7 +791,7 @@ class EuSyncPanel extends LitElement {
 				?legacy=${!!(this._preview && this._preview.legacy)}
 				.note=${this._preview ? (this._preview.note || '') : ''}
 				@preview-confirm=${this.#onPreviewConfirm}
-				@preview-cancel=${() => { this._preview = null; }}></settings-preview-dialog>
+				@preview-cancel=${() => { this._preview = null; this._notice = ''; }}></settings-preview-dialog>
 			<sync-merge-dialog
 				?open=${!!this._merge}
 				.conflicts=${this._merge ? this._merge.merged.conflicts : []}
