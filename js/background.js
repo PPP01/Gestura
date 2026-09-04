@@ -1446,6 +1446,10 @@ const FAVICON_CACHE_KEY = 'faviconCache';
 const FAVICON_TTL_HIT = 1000 * 60 * 60 * 24 * 30; // 30 days
 const FAVICON_TTL_MISS = 1000 * 60 * 60 * 24 * 3; // 3 days (retry sooner)
 const FAVICON_MAX_BYTES = 60000;
+// 48 × 60 KB worst case is 2.9 MB, which with the 1 MiB settings ceiling stays
+// under the 5 MB storage.local of Chrome 109–113 with margin. In practice icons
+// are a few KB and the cap is far from reached.
+const FAVICON_MAX_ENTRIES = 48;
 const faviconInflight = new Map();
 
 function faviconFetch(url, ms) {
@@ -1512,7 +1516,7 @@ async function resolveFavicon(pageUrl) {
 		try {
 			const fresh = (await chrome.storage.local.get(FAVICON_CACHE_KEY))[FAVICON_CACHE_KEY] || {};
 			fresh[origin] = { icon, ts: Date.now() };
-			await chrome.storage.local.set({ [FAVICON_CACHE_KEY]: fresh });
+			await chrome.storage.local.set({ [FAVICON_CACHE_KEY]: self.FlowMouseFavicon.pruneCache(fresh, FAVICON_MAX_ENTRIES) });
 		} catch { }
 		return icon;
 	})().finally(() => faviconInflight.delete(origin));
