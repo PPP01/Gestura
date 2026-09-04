@@ -374,6 +374,28 @@ describe('apply', () => {
 		const fresh = Object.keys(out.siteMenus.custom).find(id => id !== 'm1');
 		expect(out.siteMenus.custom[fresh].name).toBe('A edited there (2)');
 	});
+	it('does not alias mine/theirs: mutating the output leaves conflicts and the original inputs untouched', () => {
+		const local = { m1: { name: 'A1', items: ['local'] } };
+		const remote = { m1: { name: 'A2', items: ['remote'] } };
+		const m = M.merge(menus({ m1: A }), menus(local), menus(remote));
+		const c = m.conflicts[0];
+
+		const mine = M.apply(m.result, m.conflicts, {}, {});
+		mine.siteMenus.custom.m1.items.push('mutated-mine');
+		expect(c.mine.items).toEqual(['local']);
+		expect(local.m1.items).toEqual(['local']);
+
+		const theirs = M.apply(m.result, m.conflicts, { [c.key]: 'theirs' }, {});
+		theirs.siteMenus.custom.m1.items.push('mutated-theirs');
+		expect(c.theirs.items).toEqual(['remote']);
+		expect(remote.m1.items).toEqual(['remote']);
+
+		const both = M.apply(m.result, m.conflicts, { [c.key]: 'both' }, { stateName: 'office' });
+		const fresh = Object.keys(both.siteMenus.custom).find(id => id !== 'm1');
+		both.siteMenus.custom[fresh].items.push('mutated-both');
+		expect(c.theirs.items).toEqual(['remote']);
+		expect(remote.m1.items).toEqual(['remote']);
+	});
 	it('both on a conflict that cannot keep both falls back to mine', () => {
 		const m = conflictOn({ m1: A }, {}, { m1: A2 });
 		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'both' }, {});

@@ -337,6 +337,14 @@
 		return { ...entry, name: `${entry.name} (${stateName || '2'})` };
 	}
 
+	// mine/theirs on a conflict are the caller's own local/remote objects,
+	// passed straight through by mergeRecord/mergeScalar/mergeKeyedList -
+	// never merge()'s to copy. apply() promises not to mutate its inputs, so
+	// every value it writes into `out` has to be its own copy, not an alias.
+	function cloneValue(v) {
+		return v === undefined ? undefined : structuredClone(v);
+	}
+
 	function specAt(path) {
 		const parts = path.split('.');
 		let s = spec(MERGE_MAP[parts[0]] || 'scalar');
@@ -372,14 +380,14 @@
 
 			if (c.kind === 'scalar') {
 				if (keep === undefined) delete parent[last];
-				else parent[last] = keep;
+				else parent[last] = cloneValue(keep);
 				continue;
 			}
 			if (c.kind === 'record') {
 				const rec = isObj(parent[last]) ? parent[last] : (parent[last] = {});
 				if (keep === undefined) delete rec[c.id];
-				else rec[c.id] = keep;
-				if (both) rec[freshId(s.idPrefix, new Set(Object.keys(rec)))] = suffixName(c.theirs, stateName);
+				else rec[c.id] = cloneValue(keep);
+				if (both) rec[freshId(s.idPrefix, new Set(Object.keys(rec)))] = suffixName(cloneValue(c.theirs), stateName);
 				continue;
 			}
 			// keyed-list: replace in place, delete in place, append the copy.
@@ -388,13 +396,13 @@
 			if (keep === undefined) {
 				if (idx >= 0) list.splice(idx, 1);
 			} else if (idx >= 0) {
-				list[idx] = keep;
+				list[idx] = cloneValue(keep);
 			} else {
-				list.push(keep);
+				list.push(cloneValue(keep));
 			}
 			if (both) {
 				const id = freshId(s.idPrefix, new Set(list.map(it => (isObj(it) ? it[s.key] : ''))));
-				list.push({ ...suffixName(c.theirs, stateName), [s.key]: id });
+				list.push({ ...suffixName(cloneValue(c.theirs), stateName), [s.key]: id });
 			}
 			parent[last] = list;
 		}
