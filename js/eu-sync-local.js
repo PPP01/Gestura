@@ -53,12 +53,15 @@
 	// because a version bump writes nothing. Dates are the ISO strings both
 	// panels store, so they compare as text; a consent without a date (older
 	// storage) is given the benefit of the doubt.
-	function syncConsentStale(local, sync) {
-		const s = normalizeSync(sync).euSync;
+	function consentStale(s, local) {
 		if (s.consent === null) return false;
 		if (s.consent.version !== CURRENT_SYNC_CONSENT) return true;
 		const tier1 = EU.normalizeLocal(local).euIntegration.consent;
 		return !!(tier1 && tier1.date && s.consent.date && s.consent.date < tier1.date);
+	}
+
+	function syncConsentStale(local, sync) {
+		return consentStale(normalizeSync(sync).euSync, local);
 	}
 
 	// The composed invariant from the design: tier 2 rides on tier 1 and can
@@ -69,7 +72,7 @@
 		return EU.effectiveEnabled(local)
 			&& s.enabled === true
 			&& s.consent !== null
-			&& !syncConsentStale(local, sync);
+			&& !consentStale(s, local);
 	}
 
 	// Sync talks to exactly one server, unlike the update check which asks every

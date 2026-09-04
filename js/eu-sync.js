@@ -107,15 +107,13 @@
 		for (const s of answer.states) {
 			if (!s || typeof s !== 'object') throw syncError('malformed');
 			// The id has to be right, or the state cannot even be addressed to delete
-			// it. The meta blob does not: one that is missing is the same failure as
-			// one that will not decrypt - THAT state is unreadable, and it is
-			// reported as such rather than thrown, because a throw here would read as
-			// "all your states are gone" and take the delete button with it.
+			// it. The meta blob does not: missing or undecryptable, THAT state is
+			// unreadable - reported below, not thrown, because a throw here would
+			// read as "all your states are gone" and take the delete button with it.
+			// decryptBlob refuses a non-envelope itself.
 			if (!X.STATE_ID_RE.test(s.stateId)) throw syncError('malformed');
 			let meta = null;
-			if (isEnvelope(s.meta)) {
-				try { meta = await X.decryptBlob(key, s.stateId, 'meta', s.meta); } catch { /* broken below */ }
-			}
+			try { meta = await X.decryptBlob(key, s.stateId, 'meta', s.meta); } catch { /* broken below */ }
 			out.push({
 				stateId: s.stateId,
 				size: Number(s.size) || 0,

@@ -108,37 +108,23 @@ describe('reading a list', () => {
 	});
 
 	// One damaged blob must not hide the other states - that would turn a single
-	// corrupted upload into "all your states are gone".
-	it('marks a meta blob it cannot read and keeps the rest', async () => {
-		const key = await X.deriveKey(await secretBytes());
-		const good = await X.encryptBlob(key, ID, 'meta', { name: 'Work' });
-		const other = 'ffffffffffffffffffffffffffffffff';
-		const out = await S.listStates({
-			secret: await secretBytes(), origin: 'https://gestura.eu',
-			fetchImpl: fetchOk({ states: [{ stateId: other, size: 1, updatedAt: 'x', meta: 'bm90aGluZw==' }, { stateId: ID, size: 10, updatedAt: 'x', meta: good }] }),
+	// corrupted upload into "all your states are gone", and take the button that
+	// could delete the broken one with it. A meta that is missing altogether is
+	// the same failure as one that does not decrypt: THAT state is unreadable.
+	it.each([['does not decrypt', 'bm90aGluZw=='], ['is missing', null]])
+		('marks a state whose meta %s and keeps the rest', async (_label, meta) => {
+			const key = await X.deriveKey(await secretBytes());
+			const good = await X.encryptBlob(key, ID, 'meta', { name: 'Work' });
+			const other = 'ffffffffffffffffffffffffffffffff';
+			const out = await S.listStates({
+				secret: await secretBytes(), origin: 'https://gestura.eu',
+				fetchImpl: fetchOk({ states: [{ stateId: other, size: 1, updatedAt: 'x', meta }, { stateId: ID, size: 10, updatedAt: 'x', meta: good }] }),
+			});
+			expect(out).toHaveLength(2);
+			expect(out[0].broken).toBe(true);
+			expect(out[0].meta).toBe(null);
+			expect(out[1].meta.name).toBe('Work');
 		});
-		expect(out).toHaveLength(2);
-		expect(out[0].broken).toBe(true);
-		expect(out[0].meta).toBe(null);
-		expect(out[1].meta.name).toBe('Work');
-	});
-
-	// A meta that is not even an envelope string is the same failure as one that
-	// does not decrypt: that ONE state is unreadable. Throwing for the whole
-	// list would hide every other state and, with them, the button that could
-	// delete the broken one.
-	it('marks a state whose meta is missing and keeps the rest', async () => {
-		const key = await X.deriveKey(await secretBytes());
-		const good = await X.encryptBlob(key, ID, 'meta', { name: 'Work' });
-		const other = 'ffffffffffffffffffffffffffffffff';
-		const out = await S.listStates({
-			secret: await secretBytes(), origin: 'https://gestura.eu',
-			fetchImpl: fetchOk({ states: [{ stateId: other, size: 1, updatedAt: 'x', meta: null }, { stateId: ID, size: 10, updatedAt: 'x', meta: good }] }),
-		});
-		expect(out).toHaveLength(2);
-		expect(out[0].broken).toBe(true);
-		expect(out[1].meta.name).toBe('Work');
-	});
 
 	it.each([
 		['a non-object answer', '[]'],

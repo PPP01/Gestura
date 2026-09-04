@@ -102,11 +102,10 @@ class EuSyncPanel extends LitElement {
 		this._preview = null;
 		this._conflict = null;
 		this._errorCode = '';
-		// Not reactive on purpose. Set the moment the automatic list request goes
-		// out, cleared when the switch goes on again; see updated(). A failed
-		// request must not be retried by the next render pass - and a failure IS a
-		// render pass, because it flips _busy and _error.
-		this._listRequested = false;
+		// Not reactive: what willUpdate() compares against to see the switch-on
+		// and the code change as EDGES, rather than re-deciding on every render.
+		this._wasEffective = false;
+		this._seenSecret = '';
 		this._onSaved = () => this.#recomputeHash();
 		this._offLocal = null;
 		this._offStore = null;
@@ -126,7 +125,6 @@ class EuSyncPanel extends LitElement {
 		window.GesturaSyncLocal.read().then(sync => { this._sync = sync; });
 		this._offLocal = window.GesturaEuLocal.onChange(local => { this._local = local; });
 		this._offSync = window.GesturaSyncLocal.onChange(sync => { this._sync = sync; });
-		this.#recomputeHash();
 		// settingsStore.onChange() reports EXTERNAL changes only - deliberately, so
 		// a component does not react to its own write. The "changed since last
 		// upload" hint needs exactly the other half: a change made on THIS page.
@@ -196,9 +194,6 @@ class EuSyncPanel extends LitElement {
 		}
 		this._consentOpen = false;
 		this.#lockScroll(false);
-		// A fresh switch-on reads the list afresh, once.
-		this._states = null;
-		this._listRequested = false;
 	}
 
 	// Off and consent cleared in one step, as with the switch above: "off" then
@@ -243,7 +238,12 @@ class EuSyncPanel extends LitElement {
 	// A different code means a different locator, different state ids, different
 	// hashes. The local map belongs to the old code and goes with it - otherwise
 	// names and "changed since last upload" would be shown for states that do not
-	// exist under this code.
+	// exist under this code. The list on screen belongs to the old code too;
+	// willUpdate() sees the secret change and drops it before asking anew.
+	async #adoptSecret(secret) {
+		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(secret), states: {} });
+	}
+
 	async #useCode() {
 		const parsed = await window.GesturaSyncCode.parse(this._codeDraft);
 		if (!parsed.secret) {
@@ -252,52 +252,31 @@ class EuSyncPanel extends LitElement {
 		}
 		this._codeError = '';
 		this._codeDraft = '';
-		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(parsed.secret), states: {} });
-		// The list on screen belongs to the old code too. Gone before the new one
-		// is asked for - if that request fails, "not read yet" is the truth, and
-		// the old rows would offer to open and overwrite states that do not exist
-		// under this code.
-		this._states = null;
-		await this.#refreshStates();
+		await this.#adoptSecret(parsed.secret);
 	}
 
 	async #newCode() {
 		if (!confirm(window.i18n.getMessage('euSyncSecretNewConfirm'))) return;
-		await window.GesturaSyncLocal.write({
-			secret: await window.GesturaSyncCode.encode(window.GesturaSyncCode.generateSecret()),
-			states: {},
-		});
-		this._states = null;
-		await this.#refreshStates();
+		await this.#adoptSecret(window.GesturaSyncCode.generateSecret());
 	}
 
-	// What leaves this browser goes through the validator like what enters it.
-	// The receiving browser validates on download and repairs a malformed
-	// container (searchEngines.custom = {} …) with a warning - if the upload did
-	// not, the preview here would show the broken form and the warning would
-	// appear only over there, on a state this side previewed as "exactly what
-	// will be transferred". So the upload carries the repaired export, the
-	// preview names the repair, and the "changed since" hash is over the same
-	// object the receiver gets. Null only if the settings validate as nothing,
-	// which DEFAULT_SETTINGS rules out.
-	#validatedExport() {
-		const S = window.GesturaSettingsSchema;
-		const version = window.i18n.version;
-		const result = S.validate(S.buildExport(settingsStore.current, version));
-		if (!result.ok) return null;
-		return { exportObj: S.buildExport(result.settings, version), result };
+	// The export as the receiver will get it - validated and repaired on the way
+	// out, see GesturaSettingsSchema.validatedExport. `opts` is passed through.
+	#validatedExport(opts) {
+		return window.GesturaSettingsSchema.validatedExport(settingsStore.current, window.i18n.version, opts);
 	}
 
-	// Serialise, canonicalise and hash the whole settings tree - on every save
-	// of the options page. Only while a row could show the result: for the many
-	// users without sync the work would be done for nobody. #refreshStates()
-	// calls this when the panel becomes effective, so a hash is there by the
-	// time the first list arrives.
+	// Validate, canonicalise and hash the whole settings tree - on every save of
+	// the options page. Only while a row could show the result: for the many
+	// users without sync the work would be done for nobody. willUpdate() calls
+	// this when the panel becomes effective, so a hash is there by the time the
+	// first list arrives, and a hash left over from an earlier switch-on is
+	// never trusted.
 	async #recomputeHash() {
 		if (!this.#effective) return;
 		try {
-			const v = this.#validatedExport();
-			this._currentHash = v ? await window.GesturaSettingsSchema.hashOf(v.exportObj) : '';
+			const r = this.#validatedExport({ json: false });
+			this._currentHash = r.ok ? await window.GesturaSettingsSchema.hashOf(r.exportObj) : '';
 		} catch {
 			this._currentHash = '';
 		}
@@ -334,8 +313,6 @@ class EuSyncPanel extends LitElement {
 
 	async #refreshStates() {
 		if (!this.#effective) return;
-		this._listRequested = true;
-		if (!this._currentHash) this.#recomputeHash();
 		// Re-reading is one of the two answers to a conflict, so it clears it: what
 		// the list shows afterwards is the state as it now stands.
 		this._conflict = null;
@@ -372,34 +349,35 @@ class EuSyncPanel extends LitElement {
 	//
 	// `createdAt` is the one out of the meta blob being replaced: the creation
 	// date belongs to the state, and a second browser has no local record of it.
-	// Empty for a new state, which is created now.
-	#uploadTo(stateId, name, basePayloadHash, createdAt) {
-		const v = this.#validatedExport();
-		if (!v) {
-			this._error = settingsErrorMessage(window.i18n, 'not-settings');
+	// Empty for a new state - uploadState() dates it then.
+	#uploadTo({ stateId = null, name, basePayloadHash = null, createdAt = '' }) {
+		const r = this.#validatedExport();
+		if (!r.ok) {
+			this._error = settingsErrorMessage(window.i18n, r.error);
 			return;
 		}
-		const { exportObj, result } = v;
 		this.#openPreview({
 			mode: 'upload',
-			json: result.json,
-			dropped: result.dropped,
-			retyped: result.retyped,
+			json: r.json,
+			dropped: r.dropped,
+			retyped: r.retyped,
 			legacy: false,
 			commit: async () => {
 				const id = stateId || window.GesturaSyncCrypto.newStateId();
+				const exportObj = r.exportObj;
 				const done = await this.#run(() => window.GesturaSync.upload({
 					stateId: id,
 					name,
-					createdAt: createdAt || new Date().toISOString(),
+					createdAt,
 					exportObj,
 					extVersion: window.i18n.version,
 					basePayloadHash,
 				}));
 				if (!done) {
-					// Nothing was written. Remember which state it was, so the two ways
-					// out below know what they are acting on.
-					if (this._errorCode === 'conflict') this._conflict = { stateId: id, name, createdAt };
+					// Nothing was written. Remember the target, so the two ways out
+					// below know what they are acting on - "overwrite anyway" is the
+					// same upload without the token.
+					if (this._errorCode === 'conflict') this._conflict = { stateId: id, name, createdAt, basePayloadHash: null };
 					return;
 				}
 				this._conflict = null;
@@ -497,7 +475,7 @@ class EuSyncPanel extends LitElement {
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-						@click=${() => this.#uploadTo(state.stateId, this.#nameOf(state), state.meta && state.meta.payloadHash, state.meta && state.meta.createdAt)}>${i18n.getMessage('euSyncUpload')}</button>
+						@click=${() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })}>${i18n.getMessage('euSyncUpload')}</button>
 					<button class="btn btn-danger" ?disabled=${this._busy}
 						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
 				</div>
@@ -530,9 +508,9 @@ class EuSyncPanel extends LitElement {
 					<input type="text" class="input-lg" placeholder=${i18n.getMessage('euSyncStateNamePlaceholder')}
 						.value=${this._newName}
 						@input=${e => { this._newName = e.target.value; }}
-						@keydown=${e => { if (e.key === 'Enter' && this._newName.trim()) this.#uploadTo(null, this._newName.trim()); }}>
+						@keydown=${e => { if (e.key === 'Enter' && this._newName.trim()) this.#uploadTo({ name: this._newName.trim() }); }}>
 					<button class="btn btn-primary" ?disabled=${this._busy || !this._newName.trim()}
-						@click=${() => this.#uploadTo(null, this._newName.trim())}>${i18n.getMessage('euSyncCreate')}</button>
+						@click=${() => this.#uploadTo({ name: this._newName.trim() })}>${i18n.getMessage('euSyncCreate')}</button>
 				</div>
 				${duplicate ? html`<div class="notice">${i18n.getMessage('euSyncDuplicateName')}</div>` : ''}`}
 			<settings-preview-dialog
@@ -616,15 +594,33 @@ class EuSyncPanel extends LitElement {
 			</div>`;
 	}
 
+	// The list is read on two EDGES and nowhere else: sync becoming effective
+	// (first load, switch-on, re-consent - in this tab or another), and the code
+	// changing while it is. Both arrive as a change to _local or _sync, so they
+	// are seen here, once, before the render - not decided on every render pass.
+	// The first version did the latter, keyed on `_states === null`, and a failed
+	// request leaves that null while re-rendering (_busy, _error): 378 requests
+	// in five seconds against a server that answered 500. Only the Refresh
+	// button asks again after a failure.
+	willUpdate(changed) {
+		if (!changed.has('_local') && !changed.has('_sync')) return;
+		const effective = this.#effective;
+		const secret = effective ? this.#state.secret : '';
+		if (effective && (!this._wasEffective || secret !== this._seenSecret)) {
+			// Whatever is on screen belongs to before the edge: the old code's rows
+			// would offer to open and overwrite states that do not exist under the
+			// new one, and a hash from an earlier switch-on may predate saves made
+			// while sync was off.
+			this._states = null;
+			this.#recomputeHash();
+			this.#refreshStates();
+		}
+		this._wasEffective = effective;
+		this._seenSecret = secret;
+	}
+
 	updated() {
 		if (this._consentOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
-		// Once per switch-on, not once per render pass. `_states === null` alone is
-		// not that condition: it stays null when the request FAILS, and the failure
-		// re-renders (_busy, _error), so the panel asked again on every failure with
-		// no pause - 378 requests in five seconds against a server that answered
-		// 500. The flag says "asked already"; only the Refresh button, a code
-		// change and a fresh switch-on ask again.
-		if (this.#effective && this._states === null && !this._busy && !this._listRequested) this.#refreshStates();
 	}
 
 	render() {
@@ -674,7 +670,7 @@ class EuSyncPanel extends LitElement {
 					<button class="btn btn-secondary" ?disabled=${this._busy}
 						@click=${this.#refreshStates}>${i18n.getMessage('euSyncConflictReload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#uploadTo(this._conflict.stateId, this._conflict.name, null, this._conflict.createdAt)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+						@click=${() => this.#uploadTo(this._conflict)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
 				</div>` : ''}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 		`;

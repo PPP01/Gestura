@@ -76,14 +76,30 @@
 		return { value: out, repaired };
 	}
 
-	function hasForbiddenKey(value) {
-		if (!value || typeof value !== 'object') return false;
-		if (Array.isArray(value)) return value.some(hasForbiddenKey);
-		for (const key of Object.keys(value)) {
-			if (FORBIDDEN.has(key)) return true;
-			if (hasForbiddenKey(value[key])) return true;
+	// Stored settings are a handful of levels deep. Far beyond that a file is not
+	// a settings file, and JSON.parse - iterative - would hand it over intact for
+	// structuredClone and JSON.stringify to overflow the stack on. So the one
+	// walk that runs before anything is copied is iterative, carries the depth,
+	// and refuses at a number rather than wherever the engine's stack ends.
+	const MAX_DEPTH = 64;
+
+	// The pre-walk: null when the tree is fine, else the reason it is not.
+	function scanTree(root) {
+		const stack = [[root, 0]];
+		while (stack.length) {
+			const [value, depth] = stack.pop();
+			if (!value || typeof value !== 'object') continue;
+			if (depth >= MAX_DEPTH) return 'too-deep';
+			if (Array.isArray(value)) {
+				for (const item of value) stack.push([item, depth + 1]);
+				continue;
+			}
+			for (const key of Object.keys(value)) {
+				if (FORBIDDEN.has(key)) return 'forbidden-key';
+				stack.push([value[key], depth + 1]);
+			}
 		}
-		return false;
+		return null;
 	}
 
 	function buildExport(settings, extVersion) {
@@ -102,8 +118,10 @@
 	// instead of `mouseGestures`. Lifted out of options-page.js's #importSettings
 	// unchanged: the sync download needs the same migration for the same files,
 	// and two copies of a migration are one copy too many.
+	const isLegacyShape = (obj) => !!(obj.customGestures || obj.gestures) && !obj.mouseGestures;
+
 	function migrateLegacy(obj) {
-		if (!(obj.customGestures || obj.gestures) || obj.mouseGestures) return obj;
+		if (!isLegacyShape(obj)) return obj;
 		const { DEFAULT_GESTURES } = root.GestureConstants;
 		const merged = { ...(obj.gestures || DEFAULT_GESTURES), ...(obj.customGestures || {}) };
 		const urls = obj.customGestureUrls || {};
@@ -119,22 +137,11 @@
 		return out;
 	}
 
-	const fail = (error) => ({ ok: false, error, legacy: false, settings: null, dropped: [], retyped: [], json: '' });
+	const fail = (error) => ({ ok: false, error, legacy: false, settings: null, dropped: [], retyped: [], exportObj: null, json: '' });
 
-	// JSON.parse is iterative and accepts any depth under the size cap; the walk
-	// over the tree (hasForbiddenKey, structuredClone, JSON.stringify) is not. A
-	// RangeError out of here would escape the import as an unhandled rejection -
-	// no message, no preview - so it is answered like any other unusable file.
-	function validate(input) {
-		try {
-			return validateShape(input);
-		} catch (e) {
-			if (e instanceof RangeError) return fail('not-settings');
-			throw e;
-		}
-	}
-
-	function validateShape(input) {
+	// `opts.json === false` leaves the preview text out: the hash path needs the
+	// object only, and the indented text is the most expensive thing made here.
+	function validate(input, opts) {
 		let raw = input;
 		if (typeof input === 'string') {
 			if (new TextEncoder().encode(input).length > MAX_BYTES) return fail('too-large');
@@ -142,8 +149,11 @@
 		}
 		if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail('not-object');
 
-		// Before anything is copied, spread or merged.
-		if (hasForbiddenKey(raw)) return fail('forbidden-key');
+		// Before anything is copied, spread or merged. A tree too deep to be
+		// settings is answered like a file that holds none.
+		const bad = scanTree(raw);
+		if (bad === 'forbidden-key') return fail('forbidden-key');
+		if (bad) return fail('not-settings');
 
 		const hasFormat = Object.prototype.hasOwnProperty.call(raw, FORMAT_FIELD);
 		if (hasFormat && raw[FORMAT_FIELD] !== FORMAT_VERSION) return fail('unknown-format');
@@ -151,10 +161,9 @@
 		// A missing format field is not "legacy" by itself: the export of every
 		// version before this one is {...settings, _version} and nothing in it is
 		// converted. `legacy` is what the preview turns into "converted as it is
-		// written", so it is true exactly when a conversion happened -
-		// migrateLegacy() hands the object back untouched otherwise.
-		const source = hasFormat ? raw : migrateLegacy(raw);
-		const legacy = source !== raw;
+		// written", so it is true exactly when a conversion happens.
+		const legacy = !hasFormat && isLegacyShape(raw);
+		const source = legacy ? migrateLegacy(raw) : raw;
 		const allowed = new Set(allowedKeys());
 		const settings = structuredClone(defaults());
 		const dropped = [];
@@ -187,6 +196,9 @@
 		// over the user's settings and calling it an import.
 		if (!kept) return fail('not-settings');
 
+		// One object, handed out as well as stringified: what a caller writes,
+		// uploads or hashes is provably what its preview showed.
+		const exportObj = buildExport(settings, raw._version);
 		return {
 			ok: true,
 			error: null,
@@ -194,8 +206,17 @@
 			settings,
 			dropped,
 			retyped,
-			json: JSON.stringify(buildExport(settings, raw._version), null, 2),
+			exportObj,
+			json: (opts && opts.json === false) ? '' : JSON.stringify(exportObj, null, 2),
 		};
+	}
+
+	// The exit door. What leaves this browser - the file export, the sync
+	// upload - is validated like what enters it: the receiving side repairs a
+	// malformed container and warns, so the sending side has to show the same
+	// repair, or "exactly what will be transferred" is not what arrives.
+	function validatedExport(settings, extVersion, opts) {
+		return validate(buildExport(settings, extVersion), opts);
 	}
 
 	// What the "changed since last upload" hint compares. The extension version
@@ -210,8 +231,8 @@
 	}
 
 	const api = {
-		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, FORBIDDEN, NEVER, RECORD_KEYS,
-		allowedKeys, buildExport, exportText, validate, hashOf, migrateLegacy, conformRecord,
+		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, MAX_DEPTH, FORBIDDEN, NEVER, RECORD_KEYS,
+		allowedKeys, buildExport, exportText, validatedExport, validate, hashOf, migrateLegacy, conformRecord,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSettingsSchema = api;

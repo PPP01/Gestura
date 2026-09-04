@@ -75,6 +75,11 @@ describe('normalizeSync', () => {
 	});
 });
 
+const DAY_1 = '2026-09-03T10:00:00.000Z';
+const DAY_2 = '2026-09-04T10:00:00.000Z';
+const tier1On = (date) => integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date } });
+const tier2On = (date) => sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date } });
+
 describe('the tier-2 invariant', () => {
 	it('holds when both tiers are current', () => {
 		expect(L.syncEnabled(integration(), sync())).toBe(true);
@@ -88,26 +93,19 @@ describe('the tier-2 invariant', () => {
 		['tier 2 is off', integration(), sync({ enabled: false })],
 		['tier 2 has a stale consent', integration(), sync({ consent: { version: 0, date: 'x' } })],
 		['tier 2 has no consent', integration(), sync({ consent: null })],
+		// Tier 2 was agreed to on top of a PARTICULAR tier-1 consent. When tier 1
+		// is consented again later - its version was bumped and the user accepted
+		// the new text - the old tier-2 consent must not come back to life with
+		// it: nobody agreed to sync a second time. The storage listener that
+		// clears tier 2 on withdrawal never fires here, because a version bump
+		// writes nothing.
+		['tier 1 was consented again after tier 2', tier1On(DAY_2), tier2On(DAY_1)],
 	])('fails when %s', (_label, local, s) => {
 		expect(L.syncEnabled(local, s)).toBe(false);
 	});
 
-	// Tier 2 was agreed to on top of a PARTICULAR tier-1 consent. When tier 1 is
-	// consented again later - its version was bumped and the user accepted the
-	// new text - the old tier-2 consent must not come back to life with it:
-	// nobody agreed to sync a second time. The storage listener that clears
-	// tier 2 on withdrawal never fires here, because a version bump writes
-	// nothing.
-	it('fails when tier 1 was consented again after tier 2', () => {
-		const local = integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date: '2026-09-04T10:00:00.000Z' } });
-		const s = sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date: '2026-09-03T10:00:00.000Z' } });
-		expect(L.syncEnabled(local, s)).toBe(false);
-	});
-
 	it('holds when tier 2 was consented after tier 1', () => {
-		const local = integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date: '2026-09-03T10:00:00.000Z' } });
-		const s = sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date: '2026-09-04T10:00:00.000Z' } });
-		expect(L.syncEnabled(local, s)).toBe(true);
+		expect(L.syncEnabled(tier1On(DAY_1), tier2On(DAY_2))).toBe(true);
 	});
 
 	// The panel shows a reconfirm row for exactly the consents syncEnabled()
@@ -116,8 +114,7 @@ describe('the tier-2 invariant', () => {
 		['no consent', integration(), sync({ consent: null }), false],
 		['a current consent', integration(), sync(), false],
 		['a consent of an older version', integration(), sync({ consent: { version: 0, date: 'x' } }), true],
-		['a consent tier 1 outranks', integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date: '2026-09-04T10:00:00.000Z' } }),
-			sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date: '2026-09-03T10:00:00.000Z' } }), true],
+		['a consent tier 1 outranks', tier1On(DAY_2), tier2On(DAY_1), true],
 	])('calls %s stale: %s', (_label, local, s, stale) => {
 		expect(L.syncConsentStale(local, s)).toBe(stale);
 	});

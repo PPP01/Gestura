@@ -4274,6 +4274,19 @@ the array guard `engine-registry.js` now has.
 
 After the review: `npm test` **740**, drive4 23, drive5 48, drive6 17, drive7 11.
 
+**A simplification pass over the review's own commits** followed, four angles
+in parallel, each finding fixed in place: the validated export lives in the
+schema module as `validatedExport()` (returning the export object next to its
+text, so preview and upload are provably one value) and the **file export goes
+through it as well** — the last door the contract named that did not; the
+list request is an edge in `willUpdate()` (sync becoming effective, or the code
+changing while it is) instead of a hand-armed flag in `updated()`, which also
+retires the stale-hash back-fill and the three by-hand resets; the depth limit
+is an explicit `MAX_DEPTH` in an iterative pre-walk rather than a caught
+`RangeError`; `legacy` is a named predicate, not object identity; `#uploadTo`
+takes one target object, which the conflict record already was.
+`npm test` **744**.
+
 ### Open, and blocking the release
 
 Unchanged from the plan's own gate, restated because this is where someone will

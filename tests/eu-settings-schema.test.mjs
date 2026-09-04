@@ -44,6 +44,32 @@ describe('export', () => {
 		expect(res.settings.theme).toBe('dark');
 		expect(res.settings.trailWidth).toBe(9);
 	});
+
+	// What leaves the browser - file export, sync upload - is validated like
+	// what enters it, and the object that is written or hashed is the very one
+	// the preview text was made of.
+	it('validatedExport hands back the object its preview text is made of', () => {
+		const res = S.validatedExport(settings(), '2.8.0');
+		expect(res.ok).toBe(true);
+		expect(res.exportObj.gesturaSettings).toBe(1);
+		expect(res.exportObj._version).toBe('2.8.0');
+		expect(JSON.stringify(res.exportObj, null, 2)).toBe(res.json);
+	});
+
+	it('validatedExport repairs a malformed container and names it', () => {
+		const res = S.validatedExport({ ...settings(), searchEngines: { ...DEFAULTS.searchEngines, custom: {} } }, '2.8.0');
+		expect(res.retyped).toEqual(['searchEngines.custom']);
+		expect(res.exportObj.searchEngines.custom).toEqual([]);
+	});
+
+	// The hash path needs the object, never the text - and the text is the
+	// single most expensive thing the validator produces.
+	it('validatedExport can leave the preview text out', () => {
+		const res = S.validatedExport(settings(), '2.8.0', { json: false });
+		expect(res.ok).toBe(true);
+		expect(res.json).toBe('');
+		expect(res.exportObj.theme).toBe('dark');
+	});
 });
 
 describe('validation', () => {
@@ -79,16 +105,22 @@ describe('validation', () => {
 			.toMatchObject({ ok: false, error: 'not-settings' });
 	});
 
-	// JSON.parse is iterative and accepts this; the walk over the tree is not.
-	// A RangeError out of validate() would escape the import as an unhandled
-	// rejection - no message, no preview, the file picker already reset.
-	it('refuses a file nested too deep to walk, instead of throwing', () => {
+	// JSON.parse is iterative and accepts any depth under the size cap. Settings
+	// are a few levels deep; a file far beyond that is refused by an explicit
+	// limit - not by whatever RangeError the engine's stack happens to throw,
+	// which would escape the import as an unhandled rejection.
+	it('refuses a file nested deeper than the limit', () => {
 		const depth = 60000;
 		const text = '{"a":'.repeat(depth) + '1' + '}'.repeat(depth);
 		expect(new TextEncoder().encode(text).length).toBeLessThan(S.MAX_BYTES);
-		let res;
-		expect(() => { res = S.validate(text); }).not.toThrow();
-		expect(res.ok).toBe(false);
+		expect(S.validate(text)).toMatchObject({ ok: false, error: 'not-settings' });
+	});
+
+	it('accepts a file at the limit', () => {
+		const nest = (n) => (n ? { a: nest(n - 1) } : 1);
+		const res = S.validate({ gesturaSettings: 1, theme: 'dark', deep: nest(S.MAX_DEPTH - 1) });
+		expect(res.ok).toBe(true);
+		expect(res.dropped).toEqual(['deep']);
 	});
 
 	it('refuses text above the size cap', () => {

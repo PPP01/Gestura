@@ -1611,13 +1611,21 @@ class OptionsPage extends LitElement {
 		if (preview) await preview.commit();
 	}
 
+	// Through the validator, like the import and the sync upload: a malformed
+	// container in storage is repaired on the way out and named in the preview,
+	// instead of being repaired - with a warning - only when the file comes back.
 	#exportSettings() {
-		const text = window.GesturaSettingsSchema.exportText(this._store.current, window.i18n.version);
+		const result = window.GesturaSettingsSchema.validatedExport(this._store.current, window.i18n.version);
+		if (!result.ok) {
+			this.#showStatus(settingsErrorMessage(window.i18n, result.error), 'error');
+			return;
+		}
+		const text = result.json;
 		this.#openPreview({
 			mode: 'export',
 			json: text,
-			dropped: [],
-			retyped: [],
+			dropped: result.dropped,
+			retyped: result.retyped,
 			legacy: false,
 			commit: () => {
 				const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
