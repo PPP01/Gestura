@@ -260,3 +260,177 @@ describe('the pre-check', () => {
 		expect(fake.raw('local')).not.toHaveProperty('siteMenus');
 	});
 });
+
+describe('switchTo local', () => {
+	beforeEach(async () => {
+		for (const k of KNOWN) await chrome.storage.sync.set({ [k]: DEFAULTS[k] });
+		await chrome.storage.sync.set({ theme: 'dark' });
+	});
+
+	it('copies every known key, sets the area with date and reason, and deletes nothing in sync', async () => {
+		const before = fake.raw('sync');
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: true, noted: true });
+		expect(S.area()).toBe('local');
+		for (const k of KNOWN) expect(fake.raw('local')[k]).toEqual(before[k]);
+		const area = fake.raw('local')[S.AREA_KEY];
+		expect(area.area).toBe('local');
+		expect(area.movedTo).toBe('local');
+		expect(area.movedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+		for (const k of KNOWN) expect(fake.raw('sync')[k]).toEqual(before[k]);
+	});
+
+	it('writes the note into storage.sync', async () => {
+		await S.switchTo('local', 'gestura.eu');
+		const sync = fake.raw('sync');
+		expect(sync.syncMovedTo).toBe('gestura.eu');
+		expect(sync.syncMovedAt).toBe(fake.raw('local')[S.AREA_KEY].movedAt);
+		expect(await S.note()).toEqual({ movedAt: sync.syncMovedAt, movedTo: 'gestura.eu' });
+	});
+
+	it('does not copy a foreign key that sits in storage.sync', async () => {
+		await chrome.storage.sync.set({ leftover: 1 });
+		await S.switchTo('local', 'local');
+		expect(fake.raw('local')).not.toHaveProperty('leftover');
+	});
+
+	it('picks up a key written into storage.sync during the first copy', async () => {
+		// A context still in state 'sync' writes while the copy is in flight - the
+		// worker adding a menu, content.js flagging a conflict. The hook lands that
+		// write inside the first local.set(), before the area changes.
+		fake.hooks.onSet = async (name) => {
+			if (name === 'local') await chrome.storage.sync.set({ edgeGestureConflict: true });
+		};
+		await S.switchTo('local', 'local');
+		expect(fake.raw('local').edgeGestureConflict).toBe(true);
+	});
+
+	it('is a no-op when already local', async () => {
+		await S.switchTo('local', 'local');
+		const movedAt = fake.raw('local')[S.AREA_KEY].movedAt;
+		expect(await S.switchTo('local', 'gestura.eu')).toEqual({ ok: true });
+		expect(fake.raw('local')[S.AREA_KEY].movedAt).toBe(movedAt);
+	});
+
+	it('refuses an unknown area', async () => {
+		expect(await S.switchTo('session')).toEqual({ ok: false, error: 'bad-area' });
+	});
+});
+
+describe('switchTo sync', () => {
+	beforeEach(async () => {
+		for (const k of KNOWN) await chrome.storage.sync.set({ [k]: DEFAULTS[k] });
+		await S.switchTo('local', 'local');
+	});
+
+	it('is refused while a branch exceeds 8192 bytes, naming it', async () => {
+		await S.set({ siteMenus: valueOfSize('siteMenus', 300000) });
+		const res = await S.switchTo('sync');
+		expect(res).toEqual({ ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 300000, quota: 8192, area: 'sync' });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
+	});
+
+	it('is refused while the total exceeds 102 400 bytes', async () => {
+		const patch = {};
+		for (const k of KNOWN.slice(0, 13)) patch[k] = valueOfSize(k, 8000);
+		await S.set(patch);
+		expect(await S.switchTo('sync')).toMatchObject({ ok: false, error: 'total-full', quota: 102400 });
+	});
+
+	it('is refused while tier 2 is enabled, naming it', async () => {
+		await chrome.storage.local.set({ [S.EU_SYNC_KEY]: { enabled: true, consent: { version: 1, date: 'x' }, secret: 'GS1-…', states: {} } });
+		expect(await S.switchTo('sync')).toEqual({ ok: false, error: 'tier2-enabled' });
+		expect(S.area()).toBe('local');
+	});
+
+	it('clears the note and writes every key when the data fits', async () => {
+		await S.set({ theme: 'dark' });
+		expect(await S.switchTo('sync')).toEqual({ ok: true, noted: true });
+		expect(S.area()).toBe('sync');
+		const sync = fake.raw('sync');
+		expect(sync).not.toHaveProperty('syncMovedAt');
+		expect(sync).not.toHaveProperty('syncMovedTo');
+		expect(sync.theme).toBe('dark');
+		expect(sync[S.FORMAT_KEY]).toBe(1);
+		expect(fake.raw('local')[S.AREA_KEY]).toEqual({ area: 'sync', movedAt: '', movedTo: '' });
+		expect(await S.note()).toBe(null);
+	});
+
+	it('leaves the local copy in place', async () => {
+		await S.set({ theme: 'dark' });
+		await S.switchTo('sync');
+		expect(fake.raw('local').theme).toBe('dark');
+	});
+});
+
+// One failing write at a time. `after` counts the matching writes that succeed
+// before the injected one fails - the order of writes is the order the code
+// above makes them, and each test names which one it kills.
+describe('switchTo under a failing write', () => {
+	beforeEach(async () => {
+		for (const k of KNOWN) await chrome.storage.sync.set({ [k]: DEFAULTS[k] });
+	});
+
+	it('to local: a failed first copy changes nothing', async () => {
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 0 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('local')).not.toHaveProperty('theme');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+	});
+
+	it('to local: a failed area write leaves the area on sync and writes no note', async () => {
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 1 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('local')[S.AREA_KEY].area).toBe('sync');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+	});
+
+	it('to local: a failed second copy puts the area back', async () => {
+		// The second copy writes only what changed during the first, so make
+		// something change - otherwise there is no third local write to fail.
+		fake.hooks.onSet = async (name) => {
+			if (name === 'local') await chrome.storage.sync.set({ edgeGestureConflict: true });
+		};
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 2 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('local')[S.AREA_KEY].area).toBe('sync');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+	});
+
+	it('to local: a failed note still counts as switched, and says so', async () => {
+		fake.hooks.failNext = { area: 'sync', op: 'set', after: 0 };
+		expect(await S.switchTo('local', 'local')).toEqual({ ok: true, noted: false });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync')).not.toHaveProperty('syncMovedAt');
+		expect(await S.note()).toBe(null);
+	});
+
+	it('to sync: a failed data write leaves the browser local with the note in place', async () => {
+		await S.switchTo('local', 'local');
+		fake.hooks.failNext = { area: 'sync', op: 'set', after: 0 };
+		expect(await S.switchTo('sync')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
+	});
+
+	it('to sync: a failed area write leaves the browser local, with a fresher copy in sync', async () => {
+		await S.switchTo('local', 'local');
+		await S.set({ theme: 'dark' });
+		fake.hooks.failNext = { area: 'local', op: 'set', after: 0 };
+		expect(await S.switchTo('sync')).toEqual({ ok: false, error: 'write' });
+		expect(S.area()).toBe('local');
+		expect(fake.raw('sync').theme).toBe('dark');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
+	});
+
+	it('to sync: a failed note removal still counts as switched', async () => {
+		await S.switchTo('local', 'local');
+		fake.hooks.failNext = { area: 'sync', op: 'remove', after: 0 };
+		expect(await S.switchTo('sync')).toEqual({ ok: true, noted: false });
+		expect(S.area()).toBe('sync');
+		expect(fake.raw('sync').syncMovedAt).toBeDefined();
+	});
+});

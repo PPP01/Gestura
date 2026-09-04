@@ -194,6 +194,113 @@
 		return { area: cache.area, branches, total, quota: { item: q.item, total: q.total } };
 	}
 
+	async function writeArea(next) {
+		await chrome.storage.local.set({ [AREA_KEY]: next });
+		absorb({ [AREA_KEY]: next });
+	}
+
+	// One copy sync → local of the known keys. Returns what it wrote, so the
+	// second pass can write only what changed since.
+	async function copySyncToLocal(previous) {
+		const items = pickKnown(await chrome.storage.sync.get(knownKeys()));
+		const patch = {};
+		for (const [k, v] of Object.entries(items)) {
+			if (!previous || JSON.stringify(previous[k]) !== JSON.stringify(v)) patch[k] = v;
+		}
+		if (Object.keys(patch).length) await chrome.storage.local.set(patch);
+		return items;
+	}
+
+	// §4. Not atomic, and the sequence is what makes that harmless: copy, set the
+	// area, copy AGAIN. The second pass picks up whatever a context still in state
+	// 'sync' wrote during the first - and writes only those keys, so it cannot
+	// clobber a write a context already in state 'local' made in the meantime.
+	// What remains is the latency of one onChanged delivery; named in the spec so
+	// nobody tries to close it with a lock.
+	//
+	// The point of no return is the area write. Before it, a failure changes
+	// nothing anyone reads - a partial copy in storage.local is data no context
+	// looks at while the area is 'sync'. After it, a failed second copy puts the
+	// area BACK: storage.sync still holds everything, so the pre-switch state is
+	// fully valid. The note is a courtesy for other browsers; if it cannot be
+	// written the switch has still happened, and `noted: false` says so rather
+	// than pretending nothing changed. The stale copies are never deleted (§10.1).
+	async function toLocal(reason) {
+		const movedTo = reason === 'gestura.eu' ? 'gestura.eu' : 'local';
+		const movedAt = new Date().toISOString();
+		let first;
+		try {
+			first = await copySyncToLocal(null);
+			await writeArea({ area: 'local', movedAt, movedTo });
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		try {
+			await copySyncToLocal(first);
+		} catch {
+			try { await writeArea({ area: 'sync', movedAt: '', movedTo: '' }); } catch { /* area() tells the caller where we ended up */ }
+			return { ok: false, error: 'write' };
+		}
+		try {
+			await chrome.storage.sync.set({ [NOTE_KEYS[0]]: movedAt, [NOTE_KEYS[1]]: movedTo });
+			return { ok: true, noted: true };
+		} catch {
+			return { ok: true, noted: false };
+		}
+	}
+
+	// The way back is conditional: every branch must fit its item quota and the
+	// whole set the total, and tier 2 must be off. Refused with numbers, never
+	// silent. Then data → area → note: a failure after the data write leaves the
+	// browser in state 'local' with a FRESHER stale copy in storage.sync, which
+	// is consistent, and the note is removed last and best-effort.
+	async function toSync() {
+		let eu, items;
+		try {
+			eu = await chrome.storage.local.get(EU_SYNC_KEY);
+			items = pickKnown(await chrome.storage.local.get(knownKeys()));
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		if (eu[EU_SYNC_KEY] && eu[EU_SYNC_KEY].enabled === true) return { ok: false, error: 'tier2-enabled' };
+		const q = QUOTA.sync;
+		let total = entryBytes(FORMAT_KEY, FORMAT_VERSION);
+		for (const [k, v] of Object.entries(items)) {
+			const bytes = entryBytes(k, v);
+			total += bytes;
+			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, area: 'sync' };
+		}
+		if (total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: total, quota: q.total, area: 'sync' };
+		try {
+			await chrome.storage.sync.set({ ...items, [FORMAT_KEY]: FORMAT_VERSION });
+			await writeArea({ area: 'sync', movedAt: '', movedTo: '' });
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		try {
+			await chrome.storage.sync.remove(NOTE_KEYS);
+			return { ok: true, noted: true };
+		} catch {
+			return { ok: true, noted: false };
+		}
+	}
+
+	async function switchTo(target, reason) {
+		await ready();
+		if (target !== 'sync' && target !== 'local') return { ok: false, error: 'bad-area' };
+		if (target === cache.area) return { ok: true };
+		return target === 'local' ? toLocal(reason) : toSync();
+	}
+
+	// The note another browser left (§4). Only meaningful in state 'sync'; the
+	// options page asks and shows one line.
+	async function note() {
+		const items = await chrome.storage.sync.get(NOTE_KEYS);
+		const movedAt = items[NOTE_KEYS[0]];
+		if (typeof movedAt !== 'string' || !movedAt) return null;
+		return { movedAt, movedTo: items[NOTE_KEYS[1]] === 'gestura.eu' ? 'gestura.eu' : 'local' };
+	}
+
 	if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
 		chrome.storage.onChanged.addListener((changes, namespace) => {
 			// The switch itself, whichever context wrote it.
@@ -218,6 +325,7 @@
 		AREA_KEY, NOTE_KEYS, FORMAT_KEY, EU_SYNC_KEY, QUOTA,
 		byteLength, entryBytes,
 		area, ready, get, set, remove, onChanged, usage,
+		switchTo, note,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSettingsStorage = api;
