@@ -3172,7 +3172,7 @@
 	"euSyncMergeTitle": { "message": "Abgleich mit „{name}“" },
 	"euSyncMergeSummary": { "message": "{taken} aus dem Stand übernommen, {uploaded} von hier hochgeladen, {deleted} gelöscht." },
 	"euSyncMergeInSync": { "message": "Bereits abgeglichen. Nichts zu übertragen." },
-	"euSyncMergeNewerVersion": { "message": "Dieser Stand stammt aus einer neueren Gestura. Aktualisiere Gestura zuerst, oder sieh mit „Hier öffnen“, was verloren ginge." },
+	"euSyncMergeNewerVersion": { "message": "Dieser Stand stammt aus einer neueren Version von Gestura. Aktualisiere Gestura zuerst, oder sieh mit „Hier öffnen“, was verloren ginge." },
 	"euSyncMergeNoBase": { "message": "Dieser Browser hat diesen Stand noch nie geöffnet oder hochgeladen. Öffne ihn einmal hier; danach ist Abgleichen verfügbar." },
 	"euSyncMergeMovedAgain": { "message": "Der Stand hat sich inzwischen erneut geändert. Abgleich gegen die neue Version." },
 	"euSyncMergeConflictsLead": { "message": "Diese Einträge wurden auf beiden Seiten geändert. Wähle für jeden:" },

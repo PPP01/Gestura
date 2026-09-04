@@ -33,6 +33,7 @@ class SyncMergeDialog extends LitElement {
 		:host { display: contents; }
 		.modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; }
 		.modal-panel { width: min(720px, 94vw); max-height: 88vh; display: flex; flex-direction: column; background: var(--card-bg); border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-color); }
+		.modal-panel:focus { outline: none; }
 		.modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
 		.modal-header h3 { margin: 0; font-size: 17px; font-weight: 600; }
 		.modal-body { padding: 18px 20px; overflow-y: auto; }

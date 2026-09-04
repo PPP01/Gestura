@@ -16,6 +16,7 @@ globalThis.chrome = {
 await import('../js/eu-sync-crypto.js');
 await import('../js/eu-sync-base.js');
 const B = globalThis.GesturaSyncBase;
+const C = globalThis.GesturaSyncCrypto;
 
 const ID1 = '0123456789abcdef0123456789abcdef';
 const ID2 = 'fedcba9876543210fedcba9876543210';
@@ -28,11 +29,14 @@ describe('gzip helpers', () => {
 		const text = JSON.stringify(payload).repeat(50);
 		const gz = await B.gzipText(text);
 		expect(gz.length).toBeLessThan(text.length);
-		expect(await B.gunzipText(gz, B.MAX_INFLATED)).toBe(text);
+		expect(await B.gunzipText(gz, C.INFLATE_MAX_BYTES)).toBe(text);
 	});
 	it('answers null for garbage and for base64 that is not gzip', async () => {
-		expect(await B.gunzipText('not base64!!', B.MAX_INFLATED)).toBeNull();
-		expect(await B.gunzipText(btoa('plain text'), B.MAX_INFLATED)).toBeNull();
+		expect(await B.gunzipText('not base64!!', C.INFLATE_MAX_BYTES)).toBeNull();
+		expect(await B.gunzipText(btoa('plain text'), C.INFLATE_MAX_BYTES)).toBeNull();
+	});
+	it('takes its inflate bound from the crypto module, not a copy of it', () => {
+		expect(B.MAX_INFLATED).toBe(C.INFLATE_MAX_BYTES);
 	});
 	it('refuses to inflate past the bound', async () => {
 		const gz = await B.gzipText('x'.repeat(10000));

@@ -15,9 +15,6 @@
 	'use strict';
 
 	const KEY = 'euSyncBase';
-	// The local ceiling of the storage-move design. DecompressionStream would
-	// happily inflate a hostile blob into gigabytes; this is the bound.
-	const MAX_INFLATED = 1024 * 1024;
 
 	const X = () => root.GesturaSyncCrypto;
 
@@ -48,8 +45,18 @@
 		}
 	}
 
-	function writeAll(all) {
-		return chrome.storage.local.set({ [KEY]: all });
+	// Guarded like readAll and clear. The base write in the panel's #uploadTo is
+	// the one that runs neither inside #guarded nor inside the afterSave
+	// try/catch of options-page.js: a rejection there would be an unhandled one
+	// and would skip the state record and the refresh behind it - a successful
+	// upload left with a stale list, a wrong "changed since last upload" hint and
+	// no error line.
+	async function writeAll(all) {
+		try {
+			await chrome.storage.local.set({ [KEY]: all });
+		} catch {
+			// A base that could not be stored is "no base": the next Sync says so.
+		}
 	}
 
 	const wellFormed = (id, e) => X().STATE_ID_RE.test(id) && !!e && typeof e === 'object'
@@ -81,7 +88,7 @@
 			await remove(stateId);
 			return null;
 		}
-		const text = await gunzipText(e.gz, MAX_INFLATED);
+		const text = await gunzipText(e.gz, X().INFLATE_MAX_BYTES);
 		let payload = null;
 		if (text !== null) {
 			try { payload = JSON.parse(text); } catch { payload = null; }
@@ -127,7 +134,14 @@
 		try { await chrome.storage.local.remove(KEY); } catch { /* nothing to clear */ }
 	}
 
-	const api = { KEY, MAX_INFLATED, gzipText, gunzipText, list, read, write, remove, prune, clear };
+	// MAX_INFLATED is the crypto module's bound, read through the same lazy
+	// accessor as everything else here - GesturaSyncCrypto may load after this
+	// file. One bound for both, so moving it moves it everywhere.
+	const api = {
+		KEY,
+		get MAX_INFLATED() { return X().INFLATE_MAX_BYTES; },
+		gzipText, gunzipText, list, read, write, remove, prune, clear,
+	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSyncBase = api;
 })(typeof self !== 'undefined' ? self : globalThis);
