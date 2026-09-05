@@ -107,6 +107,14 @@ When it is on, and only when you click **Upload**:
   removes states that are neither read nor written for **12 months**.
 - Downloading a state decrypts it in your browser, checks it, and shows it to
   you in full before anything is written.
+- Reconciling a state with this browser — the *Sync* button — merges the two
+  against the last version they agreed on. To do that without a clock and
+  without asking about everything, Gestura keeps that agreed version on **this
+  device**: a compressed copy of the settings it last exchanged with each state,
+  in `chrome.storage.local`. It is your own data, it never leaves the device,
+  and nothing about it is sent to gestura.eu — the server sees the same
+  ciphertext it always did. Deleting a state deletes its copy, and so does
+  *Delete everything under this code*.
 
 The code, the switch and the consent live only on this device
 (`chrome.storage.local`). They are never part of an export, never part of an

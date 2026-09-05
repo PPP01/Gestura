@@ -9,7 +9,7 @@ produced a false review finding.
 
 ## What this is
 
-Gestura is a **Manifest V3 browser extension** (Chrome/Edge/Firefox) for mouse gestures, super drag, wheel/rocker gestures, area selection, and per-site website menus. It is a GPL-3.0 fork of [FlowMouse](https://github.com/Hmily-LCG/FlowMouse). [README.md](README.md) describes what the fork adds; [FORK-NOTES.md](FORK-NOTES.md) owns remotes, branch roles and the upstream-update workflow.
+Gestura is a **Manifest V3 browser extension** (Chrome/Edge/Firefox) for mouse gestures, super drag, wheel/rocker gestures, area selection, and per-site website menus, plus an optional, off-by-default integration with **gestura.eu** — importing entries from the index, update notices, and end-to-end encrypted settings sync between browsers. It is a GPL-3.0 fork of [FlowMouse](https://github.com/Hmily-LCG/FlowMouse). [README.md](README.md) describes what the fork adds; [FORK-NOTES.md](FORK-NOTES.md) owns remotes, branch roles and the upstream-update workflow.
 
 The repo root **is** the unpacked extension. Nothing compiles — no bundler, no transpiler, no preprocessor. `package.json` exists only for the test runner and the Firefox packaging tools; never introduce a build step the extension depends on.
 
@@ -109,11 +109,14 @@ That is exactly what a fast-forward merge does, and nothing but the stamp is eve
 
 ### Two execution contexts, two settings paths
 
-- **Service worker** — [js/background.js](js/background.js) owns everything privileged (`tabs`, `windows`, `sessions`, `contextMenus`, `search`, `downloads`, `bookmarks`). Entry point is `handleAction(request, sender)`, a switch on `request.action`. It reads `chrome.storage.sync` directly.
-- **Content scripts** — injected at `document_start` in **all frames**; they do gesture/drag detection and page-local actions (scrolling, clipboard, in-page menus). They also read `chrome.storage.sync` directly.
-- **UI pages** — Lit components that go through the `SettingsStore` ES module ([js/settings-store.js](js/settings-store.js)), which adds change listeners and sync-conflict handling.
+- **Service worker** — [js/background.js](js/background.js) owns everything privileged (`tabs`, `windows`, `sessions`, `contextMenus`, `search`, `downloads`, `bookmarks`). Entry point is `handleAction(request, sender)`, a switch on `request.action`. It reads settings through the façade, `GesturaSettingsStorage`.
+- **Content scripts** — injected at `document_start` in **all frames**; they do gesture/drag detection and page-local actions (scrolling, clipboard, in-page menus). They read settings through the same façade, as `window.GesturaSettingsStorage`.
 
-So settings are touched two different ways. `DEFAULT_SETTINGS` in [js/constants.js](js/constants.js) is the single source of truth for their shape; both paths layer stored values over it.
+- **UI pages** — Lit components that go through the `SettingsStore` ES module ([js/settings-store.js](js/settings-store.js)), which wraps the façade and adds change listeners and sync-conflict handling.
+
+**All three go through [js/settings-storage.js](js/settings-storage.js).** It is the only file that may call `chrome.storage.sync` or `chrome.storage.local` for settings, because exactly one of the two areas is active at a time and a separate `storage.local` key says which. Reading an area directly reads the wrong one the moment the user flips that switch. The façade is a classic script and has to be registered in **three** places: `content_scripts` in `manifest.json`, `importScripts` in [js/background.js](js/background.js), and `background.scripts` in the Firefox manifest — `tests/load-order.test.mjs` checks the lists. The one deliberate bypass is documented at its call site ([js/background.js:1565](js/background.js#L1565)).
+
+`DEFAULT_SETTINGS` in [js/constants.js](js/constants.js) is the single source of truth for their shape; every path layers stored values over it.
 
 ### Content scripts talk through window globals
 
@@ -133,6 +136,25 @@ Website menus come from a built-in catalog ([js/menu-catalog.js](js/menu-catalog
 
 In both cases **stored settings hold deltas, not full copies** — a menu the user never edited is not in storage at all. Read the resolver before changing anything about stored shapes.
 
+### The gestura.eu subsystem — two tiers, one gate
+
+Optional, **off by default**, and the largest single addition to the fork. Two switches, layered: *integration* (tier 1) lets gestura.eu pages hand entries over and lets the update check run; *sync* (tier 2) saves settings to the service as encrypted states. **Tier 2 can never authorise anything on its own** — `GesturaSyncLocal.syncEnabled(tier1, tier2)` is the single gate, and it also refuses a tier-2 consent that predates the current tier-1 consent, so re-consenting to tier 1 never silently revives tier 2. Every network path is wrapped in `gated()`, which re-reads the live state *after* the call as well as before.
+
+| file | owns |
+|---|---|
+| [js/eu-integration.js](js/eu-integration.js) | the page bridge, `canonicalize`, provenance hashes, consent versions |
+| [js/eu-local.js](js/eu-local.js), [js/eu-sync-local.js](js/eu-sync-local.js) | the two switches and consents in `chrome.storage.local` — never synced, exported or imported |
+| [js/eu-updates.js](js/eu-updates.js) | the once-a-day update check and its per-origin cache |
+| [js/eu-sync-code.js](js/eu-sync-code.js), [js/eu-sync-crypto.js](js/eu-sync-crypto.js) | the secret code, HKDF, AES-GCM envelopes, gzip |
+| [js/eu-settings-schema.js](js/eu-settings-schema.js) | `validate` / `buildExport`; `forSync` keeps the seven `DEVICE_LOCAL` keys home |
+| [js/eu-sync.js](js/eu-sync.js) | the four endpoints, the `412` write token |
+| [js/eu-sync-base.js](js/eu-sync-base.js) | `euSyncBase`: the payload each state last agreed on, gzipped |
+| [js/settings-merge.js](js/settings-merge.js) | `MERGE_MAP`, the three-way merge, `apply`, `commitOrder` |
+
+**The contract is [docs/gestura-eu-api.md](docs/gestura-eu-api.md)** and the index repo reads that file directly — change it deliberately, and never to match an implementation shortcut.
+
+**Two invariants that silently destroy user data if broken.** The merge's write order is upload → local write → base write, staked on the hash of the payload actually merged against; `commitOrder` exists so it can be tested. And `MERGE_MAP` must stay a partition of `DEFAULT_SETTINGS` together with `DEVICE_LOCAL` and the schema's `NEVER` — it has no default kind on purpose, so a new settings key fails the guard instead of quietly becoming one opaque blob.
+
 ### i18n has two runtimes
 
 `_locales/<lang>/messages.json` are standard `chrome.i18n` catalogs across **39 locales**; `en` is `default_locale`. Extension pages use [js/i18n.js](js/i18n.js), which resolves `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` attributes and exposes `isEdge` / `isFirefox` / platform. Content scripts use `ContentI18n` at the top of [js/content.js](js/content.js), which fetches a user-selected language override from `_locales/<lang>/messages.json` via `web_accessible_resources` and falls back to `chrome.i18n.getMessage`. Both honor the `language` setting (`'auto'` follows the browser UI language).
@@ -142,7 +164,9 @@ In both cases **stored settings hold deltas, not full copies** — a menu the us
 - **New `siteMenu*`, `menuMode*`, `iconPicker*` and `fork*` keys must land in all 39 locales**, not just `en` — `tests/site-menu-locales.test.mjs` fails otherwise. Relying on the `en` fallback is not enough. Where a locale already translates the same word for another key, reuse that value rather than inventing one.
 - **Text still being drafted may live in `en` and `de` alone**, but only by being listed in `PENDING_TRANSLATION` in `tests/site-menu-locales.test.mjs`. That list is the release checklist: translate the keys into all 39 locales and delete them from it — a test fails once a key is everywhere but still listed, so the list cannot quietly become permanent. Keys already present in all 39 locales whose `en`/`de` wording changed are *not* caught by any test; note those by hand.
 - **Never put an undeclared `$WORD$` into a message string.** `chrome.i18n` reads it as a placeholder and the extension fails to load entirely. Use `{token}` plus `.replace()` instead; `tests/locale-placeholders.test.mjs` guards this.
-- **`js/background.js`'s `importScripts` list must match `background.scripts` in the Firefox manifest.** Firefox has no `importScripts` in a background script, so every new top-level dependency has to be registered in both places. Nothing warns you — check after each merge into `firefox-build`.
+- **`js/background.js`'s `importScripts` list must match `background.scripts` in the Firefox manifest.** Firefox has no `importScripts` in a background script, so every new top-level dependency has to be registered in both places. Nothing warns you — check after each merge into `firefox-build`. A classic script the content scripts also need has a **third** list, `content_scripts` in `manifest.json`; `tests/load-order.test.mjs` enforces all of them, and a missing entry surfaces only at runtime as `X is not defined` at `document_start` in every frame.
+- **Every key of `DEFAULT_SETTINGS` must be in exactly one of `MERGE_MAP`, `DEVICE_LOCAL` and the schema's `NEVER`** — `tests/settings-merge.test.mjs` fails otherwise. Adding a settings key therefore means deciding how it merges. That is deliberate: `MERGE_MAP` has no default kind, because silently treating a new record-shaped key as one opaque blob would make every future menu-shaped feature an all-or-nothing conflict, and nobody would notice for a release.
+- **New `euSync*` keys go in `en` and `de` only and must be listed in `PENDING_TRANSLATION`** — the prefix is already in `NEW_KEY_PREFIXES`, so a key missing from the list fails the 39-locale test immediately.
 - **`web-ext build` packages the working tree, not the git tree.** Untracked files land in the xpi unless they are listed in `ignoreFiles` in `web-ext-config.mjs`.
 
 ## Conventions

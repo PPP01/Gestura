@@ -127,8 +127,8 @@ boundaries are not unambiguous in the history.
 ## Personal (German) search engines
 
 The neutral catalog ships without region-specific engines. Your own German
-engines and `.de` domains live in the browser's synced settings, restored
-once via the console snippet:
+engines and `.de` domains live in your settings — in whichever storage area is
+active — restored once via the console snippet:
 
     docs/dev/migrate-personal-engines.snippet.js   (on the feature/search-links branch)
 
