@@ -76,3 +76,35 @@ describe("pickBestIconHref", () => {
 		expect(pickBestIconHref([], 32)).toBeNull();
 	});
 });
+
+describe("pruneCache", () => {
+	const { pruneCache } = globalThis.FlowMouseFavicon;
+	const entry = (ts) => ({ icon: null, ts });
+
+	it("keeps a cache under the cap unchanged", () => {
+		const cache = { "https://a": entry(1), "https://b": entry(2) };
+		expect(pruneCache(cache, 48)).toEqual(cache);
+	});
+
+	it("holds at most `max` entries after a write, dropping the oldest ts first", () => {
+		const cache = {};
+		for (let i = 0; i < 60; i++) cache[`https://o${i}`] = entry(1000 + i);
+		const out = pruneCache(cache, 48);
+		expect(Object.keys(out)).toHaveLength(48);
+		expect(out).not.toHaveProperty("https://o0");
+		expect(out).not.toHaveProperty("https://o11");
+		expect(out).toHaveProperty("https://o12");
+		expect(out).toHaveProperty("https://o59");
+	});
+
+	it("treats an entry without a timestamp as the oldest", () => {
+		const cache = { "https://a": { icon: null }, "https://b": entry(5), "https://c": entry(6) };
+		expect(Object.keys(pruneCache(cache, 2)).sort()).toEqual(["https://b", "https://c"]);
+	});
+
+	it("does not mutate its argument", () => {
+		const cache = { "https://a": entry(1), "https://b": entry(2), "https://c": entry(3) };
+		pruneCache(cache, 1);
+		expect(Object.keys(cache)).toHaveLength(3);
+	});
+});

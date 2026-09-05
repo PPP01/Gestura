@@ -99,3 +99,58 @@ describe('envelope', () => {
 			.toBe('gestura-sync-v10123456789abcdef0123456789abcdefmeta');
 	});
 });
+
+describe('compression', () => {
+	const big = () => ({ gesturaSettings: 1, customCss: 'body { color: red; }\n'.repeat(4000) });
+
+	it('round-trips a gzipped payload through encryptCompressed and decryptBlob', async () => {
+		const key = await X.deriveKey(SECRET_A);
+		const env = await X.encryptCompressed(key, STATE, 'payload', big());
+		expect(await X.decryptBlob(key, STATE, 'payload', env)).toEqual(big());
+	});
+
+	it('is smaller than the uncompressed envelope for a real payload', async () => {
+		const key = await X.deriveKey(SECRET_A);
+		const plain = await X.encryptBlob(key, STATE, 'payload', big());
+		const gz = await X.encryptCompressed(key, STATE, 'payload', big());
+		expect(gz.length * 4).toBeLessThan(plain.length);
+	});
+
+	// An older client never compressed. Its payloads must keep decrypting.
+	it('still decrypts an uncompressed payload', async () => {
+		const key = await X.deriveKey(SECRET_A);
+		const env = await X.encryptBlob(key, STATE, 'payload', { theme: 'dark' });
+		expect(await X.decryptBlob(key, STATE, 'payload', env)).toEqual({ theme: 'dark' });
+	});
+
+	it('encryptBlob still matches the envelope vector byte for byte', async () => {
+		const key = await X.deriveKey(SECRET_A);
+		const iv = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+		expect(await X.encryptBlob(key, STATE, 'meta', { name: 'Work' }, iv))
+			.toBe('AQIDBAUGBwgJCgsMhBezK2ZidsR4vw2Le+JA1vfSdGXw0lkopKj0PjhL9A==');
+	});
+
+	it('recognises gzip by its magic and nothing else', () => {
+		expect(X.isGzip(new Uint8Array([0x1f, 0x8b, 0x08, 0x00]))).toBe(true);
+		expect(X.isGzip(new TextEncoder().encode('{"a":1}'))).toBe(false);
+		expect(X.isGzip(new Uint8Array([0x1f]))).toBe(false);
+	});
+
+	// The gzip bomb. The server cannot plant one (GCM authenticates), but a code
+	// handed over by a third party can. 2 MiB of zeros gzips to about 2 KB and
+	// would inflate past the ceiling; it must fail as 'decrypt', not exhaust memory.
+	it('refuses a blob that inflates past 1 MiB as decrypt', async () => {
+		const key = await X.deriveKey(SECRET_A);
+		const zeros = new Uint8Array(2 * 1024 * 1024);
+		const gz = await X.gzip(zeros);
+		expect(gz.length).toBeLessThan(10000);
+		const env = await X.encryptBytes(key, STATE, 'payload', gz);
+		await expect(X.decryptBlob(key, STATE, 'payload', env)).rejects.toThrow('decrypt');
+	});
+
+	it('gunzipBounded returns the bytes when they fit', async () => {
+		const bytes = new TextEncoder().encode('hello '.repeat(1000));
+		const out = await X.gunzipBounded(await X.gzip(bytes), 1024 * 1024);
+		expect(new TextDecoder().decode(out)).toBe('hello '.repeat(1000));
+	});
+});

@@ -12,7 +12,23 @@
 
 	const FORMAT_FIELD = 'gesturaSettings';
 	const FORMAT_VERSION = 1;
-	const MAX_BYTES = 512 * 1024;
+	// The local settings ceiling (storage-move design §3) - the same number the
+	// façade enforces on save, so what can be stored can be exported and imported.
+	// The 512 KiB payload cap of the contract is a limit on the ENVELOPE as
+	// transmitted; compression sits between the two.
+	//
+	// It is measured on CONTENT, never on the file's formatting: see validate().
+	const MAX_BYTES = 1024 * 1024;
+
+	// The cheap bound that runs BEFORE JSON.parse, so a hostile file is refused
+	// without being parsed. It is not the ceiling - MAX_BYTES is - it is the point
+	// past which no legitimate export can lie. Our own exporter writes
+	// JSON.stringify(obj, null, 2), and that indentation measured 1.72x the
+	// compact form on real catalog data and 1.80x on the menu-shaped fixture of
+	// tests/settings-storage.test.mjs. Four times the ceiling leaves that better
+	// than doubled - the largest legitimate export measured 1 884 077 B, well
+	// inside this - while a multi-megabyte file still never reaches the parser.
+	const RAW_MAX_BYTES = 4 * MAX_BYTES;
 
 	// Rejected anywhere in the tree, at any depth. A settings entry the user
 	// literally named "constructor" cannot travel through a file as a result -
@@ -26,10 +42,19 @@
 	// a local timestamp that changes on every save.
 	const NEVER = new Set(['euIntegration', 'euSync', 'lastSyncTime']);
 
+	// Facts about THIS device or the state of THIS browser's UI, not settings
+	// (storage-move design §7). Excluded from the sync payload, kept in file
+	// exports, and taken from the local copy when a sync state is adopted.
+	const DEVICE_LOCAL = new Set([
+		'theme', 'language', 'macLinuxHintDismissed', 'edgeGestureConflict',
+		'navCollapsed', 'engineManagerLocalOnly', 'sectionAdvanced',
+	]);
+
 	const defaults = () => root.GestureConstants.DEFAULT_SETTINGS;
 
-	function allowedKeys() {
-		return Object.keys(defaults()).filter(k => !NEVER.has(k));
+	function allowedKeys(opts) {
+		const forSync = !!(opts && opts.forSync);
+		return Object.keys(defaults()).filter(k => !NEVER.has(k) && !(forSync && DEVICE_LOCAL.has(k)));
 	}
 
 	// Against the shape of the key's own default: object vs array vs primitive
@@ -102,9 +127,9 @@
 		return null;
 	}
 
-	function buildExport(settings, extVersion) {
+	function buildExport(settings, extVersion, opts) {
 		const out = { [FORMAT_FIELD]: FORMAT_VERSION, _version: extVersion || '' };
-		for (const key of allowedKeys()) {
+		for (const key of allowedKeys(opts)) {
 			if (settings && settings[key] !== undefined) out[key] = settings[key];
 		}
 		return out;
@@ -137,14 +162,19 @@
 		return out;
 	}
 
+	function byteLength(str) {
+		return new TextEncoder().encode(str).length;
+	}
+
 	const fail = (error) => ({ ok: false, error, legacy: false, settings: null, dropped: [], retyped: [], exportObj: null, json: '' });
 
 	// `opts.json === false` leaves the preview text out: the hash path needs the
 	// object only, and the indented text is the most expensive thing made here.
 	function validate(input, opts) {
 		let raw = input;
-		if (typeof input === 'string') {
-			if (new TextEncoder().encode(input).length > MAX_BYTES) return fail('too-large');
+		const fromText = typeof input === 'string';
+		if (fromText) {
+			if (byteLength(input) > RAW_MAX_BYTES) return fail('too-large');
 			try { raw = JSON.parse(input); } catch { return fail('not-json'); }
 		}
 		if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail('not-object');
@@ -155,6 +185,23 @@
 		if (bad === 'forbidden-key') return fail('forbidden-key');
 		if (bad) return fail('not-settings');
 
+		// The ceiling, measured against the compact re-serialisation of what was
+		// parsed rather than against the text of the file. Two spaces of
+		// indentation are not settings: measuring them made a pretty-printed export
+		// of a set that SAVES fine unimportable (600 menus: façade total 610 518 B,
+		// export file 1 054 219 B, re-import refused) - a backup discovered to be
+		// unrestorable exactly when it is needed.
+		//
+		// After scanTree, never before it: JSON.stringify recurses, and the depth
+		// limit above is what keeps a 60 000-deep document from overflowing the
+		// stack here instead of being answered.
+		//
+		// What remains between the two measures is JSON's own punctuation - the
+		// façade counts key + value per branch, this counts the quotes, colons and
+		// commas around them, some four bytes a branch. That is structure, not
+		// formatting, and it is the same on both sides of an export.
+		if (fromText && byteLength(JSON.stringify(raw)) > MAX_BYTES) return fail('too-large');
+
 		const hasFormat = Object.prototype.hasOwnProperty.call(raw, FORMAT_FIELD);
 		if (hasFormat && raw[FORMAT_FIELD] !== FORMAT_VERSION) return fail('unknown-format');
 
@@ -164,8 +211,18 @@
 		// written", so it is true exactly when a conversion happens.
 		const legacy = !hasFormat && isLegacyShape(raw);
 		const source = legacy ? migrateLegacy(raw) : raw;
-		const allowed = new Set(allowedKeys());
+		const forSync = !!(opts && opts.forSync);
+		const allowed = new Set(allowedKeys({ forSync }));
 		const settings = structuredClone(defaults());
+		// The seven from the local copy, when a sync state is applied. A device that
+		// never chose stays on the defaults; one that did keeps its choice. Only a
+		// local value of the right shape is taken - storage can hold anything.
+		if (forSync) {
+			const local = (opts.local && typeof opts.local === 'object') ? opts.local : {};
+			for (const k of DEVICE_LOCAL) {
+				if (k in local && sameShape(local[k], defaults()[k])) settings[k] = structuredClone(local[k]);
+			}
+		}
 		const dropped = [];
 		const retyped = [];
 		let kept = 0;
@@ -177,6 +234,10 @@
 			// Every older export carries lastSyncTime, so reporting it would put a
 			// warning about nothing on every legitimate file.
 			if (NEVER.has(key)) continue;
+			// A sync payload from a client that still carried them: skipped in
+			// silence, like NEVER - Gestura knows these keys, it just does not take
+			// them from a sync state.
+			if (forSync && DEVICE_LOCAL.has(key)) continue;
 			if (!allowed.has(key)) { dropped.push(key); continue; }
 			if (!sameShape(value, defaults()[key])) { retyped.push(key); continue; }
 			if (RECORD_KEYS.has(key)) {
@@ -198,7 +259,7 @@
 
 		// One object, handed out as well as stringified: what a caller writes,
 		// uploads or hashes is provably what its preview showed.
-		const exportObj = buildExport(settings, raw._version);
+		const exportObj = buildExport(settings, raw._version, { forSync });
 		return {
 			ok: true,
 			error: null,
@@ -216,22 +277,23 @@
 	// malformed container and warns, so the sending side has to show the same
 	// repair, or "exactly what will be transferred" is not what arrives.
 	function validatedExport(settings, extVersion, opts) {
-		return validate(buildExport(settings, extVersion), opts);
+		return validate(buildExport(settings, extVersion, opts), opts);
 	}
 
-	// What the "changed since last upload" hint compares. The extension version
-	// is excluded deliberately: updating Gestura is not a change to the settings,
-	// and including it would make the hint appear for everybody after every
-	// update.
+	// What the "changed since last upload" hint compares. The extension version is
+	// excluded deliberately - updating Gestura is not a change to the settings -
+	// and so are the device-local keys, or a theme change would offer an upload
+	// that carries nothing. Idempotent on an object that already lacks them.
 	async function hashOf(exportObj) {
 		const EU = root.FlowMouseEuIntegration;
 		const copy = { ...exportObj };
 		delete copy._version;
+		for (const k of DEVICE_LOCAL) delete copy[k];
 		return EU.hash64(EU.canonicalize(copy));
 	}
 
 	const api = {
-		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, MAX_DEPTH, FORBIDDEN, NEVER, RECORD_KEYS,
+		FORMAT_FIELD, FORMAT_VERSION, MAX_BYTES, RAW_MAX_BYTES, MAX_DEPTH, FORBIDDEN, NEVER, RECORD_KEYS, DEVICE_LOCAL,
 		allowedKeys, buildExport, exportText, validatedExport, validate, hashOf, migrateLegacy, conformRecord,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

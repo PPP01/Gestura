@@ -1,7 +1,7 @@
 import { LitElement, html, css } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
-import { settingsStore } from '../settings-store.js';
-import { usageOf } from '../storage-usage.js';
+import { settingsStore, isStorageFull } from '../settings-store.js';
+import { usageOf, percentOf } from '../storage-usage.js';
 import { markImported } from './import-marker.js';
 
 const X = () => window.FlowMouseMenuExchange;
@@ -295,7 +295,27 @@ class MenuImportDialog extends LitElement {
 	#projectedUsage(patch, imported) {
 		const cur = settingsStore.current;
 		const measured = window.FlowMouseEuIntegration.withBaselinePlaceholders(patch, imported);
+		const S = window.GesturaSettingsStorage;
+		const now = S.usage(cur);
 		const out = {};
+		if (now.quota.item === null) {
+			// Browser sync off: no per-branch ceiling exists, so the number that
+			// matters is the TOTAL after the import, against 1 MiB. Every touched
+			// branch reports that same total - the percentage means "of the storage",
+			// and #overflowing / #tightBranches keep working unchanged.
+			// The façade owns this arithmetic. Rebuilding it from entryBytes here is
+			// how a preview starts disagreeing with the save it is predicting.
+			const after = { ...cur };
+			for (const { key } of BRANCHES) {
+				if (key in measured) after[key] = measured[key];
+			}
+			const total = S.usage(after).total;
+			for (const { key } of BRANCHES) {
+				const touched = key in measured;
+				out[key] = { bytes: total, quota: now.quota.total, percent: percentOf(total, now.quota.total), touched };
+			}
+			return out;
+		}
 		for (const { key } of BRANCHES) {
 			const touched = key in measured;
 			const value = touched ? measured[key] : cur[key];
@@ -340,19 +360,24 @@ class MenuImportDialog extends LitElement {
 	// Die eigentliche Absage sitzt vorgelagert in #blockedFor()/#confirm(): die
 	// Auswahl soll scheitern, bevor der Nutzer sich für sie entschieden hat, nicht
 	// erst nach einem fehlgeschlagenen Schreibversuch. settingsStore.save() hier
-	// bleibt trotzdem die zweite Instanz, kein toter Rest: die Vorausrechnung
-	// sieht nur die Größe des einzelnen Branches, nicht das QUOTA_BYTES-Budget
-	// über alle Einstellungs-Keys hinweg, und nicht ein gleichzeitiges Schreiben
-	// von einem anderen Gerät, das zwischen Vorausrechnung und save() landet.
-	// Schlägt set() aus einem dieser Gründe fehl, nimmt settingsStore.save()
-	// seinen Zustand zurück, liefert false, und der Nutzer sieht dieselbe Meldung.
-	// Die Bundle-Limits (200 Einträge, 1 MB) sind ohnehin der Transport-Vertrag
-	// mit dem Index-Backend, eine andere Grenze als diese.
+	// bleibt trotzdem die zweite Instanz, kein toter Rest: im Zustand 'lokal'
+	// rechnet #projectedUsage() das Gesamtbudget zwar mit, im Zustand
+	// 'Browser-Sync an' aber nur die einzelnen Zweige gegen 8192 - die 102 400
+	// über alle Einstellungs-Keys hinweg sieht erst die Fassade. Und ein
+	// gleichzeitiges Schreiben von einem anderen Gerät, das zwischen
+	// Vorausrechnung und save() landet, sieht sie in keinem Zustand. Schlägt set()
+	// aus einem dieser Gründe fehl, nimmt settingsStore.save() seinen Zustand
+	// zurück und liefert eine typisierte
+	// Absage - bei einer Größenabsage (isStorageFull) zeigt die Optionsseite ihren
+	// Dialog mit den drei Auswegen, und dieser Dialog schweigt; menuSyncSaveError
+	// kommt nur bei jedem anderen Fehler. Die Bundle-Limits (200 Einträge, 1 MB)
+	// sind ohnehin der Transport-Vertrag mit dem Index-Backend, eine andere Grenze
+	// als diese.
 	async #commitPatch(patch, imported) {
 		const withBaselines = await window.FlowMouseEuIntegration.addBaselines(patch, imported);
-		const ok = await settingsStore.save(withBaselines);
-		if (!ok) {
-			alert(window.i18n.getMessage('menuSyncSaveError'));
+		const res = await settingsStore.save(withBaselines);
+		if (!res.ok) {
+			if (!isStorageFull(res)) alert(window.i18n.getMessage('menuSyncSaveError'));
 			this.#reportToPage('failed', []);
 			return;
 		}

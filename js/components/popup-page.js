@@ -591,10 +591,18 @@ class PopupPage extends LitElement {
 	}
 
 	async #saveQuickSettings() {
-		await this._store.save({
+		const res = await this._store.save({
 			enableTrail: this._enableTrail,
 			enableHUD: this._enableHUD
 		});
+		if (!res.ok) {
+			// Silent rollback, same shape as #toggleBlacklist (decision 10): the
+			// checkboxes already flipped in #onTrailChange/#onHUDChange before this
+			// ran, and save() rolls #current itself back to its pre-save values on
+			// failure - reading them back here undoes the flip without duplicating it.
+			this._enableTrail = this._store.current.enableTrail;
+			this._enableHUD = this._store.current.enableHUD;
+		}
 	}
 
 	async #toggleBlacklist() {
@@ -607,8 +615,8 @@ class PopupPage extends LitElement {
 			this._blacklist = [...this._blacklist, this._currentDomain];
 		}
 
-		const ok = await this._store.save({ blacklist: this._blacklist });
-		if (!ok) {
+		const res = await this._store.save({ blacklist: this._blacklist });
+		if (!res.ok) {
 			if (isBlacklisted) {
 				this._blacklist = [...this._blacklist, this._currentDomain];
 			} else {
@@ -647,7 +655,12 @@ class PopupPage extends LitElement {
 
 	async #openGestureSettings() {
 		if (!this._store.current.enableGestureCustomization) {
-			await this._store.save({ enableGestureCustomization: true });
+			// No local mirror to revert on failure: the popup closes right after and
+			// the options page reads _store.current live, so it shows the truth
+			// (saved or not) either way. Read .ok anyway so a failure is not
+			// silently dropped, without blocking the navigation the user asked for.
+			const res = await this._store.save({ enableGestureCustomization: true });
+			if (!res.ok) console.warn('Enabling gesture customization failed:', res);
 		}
 		chrome.tabs.create({ url: chrome.runtime.getURL('pages/options.html') + '#gestureGrid' });
 		window.close();

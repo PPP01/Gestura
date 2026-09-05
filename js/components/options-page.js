@@ -1,10 +1,15 @@
-import { settingsStore } from '../settings-store.js';
+import { settingsStore, isStorageFull } from '../settings-store.js';
 import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
-import { usageOf, entryBytes, percentOf, TOTAL_QUOTA } from '../storage-usage.js';
+// Only the rounding rule is still imported: every ceiling the user sees comes
+// from the façade's usage(), which knows the active area. ITEM_QUOTA and
+// TOTAL_QUOTA in storage-usage.js are the SYNC quotas and would be wrong in
+// state 'local' (storage-move design §6, §11).
+import { percentOf } from '../storage-usage.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
+import { branchLabel, fillRefusal } from './storage-full-dialog.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -20,6 +25,9 @@ class OptionsPage extends LitElement {
 		_activeSection: { state: true },
 		_navProximityShow: { state: true },
 		_preview: { state: true },
+		_storageFailure: { state: true },
+		_syncNote: { state: true },
+		_switchRefusal: { state: true },
 	};
 
 	static styles = [
@@ -280,6 +288,9 @@ class OptionsPage extends LitElement {
 		this._pendingPatch = null;
 		this._statusTimer = null;
 		this._preview = null;
+		this._storageFailure = null;
+		this._syncNote = null;
+		this._switchRefusal = null;
 		this._store = settingsStore;
 	}
 
@@ -290,11 +301,17 @@ class OptionsPage extends LitElement {
 		this._boundScroll = () => this.#updateHoveredSection();
 		this._boundNavigateSection = (e) => this.#onNavigateSection(e);
 		// Ein Import aus dem Menü-/Engine-Manager schreibt via settingsStore.save() direkt
-		// in #current, bevor chrome.storage.sync.set() feuert - handleExternalChange meldet
+		// in #current, bevor die Fassade set() feuert - handleExternalChange meldet
 		// dann keine Änderung (siehe #importSettings weiter unten). Die Speicherzeilen lesen
 		// zwar live aus settingsStore.current, aber ohne ein requestUpdate() hier würde ohne
 		// eine andere Nebenwirkung gar nicht neu gerendert.
 		this._boundCatalogChanged = () => this.requestUpdate();
+		// settingsStore.save() emits this for EVERY caller whose write the façade
+		// refused for size - this page, the managers, the import dialog. The page
+		// owns the one dialog that offers the three ways out, so the refusal is
+		// answered in one place instead of once per caller.
+		this._boundStorageFull = (e) => { this._storageFailure = e.detail; };
+		window.addEventListener('gestura:storage-full', this._boundStorageFull);
 		window.addEventListener('beforeunload', this._boundBeforeUnload);
 		window.addEventListener('mousemove', this._boundMouseMove, { passive: true });
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
@@ -310,6 +327,7 @@ class OptionsPage extends LitElement {
 		window.removeEventListener('mousemove', this._boundMouseMove);
 		window.removeEventListener('scroll', this._boundScroll);
 		window.removeEventListener('action-catalog-changed', this._boundCatalogChanged);
+		window.removeEventListener('gestura:storage-full', this._boundStorageFull);
 		this.removeEventListener('navigate-section', this._boundNavigateSection);
 	}
 
@@ -321,9 +339,12 @@ class OptionsPage extends LitElement {
 		if (!this._pendingPatch) return;
 		const patch = this._pendingPatch;
 		this._pendingPatch = null;
-		this._store.save(patch).then((ok) => {
-			if (!ok) {
-				this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
+		this._store.save(patch).then((res) => {
+			if (!res.ok) {
+				// See #savePatch: settingsStore rolled #current back, so the screen
+				// must come back with it.
+				this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
+				if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
 				return;
 			}
 			this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
@@ -333,6 +354,7 @@ class OptionsPage extends LitElement {
 	async #init() {
 		await this._store.waitForLoad();
 		this._settings = { ...this._store.current };
+		await this.#refreshSyncNote();
 		this._ready = true;
 
 		this._store.onChange((changed) => {
@@ -1220,6 +1242,11 @@ class OptionsPage extends LitElement {
 				@preview-confirm=${this.#onPreviewConfirm}
 				@preview-cancel=${this.#onPreviewCancel}></settings-preview-dialog>
 
+			<storage-full-dialog
+				?open=${!!this._storageFailure}
+				.failure=${this._storageFailure}
+				@storage-way=${this.#onStorageWay}></storage-full-dialog>
+
 			<gesture-recorder id="gestureRecorder" data-gesture-ignore></gesture-recorder>
 		`;
 	}
@@ -1369,48 +1396,160 @@ class OptionsPage extends LitElement {
 	// meldet ein Problem. Überall sonst genügt der Prozentwert.
 	//
 	// Bewusst aus settingsStore.current statt this._settings gelesen: settingsStore.save()
-	// (siehe #importSettings) aktualisiert #current, bevor chrome.storage.sync.set()
-	// feuert, also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
+	// (siehe #importSettings) aktualisiert #current, bevor die Fassade schreibt,
+	// also bleibt this._settings nach einem Import aus dem Menü-/Engine-Manager
 	// auf altem Stand, bis ein Reload sie neu zieht. Ein Lesezugriff auf den Store selbst
 	// zeigt dagegen immer den aktuellen Wert; das erneute Rendern nach dem Import besorgt
 	// der 'action-catalog-changed'-Listener in connectedCallback().
+	//
+	// The ceiling follows the area (storage-move design §6): browser sync on, the
+	// three growing branches against 8192 bytes and the sum against 102 400;
+	// browser sync off, one total against 1 MiB.
 	#renderStorageRows(i18n) {
 		const cur = this._store.current;
-		const branches = [
-			['siteMenus', i18n.getMessage('siteMenusTitle')],
-			['searchEngines', i18n.getMessage('sectionSearchEngines')],
-			['mouseGestures', i18n.getMessage('basicSettings')],
-		];
-		const rows = branches.map(([key, label]) => {
-			const u = usageOf(key, cur[key]);
-			return html`
-				<div class="setting-row">
-					<div class="setting-label"><span>${label}</span></div>
-					<span class="storage-value ${u.percent >= 100 ? 'over' : (u.percent >= 75 ? 'near' : '')}">
-						${i18n.getMessage('storageDetail')
-							.replace('{used}', u.bytes).replace('{total}', u.quota).replace('{percent}', u.percent)}
-					</span>
-				</div>`;
-		});
-		// Die Summenzeile zählt über ALLE gespeicherten Schlüssel, nicht nur die
-		// drei angezeigten Zweige - sonst meldet sie eine viel zu niedrige Gesamt-
-		// belegung (die übrigen 60-plus Schlüssel sind zwar einzeln klein, in
-		// Summe aber nicht null). Die Zeilen darunter zeigen weiterhin nur die
-		// drei wachsenden Zweige.
-		let sum = 0;
-		for (const [key, value] of Object.entries(cur)) {
-			sum += entryBytes(key, value);
-		}
-		const totalPercent = percentOf(sum, TOTAL_QUOTA);
-		return html`
+		const u = window.GesturaSettingsStorage.usage(cur);
+		const detail = (bytes, quota) => i18n.getMessage('storageDetail')
+			.replace('{used}', bytes).replace('{total}', quota).replace('{percent}', percentOf(bytes, quota));
+		const cls = (bytes, quota) => { const p = percentOf(bytes, quota); return p >= 100 ? 'over' : (p >= 75 ? 'near' : ''); };
+		const totalRow = html`
 			<div class="setting-row">
 				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
-				<span class="storage-value">
-					${i18n.getMessage('storageDetail')
-						.replace('{used}', sum).replace('{total}', TOTAL_QUOTA).replace('{percent}', totalPercent)}
-				</span>
+				<span class="storage-value ${cls(u.total, u.quota.total)}">${detail(u.total, u.quota.total)}</span>
+			</div>`;
+		if (u.quota.item === null) return html`${totalRow}${this.#renderAreaSwitch(i18n)}`;
+		// The label for a branch is BRANCH_LABELS' business, so that this section
+		// and the refusal dialog cannot end up calling the same branch two things.
+		const branches = ['siteMenus', 'searchEngines', 'mouseGestures']
+			.map((key) => [key, branchLabel(i18n, key)]);
+		const rows = branches.map(([key, label]) => html`
+			<div class="setting-row">
+				<div class="setting-label"><span>${label}</span></div>
+				<span class="storage-value ${cls(u.branches[key] || 0, u.quota.item)}">${detail(u.branches[key] || 0, u.quota.item)}</span>
+			</div>`);
+		return html`${totalRow}${rows}${this.#renderAreaSwitch(i18n)}${this.#renderSyncNote(i18n)}`;
+	}
+
+	// note() reads chrome.storage.sync and has no try/catch of its own: a broken
+	// sync store REJECTS instead of resolving null, and an unhandled rejection
+	// while the options page is opening is a page that never renders. Hence the
+	// catch here, and hence the area check first - in state 'local' the note is
+	// meaningless and the read pointless.
+	async #refreshSyncNote() {
+		const S = window.GesturaSettingsStorage;
+		if (S.area() !== 'sync') { this._syncNote = null; return; }
+		try {
+			this._syncNote = await S.note();
+		} catch {
+			this._syncNote = null;
+		}
+	}
+
+	// The switch of storage-move design §4, both directions. A refusal names its
+	// reason and changes nothing; a success re-renders the rows against the new
+	// ceiling. settingsStore keeps its #current - the values did not change, only
+	// where they live.
+	//
+	// What the user is told comes from area(), not from res.ok: switchTo() answers
+	// { ok: false, error: 'write' } when its sequence broke, and a failed rollback
+	// inside it can leave the browser genuinely switched. "Nothing was changed" on
+	// the strength of ok: false alone would then be a lie, so the area itself is
+	// asked where the browser ended up - and that answer is also what the caller
+	// gets back.
+	async #switchArea(toSync, reason = 'local') {
+		const S = window.GesturaSettingsStorage;
+		const i18n = window.i18n;
+		const target = toSync ? 'sync' : 'local';
+		if (target === 'sync' && !(await this.#confirmWayBack(i18n))) return false;
+		// Cleared before the attempt, never after it: a second try does not stack a
+		// second line, and a switch that goes through leaves none behind.
+		this._switchRefusal = null;
+		const res = await S.switchTo(target, reason);
+		const landed = S.area() === target;
+		if (!res.ok && !landed) {
+			// res.branch / res.bytes / res.quota describe the TARGET area's ceiling
+			// here - unlike a set() failure, where they describe the active one.
+			const fill = (key) => fillRefusal(i18n, key, res);
+			const msg = res.error === 'branch-full' ? fill('storageSwitchRefusedBranch')
+				: res.error === 'total-full' ? fill('storageSwitchRefusedTotal')
+				: res.error === 'tier2-enabled' ? i18n.getMessage('storageSwitchRefusedTier2')
+				: i18n.getMessage('storageSwitchFailed');
+			// Not #showStatus: that hides after 1500 ms, and a two-clause refusal
+			// carrying a branch name and two numbers is functionally silent at that
+			// length. It stands beside the switch it refused until the next attempt.
+			// The design's own words are "refused with numbers, never silent".
+			this._switchRefusal = msg;
+		}
+		await this.#refreshSyncNote();
+		this.requestUpdate();
+		return landed;
+	}
+
+	// The way back writes this browser's whole local copy over chrome.storage.sync
+	// (js/settings-storage.js, toSync()). Another browser may have kept editing
+	// over browser sync in the months since this one left, and every one of those
+	// edits goes. Reconciliation is a stated non-goal here and the subject of its
+	// own plan, so the switch does the one thing it honestly can: it says what is
+	// about to happen and waits for an answer.
+	//
+	// The date comes from the note the departing browser left, which is the only
+	// thing on record about when this browser stopped syncing. #refreshSyncNote()
+	// deliberately does not read it in state 'local' - it is meaningless there,
+	// right up to the moment of this question - so it is read here, and a failing
+	// read costs the date, not the question.
+	async #confirmWayBack(i18n) {
+		const S = window.GesturaSettingsStorage;
+		let left = null;
+		try { left = await S.note(); } catch { left = null; }
+		const msg = (left && left.movedAt)
+			? i18n.getMessage('storageSwitchToSyncConfirmSince').replace('{date}', this.#formatDate(left.movedAt))
+			: i18n.getMessage('storageSwitchToSyncConfirm');
+		return window.confirm(msg);
+	}
+
+	async #onStorageWay(e) {
+		const way = e.detail.way;
+		this._storageFailure = null;
+		if (way === 'local') {
+			await this.#switchArea(false, 'local');
+		} else if (way === 'eu') {
+			// Way two is way three plus tier 2. The switch happens here; the tier-2
+			// consent is the sync panel's, so the page scrolls there.
+			if (await this.#switchArea(false, 'gestura.eu')) this.#scrollToSection('websiteIntegration');
+		}
+	}
+
+	#renderAreaSwitch(i18n) {
+		const S = window.GesturaSettingsStorage;
+		const on = S.area() === 'sync';
+		return html`
+			<div class="setting-row">
+				<div class="setting-label">
+					<span>${i18n.getMessage('storageBrowserSync')}</span>
+					<span>${i18n.getMessage(on ? 'storageBrowserSyncOnDesc' : 'storageBrowserSyncOffDesc')}</span>
+				</div>
+				<label class="toggle">
+					<input type="checkbox" .checked=${on} @change=${(e) => { const want = e.target.checked; e.target.checked = on; this.#switchArea(want); }}>
+					<span class="slider"></span>
+				</label>
 			</div>
-			${rows}`;
+			${this._switchRefusal ? html`<div class="notice">${this._switchRefusal}</div>` : ''}`;
+	}
+
+	// A date, not a time: #formatSyncTime renders toLocaleTimeString() for the
+	// "saved at" line, and "not synchronised since 14:32" would name the wrong thing.
+	#formatDate(iso) {
+		try {
+			return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+		} catch { return String(iso).slice(0, 10); }
+	}
+
+	#renderSyncNote(i18n) {
+		if (!this._syncNote) return '';
+		return html`
+			<div class="notice">
+				${i18n.getMessage('storageMovedNote').replace('{date}', this.#formatDate(this._syncNote.movedAt))}
+				<button class="btn btn-secondary" @click=${() => this.#switchArea(false, this._syncNote.movedTo)}>${i18n.getMessage('storageMovedSwitch')}</button>
+			</div>`;
 	}
 
 	#renderFeatureToggle(key, sectionId, label, first = false) {
@@ -1575,11 +1714,19 @@ class OptionsPage extends LitElement {
 	}
 
 
+	// The optimistic assignment on the first line is what makes the UI feel
+	// immediate; the one in the failure branch is what keeps it honest. Without it
+	// the screen goes on showing a value settingsStore has already rolled back,
+	// and since the refused write is never replayed across a storage switch - way
+	// two and way three change where the settings live, not what is pending - that
+	// phantom would be the only trace left of the edit. All three ways out say the
+	// change has to be made again; this is what makes the screen agree.
 	async #savePatch(patch) {
 		this._settings = { ...this._settings, ...patch };
-		const ok = await this._store.save(patch);
-		if (!ok) {
-			this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
+		const res = await this._store.save(patch);
+		if (!res.ok) {
+			this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
+			if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('saveFailure'), 'error');
 			return false;
 		}
 		this._settings = { ...this._store.current, ...(this._pendingPatch || {}) };
@@ -1680,25 +1827,41 @@ class OptionsPage extends LitElement {
 			dropped: result.dropped,
 			retyped: result.retyped,
 			legacy: result.legacy,
-			commit: () => this.#applySettings(result.settings),
+			commit: () => this.#applySettings({ settings: result.settings }),
 		});
 	}
 
 	// The one write that the file import and the sync download share: a validated
 	// object, complete, atomic - and a reload afterwards, because
-	// settingsStore.save() updates #current before writing and handleExternalChange
+	// settingsStore.save() updates #current before the façade's set() fires and handleExternalChange
 	// therefore reports no change. The subcomponents would otherwise keep their
 	// old state.
-	async #applySettings(settings) {
+	//
+	// One shape, whether the call comes through the event or from the file import
+	// in this file: { settings, afterSave }. The sync panel stores its base
+	// (js/eu-sync-base.js) in afterSave, which must run after the save succeeded
+	// and before the reload takes the page away. A failed save runs no afterSave -
+	// a base that names settings this browser does not hold would make the next
+	// merge overwrite local changes (spec §3).
+	async #applySettings({ settings, afterSave = null }) {
 		// A debounce patch still pending comes from the state *before* the import
 		// and would write the old values back over it on beforeunload.
 		if (this._debounceTimer) clearTimeout(this._debounceTimer);
 		this._debounceTimer = null;
 		this._pendingPatch = null;
-		const ok = await this._store.save(settings);
-		if (!ok) {
-			this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
+		const res = await this._store.save(settings);
+		if (!res.ok) {
+			if (!isStorageFull(res)) this.#showStatus(window.i18n.getMessage('importFailedSyncError'), 'error');
 			return false;
+		}
+		if (afterSave) {
+			try {
+				await afterSave();
+			} catch {
+				// The settings are saved; only the bookkeeping after them failed. The
+				// reload still happens - the next Sync merges against the older base,
+				// which is correct, merely one round late.
+			}
 		}
 		sessionStorage.setItem(IMPORT_RELOAD_KEY, '1');
 		window.location.reload();
@@ -1707,7 +1870,8 @@ class OptionsPage extends LitElement {
 
 	async #resetSettings() {
 		if (confirm(window.i18n.getMessage('resetConfirm'))) {
-			await this._store.reset();
+			const res = await this._store.reset();
+			if (!res.ok) { this.#showStatus(window.i18n.getMessage('saveFailure'), 'error'); return; }
 			this._settings = { ...this._store.current };
 			this.#showStatus(window.i18n.getMessage('resetDone'));
 		}

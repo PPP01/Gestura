@@ -21,7 +21,7 @@
 	const LIMITS = {
 		metaMaxBytes: 8 * 1024,
 		payloadMaxBytes: 512 * 1024,
-		statesMax: 10,
+		statesMax: 5,
 		responseMaxBytes: 1024 * 1024,
 		timeoutMs: 15000,
 	};
@@ -78,7 +78,12 @@
 			}
 			const declared = Number(res.headers?.get?.('content-length'));
 			if (Number.isFinite(declared) && declared > LIMITS.responseMaxBytes) throw syncError('too-large');
-			const text = await res.text();
+			// The timeout is still running here on purpose, so this read is one more
+			// thing that can abort - and an abort raised out of the body is the same
+			// network failure an abort raised out of the fetch is. Left raw it has
+			// no `.code` and the panel calls it a server error.
+			let text;
+			try { text = await res.text(); } catch { throw syncError('network'); }
 			if (new TextEncoder().encode(text).length > LIMITS.responseMaxBytes) throw syncError('too-large');
 			let parsed;
 			try { parsed = JSON.parse(text); } catch { throw syncError('malformed'); }
@@ -135,23 +140,27 @@
 		const { secret, origin, stateId, name, createdAt, exportObj, extVersion, basePayloadHash, fetchImpl } = opts;
 		const X = root.GesturaSyncCrypto;
 		const key = await X.deriveKey(secret);
-		const payload = await X.encryptBlob(key, stateId, 'payload', exportObj);
+		const payload = await X.encryptCompressed(key, stateId, 'payload', exportObj);
 		if (payload.length > LIMITS.payloadMaxBytes) throw syncError('too-large');
+		// Binds the two blobs of this state to each other, so the server cannot
+		// pair this meta with an older payload. Returned to the caller as well: it
+		// is what the server will hold for this state from now on, and the base
+		// (js/eu-sync-base.js) is written under it.
+		const payloadHash = await X.blobHash(payload);
 		const meta = await X.encryptBlob(key, stateId, 'meta', {
 			name,
 			createdAt: createdAt || new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 			extVersion,
-			// Binds the two blobs of this state to each other, so the server cannot
-			// pair this meta with an older payload.
-			payloadHash: await X.blobHash(payload),
+			payloadHash,
 		});
 		if (meta.length > LIMITS.metaMaxBytes) throw syncError('too-large');
 		const body = { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId, meta, payload };
 		// Only a usable hash travels. Anything else - '', null, a number - would be
 		// a token the server has to reject, and the caller meant "unconditional".
 		if (typeof basePayloadHash === 'string' && basePayloadHash) body.basePayloadHash = basePayloadHash;
-		return request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
+		const answer = await request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
+		return { ...answer, payloadHash };
 	}
 
 	// expectPayloadHash is REQUIRED, and deliberately so. It is the only

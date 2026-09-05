@@ -93,6 +93,19 @@ describe('the request body', () => {
 		expect(meta.name).toBe('Work');
 		expect(meta.payloadHash).toBe(await X.blobHash(calls[0].body.payload));
 	});
+
+	// The base (js/eu-sync-base.js) needs the hash the server now holds for this
+	// state. The server's answer does not carry it, and it cannot be derived from
+	// the settings (fresh IV every time) - the uploader is the only one who knows.
+	it('returns the payloadHash it wrote into the meta blob', async () => {
+		const r = await S.uploadState({
+			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+			name: 'Work', createdAt: 'x', exportObj: { gesturaSettings: 1 }, extVersion: '2.8.0',
+			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', size: 1 }),
+		});
+		expect(r).toMatchObject({ stateId: ID, updatedAt: 'x', size: 1 });
+		expect(r.payloadHash).toBe(await X.blobHash(calls[0].body.payload));
+	});
 });
 
 describe('reading a list', () => {
@@ -186,6 +199,23 @@ describe('downloading', () => {
 		});
 });
 
+// Pseudo-random base64 characters carry six bits each - gzip cannot shrink them
+// meaningfully, so a megabyte of them stays over the 512 KiB envelope limit
+// after compression. 'x'.repeat() would compress to nothing and the test would
+// stop testing anything. xorshift32, not crypto.getRandomValues: WebCrypto caps
+// one call at 65 536 bytes and throws QuotaExceededError above it, and a
+// deterministic sequence makes a failure reproducible.
+const incompressible = (n) => {
+	const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	let x = 0x9e3779b9;
+	let s = '';
+	for (let i = 0; i < n; i++) {
+		x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+		s += alphabet[(x >>> 0) & 63];
+	}
+	return s;
+};
+
 describe('errors', () => {
 	it.each([
 		[400, 'bad-request'],
@@ -208,13 +238,33 @@ describe('errors', () => {
 	// Checked before the request, so the user is told the limit instead of
 	// watching half a megabyte go out and come back as a 413.
 	it('refuses an oversized payload without asking the server', async () => {
-		const big = { gesturaSettings: 1, customCss: 'x'.repeat(S.LIMITS.payloadMaxBytes) };
+		const big = { gesturaSettings: 1, customCss: incompressible(1024 * 1024) };
 		await expect(S.uploadState({
 			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
 			name: 'Work', createdAt: 'x', exportObj: big, extVersion: '2.8.0',
 			fetchImpl: fetchOk({}),
 		})).rejects.toMatchObject({ code: 'too-large' });
 		expect(calls).toHaveLength(0);
+	});
+
+	it('mirrors five states per locator', () => {
+		expect(S.LIMITS.statesMax).toBe(5);
+	});
+
+	// Whatever the body carries, decryptBlob must read it back - the sniff on
+	// 1f 8b is what makes compressing the payload a non-event for the contract.
+	it('uploads a compressed payload the download path can read', async () => {
+		const exportObj = { gesturaSettings: 1, customCss: 'body{}'.repeat(2000) };
+		await S.uploadState({
+			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+			name: 'Work', createdAt: 'x', exportObj, extVersion: '2.8.0',
+			fetchImpl: fetchOk({}),
+		});
+		const key = await X.deriveKey(await secretBytes());
+		const sent = calls[0].body.payload;
+		expect(await X.decryptBlob(key, ID, 'payload', sent)).toEqual(exportObj);
+		const plain = await X.encryptBlob(key, ID, 'payload', exportObj);
+		expect(sent.length).toBeLessThan(plain.length);
 	});
 });
 
@@ -311,5 +361,22 @@ describe('the write token', () => {
 		};
 		await expect(upload({ secret: await secretBytes(), fetchImpl })).rejects.toMatchObject({ code: 'server' });
 		expect(read).toBe(0);
+	});
+});
+
+describe('a body that never finishes arriving', () => {
+	// The 15 s timer is deliberately kept alive across res.text() - fetch()
+	// resolves on the HEADERS, so a slow body would otherwise be unbounded.
+	// When it fires there, the abort surfaces out of the body read, not out of
+	// the fetch, and it is still a network failure.
+	it('maps an aborted body read to network', async () => {
+		const fetchImpl = async () => ({
+			ok: true,
+			status: 200,
+			headers: { get: () => null },
+			text: async () => { throw new DOMException('The operation was aborted.', 'AbortError'); },
+		});
+		await expect(S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu', fetchImpl }))
+			.rejects.toMatchObject({ code: 'network' });
 	});
 });

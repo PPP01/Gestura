@@ -3,6 +3,7 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
+import { formatMergeSummary } from './sync-merge-dialog.js';
 
 // The second switch. It sits below the first and is not there at all while the
 // first is not effectively enabled - not greyed out, not disabled, but absent:
@@ -56,6 +57,9 @@ class EuSyncPanel extends LitElement {
 		_currentHash: { state: true },
 		_preview: { state: true },
 		_conflict: { state: true },
+		_bases: { state: true },
+		_merge: { state: true },
+		_notice: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -68,6 +72,7 @@ class EuSyncPanel extends LitElement {
 		.pair input.invalid { box-shadow: 0 0 0 1.5px var(--danger-color); }
 		.error { margin-top: 8px; color: var(--danger-color); font-size: 12px; }
 		.notice { margin-top: 8px; color: var(--warning-color); font-size: 12px; }
+		.info { margin-top: 8px; color: var(--text-secondary); font-size: 12px; }
 		.granted .setting-label span:first-child { display: inline-flex; align-items: center; gap: 8px; }
 		.granted .setting-label span.granted-icon { display: inline-flex; color: var(--success-color); }
 		.granted-icon svg { width: 18px; height: 18px; }
@@ -101,6 +106,9 @@ class EuSyncPanel extends LitElement {
 		this._currentHash = '';
 		this._preview = null;
 		this._conflict = null;
+		this._bases = {};        // stateId -> { hash, date }, from GesturaSyncBase.list()
+		this._merge = null;      // { state, merged, choices, attempt, expect } while the dialog is open
+		this._notice = '';       // one informational line (in sync, moved again)
 		this._errorCode = '';
 		// Not reactive: what willUpdate() compares against to see the switch-on
 		// and the code change as EDGES, rather than re-deciding on every render.
@@ -178,6 +186,22 @@ class EuSyncPanel extends LitElement {
 	// existing code is kept - switching off and on again must not orphan the
 	// states.
 	async #accept() {
+		// gestura.eu sync requires browser sync off (storage-move design §4): one
+		// switch, two consumers, no state in which both run. A refused switch keeps
+		// the dialog open with the reason, exactly like a failed write below.
+		const S = window.GesturaSettingsStorage;
+		if (S.area() === 'sync') {
+			const moved = await S.switchTo('local', 'gestura.eu');
+			// Asked of the area, not of moved.ok: switchTo() answers
+			// { ok: false, error: 'write' } when its sequence broke, and a failed
+			// rollback inside it can leave the browser genuinely switched. Then the
+			// requirement is met and "nothing was changed" would be untrue, so the
+			// consent goes through.
+			if (!moved.ok && S.area() !== 'local') {
+				this._error = window.i18n.getMessage('storageSwitchFailed');
+				return;
+			}
+		}
 		const patch = {
 			enabled: true,
 			consent: { version: window.GesturaSyncLocal.CURRENT_SYNC_CONSENT, date: new Date().toISOString() },
@@ -260,10 +284,10 @@ class EuSyncPanel extends LitElement {
 		await this.#adoptSecret(window.GesturaSyncCode.generateSecret());
 	}
 
-	// The export as the receiver will get it - validated and repaired on the way
-	// out, see GesturaSettingsSchema.validatedExport. `opts` is passed through.
+	// Always the sync shape: the seven device-local keys stay home (storage-move
+	// design §7). `opts` is passed through on top.
 	#validatedExport(opts) {
-		return window.GesturaSettingsSchema.validatedExport(settingsStore.current, window.i18n.version, opts);
+		return window.GesturaSettingsSchema.validatedExport(settingsStore.current, window.i18n.version, { forSync: true, ...(opts || {}) });
 	}
 
 	// Validate, canonicalise and hash the whole settings tree - on every save of
@@ -317,7 +341,11 @@ class EuSyncPanel extends LitElement {
 		// the list shows afterwards is the state as it now stands.
 		this._conflict = null;
 		const list = await this.#run(() => window.GesturaSync.list());
-		if (list) this._states = list;
+		if (!list) return;
+		this._states = list;
+		// A base for a state the server no longer has is dropped - after a
+		// SUCCESSFUL listing only; a failed one proves nothing (spec §3).
+		this._bases = await window.GesturaSyncBase.prune(list.map(s => s.stateId));
 	}
 
 	// The name comes from the decrypted meta blob and not from the local map: a
@@ -381,10 +409,14 @@ class EuSyncPanel extends LitElement {
 					return;
 				}
 				this._conflict = null;
+				const now = new Date().toISOString();
+				// The server now holds exactly this payload under exactly this hash:
+				// that pair is the base the next Sync merges against (spec §3, §6).
+				await window.GesturaSyncBase.write(id, { hash: done.payloadHash, payload: exportObj, date: now });
 				await window.GesturaSyncLocal.setState(id, {
 					name,
 					lastUploadHash: await window.GesturaSettingsSchema.hashOf(exportObj),
-					lastUploadDate: new Date().toISOString(),
+					lastUploadDate: now,
 				});
 				this._newName = '';
 				await this.#refreshStates();
@@ -411,7 +443,7 @@ class EuSyncPanel extends LitElement {
 			expectPayloadHash,
 		}));
 		if (!payload) return;
-		const result = window.GesturaSettingsSchema.validate(payload);
+		const result = window.GesturaSettingsSchema.validate(payload, { forSync: true, local: settingsStore.current });
 		if (!result.ok) {
 			this._error = settingsErrorMessage(window.i18n, result.error);
 			return;
@@ -422,7 +454,245 @@ class EuSyncPanel extends LitElement {
 			dropped: result.dropped,
 			retyped: result.retyped,
 			legacy: result.legacy,
-			commit: () => window.dispatchEvent(new CustomEvent('gestura:settings-apply', { detail: result.settings })),
+			// The adopt path saves, runs afterSave, reloads. The base is written in
+			// afterSave - after the save succeeded, so a base never names settings
+			// this browser does not hold - under the hash the payload was checked
+			// against, which is the hash the server holds (spec §6).
+			commit: () => window.dispatchEvent(new CustomEvent('gestura:settings-apply', {
+				detail: {
+					settings: result.settings,
+					afterSave: () => window.GesturaSyncBase.write(state.stateId, {
+						hash: expectPayloadHash,
+						payload: result.exportObj,
+						date: new Date().toISOString(),
+					}),
+				},
+			})),
+		});
+	}
+
+	// The merge does a lot of throw-capable work OUTSIDE #run - merge(), apply()
+	// with its structuredClone, buildExport(), JSON.stringify(), validate() - and
+	// every entry into it comes from an event handler that floats the promise. An
+	// unexpected throw would then be an unhandled rejection: no line on screen and
+	// a button that looks dead. This is the one loop that must not fail silently,
+	// so each entry point goes through here. #fail() is the panel's own error
+	// line, and it still reads a `code` off a sync error that reached us unwrapped.
+	async #guarded(fn) {
+		try {
+			await fn();
+		} catch (e) {
+			console.error('[Gestura] Sync failed:', e);
+			this.#fail(e);
+		}
+	}
+
+	// Spec §3: download, merge against the base, ask where both sides moved,
+	// preview, upload with the write token, and only then write locally and
+	// store the result as the new base. A 412 restarts from the top with the
+	// answers kept; the third one hands over to the existing conflict UI.
+	//
+	// `choices` are the answers from an earlier pass; `attempt` counts passes.
+	async #syncState(state, attempt = 1, choices = {}) {
+		const i18n = window.i18n;
+		const S = window.GesturaSettingsSchema;
+		// A fresh press starts clean; a 412 retry keeps its "moved again" line for
+		// after the dialogs, and puts the same sentence into the preview's note.
+		if (attempt === 1) this._notice = '';
+		const expect = state.meta && state.meta.payloadHash;
+		if (typeof expect !== 'string' || !expect) {
+			this._error = i18n.getMessage('euSyncStateBroken');
+			return;
+		}
+		// A newer Gestura's payload would lose keys in validate() and the merge
+		// would upload that loss; refused before anything is compared (spec §3).
+		if (window.GesturaEuUpdates.isNewer(state.meta.extVersion, i18n.version)) {
+			this._error = i18n.getMessage('euSyncMergeNewerVersion');
+			return;
+		}
+		const base = await window.GesturaSyncBase.read(state.stateId);
+		if (!base) {
+			this._error = i18n.getMessage('euSyncMergeNoBase');
+			return;
+		}
+		const payload = await this.#run(() => window.GesturaSync.download({ stateId: state.stateId, expectPayloadHash: expect }));
+		if (!payload) return;
+
+		const local0 = settingsStore.current;
+		const remote = S.validate(payload, { forSync: true, local: local0 });
+		if (!remote.ok) {
+			this._error = settingsErrorMessage(i18n, remote.error);
+			return;
+		}
+		if (remote.dropped.length || remote.retyped.length) {
+			this._error = i18n.getMessage('euSyncMergeNewerVersion');
+			return;
+		}
+		const baseV = S.validate(base.payload, { forSync: true, local: local0 });
+		if (!baseV.ok) {
+			// The row's Sync button hangs off _bases; without this it would stay
+			// there, offering the merge that was just refused, until the next
+			// listing.
+			this._bases = await window.GesturaSyncBase.remove(state.stateId);
+			this._error = i18n.getMessage('euSyncMergeNoBase');
+			return;
+		}
+		const local = this.#validatedExport({ json: false });   // #validatedExport adds forSync: true
+		if (!local.ok) {
+			this._error = settingsErrorMessage(i18n, local.error);
+			return;
+		}
+
+		// With remote hash === base hash the remote side has not moved, and the
+		// table yields "keep mine" for every difference - no special case needed.
+		const merged = window.GesturaSettingsMerge.merge(baseV.settings, local.settings, remote.settings);
+		const s = merged.summary;
+		if (!merged.conflicts.length && !s.taken && !s.uploaded && !s.deleted) {
+			// Nothing to transfer - but that is reached two ways. Either the state
+			// has not moved since we last agreed (expect === base.hash), or it has
+			// and both sides happened to make the SAME change, which the table
+			// resolves to "unchanged". In the second the base still names the
+			// payload from before that change, and returning here would leave it
+			// naming it forever: every later Sync lands on this same return, and a
+			// deletion made here afterwards would be asked about instead of simply
+			// propagating. The server holds `payload` under `expect` - which is
+			// exactly what a base is - so adopt it, the way #downloadState does
+			// with the same two values. No upload and no preview: the transfer
+			// they would show carries nothing.
+			if (expect !== base.hash) {
+				this._bases = await window.GesturaSyncBase.write(state.stateId, { hash: expect, payload, date: new Date().toISOString() });
+			}
+			this._conflict = null;
+			this._notice = i18n.getMessage('euSyncMergeInSync');
+			return;
+		}
+		// Only answers whose question is asked again are kept (spec §3).
+		const kept = {};
+		for (const c of merged.conflicts) if (choices[c.key]) kept[c.key] = choices[c.key];
+		const open = merged.conflicts.some(c => !kept[c.key]);
+		const ctx = { state, merged, choices: kept, attempt, expect };
+		if (open) {
+			this._merge = ctx;
+			return;
+		}
+		await this.#commitMerge(ctx);
+	}
+
+	// <sync-merge-dialog> does not close itself - unlike the preview dialog, whose
+	// #cancel/#confirm do. So both handlers here flip `open` on the element itself,
+	// synchronously and before anything else: otherwise Escape and a backdrop click
+	// leave the overlay and the scroll lock standing over a dialog that no longer
+	// does anything, and the merge dialog's own updated() would release the lock
+	// AFTER the preview below has taken it.
+	#onMergeConfirm(e) {
+		e.currentTarget.open = false;
+		const ctx = this._merge;
+		this._merge = null;
+		if (ctx) this.#guarded(() => this.#commitMerge({ ...ctx, choices: e.detail.choices }));
+	}
+
+	// Cancelling ends the round: the "changed again" line was about a merge that
+	// is no longer running, and the preview note said the same thing anyway.
+	#onMergeCancel(e) {
+		e.currentTarget.open = false;
+		this._merge = null;
+		this._notice = '';
+	}
+
+	// After the questions: apply, validate the result as one object, show the
+	// preview, and on confirmation upload -> write locally -> store the base.
+	async #commitMerge(ctx) {
+		const i18n = window.i18n;
+		const S = window.GesturaSettingsSchema;
+		const { state, merged, choices, attempt, expect } = ctx;
+		const name = this.#nameOf(state);
+		const final = window.GesturaSettingsMerge.apply(merged.result, merged.conflicts, choices, { stateName: name });
+		// As text, so validate() applies MAX_BYTES - the 1 MiB local ceiling - to
+		// the merged result before anything is sent (spec §3 step 7a). `local`
+		// supplies the seven device-local keys r.settings will be saved with.
+		const r = S.validate(
+			JSON.stringify(S.buildExport(final, i18n.version, { forSync: true })),
+			{ forSync: true, local: settingsStore.current },
+		);
+		if (!r.ok) {
+			this._error = settingsErrorMessage(i18n, r.error);
+			return;
+		}
+		const summaryLine = formatMergeSummary(i18n, merged.summary);
+		// On a retry the user sees this preview a second time; the reason belongs
+		// in the dialog they are looking at, not in a panel line behind it.
+		const note = attempt > 1 ? `${i18n.getMessage('euSyncMergeMovedAgain')} ${summaryLine}` : summaryLine;
+		this.#openPreview({
+			mode: 'import',
+			json: r.json,
+			dropped: r.dropped,
+			retyped: r.retyped,
+			legacy: false,
+			note,
+			commit: () => this.#guarded(async () => {
+				// upload -> local write -> base, and never another order (spec §3
+				// step 7b-7d). The sequence itself lives in settings-merge.js, where
+				// it is testable without a DOM; what stands here are its three steps.
+				// `now` dates the base and the upload record alike, and is taken
+				// where it always was: once the upload has been acknowledged.
+				let now = '';
+				const res = await window.GesturaSettingsMerge.commitOrder({
+					upload: () => this.#run(() => window.GesturaSync.upload({
+						stateId: state.stateId,
+						name,
+						createdAt: state.meta && state.meta.createdAt,
+						exportObj: r.exportObj,
+						extVersion: i18n.version,
+						basePayloadHash: expect,
+					})),
+					// The adopt path saves, runs afterSave, reloads. Its outcome is
+					// not observable from here, which is why `recordBase` goes into
+					// afterSave rather than being awaited after this returns: that
+					// hook runs after the save succeeded and before the reload.
+					applySettings: (recordBase) => {
+						// An earlier conflict has been answered by this write - the same
+						// reasoning as in #uploadTo, and without it the "Reload / Upload
+						// overwriting" row would survive the merge that settled it.
+						this._conflict = null;
+						now = new Date().toISOString();
+						window.dispatchEvent(new CustomEvent('gestura:settings-apply', {
+							detail: {
+								settings: r.settings,
+								afterSave: async () => {
+									await recordBase();
+									await window.GesturaSyncLocal.setState(state.stateId, {
+										name,
+										lastUploadHash: await S.hashOf(r.exportObj),
+										lastUploadDate: now,
+									});
+								},
+							},
+						}));
+						return true;
+					},
+					// The server holds r.exportObj under done.payloadHash.
+					writeBase: done => window.GesturaSyncBase.write(state.stateId, { hash: done.payloadHash, payload: r.exportObj, date: now }),
+				});
+				if (res.ok || res.reason !== 'upload' || this._errorCode !== 'conflict') return;
+				// Someone wrote between our download and this upload. Nothing has
+				// been written here. Twice more we merge against what is there now;
+				// the third 412 hands over to the existing conflict UI (spec §3
+				// step 8).
+				if (attempt >= 3) {
+					this._conflict = { stateId: state.stateId, name, createdAt: state.meta && state.meta.createdAt, basePayloadHash: null };
+					return;
+				}
+				const list = await this.#run(() => window.GesturaSync.list());
+				if (!list) return;
+				this._states = list;
+				const fresh = list.find(x => x.stateId === state.stateId);
+				if (!fresh) {
+					this._error = i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
+					return;
+				}
+				this._notice = i18n.getMessage('euSyncMergeMovedAgain');
+				await this.#syncState(fresh, attempt + 1, choices);
+			}),
 		});
 	}
 
@@ -431,6 +701,7 @@ class EuSyncPanel extends LitElement {
 		const done = await this.#run(() => window.GesturaSync.remove(state.stateId));
 		if (!done) return;
 		await window.GesturaSyncLocal.removeState(state.stateId);
+		await window.GesturaSyncBase.remove(state.stateId);
 		await this.#refreshStates();
 	}
 
@@ -440,6 +711,8 @@ class EuSyncPanel extends LitElement {
 		const done = await this.#run(() => window.GesturaSync.remove());
 		if (!done) return;
 		await window.GesturaSyncLocal.write({ states: {} });
+		await window.GesturaSyncBase.clear();
+		this._bases = {};
 		this._states = [];
 	}
 
@@ -472,6 +745,9 @@ class EuSyncPanel extends LitElement {
 					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
 				</div>
 				<div class="row-actions">
+					${this._bases[state.stateId] ? html`
+						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
+							@click=${() => this.#guarded(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
@@ -520,8 +796,17 @@ class EuSyncPanel extends LitElement {
 				.dropped=${this._preview ? this._preview.dropped : []}
 				.retyped=${this._preview ? this._preview.retyped : []}
 				?legacy=${!!(this._preview && this._preview.legacy)}
+				.note=${this._preview ? (this._preview.note || '') : ''}
 				@preview-confirm=${this.#onPreviewConfirm}
-				@preview-cancel=${() => { this._preview = null; }}></settings-preview-dialog>`;
+				@preview-cancel=${() => { this._preview = null; this._notice = ''; }}></settings-preview-dialog>
+			<sync-merge-dialog
+				?open=${!!this._merge}
+				.conflicts=${this._merge ? this._merge.merged.conflicts : []}
+				.summary=${this._merge ? this._merge.merged.summary : {}}
+				.stateName=${this._merge ? this.#nameOf(this._merge.state) : ''}
+				.choices=${this._merge ? this._merge.choices : {}}
+				@merge-confirm=${this.#onMergeConfirm}
+				@merge-cancel=${this.#onMergeCancel}></sync-merge-dialog>`;
 	}
 
 	#consentDate() {
@@ -538,7 +823,13 @@ class EuSyncPanel extends LitElement {
 
 	#renderOverlay() {
 		const i18n = window.i18n;
-		const points = [1, 2, 3, 4].map(n => [`euSyncConsentPoint${n}Label`, `euSyncConsentPoint${n}`]);
+		// Point five is the trade #accept() makes below: agreeing switches this
+		// browser out of chrome.storage.sync, the browser's own sync stops carrying
+		// the settings, and #revoke() does NOT switch back - putting them back would
+		// blind-overwrite whatever another browser has synced in the meantime, which
+		// is the reconciliation this design leaves to its own plan. A consent that
+		// does not name that is not consent to it.
+		const points = [1, 2, 3, 4, 5].map(n => [`euSyncConsentPoint${n}Label`, `euSyncConsentPoint${n}`]);
 		return html`
 			<div class="modal-overlay" @mousedown=${this.#decline}>
 				<div class="modal-panel" tabindex="-1" @mousedown=${e => e.stopPropagation()}>
@@ -665,6 +956,7 @@ class EuSyncPanel extends LitElement {
 			${this.#effective && this.#state.secret ? this.#renderSecret() : ''}
 			${this.#effective ? this.#renderStates() : ''}
 			${this._error ? html`<div class="error">${this._error}</div>` : ''}
+			${this._notice ? html`<div class="info">${this._notice}</div>` : ''}
 			${this._conflict ? html`
 				<div class="row-actions">
 					<button class="btn btn-secondary" ?disabled=${this._busy}

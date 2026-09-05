@@ -57,7 +57,7 @@
 			// silence - answering the empty case keeps the contract honest.
 			if (!req) return;
 			if (!(await gate())) return;
-			const settings = await chrome.storage.sync.get(['siteMenus', 'searchEngines']);
+			const settings = await self.GesturaSettingsStorage.get(['siteMenus', 'searchEngines']);
 			// The switch may have flipped while we read the settings.
 			if (!(await gate())) return;
 			reply('gestura:query-status-result', await EU.statusAnswer(req, location.origin, settings));

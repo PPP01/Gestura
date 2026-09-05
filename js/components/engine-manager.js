@@ -685,7 +685,7 @@ class EngineManager extends LitElement {
 
 	#renderStorageLine(i18n) {
 		const cur = settingsStore.current.searchEngines || {};
-		return renderStorageLine(i18n, 'searchEngines', cur, cur.custom || [], AVG_FALLBACK.engine);
+		return renderStorageLine(i18n, 'searchEngines', settingsStore.current, cur.custom || [], AVG_FALLBACK.engine);
 	}
 
 	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }

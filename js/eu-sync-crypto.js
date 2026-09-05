@@ -21,6 +21,54 @@
 	const SALT = new Uint8Array(32);
 	const enc = new TextEncoder();
 
+	// §8 of the storage-move design. The payload plaintext may be gzip; meta never
+	// is. Recognised by the magic, so there is no format field to keep in step and
+	// an older client's uncompressed payload still reads.
+	const GZIP_MAGIC_0 = 0x1f;
+	const GZIP_MAGIC_1 = 0x8b;
+	// The local settings ceiling. DecompressionStream would happily turn 512 KiB
+	// into gigabytes; a blob that inflates past this is treated like any other
+	// damaged blob.
+	const INFLATE_MAX_BYTES = 1024 * 1024;
+
+	function isGzip(bytes) {
+		return bytes.length > 2 && bytes[0] === GZIP_MAGIC_0 && bytes[1] === GZIP_MAGIC_1;
+	}
+
+	async function gzip(bytes) {
+		const cs = new CompressionStream('gzip');
+		const writer = cs.writable.getWriter();
+		writer.write(bytes);
+		writer.close();
+		return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+	}
+
+	// Reads chunk by chunk and stops the moment the total passes `max` - never
+	// materialises the whole output first.
+	async function gunzipBounded(bytes, max) {
+		const ds = new DecompressionStream('gzip');
+		const writer = ds.writable.getWriter();
+		writer.write(bytes).catch(() => {});
+		writer.close().catch(() => {});
+		const reader = ds.readable.getReader();
+		const chunks = [];
+		let total = 0;
+		for (;;) {
+			const { value, done } = await reader.read();
+			if (done) break;
+			total += value.length;
+			if (total > max) {
+				await reader.cancel();
+				throw new Error('decrypt');
+			}
+			chunks.push(value);
+		}
+		const out = new Uint8Array(total);
+		let offset = 0;
+		for (const c of chunks) { out.set(c, offset); offset += c.length; }
+		return out;
+	}
+
 	function bytesToB64(bytes) {
 		let s = '';
 		for (const b of bytes) s += String.fromCharCode(b);
@@ -63,19 +111,30 @@
 		return enc.encode(AAD_PREFIX + stateId + role);
 	}
 
-	// `iv` is an argument for one reason only: the contract's test vector needs a
-	// fixed one. Every caller in the extension omits it and gets a fresh random
-	// IV, which is what GCM requires - reusing one under the same key discloses
-	// the key stream, and both blobs of a state share a key.
-	async function encryptBlob(key, stateId, role, value, iv) {
+	// The primitive: bytes in, envelope out. `iv` is an argument for one reason
+	// only: the contract's test vector needs a fixed one. Every caller in the
+	// extension omits it and gets a fresh random IV, which is what GCM requires -
+	// reusing one under the same key discloses the key stream, and both blobs of
+	// a state share a key.
+	async function encryptBytes(key, stateId, role, bytes, iv) {
 		const nonce = iv || crypto.getRandomValues(new Uint8Array(IV_BYTES));
 		const ct = new Uint8Array(await crypto.subtle.encrypt(
 			{ name: 'AES-GCM', iv: nonce, additionalData: aad(stateId, role), tagLength: 128 },
-			key, enc.encode(JSON.stringify(value))));
+			key, bytes));
 		const out = new Uint8Array(nonce.length + ct.length);
 		out.set(nonce, 0);
 		out.set(ct, nonce.length);
 		return bytesToB64(out);
+	}
+
+	// Signature and behaviour unchanged: the meta blob and the contract's vector.
+	async function encryptBlob(key, stateId, role, value, iv) {
+		return encryptBytes(key, stateId, role, enc.encode(JSON.stringify(value)), iv);
+	}
+
+	// The payload path.
+	async function encryptCompressed(key, stateId, role, value) {
+		return encryptBytes(key, stateId, role, await gzip(enc.encode(JSON.stringify(value))));
 	}
 
 	// One error for every failure: a wrong secret, a swapped blob, a corrupted
@@ -90,7 +149,9 @@
 			const pt = await crypto.subtle.decrypt(
 				{ name: 'AES-GCM', iv: bytes.slice(0, IV_BYTES), additionalData: aad(stateId, role), tagLength: 128 },
 				key, bytes.slice(IV_BYTES));
-			return JSON.parse(new TextDecoder().decode(pt));
+			let plain = new Uint8Array(pt);
+			if (isGzip(plain)) plain = await gunzipBounded(plain, INFLATE_MAX_BYTES);
+			return JSON.parse(new TextDecoder().decode(plain));
 		} catch {
 			throw new Error('decrypt');
 		}
@@ -104,9 +165,10 @@
 	}
 
 	const api = {
-		INFO_LOCATOR, INFO_KEY, AAD_PREFIX, IV_BYTES, STATE_ID_RE,
+		INFO_LOCATOR, INFO_KEY, AAD_PREFIX, IV_BYTES, STATE_ID_RE, INFLATE_MAX_BYTES,
 		deriveLocator, deriveKey, newStateId, aad,
-		encryptBlob, decryptBlob, blobHash, bytesToB64, b64ToBytes,
+		encryptBytes, encryptBlob, encryptCompressed, decryptBlob, blobHash, bytesToB64, b64ToBytes,
+		gzip, gunzipBounded, isGzip,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSyncCrypto = api;

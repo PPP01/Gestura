@@ -64,6 +64,16 @@ git push gestura firefox-build
 git checkout main
 ```
 
+The Firefox `manifest.json` needs more than "keep the Firefox form": its
+`content_scripts[0].js` and `background.scripts` lists must each start with
+`js/constants.js` then `js/settings-storage.js`, because Firefox has no
+`importScripts` to fall back on. A missing `content_scripts` entry surfaces as
+`GesturaSettingsStorage is not defined` at `document_start`, in every frame of
+every page; a missing `background.scripts` entry is the same error on the
+first context-menu click. `tests/load-order.test.mjs` travels with the merge and
+checks both lists once it lands here, so a forgotten entry now fails `npm test`
+rather than waiting to be noticed by eye.
+
 Both branches merge — no force-push is needed anywhere. Do *not* rebase
 `feature/search-links` (130 commits = pain); it is only kept for reference.
 
@@ -117,8 +127,8 @@ boundaries are not unambiguous in the history.
 ## Personal (German) search engines
 
 The neutral catalog ships without region-specific engines. Your own German
-engines and `.de` domains live in the browser's synced settings, restored
-once via the console snippet:
+engines and `.de` domains live in your settings — in whichever storage area is
+active — restored once via the console snippet:
 
     docs/dev/migrate-personal-engines.snippet.js   (on the feature/search-links branch)
 

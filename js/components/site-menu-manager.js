@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeHTML, nothing } from '../lib/lit-all.min.js';
 import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icon } from '../icons.js';
-import { settingsStore } from '../settings-store.js';
+import { settingsStore, isStorageFull } from '../settings-store.js';
 import { tooltip } from '../tooltip.js';
 import { menuDisplayName } from './gesture-menu-config.js';
 import { renderStorageLine } from './storage-line.js';
@@ -160,8 +160,8 @@ class SiteMenuManager extends LitElement {
 	}
 
 	async #saveSiteMenus(next) {
-		const ok = await settingsStore.save({ siteMenus: next });
-		if (!ok) alert(window.i18n.getMessage('menuSyncSaveError'));
+		const res = await settingsStore.save({ siteMenus: next });
+		if (!res.ok && !isStorageFull(res)) alert(window.i18n.getMessage('menuSyncSaveError'));
 		window.dispatchEvent(new Event('action-catalog-changed'));
 		this.requestUpdate();
 	}
@@ -213,7 +213,7 @@ class SiteMenuManager extends LitElement {
 
 	#renderStorageLine(i18n) {
 		const cur = settingsStore.current.siteMenus || {};
-		return renderStorageLine(i18n, 'siteMenus', cur, Object.values(cur.custom || {}), AVG_FALLBACK.menu);
+		return renderStorageLine(i18n, 'siteMenus', settingsStore.current, Object.values(cur.custom || {}), AVG_FALLBACK.menu);
 	}
 
 	#dialog() { return this.renderRoot.querySelector('menu-import-dialog'); }
@@ -371,8 +371,8 @@ class SiteMenuManager extends LitElement {
 	}
 
 	async #saveMenuAppend(next) {
-		const ok = await settingsStore.save({ menuAppend: next });
-		if (!ok) alert(window.i18n.getMessage('menuSyncSaveError'));
+		const res = await settingsStore.save({ menuAppend: next });
+		if (!res.ok && !isStorageFull(res)) alert(window.i18n.getMessage('menuSyncSaveError'));
 		this.requestUpdate();
 	}
 

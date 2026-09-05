@@ -55,6 +55,16 @@ Der Grund, warum Gestura existiert — die Zusatzfunktionen, die es nicht in Flo
 - **Konfigurierbare Suchmaschinen** — eigene Text- **und** Bild-Suchmaschinen hinzufügen, sortieren und ausblenden, mit sinnvollen Voreinstellungen je Sprache; die aktuelle Website mit einem Wisch in ein Menü aufnehmen.
 - **Bildersuche** — eine Rückwärtssuche für Bilder ziehen oder aufrufen, auf den Suchmaschinen deiner Wahl.
 - **JavaScript-Transformationen pro Link** — den markierten Text mit einem kleinen, isolierten JS-Snippet umformen, bevor er an eine Such-URL übergeben wird (fortgeschritten, läuft getrennt von der Seite und von der Erweiterung).
+- **Export und Import zeigen dir zuerst das Ganze** — beide zeigen den vollständigen Inhalt, bevor etwas geschrieben wird, und prüfen ihn gegen ein echtes Schema: Einträge, die Gestura nicht kennt, werden aufgelistet und verworfen statt geschrieben, Werte mit falscher Form fallen auf ihren Standard zurück, und eine Datei kann weder einen Schalter noch eine Zustimmung noch einen Sync-Code einschleusen.
+- **Die Browser-Synchronisierung ist ein Schalter** — bleibt er an (Standard), ändert sich nichts. Aus, leben die Einstellungen nur auf diesem Gerät und dürfen auf insgesamt 1 MiB wachsen statt 8192 Bytes pro Abschnitt. Passt ein Speichern nicht mehr, nennt Gestura den Abschnitt und die Zahlen und bietet die Auswege an.
+
+### Optional: gestura.eu
+
+Zwei Schalter, **beide standardmäßig aus**, jeder hinter seiner eigenen Zustimmung. Sind sie aus, ist Gestura vollständig eigenständig und spricht mit keinem Server — auch nicht mit gestura.eu.
+
+- **Website-Integration** — lässt Seiten auf gestura.eu ein fertiges Menü oder eine Suchmaschine übergeben (immer mit deinem Klick und einer Vorschau), fragen, welche ihrer Einträge du installiert hast, und dir sagen, wenn es eine neuere Version davon gibt. Übertragen werden nur Ids und Versionsnummern, und nur für Einträge, die du von genau dieser Herkunft importiert hast.
+- **Abgleich zwischen Browsern** — die Einstellungen als benannte Stände auf gestura.eu sichern und in einem anderen Browser öffnen. Ende-zu-Ende-verschlüsselt unter einem Code, den dieser Browser erzeugt und nie verschickt: der Dienst speichert Geheimtext, dessen Größe und Datum — und sieht nie einen Schlüssel, nie den Namen eines Standes, nie eine einzelne Einstellung.
+- **Zwei Browser zusammenführen** — ein **Abgleichen**-Knopf an jedem Stand führt ihn mit diesem Browser gegen das zusammen, worauf sich beide zuletzt geeinigt hatten. Was nur auf einer Seite geändert wurde, wird ohne Rückfrage übernommen, eine Löschung bleibt gelöscht statt von der Kopie der Gegenseite wiederbelebt zu werden, und gefragt wirst du nur zu einem Eintrag, den beide Seiten geändert haben: meinen behalten, den anderen übernehmen, oder beide. Keine Uhr entscheidet, und zwei Browser, die sich überholen, können keinen Schreibvorgang verlieren.
 
 ## Standard-Gesten
 
@@ -158,15 +168,16 @@ Einsicht und Beiträge offen.
 
 - Gestura **erfasst keinen** Browserverlauf, keine Lesezeichen und keine Nutzungsgewohnheiten.
 - Gestura **enthält keinen** Analyse- oder Werbe-Code.
-- Gestura **lädt keine** lokalen Daten auf fremde Server.
+- Gestura **spricht in der Standardkonfiguration mit keinem Server.** Die beiden gestura.eu-Schalter sind aus, bis du sie einschaltest — jeder hinter seiner eigenen Zustimmung.
+- Gestura **lädt nichts hoch, das du nicht angeklickt hast.** Ist der gestura.eu-Abgleich eingeschaltet, reisen die Einstellungen, die du sicherst, ausschließlich als Geheimtext — verschlüsselt in deinem Browser, unter einem Schlüssel aus einem Code, der ihn nie verlässt.
 
-Gesturas Einstellungen werden lokal über die Storage-API des Browsers gespeichert. Ist die Browser-Synchronisierung aktiv (z. B. Chrome Sync, Firefox Sync), verschlüsselt und synchronisiert der Browser die Einstellungen zwischen deinen angemeldeten Geräten. Dieser Vorgang liegt vollständig beim Browser und folgt dessen Datenschutz- und Sync-Einstellungen.
+Gesturas Einstellungen werden lokal über die Storage-API des Browsers gespeichert. Die Browser-Synchronisierung ist ein Schalter im Datenbereich der Einstellungen. Bleibt er an — Standard —, verschlüsselt und synchronisiert der Browser sie zwischen deinen angemeldeten Geräten, vollständig nach dessen eigenen Datenschutz- und Sync-Einstellungen. Aus, bleiben sie im lokalen Speicher dieses Geräts und verlassen es nicht; die Kopie, die schon im Sync-Bereich des Browsers liegt, bleibt dort und wird nicht gelöscht.
 
 ### Hinweis zu Brave
 
 **Brave synchronisiert Erweiterungs-Einstellungen nicht zwischen Geräten, auch nicht mit aktivem Brave Sync.** Das ist eine Einschränkung von Brave selbst, nicht von Gestura. Brave betreibt eine eigene, selbst gehostete Sync-Infrastruktur (Brave Sync v2), die bewusst nur einen Teil der Browserdaten abdeckt — Lesezeichen, Verlauf, Passwörter, offene Tabs, die Liste installierter Erweiterungen und so weiter. Der Datentyp *Erweiterungs-Einstellungen* (der Speicherbereich, den Gestura über `chrome.storage.sync` nutzt) ist nicht dabei, und es gibt keine API, über die eine Erweiterung ihn anfordern könnte.
 
-Deine Einstellungen werden auf jedem Brave-Gerät trotzdem gespeichert und bleiben erhalten — sie wandern nur nicht automatisch auf deine anderen Geräte. Solange Brave das nicht nachliefert, ist **Export** und **Import** auf der Optionsseite der einfachste Weg, deine Konfiguration zwischen Geräten zu bewegen: auf einem Gerät in eine Datei exportieren und diese auf dem anderen importieren.
+Deine Einstellungen werden auf jedem Brave-Gerät trotzdem gespeichert und bleiben erhalten — sie wandern nur nicht automatisch auf deine anderen Geräte. Zwei Wege daran vorbei, beide auf der Optionsseite: **Export** und **Import** bewegen die Konfiguration als Datei, und der **gestura.eu-Abgleich** — standardmäßig aus, hinter eigener Zustimmung — sichert sie als benannten Stand, den du im anderen Browser öffnen und danach mit einem Klick zusammenführen kannst.
 
 Die vollständige Datenschutzerklärung steht in [PRIVACY.md](PRIVACY.md).
 

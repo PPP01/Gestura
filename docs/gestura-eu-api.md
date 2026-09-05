@@ -329,6 +329,14 @@ ciphertext and its 16-byte tag.
   unambiguous. This is what stops the server from moving a valid blob to a
   different state or a different role: authentication fails before anything
   decrypts.
+- **Plaintext of `payload`:** either the settings JSON or its **gzip**,
+  recognised by the gzip magic `1f 8b` at the start of the decrypted bytes. A
+  JSON object begins with `{` (`0x7b`), so the test is unambiguous and there is
+  no format field. `meta` is never compressed. The test vectors below are
+  unaffected — they use `role = meta`. Implementations **must bound
+  decompression** (the extension stops at 1 MiB and reports the blob as
+  undecryptable); the server cannot plant a gzip bomb, because GCM
+  authenticates the ciphertext, but a code handed over by a third party can.
 
 ### Envelope test vector
 
@@ -416,11 +424,22 @@ The `updatedAt` in the refusal is there so the client can say *when* the state
 changed under it without a second request; it then re-reads the state and lets
 the user decide.
 
-**This does not merge anything.** It makes a lost write visible instead of
-silent, and it is the precondition for merging later: a client can only merge
-if it can be told "your base is stale" and try again. Merging itself needs
-per-entry versions and deletion markers inside the payload, and is deliberately
-not part of `apiLevel` 3.
+**The server does not merge anything, and does not need to.** The token makes a
+lost write visible instead of silent, and that turned out to be the whole of
+what a merge needs from the service. The extension reconciles two browsers
+against a **base** it keeps locally — the payload it last agreed on with a
+state, under that payload's `payloadHash` — takes over one-sided changes
+without a question, and asks only where both sides changed the same entry. A
+deletion is "in the base, absent from mine", so there are **no deletion
+markers**, and the base makes per-entry versions unnecessary; the payload
+format is unchanged. The merge then stakes its upload on `basePayloadHash` and
+redoes itself on a `412`.
+
+So merging costs this contract nothing: no new field, no new endpoint, no
+`apiLevel` bump. What it does do is make the three rows above **load-bearing**
+— a `412` that wrote anyway, or a comparison against something other than the
+stored payload envelope, would silently overwrite settings on the other
+browser. The extension side shipped on 2026-09-05.
 
 **`POST /api/v1/sync/delete` stays unconditional** and takes no token. Deleting
 is a deliberate act behind a confirmation, and unlike a silent overwrite it is
@@ -435,7 +454,41 @@ one the user is looking at while it happens.
 | `conflict` | 412 | `basePayloadHash` does not describe the stored state — someone else wrote it first. The answer carries the current `updatedAt`. |
 | `too-large` | 413 | A single blob exceeds its limit. |
 | `quota-states` | 409 | The locator already holds the maximum number of states. |
-| `rate-limited` | 429 | Per-IP rate limit (the July design's RateLimiter). |
+| `rate-limited` | 429 | Per-IP rate limit on requests and on bytes written (the July design's RateLimiter). |
+
+**How the client reads an answer.** The same rules the update check states for
+itself, written down here too because the sync endpoints are a second service
+surface and nothing about them is implied by the first:
+
+- **The HTTP status decides**, not the body. The client maps `400`, `404`,
+  `409`, `412`, `413` and `429` to the codes above by status alone and never
+  reads the `error` string — it reads a body for exactly one code, `conflict`,
+  and only for its `updatedAt`. So an error announced with `200`, or the right
+  `error` string under the wrong status, is misread. Any other status is a
+  generic failure the user sees as "the service answered with an error".
+- **No redirects.** The client sends `redirect: "error"`; a `3xx` is a failed
+  request, not a hop. A `307`/`308` preserves method *and* body, and the body
+  carries the locator.
+- **A response over 1 MiB is refused**, by an early exit on a declared
+  `Content-Length` and again on the received bytes. No legitimate answer comes
+  close: the largest is a `get` at one 512 KiB payload envelope, and a `list`
+  of five states carries five `meta` blobs of at most 8 KiB.
+- **15 seconds, for the whole answer.** The abort timer covers the body, not
+  just the headers — `fetch` resolves on the headers, so a slow body would
+  otherwise hang forever. A service that needs longer than that to wake up
+  reads to the user as a network error.
+- **No cookies, no session.** The client sends `credentials: "omit"` and
+  `cache: "no-store"`, and CORS allows it only `Content-Type`. Authentication
+  is the locator in the body and nothing else.
+
+**What protects the quota.** Locators are free and unlimited — 32 random bytes,
+no registration, no account — so anyone treating the service as free blob
+storage simply derives more of them. The per-locator limits below are
+therefore *not* an abuse bound and should not be read as one. What bounds the
+cost is the **per-IP rate limit** on bytes written and the **12-month
+retention**. If abuse ever appears, the levers in order are: tighten the
+per-IP write limit, shorten retention, lower the per-locator total, and only
+then proof of work on a registration call.
 
 **Limits**, enforced server-side and mirrored client-side so the user sees the
 number before the request rather than after it:
@@ -444,8 +497,16 @@ number before the request rather than after it:
 |---|---|
 | `meta` envelope | 8 KiB as transmitted |
 | `payload` envelope | 512 KiB as transmitted |
-| states per locator | 10 |
+| states per locator | 5 |
 | total per locator | 4 MiB |
+
+`5 × 512 KiB + 5 × 8 KiB` fits inside the 4 MiB total; the table cannot
+contradict itself. **The state limit is checked on create only, never
+retroactively:** a locator holding more states than the limit — after the
+limit was lowered — keeps all of them; reading, writing and deleting stay
+possible, only a further create is refused with `quota-states`. There is no
+`locator-full` code: with per-state limits the total is unreachable by
+construction.
 
 **Retention:** a state that is neither read nor written for **12 months** is
 deleted. This is the only way blobs under a lost secret can ever go away — the
@@ -488,7 +549,9 @@ and both directions of sync. One validator implements it
 - **`euIntegration`, `euSync` and the secret are never exported and never
   imported.** They live in `chrome.storage.local`; a crafted file must not be
   able to flip a switch or plant a secret.
-- **Maximum size:** 512 KiB of JSON text.
+- **Maximum size:** 1 MiB of JSON text — the extension's local settings
+  ceiling. The 512 KiB `payload` limit above is a limit on the *envelope* as
+  transmitted; compression sits between the two numbers.
 - The import is **atomic and replacing**: one validated write of the whole
   settings object, never a partial application, never a merge.
 

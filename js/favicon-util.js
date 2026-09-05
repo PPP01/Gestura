@@ -75,7 +75,18 @@
 		return links[0].href;
 	}
 
-	const api = { monogramLetter, colorForName, monogramDataUri, parseIconLinks, pickBestIconHref, sizeFromAttr };
+	// The favicon cache in storage.local had no bound on the number of origins.
+	// Now that the settings can live beside it (spec §10.3), and storage.local is
+	// 5 MB on Chrome 109–113, it gets one: the newest `max` entries by `ts`.
+	// Returns a new object; an entry without a numeric ts counts as oldest.
+	function pruneCache(cache, max) {
+		const entries = Object.entries(cache || {});
+		if (entries.length <= max) return { ...(cache || {}) };
+		entries.sort((a, b) => (Number(b[1] && b[1].ts) || 0) - (Number(a[1] && a[1].ts) || 0));
+		return Object.fromEntries(entries.slice(0, max));
+	}
+
+	const api = { monogramLetter, colorForName, monogramDataUri, parseIconLinks, pickBestIconHref, sizeFromAttr, pruneCache };
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.FlowMouseFavicon = api;
 })(typeof self !== 'undefined' ? self : globalThis);

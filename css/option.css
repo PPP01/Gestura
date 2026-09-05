@@ -1050,6 +1050,9 @@ color-picker {
 	position: fixed;
 	bottom: 20px;
 	right: 20px;
+	/* Long refusal strings route through here now - two clauses, a branch name and
+	   two numbers. Without a bound the toast grows across the whole window. */
+	max-width: min(420px, calc(100vw - 40px));
 	padding: 12px 20px;
 	border-radius: 8px;
 	background: var(--success-color);
