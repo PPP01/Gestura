@@ -363,3 +363,20 @@ describe('the write token', () => {
 		expect(read).toBe(0);
 	});
 });
+
+describe('a body that never finishes arriving', () => {
+	// The 15 s timer is deliberately kept alive across res.text() - fetch()
+	// resolves on the HEADERS, so a slow body would otherwise be unbounded.
+	// When it fires there, the abort surfaces out of the body read, not out of
+	// the fetch, and it is still a network failure.
+	it('maps an aborted body read to network', async () => {
+		const fetchImpl = async () => ({
+			ok: true,
+			status: 200,
+			headers: { get: () => null },
+			text: async () => { throw new DOMException('The operation was aborted.', 'AbortError'); },
+		});
+		await expect(S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu', fetchImpl }))
+			.rejects.toMatchObject({ code: 'network' });
+	});
+});

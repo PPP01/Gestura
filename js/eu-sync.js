@@ -78,7 +78,12 @@
 			}
 			const declared = Number(res.headers?.get?.('content-length'));
 			if (Number.isFinite(declared) && declared > LIMITS.responseMaxBytes) throw syncError('too-large');
-			const text = await res.text();
+			// The timeout is still running here on purpose, so this read is one more
+			// thing that can abort - and an abort raised out of the body is the same
+			// network failure an abort raised out of the fetch is. Left raw it has
+			// no `.code` and the panel calls it a server error.
+			let text;
+			try { text = await res.text(); } catch { throw syncError('network'); }
 			if (new TextEncoder().encode(text).length > LIMITS.responseMaxBytes) throw syncError('too-large');
 			let parsed;
 			try { parsed = JSON.parse(text); } catch { throw syncError('malformed'); }
