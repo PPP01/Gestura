@@ -237,7 +237,7 @@ gives every synced key exactly one kind:
 | kind | identity | keys |
 |---|---|---|
 | `record` | the child's own name | `mouseGestures` (by pattern), `wheelGestures`, `specialGestures`, `actionChains`, `siteMenus.custom` / `.edited` / `.domains` / `.flags`, `searchEngines.overrides` |
-| `keyed-list` | a named field inside each item | `searchEngines.custom` (by `id`), `menuAppend.items` (by `id`), `textDragGestures` / `linkDragGestures` / `imageDragGestures` (by `direction`) |
+| `keyed-list` | a named field inside each item | `searchEngines.custom` (by `id`), `menuAppend.items` (by `id`, and `ordered` — see below), `textDragGestures` / `linkDragGestures` / `imageDragGestures` (by `direction`) |
 | `set` | the element itself | `blacklist`, `siteMenus.disabled`, `searchEngines.hidden` |
 | `order` | not data — a presentation order | `siteMenus.order`, `searchEngines.order` |
 | `scalar` | the key as a whole | the remaining ~50, plus fixed children like `siteMenus.defaultMenuId`, `menuAppend.enabled`, `gestureTriggerButtons.*`, `customMenuSwitcher.*` |
@@ -258,11 +258,30 @@ question surface small:
   therefore survives; two browsers that reorder differently converge on the
   remote order without a dialog.
 
+  **Which ids no longer exist is not known until the conflicts are answered.**
+  An id the merge asked about keeps its place through the merge, whichever way
+  the entry came out of §5: *theirs* can restore what this side deleted, *mine*
+  can keep what the other side deleted. `apply` settles it — it drops the ids
+  whose entry no answer kept, and only among the ids that were asked about, so
+  a catalogue id, which is never in `custom`, is never touched.
+
 `record`, `keyed-list` and `scalar` are the three that can. **`keyed-list` is
-merged exactly like a `record`** keyed by its named field, and written back as
-an array in the sequence of its `order` key where one exists, else remote
-entries first and new local ones appended — so it reaches §5's ten cases by the
-same path a `record` does and needs no rules of its own.
+merged exactly like a `record`** keyed by its named field — so it reaches §5's
+ten cases by the same path a `record` does and needs no rules of its own. Only
+the sequence it is written back in differs, and which of the three cases applies
+is declared, never inferred:
+
+- **An `order` key beside it** (`searchEngines.custom`) carries the presentation
+  order, so the array itself does not: remote entries first, new local ones
+  appended.
+- **Marked `ordered`** (`menuAppend.items`), the array *is* the presentation
+  order — the user drags those items into place and nothing else records where
+  they went. Its sequence is merged by the same three-way rule an `order` key
+  gets, and **a reorder alone counts towards the summary**: without that, a
+  browser whose only change is a reorder is told it is in sync, and the two stay
+  different forever.
+- **Neither** (the drag gestures, keyed by `direction`) — there is no order to
+  lose.
 
 `searchEngines.custom` is worth naming explicitly because it is the trap: it is
 an **array**, not an object, so index position is meaningless as identity and
@@ -395,7 +414,8 @@ and that attachment is "new over there → take it". The resolvers already
 tolerate an id that resolves to nothing (`js/menu-model.js` skips unknown ids
 in `order`, an unknown `domains[id]` is never read), so it costs a few stale
 bytes and no behaviour. `order` is the exception, and only because §4's rule
-already drops unknown ids there.
+drops unknown ids there — in `apply`, once the answer to this very question is
+known.
 
 **Mine** is preselected. There is no defensible default when both sides moved,
 and preselecting the local value is the one that cannot surprise: the user is

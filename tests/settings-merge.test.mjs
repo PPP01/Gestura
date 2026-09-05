@@ -366,6 +366,45 @@ describe('merge - keyed-list', () => {
 	});
 });
 
+describe('merge - menuAppend.items carries its own order', () => {
+	// The one keyed-list whose array sequence IS the data: the manager lets the
+	// user drag these items around and applyMenuAppend renders them in array
+	// order. searchEngines.custom has an `order` sibling for that job and stays
+	// unordered here.
+	const ma = (ids) => ({ menuAppend: { items: ids.map(id => ({ id, engineId: id })) } });
+	const ids = (m) => m.result.menuAppend.items.map(i => i.id);
+
+	it('keeps a local-only reorder when remote equals the base', () => {
+		const m = M.merge(ma(['a', 'b', 'c']), ma(['c', 'a', 'b']), ma(['a', 'b', 'c']));
+		expect(ids(m)).toEqual(['c', 'a', 'b']);
+		expect(m.conflicts).toEqual([]);
+	});
+	it('counts a pure reorder, so the panel does not report it as in sync', () => {
+		const m = M.merge(ma(['a', 'b', 'c']), ma(['c', 'a', 'b']), ma(['a', 'b', 'c']));
+		expect(m.summary.uploaded).toBe(1);
+	});
+	it('takes a remote-only reorder', () => {
+		const m = M.merge(ma(['a', 'b', 'c']), ma(['a', 'b', 'c']), ma(['b', 'c', 'a']));
+		expect(ids(m)).toEqual(['b', 'c', 'a']);
+		expect(m.summary.taken).toBe(1);
+	});
+	it('lets remote win when both reordered, without a conflict', () => {
+		const m = M.merge(ma(['a', 'b', 'c']), ma(['c', 'b', 'a']), ma(['b', 'a', 'c']));
+		expect(ids(m)).toEqual(['b', 'a', 'c']);
+		expect(m.conflicts).toEqual([]);
+	});
+	it('appends a local-only item at the end and drops what was deleted', () => {
+		const m = M.merge(ma(['a', 'b']), ma(['a', 'b', 'x']), ma(['b']));
+		expect(ids(m)).toEqual(['b', 'x']);
+	});
+	it('leaves searchEngines.custom unordered: remote sequence first, local-only appended', () => {
+		const se = (custom) => ({ searchEngines: { custom } });
+		const e = (id) => ({ id, name: id, url: 'https://' + id + '/?q=%s' });
+		const m = M.merge(se([e('engine_g')]), se([e('engine_g'), e('engine_x')]), se([e('engine_h'), e('engine_g')]));
+		expect(m.result.searchEngines.custom.map(x => x.id)).toEqual(['engine_h', 'engine_g', 'engine_x']);
+	});
+});
+
 describe('apply', () => {
 	const conflictOn = (b, l, r) => M.merge(menus(b), menus(l), menus(r));
 
@@ -455,6 +494,40 @@ describe('apply', () => {
 		const copy = both.searchEngines.custom[2];
 		expect(copy.id).toMatch(/^engine_[0-9a-f]{10}$/);
 		expect(copy.name).toBe('H there (office)');
+	});
+	// An `order` array must list exactly the ids the settings hold - and which
+	// ids those are is not known until the conflicts have been answered.
+	it('leaves a menu restored by "theirs" listed in the order', () => {
+		const sm = (order, custom) => ({ siteMenus: { order, custom } });
+		const m = M.merge(
+			sm(['search', 'menu_x', 'menu_y'], { menu_x: A, menu_y: A }),
+			sm(['search', 'menu_y'], { menu_y: A }),
+			sm(['search', 'menu_x', 'menu_y'], { menu_x: A2, menu_y: A }),
+		);
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(out.siteMenus.custom.menu_x).toEqual(A2);
+		expect(out.siteMenus.order).toContain('menu_x');
+	});
+	it('drops from the order a menu that "theirs" deleted', () => {
+		const sm = (order, custom) => ({ siteMenus: { order, custom } });
+		const m = M.merge(
+			sm(['search', 'menu_x'], { menu_x: A }),
+			sm(['search', 'menu_x'], { menu_x: A1 }),
+			sm(['search'], {}),
+		);
+		const out = M.apply(m.result, m.conflicts, { [m.conflicts[0].key]: 'theirs' }, {});
+		expect(out.siteMenus.custom).toEqual({});
+		expect(out.siteMenus.order).toEqual(['search']);
+	});
+	it('keeps the order untouched when the answer is mine', () => {
+		const sm = (order, custom) => ({ siteMenus: { order, custom } });
+		const m = M.merge(
+			sm(['search', 'menu_x'], { menu_x: A }),
+			sm(['search', 'menu_x'], { menu_x: A1 }),
+			sm(['search'], {}),
+		);
+		const out = M.apply(m.result, m.conflicts, {}, {});
+		expect(out.siteMenus.order).toEqual(['search', 'menu_x']);
 	});
 	it('handles a scalar', () => {
 		const m = M.merge({ trailWidth: 5 }, { trailWidth: 6 }, { trailWidth: 8 });

@@ -30,6 +30,10 @@
 	// `both: true` marks a record/keyed-list whose ids are generated, so a
 	// conflict may be answered with "keep both" and the incoming copy gets a
 	// fresh id with `idPrefix`.
+	// `ordered: true` marks a keyed-list whose array sequence is itself data -
+	// the user arranged it and something renders it that way - without an
+	// `order` sibling to carry it. Declared, never inferred: for every other
+	// keyed-list the sequence means nothing and must not be merged as if it did.
 	const MERGE_MAP = {
 		enableDragFeatures: 'scalar',
 		enableAreaSelect: 'scalar',
@@ -93,7 +97,10 @@
 		} },
 		menuAppend: { kind: 'container', children: {
 			enabled: 'scalar',
-			items: { kind: 'keyed-list', key: 'id' },
+			// Ordered: site-menu-manager.js lets the user drag these items around
+			// and menu-model.js's applyMenuAppend renders them in array order.
+			// They have no `order` sibling, so the array carries it.
+			items: { kind: 'keyed-list', key: 'id', ordered: true },
 		} },
 		customMenuSwitcher: { kind: 'container', children: { enabled: 'scalar', position: 'scalar' } },
 		customMenuTheme: 'scalar',
@@ -204,7 +211,7 @@
 
 	// Fixed children, each by its own kind, in the declared order - so a sibling
 	// declared later (`order`) can see what the merge did to one declared
-	// earlier (`custom`). A child the map does not name is merged as a scalar:
+	// earlier (`custom`), and which of its ids are still waiting for an answer. A child the map does not name is merged as a scalar:
 	// with newer-version payloads refused (spec §3) it can only come from this
 	// browser's own storage.
 	function mergeContainer(ctx, path, s, b, l, r) {
@@ -245,30 +252,46 @@
 		return isObj(value) ? Object.keys(value) : [];
 	}
 
-	// Spec §4: the same three-way rule as everything else, then the other
-	// side's ids appended, then ids whose entry this merge deleted dropped.
-	// Deleted = existed in the `of` sibling on some side, absent from the merged
-	// sibling. Catalogue ids are never in `custom`, so never dropped.
-	function mergeOrder(ctx, path, s, b, l, r, sib) {
+	// Spec §4's three-way rule over two plain id sequences: the side that moved
+	// wins, remote breaks the tie, the other side's ids are appended, and ids
+	// in `gone` are dropped. Shared by an `order` key and by an `ordered`
+	// keyed-list, whose array sequence does the same job without a second key.
+	function mergeIdOrder(b, l, r, gone) {
 		const B = arr(b);
 		const L = arr(l);
 		const R = arr(r);
 		const chosen = deepEqual(R, B) ? L : R;
 		const other = chosen === L ? R : L;
-		let gone = new Set();
-		if (sib && s.of) {
-			const os = spec(sib.spec.children[s.of]);
-			const existed = union(idsOf(os, sib.b[s.of]), idsOf(os, sib.l[s.of]), idsOf(os, sib.r[s.of]));
-			const kept = new Set(idsOf(os, sib.out[s.of]));
-			gone = new Set(existed.filter(id => !kept.has(id)));
-		}
 		const out = [];
 		for (const id of [...chosen, ...other]) {
 			if (!gone.has(id) && !out.includes(id)) out.push(id);
 		}
 		const sameL = deepEqual(out, L);
 		const sameR = deepEqual(out, R);
-		count(ctx, sameL && sameR ? 'unchanged' : sameL ? 'uploaded' : sameR ? 'taken' : 'uploaded');
+		return { out, status: sameL && sameR ? 'unchanged' : sameL ? 'uploaded' : sameR ? 'taken' : 'uploaded' };
+	}
+
+	// Deleted = existed in the `of` sibling on some side, absent from the merged
+	// sibling. Catalogue ids are never in `custom`, so never dropped.
+	//
+	// An id the merge asked about is not deleted yet, whichever way the entry
+	// came out here: "theirs" can restore what this side dropped, "mine" can
+	// keep what the other side dropped. Holding its place costs an id that
+	// apply() then prunes; dropping it early costs the place, and there is
+	// nothing left to put back. apply() settles both directions once the
+	// answers exist.
+	function mergeOrder(ctx, path, s, b, l, r, sib) {
+		let gone = new Set();
+		if (sib && s.of) {
+			const os = spec(sib.spec.children[s.of]);
+			const sibPath = path.slice(0, path.lastIndexOf('.') + 1) + s.of;
+			const pending = new Set(ctx.conflicts.filter(c => c.path === sibPath).map(c => c.id));
+			const existed = union(idsOf(os, sib.b[s.of]), idsOf(os, sib.l[s.of]), idsOf(os, sib.r[s.of]));
+			const kept = new Set(idsOf(os, sib.out[s.of]));
+			gone = new Set(existed.filter(id => !kept.has(id) && !pending.has(id)));
+		}
+		const { out, status } = mergeIdOrder(b, l, r, gone);
+		count(ctx, status);
 		return out;
 	}
 
@@ -281,20 +304,34 @@
 	}
 
 	// A record keyed by a field inside each item, written back as an array:
-	// remote items in their sequence, local-only items appended. The array's
-	// own order carries no meaning - `searchEngines.order` does that job.
+	// remote items in their sequence, local-only items appended. For all but one
+	// of them the array's own order carries no meaning - `searchEngines.order`
+	// does that job, and the drag gestures have no order to lose.
+	//
+	// `ordered` is that one. Its sequence is what the user arranged, so it gets
+	// the same rule an `order` key gets, and a reorder alone has to count:
+	// otherwise a browser whose only change is a reorder is told it is in sync,
+	// and the two stay different forever.
 	function mergeKeyedList(ctx, path, s, b, l, r) {
 		const B = toMap(s, b);
 		const L = toMap(s, l);
 		const R = toMap(s, r);
-		const out = [];
+		const merged = new Map();
 		for (const id of union(Object.keys(R), Object.keys(L), Object.keys(B))) {
 			const e = mergeEntry(B[id], L[id], R[id]);
 			if (e.status === 'conflict') pushConflict(ctx, path, id, 'keyed-list', s, L[id], R[id]);
 			else count(ctx, e.status);
-			if (e.value !== undefined) out.push(e.value);
+			if (e.value !== undefined) merged.set(id, e.value);
 		}
-		return out;
+		if (!s.ordered) return [...merged.values()];
+		// An entry survives only if some side still has it, so every id in
+		// `merged` is in one of the two sequences and none can fall out here.
+		const gone = new Set(union(idsOf(s, b), idsOf(s, l), idsOf(s, r)).filter(id => !merged.has(id)));
+		const seq = mergeIdOrder(idsOf(s, b), idsOf(s, l), idsOf(s, r), gone);
+		// The entries are counted above; only a sequence that moved says
+		// something the summary does not already carry.
+		if (seq.status !== 'unchanged') count(ctx, seq.status);
+		return seq.out.map(id => merged.get(id));
 	}
 
 	function mergeValue(ctx, path, s, b, l, r, sib) {
@@ -363,6 +400,33 @@
 	// result: what merge() returned (holds `mine` for every conflict).
 	// choices: { [conflict.key]: 'mine' | 'theirs' | 'both' }; missing = 'mine'.
 	// Never mutates; returns the final object for validation, preview and upload.
+	// Every `order` child of MERGE_MAP with the sibling it orders. Derived once,
+	// so apply() does not walk the map per conflict.
+	const ORDER_KEYS = Object.entries(MERGE_MAP).flatMap(([key, raw]) => {
+		const s = spec(raw);
+		if (s.kind !== 'container') return [];
+		return Object.entries(s.children)
+			.map(([child, craw]) => [child, spec(craw)])
+			.filter(([, cs]) => cs.kind === 'order' && cs.of)
+			.map(([child, cs]) => ({ container: key, order: child, of: cs.of, ofSpec: spec(s.children[cs.of]) }));
+	});
+
+	// The other half of mergeOrder's postponement: an id it held a place for is
+	// dropped here when the answer really did delete the entry, and kept - in
+	// that place - when the answer brought it back. Only ids that were asked
+	// about are re-examined, so a catalogue id in `order`, which is never in
+	// `custom`, is never touched.
+	function pruneOrders(out, conflicts) {
+		for (const o of ORDER_KEYS) {
+			const asked = new Set((conflicts || []).filter(c => c.path === o.container + '.' + o.of).map(c => c.id));
+			if (!asked.size) continue;
+			const cont = out[o.container];
+			if (!isObj(cont) || !Array.isArray(cont[o.order])) continue;
+			const live = new Set(idsOf(o.ofSpec, cont[o.of]));
+			cont[o.order] = cont[o.order].filter(id => !asked.has(id) || live.has(id));
+		}
+	}
+
 	function apply(result, conflicts, choices, opts) {
 		const out = structuredClone(result);
 		const stateName = (opts && opts.stateName) || '';
@@ -401,6 +465,7 @@
 			}
 			parent[last] = list;
 		}
+		pruneOrders(out, conflicts);
 		return out;
 	}
 
