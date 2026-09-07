@@ -102,6 +102,17 @@
   resets that setting to its default, and a malformed `mouseGestures` value no
   longer keeps the options page from loading.
 - The favicon cache is capped at 48 sites.
+- **New icon.** The toolbar tile is now a blue-to-violet gradient with the
+  white hand, replacing the dark teal tile, and the hand sits a little larger
+  in it than before — which is what keeps it readable at 16 and 32 px. The
+  standalone hand on the settings header and in the popup follows the same
+  palette on light backgrounds, kept as dark as the previous artwork; on dark
+  backgrounds it stays the white hand it was, which simply reads better there.
+  The popup's dark-mode tile is now the toolbar tile.
+- **The page favicon has its own pair of files now.** At 16 px a gradient loses
+  its lightest parts against a white tab strip, so `icon48-light.png` joins
+  `icon48-dark.png`: both are one flat colour with all the shading in the alpha
+  channel, near-black violet for light strips and white for dark ones.
 
 ### v2.8.0 (2026-09-02)
 
