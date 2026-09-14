@@ -35,6 +35,15 @@ describe('manifest.json content scripts', () => {
 		const missing = list.filter(f => !existsSync(join(repo, f)));
 		expect(missing, `missing: ${missing.join(', ')}`).toEqual([]);
 	});
+
+	// GesturaBlacklist decides whether a frame gets gestures at all, so it has to
+	// be defined before content.js runs.
+	it('loads blacklist-match.js before content.js', () => {
+		const b = list.indexOf('js/blacklist-match.js');
+		const c = list.indexOf('js/content.js');
+		expect(b, 'js/blacklist-match.js missing from content_scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(c);
+	});
 });
 
 // Inert here and load-bearing after the merge into firefox-build: that branch
@@ -48,6 +57,13 @@ describe('the Gecko manifest background.scripts list', () => {
 
 	it.skipIf(!Array.isArray(scripts))('begins with constants.js, then settings-storage.js', () => {
 		expect(scripts.slice(0, 2)).toEqual(FIRST_TWO);
+	});
+
+	it.skipIf(!Array.isArray(scripts))('loads blacklist-match.js before background.js', () => {
+		const b = scripts.indexOf('js/blacklist-match.js');
+		const g = scripts.indexOf('js/background.js');
+		expect(b, 'js/blacklist-match.js missing from background.scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(g);
 	});
 });
 
@@ -64,6 +80,10 @@ describe('the service worker importScripts block', () => {
 	it('names only files that exist', () => {
 		const missing = imported.filter(f => !existsSync(join(repo, 'js', f)));
 		expect(missing, `missing: ${missing.join(', ')}`).toEqual([]);
+	});
+
+	it('imports blacklist-match.js', () => {
+		expect(imported).toContain('blacklist-match.js');
 	});
 });
 

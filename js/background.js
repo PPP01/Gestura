@@ -8,6 +8,7 @@
 // branch by merge — see FORK-NOTES.md's "Updating from upstream".
 importScripts('constants.js');
 importScripts('settings-storage.js');
+importScripts('blacklist-match.js');
 importScripts('menu-patterns.js');
 importScripts('menu-catalog.js');
 importScripts('menu-model.js');

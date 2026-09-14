@@ -41,6 +41,7 @@
             "js": [
                 "js/constants.js",
                 "js/settings-storage.js",
+                "js/blacklist-match.js",
                 "js/eu-integration.js",
                 "js/eu-local.js",
                 "js/gesture-visual.js",
