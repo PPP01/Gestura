@@ -203,6 +203,7 @@
 			this._bindings = [];
 			this._onUpdateCallbacks = [];
 			this._onReattachCallbacks = [];
+			this._liveGate = null;
 		}
 
 		add(condition, target, event, handler, options) {
@@ -214,9 +215,24 @@
 			}
 			const safeHandler = (e) => {
 				if (!e.isTrusted) return;
+				if (condition && this._liveGate && !this._liveGate()) return;
 				handler(e);
 			};
 			this._bindings.push({ target, event, handler: safeHandler, options, condition, active: false });
+			return this;
+		}
+
+		// A binding's `condition` decides whether the listener is attached and is only
+		// re-read in update(). A live gate is re-read on every event, for state that
+		// changes without a settings change — the current path, under a single-page app
+		// that routes through the History API.
+		//
+		// It applies only to bindings that carry a condition. The ones registered with
+		// null are the cleanup handlers — pageshow, visibilitychange, pagehide, blur,
+		// Escape — and they have to keep running on a page whose gestures are off, or
+		// the state they clear is stranded across the transition.
+		setLiveGate(fn) {
+			this._liveGate = fn;
 			return this;
 		}
 
