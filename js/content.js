@@ -2106,50 +2106,75 @@ window.ContentContextMenu = ContentContextMenu;
 	const isFirefox = false;
 	const isEdgeDesktop = navigator.userAgent.includes('Edg/');
 
-	const currentDomain = location.hostname;
-
-	function checkBlacklist(blacklist) {
-		if (!blacklistFeatureEnabled) return false;
-		if (blacklist.includes(currentDomain)) return true;
-		try {
-			const origins = location.ancestorOrigins;
-			if (origins && origins.length > 0) {
-				return blacklist.includes(new URL(origins[origins.length - 1]).hostname);
-			}
-		} catch (e) {}
-		return false;
-	}
-
-	let isBlacklisted = false;
+	// Four states, not one. hardStopped is a one-way street the user or the browser
+	// asked for; originBlocked is a verdict recomputed whenever the settings change.
+	// Mapping both onto one variable would let a later blacklist edit revive
+	// gestures after pauseGesture.
+	let hardStopped = false;
+	let originBlocked = false;
+	let livePathEntries = [];
+	let gateBlocked = false;
 	let initGesturesCalled = false;
 	let blacklistFeatureEnabled = true;
 	let currentBlacklist = [];
 
+	function ancestorOrigin() {
+		try {
+			const origins = location.ancestorOrigins;
+			if (origins && origins.length > 0) return origins[origins.length - 1];
+		} catch (e) {}
+		return null;
+	}
+
+	function applyBlacklist(list) {
+		if (!blacklistFeatureEnabled) {
+			originBlocked = false;
+			livePathEntries = [];
+			return;
+		}
+		const r = window.GesturaBlacklist.evaluate({
+			hostname: location.hostname,
+			port: location.port,
+			protocol: location.protocol,
+			ancestorOrigin: ancestorOrigin(),
+		}, list);
+		originBlocked = r.originBlocked;
+		livePathEntries = r.pathEntries;
+	}
+
+	// A host and a port are fixed for the life of this document; a path is not,
+	// because a single-page app can route without reloading. So the path verdict is
+	// taken here, per event, through the live gate. For every page without a path
+	// entry on its host this is one length check.
+	function blockedNow() {
+		if (hardStopped || originBlocked) return true;
+		if (livePathEntries.length === 0) return false;
+		const p = location.pathname;
+		return livePathEntries.some(e => window.GesturaBlacklist.pathMatches(p, e.path));
+	}
+
 	window.GesturaSettingsStorage.get({ blacklist: [], enableBlacklist: true }).then((items) => {
 		blacklistFeatureEnabled = items.enableBlacklist !== false;
 		currentBlacklist = items.blacklist || [];
-		isBlacklisted = checkBlacklist(currentBlacklist);
-		if (!isBlacklisted) {
+		applyBlacklist(currentBlacklist);
+		// Runs even when a path entry matches right now: the route may change, and a
+		// document that never attached its listeners could never notice.
+		if (!originBlocked) {
 			initGestures();
 		}
 	}).catch((e) => console.error('Gestura: blacklist init failed - settings facade unavailable?', e));
 
 	window.GesturaSettingsStorage.onChanged((changes) => {
-		if (changes.blacklist || changes.enableBlacklist) {
-			if (changes.blacklist) {
-				currentBlacklist = changes.blacklist.newValue || [];
-			}
-			if (changes.enableBlacklist) {
-				blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
-			}
-			const nowBlacklisted = checkBlacklist(currentBlacklist);
-
-			if (nowBlacklisted !== isBlacklisted) {
-				isBlacklisted = nowBlacklisted;
-				if (nowBlacklisted === false && !initGesturesCalled) {
-					initGestures();
-				}
-			}
+		if (!changes.blacklist && !changes.enableBlacklist) return;
+		if (changes.blacklist) {
+			currentBlacklist = changes.blacklist.newValue || [];
+		}
+		if (changes.enableBlacklist) {
+			blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
+		}
+		applyBlacklist(currentBlacklist);
+		if (!originBlocked && !initGesturesCalled) {
+			initGestures();
 		}
 	});
 
@@ -2421,9 +2446,6 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		window.GesturaSettingsStorage.onChanged((changes) => {
-			const keys = Object.keys(changes);
-			if (keys.length === 1 && keys[0] === 'blacklist') return;
-
 			loadSettings();
 		});
 
@@ -2431,7 +2453,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
-				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || isBlacklisted) return;
+				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || blockedNow()) return;
 				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
 				const cursor = { startX: p.x, startY: p.y, endX: p.x, endY: p.y };
 				const target = document.elementFromPoint(p.x, p.y);
@@ -2525,7 +2547,7 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 
 			if (request.action === 'pauseGesture') {
-				isBlacklisted = true;
+				hardStopped = true;
 				resetState();
 				eventManager.dispose();
 				visualizer.cleanup();
@@ -2604,11 +2626,39 @@ window.ContentContextMenu = ContentContextMenu;
 		const toaster = new window.ToastOverlay();
 		const ctxMenu = new ContentContextMenu();
 
-		const isGestureEnabled = () => SETTINGS.enableGesture && !isBlacklisted;
-		const isWheelGestureEnabled = () => SETTINGS.enableWheelGestures && !isBlacklisted;
-		const isSpecialGestureEnabled = () => SETTINGS.enableSpecialGestures && !isBlacklisted;
-		const isDragEnabled = () => SETTINGS.enableDrag && !isBlacklisted;
+		// resetState() resets the recognizer and gestureState and leaves three flags
+		// standing that only the ungated cleanup handlers ever clear. Routing into a
+		// blocked path and back out would carry them across: a stale
+		// wheelGestureTriggered swallows the next context menu, and a stale
+		// areaSelectPending resumes an old selection on the next pointermove.
+		function resetTransientState() {
+			resetState();
+			wheelGestureTriggered = false;
+			rockerGestureTriggered = false;
+			areaSelectPending = null;
+			visualizer.cleanup();
+			toaster.cleanup();
+			ctxMenu.close();
+			window.FlowMouseAreaSelect?.exit();
+		}
+
+		// The crossing from allowed to blocked has to be noticed in the gate, not in a
+		// handler: a handler behind a closed gate is exactly what does not run. Without
+		// this, a route change during a held gesture would leave the recognizer active
+		// and its trail on screen, because pointermove and pointerup stop arriving.
+		function refreshGate() {
+			const now = blockedNow();
+			if (now && !gateBlocked) resetTransientState();
+			gateBlocked = now;
+			return now;
+		}
+
+		const isGestureEnabled = () => SETTINGS.enableGesture && !originBlocked;
+		const isWheelGestureEnabled = () => SETTINGS.enableWheelGestures && !originBlocked;
+		const isSpecialGestureEnabled = () => SETTINGS.enableSpecialGestures && !originBlocked;
+		const isDragEnabled = () => SETTINGS.enableDrag && !originBlocked;
 		const eventManager = new window.EventManager();
+		eventManager.setLiveGate(() => !refreshGate());
 
 		let _docEl = document.documentElement;
 		new MutationObserver(() => {
@@ -2622,7 +2672,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const extensionId = chrome.runtime.id;
 			function onDispose(event) {
 				if (event.detail?.extensionId !== extensionId) return;
-				isBlacklisted = true;
+				hardStopped = true;
 				eventManager.dispose();
 				visualizer.cleanup();
 				toaster.cleanup();
@@ -2638,7 +2688,7 @@ window.ContentContextMenu = ContentContextMenu;
 		function isExtensionContextValid() {
 			{
 				if (!chrome.runtime?.id) {
-					isBlacklisted = true;
+					hardStopped = true;
 					eventManager.dispose();
 					visualizer.cleanup();
 					toaster.cleanup();
@@ -2797,7 +2847,7 @@ window.ContentContextMenu = ContentContextMenu;
 		let lastCtxMenuPoint = null;   // {x,y} in Viewport-Koordinaten dieses Frames
 		let lastCtxMenuTarget = null;  // Element unter dem Rechtsklick
 
-		eventManager.add(() => !isBlacklisted, window, 'contextmenu', (e) => {
+		eventManager.add(() => !originBlocked, window, 'contextmenu', (e) => {
 			if (!isExtensionContextValid()) return;
 
 			lastCtxMenuPoint = { x: e.clientX, y: e.clientY };
