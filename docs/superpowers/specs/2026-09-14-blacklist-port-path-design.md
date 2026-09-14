@@ -407,6 +407,21 @@ alongside today's `isBlacklisted`. They are declared after the point where
 `refreshGate` sits, which is safe because nothing calls it until a listener fires,
 and no listener is attached until `update()` runs from `loadSettings()`.
 
+**`eventManager.setLiveGate(...)` itself is not safe to place next to these
+declarations, though the code block above shows it there for readability.**
+`resetTransientState` and `refreshGate` are function *declarations* — hoisted,
+callable from anywhere in this scope regardless of where the eventual caller
+sits relative to them. The `setLiveGate` call is not a declaration; it runs
+immediately, as a statement, the moment execution reaches it. `eventManager`
+itself is declared later in `initGestures()`, after the four attach-condition
+lambdas — so this call has exactly one legal position: after
+`const eventManager = new window.EventManager();`, wherever that line is. A
+plan built from this spec must place the call there and only there; a first
+version of the accompanying implementation plan placed it beside the function
+declarations instead, which throws a temporal-dead-zone `ReferenceError` on
+every call to `initGestures()` — caught during implementation, not by the test
+suite, since `content.js` has no runtime harness.
+
 The edge is noticed at the next event rather than at the instant of navigation —
 for a held gesture, the next `pointermove`.
 

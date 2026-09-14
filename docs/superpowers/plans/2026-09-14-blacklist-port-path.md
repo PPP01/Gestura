@@ -903,8 +903,6 @@ In `js/content.js`, immediately after the line
 			gateBlocked = now;
 			return now;
 		}
-
-		eventManager.setLiveGate(() => !refreshGate());
 ```
 
 > `wheelGestureTriggered` (`:2754`), `rockerGestureTriggered` (`:2755`) and
@@ -912,10 +910,42 @@ In `js/content.js`, immediately after the line
 > `resetTransientState` is a hoisted function declaration, nothing calls it until a
 > listener fires, and no listener is attached until `update()` runs from
 > `loadSettings()` at the end of `initGestures()`.
+>
+> **`eventManager.setLiveGate(...)` does NOT go here.** `const eventManager = new
+> window.EventManager();` is declared *later* in this same scope (after the four
+> guard lambdas Step 3 touches) — calling `eventManager.setLiveGate(...)` before
+> that line runs is a reference to a `const` before its declaration, which throws
+> a temporal-dead-zone `ReferenceError` on every call to `initGestures()`. The two
+> function *declarations* above are hoisted and safe to place here; the gate *call*
+> is not, because it executes immediately at this point in the code rather than
+> being deferred until something invokes it. Add the following line separately, in
+> Step 3, immediately after `const eventManager = new window.EventManager();` —
+> not here:
+>
+> ```js
+> eventManager.setLiveGate(() => !refreshGate());
+> ```
 
-- [ ] **Step 3: Point the attach conditions at `originBlocked`**
+- [ ] **Step 3: Wire the gate to `eventManager`, and point the attach conditions at `originBlocked`**
 
-Replace lines 2591-2594 with:
+Immediately after `const eventManager = new window.EventManager();` (the
+declaration itself, further down in `initGestures()` than `ctxMenu` — locate it
+by that exact text, not by a line number, since Step 1's edit shifts what came
+before it), insert:
+
+```js
+		eventManager.setLiveGate(() => !refreshGate());
+```
+
+This is the only place this call may go: `refreshGate` (a hoisted function
+declaration, safe to reference from anywhere in this scope) is available
+regardless of position, but `eventManager` itself does not exist as a value until
+this line — calling `.setLiveGate` on it any earlier throws.
+
+Separately, and in no particular order relative to the insertion above — this
+edit sits *earlier* in the file, before `eventManager`'s declaration, and
+assigning an arrow function to a `const` has no forward-reference problem the way
+calling a method on one does — replace lines 2591-2594 with:
 
 ```js
 		const isGestureEnabled = () => SETTINGS.enableGesture && !originBlocked;
