@@ -195,10 +195,16 @@ location-like object and the list so it can be tested without a DOM.
 `pathMatches` is exported because the hot path in §5 needs it without re-parsing a
 URL, and because it is where the `/games` vs `/gameszone` boundary lives.
 
-### It loads in five places, not three
+### It loads in six places, not three
 
 A classic script needs registering wherever it is used, and this one is used by
-content scripts, by the worker, and by two extension pages:
+content scripts, by the worker, and by every extension page that loads
+`content.js` or `popup-page.js`. **Three pages load `content.js`, not one:**
+`pages/options.html`, `pages/about.html` and `pages/css-editor.html` all three
+carry it (verified against the repo, not assumed — a first pass at this design
+named only `options.html`, which is the corrected mistake this note exists to
+flag). All three already load `settings-storage.js` before it, in the same
+pattern, so the fix is the same one-line addition repeated three times.
 
 | where | why |
 |---|---|
@@ -206,14 +212,15 @@ content scripts, by the worker, and by two extension pages:
 | `importScripts` in `js/background.js` | the context menu paths |
 | `background.scripts` in the Firefox manifest (`firefox-build`) | Firefox has no `importScripts` |
 | `pages/popup.html` | before the `popup-page.js` module |
-| `pages/options.html` | before `content.js` at line 50 |
+| `pages/options.html`, `pages/about.html`, `pages/css-editor.html` | each loads `content.js` |
 
 Missing any of them surfaces only at runtime, as `GesturaBlacklist is not defined`
 — at `document_start` in every frame, or when the popup opens.
 
-Both pages load their components as `<script type="module">`, which is deferred
+The pages load their components as `<script type="module">`, which is deferred
 and therefore always runs after the classic scripts; the binding constraint on
-`options.html` is `content.js` at line 50, which is classic and must come after.
+the three `content.js`-loading pages is that same classic script, which must come
+after.
 
 **Test coverage for the registrations.** `tests/load-order.test.mjs` takes the
 first three — but its Gecko block asserts only that the list *begins with* the
@@ -224,8 +231,10 @@ skipped on `main` the way the existing one is and load-bearing after the merge:
 `js/background.js`.
 
 `tests/page-content-deps.test.mjs` already asserts that every page loading
-`content.js` loads its dependencies first — adding `blacklist-match.js` to
-`REQUIRED_BEFORE_CONTENT` covers `options.html`. `popup.html` loads neither
+`content.js` loads its dependencies first, by scanning the `pages/` directory
+rather than naming pages — adding `blacklist-match.js` to
+`REQUIRED_BEFORE_CONTENT` covers all three pages through that existing scan, with
+no test change beyond the one array entry. `popup.html` loads neither
 `content.js` nor `i18n.js` in the shape those blocks look for and so falls through
 every existing assertion; it needs its own, by the same shape: any page loading
 `popup-page.js` must load `blacklist-match.js` before it.

@@ -452,17 +452,24 @@ document-level verdict pure and therefore testable without a DOM."
 
 ---
 
-### Task 3: Register the script in all five places
+### Task 3: Register the script in all seven places
 
 A classic script has to be named in every list that loads it, and nothing warns
 you: a missing entry surfaces at runtime as `GesturaBlacklist is not defined` — at
 `document_start` in every frame, or when the popup opens.
+
+**Three pages load `content.js`, not one.** `pages/options.html`,
+`pages/about.html` and `pages/css-editor.html` all three carry it, each already
+loading `settings-storage.js` first in the same pattern — this replaces an
+earlier version of this task that named only `options.html`.
 
 **Files:**
 - Modify: `manifest.json` (the `content_scripts[0].js` list)
 - Modify: `js/background.js:9-17` (the `importScripts` block)
 - Modify: `pages/popup.html:42-46`
 - Modify: `pages/options.html:24-50`
+- Modify: `pages/about.html` (after its `settings-storage.js` script tag)
+- Modify: `pages/css-editor.html` (after its `settings-storage.js` script tag)
 - Modify: `tests/load-order.test.mjs`
 - Modify: `tests/page-content-deps.test.mjs`
 
@@ -577,6 +584,14 @@ In `pages/options.html`, after line 25 (`settings-storage.js`):
 	<script src="../js/blacklist-match.js"></script>
 ```
 
+`pages/about.html` and `pages/css-editor.html` also load `content.js`, each
+already loading `settings-storage.js` first in the same pattern as
+`options.html`. Add the same tag, in the same relative position, to both:
+
+```html
+	<script src="../js/blacklist-match.js"></script>
+```
+
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/load-order.test.mjs tests/page-content-deps.test.mjs`
@@ -590,12 +605,13 @@ Expected: all suites pass.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add manifest.json js/background.js pages/popup.html pages/options.html tests/load-order.test.mjs tests/page-content-deps.test.mjs
+git add manifest.json js/background.js pages/popup.html pages/options.html pages/about.html pages/css-editor.html tests/load-order.test.mjs tests/page-content-deps.test.mjs
 git commit -m "feat(blacklist): load the matcher everywhere it is used
 
-Five lists, not the three the design first assumed: the popup and the
-options page load it too, and popup.html was covered by no load-order
-assertion at all, so it gets one."
+Seven places, not the three the design first assumed: the popup and
+three content.js-loading pages (options, about, css-editor) load it
+too, and popup.html was covered by no load-order assertion at all, so
+it gets one."
 ```
 
 > **If `git add manifest.json` fails or the file looks modified when it is not:**
