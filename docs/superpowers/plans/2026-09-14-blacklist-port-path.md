@@ -9,9 +9,12 @@ taking the whole host with it.
 **Architecture:** One new classic script, `js/blacklist-match.js`, owns the rule
 and every state decision that can be expressed as a pure function; the four places
 that today each carry `blacklist.includes(hostname)` call it instead. In
-`js/content.js` the verdict splits in two: host and port are decided once per
-document as they are today, while a path is re-decided on every gesture, which is
-what makes the rule survive single-page-app routing without a navigation listener.
+`js/content.js` the verdict splits in two: host and port stay **attach
+conditions**, decided once per document as they are today, while the path is
+decided on every event through a **live gate** added to `EventManager` — whose
+existing conditions are read only in `update()` and never see an event. That is
+what lets the rule follow a single-page app's routing in both directions without a
+navigation listener and without patching the page's `history` object.
 
 **Tech Stack:** Plain ES2020 in classic scripts (no bundler, no transpiler — the
 repo root *is* the unpacked extension), Lit 3 for the components, vitest for tests.
@@ -195,7 +198,7 @@ Create `js/blacklist-match.js`:
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run tests/blacklist-match.test.mjs`
-Expected: PASS, 11 tests.
+Expected: PASS, 12 tests (9 in `normalize`, 3 in `parse`).
 
 - [ ] **Step 5: Commit**
 
@@ -427,7 +430,8 @@ Change the export line to:
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run tests/blacklist-match.test.mjs`
-Expected: PASS, 28 tests.
+Expected: PASS, 33 tests (the 12 from Task 1 plus 4 in `pathMatches`, 6 in
+`matches`, 2 in `matchingEntries`, 9 in `evaluate`).
 
 - [ ] **Step 5: Run the whole suite**
 
@@ -494,6 +498,23 @@ And inside `describe('the service worker importScripts block', …)`:
 		expect(imported).toContain('blacklist-match.js');
 	});
 ```
+
+And inside `describe('the Gecko manifest background.scripts list', …)` — its only
+existing assertion checks the *first two* entries, so a missing
+`blacklist-match.js` would sail through it:
+
+```js
+	it.skipIf(!Array.isArray(scripts))('loads blacklist-match.js before background.js', () => {
+		const b = scripts.indexOf('js/blacklist-match.js');
+		const g = scripts.indexOf('js/background.js');
+		expect(b, 'js/blacklist-match.js missing from background.scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(g);
+	});
+```
+
+> This one is **skipped on `main`**, which has no `background.scripts`, and starts
+> asserting when the file arrives on `firefox-build` by merge. That is the same
+> arrangement as the assertion already beside it.
 
 In `tests/page-content-deps.test.mjs`, add `'blacklist-match.js'` to the
 `REQUIRED_BEFORE_CONTENT` array, and append a new describe block at the end of the
@@ -594,7 +615,7 @@ assertion at all, so it gets one."
 - Produces: `blacklist` entries that may carry a port and a path.
 
 There is no DOM harness for the components in this repo, so this task is verified
-by reading and then in the browser at the end of Task 5. The logic it adds is one
+by reading and then in the browser at the end of Task 6. The logic it adds is one
 call into a function that is already tested.
 
 - [ ] **Step 1: Replace the body of `#addDomain`**
@@ -654,20 +675,105 @@ gets through where the old dot-or-localhost rule would have refused it."
 
 ---
 
-### Task 5: The gate in the content script
+### Task 5: A condition that is re-read on every event
 
-The structural half. Host and port keep being decided once per document; a path is
-re-decided per gesture, which is what makes the rule survive SPA routing without a
-navigation listener.
+`EventManager` has one kind of condition, and it is not the kind this feature
+needs. `add(condition, …)` stores it; `update()` (`js/content.js:233`) reads it to
+decide whether to **attach** the listener; the registered `safeHandler` (`:215`)
+checks `e.isTrusted` and calls straight through. `update()` runs from exactly one
+place, `loadSettings()` (`:2403`).
+
+So a condition never sees an event. Without the change in this task, a path entry
+would do nothing in either direction: a page entered on an allowed path keeps its
+listeners after routing onto a blocked one, and a page entered on a blocked path
+never gets them back.
+
+**Files:**
+- Modify: `js/content.js:201-221` (the `EventManager` constructor and `add`)
+
+**Interfaces:**
+- Consumes: nothing.
+- Produces: `eventManager.setLiveGate(fn)` — `fn` is called with no arguments
+  before every gated handler; a falsy return drops the event. Applies **only** to
+  bindings registered with a non-null `condition`.
+
+- [ ] **Step 1: Add the field to the constructor**
+
+In `js/content.js`, in the `EventManager` constructor (`:202-206`), after
+`this._onReattachCallbacks = [];`:
+
+```js
+			this._liveGate = null;
+```
+
+- [ ] **Step 2: Add the setter**
+
+Directly after the `add(…)` method (i.e. after its closing `}` at `:220`):
+
+```js
+		// A binding's `condition` decides whether the listener is attached and is only
+		// re-read in update(). A live gate is re-read on every event, for state that
+		// changes without a settings change — the current path, under a single-page app
+		// that routes through the History API.
+		//
+		// It applies only to bindings that carry a condition. The ones registered with
+		// null are the cleanup handlers — pageshow, visibilitychange, pagehide, blur,
+		// Escape — and they have to keep running on a page whose gestures are off, or
+		// the state they clear is stranded across the transition.
+		setLiveGate(fn) {
+			this._liveGate = fn;
+			return this;
+		}
+```
+
+- [ ] **Step 3: Consult it in `safeHandler`**
+
+In `add(…)`, replace the `safeHandler` definition (`:215-218`):
+
+```js
+			const safeHandler = (e) => {
+				if (!e.isTrusted) return;
+				if (condition && this._liveGate && !this._liveGate()) return;
+				handler(e);
+			};
+```
+
+`safeHandler` is an arrow function inside a method, so its `this` is the
+`EventManager` instance — the gate is read live, not captured.
+
+- [ ] **Step 4: Run the whole suite**
+
+Run: `npm test`
+Expected: all suites pass. No gate is set yet, so `this._liveGate` is `null`
+everywhere and every handler behaves exactly as before.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add js/content.js
+git commit -m "feat(events): a condition that is re-read on every event
+
+EventManager's condition is an attach condition, read only in update().
+A live gate covers state that changes without a settings change, and
+applies only to bindings that carry a condition — the null ones are the
+cleanup handlers and must keep running on a page whose gestures are off."
+```
+
+---
+
+### Task 6: The gate in the content script
+
+The structural half. Host and port stay attach conditions, decided once per
+document as they are today; the path is decided by the live gate from Task 5.
 
 **Files:**
 - Modify: `js/content.js:2093-2138` (the blacklist block)
-- Modify: `js/content.js:2591-2594` (the guard lambdas)
-- Modify: `js/content.js:2872` (`isAreaSelectModifierEnabled`)
-- Modify: `js/content.js:2418, 2512, 2609, 2625, 2784` (the remaining readers)
+- Modify: `js/content.js:2409` (the early return for blacklist-only changes)
+- Modify: `js/content.js:2418, 2512, 2591-2594, 2609, 2625, 2784`
 
 **Interfaces:**
-- Consumes: `GesturaBlacklist.evaluate`, `GesturaBlacklist.pathMatches`.
+- Consumes: `GesturaBlacklist.evaluate`, `GesturaBlacklist.pathMatches`,
+  `eventManager.setLiveGate` (Task 5).
 - Produces: nothing other tasks read.
 
 - [ ] **Step 1: Replace the blacklist block**
@@ -676,10 +782,10 @@ In `js/content.js`, replace lines 2093-2138 (from `const currentDomain =` throug
 the closing `});` of the `onChanged` handler) with:
 
 ```js
-	// Three states, not one. hardStopped is a one-way street the user or the
-	// browser asked for; originBlocked is a verdict that gets recomputed whenever
-	// the settings change — mapping both onto one variable would let a later
-	// blacklist edit revive gestures after pauseGesture.
+	// Four states, not one. hardStopped is a one-way street the user or the browser
+	// asked for; originBlocked is a verdict recomputed whenever the settings change.
+	// Mapping both onto one variable would let a later blacklist edit revive
+	// gestures after pauseGesture.
 	let hardStopped = false;
 	let originBlocked = false;
 	let livePathEntries = [];
@@ -714,8 +820,8 @@ the closing `});` of the `onChanged` handler) with:
 
 	// A host and a port are fixed for the life of this document; a path is not,
 	// because a single-page app can route without reloading. So the path verdict is
-	// taken here, per gesture, rather than once at startup. For every page without a
-	// path entry on its host this is one length check.
+	// taken here, per event, through the live gate. For every page without a path
+	// entry on its host this is one length check.
 	function blockedNow() {
 		if (hardStopped || originBlocked) return true;
 		if (livePathEntries.length === 0) return false;
@@ -749,57 +855,68 @@ the closing `});` of the `onChanged` handler) with:
 	});
 ```
 
-- [ ] **Step 2: Add `refreshGate` inside `initGestures`**
+- [ ] **Step 2: Add the transition reset and the gate**
 
 In `js/content.js`, immediately after the line
 `const ctxMenu = new ContentContextMenu();` (`:2589`), insert:
 
 ```js
-		// The edge from allowed to blocked has to be noticed in the guard, not in a
-		// handler: a handler behind a false guard is exactly what does not run. Without
+		// resetState() resets the recognizer and gestureState and leaves three flags
+		// standing that only the ungated cleanup handlers ever clear. Routing into a
+		// blocked path and back out would carry them across: a stale
+		// wheelGestureTriggered swallows the next context menu, and a stale
+		// areaSelectPending resumes an old selection on the next pointermove.
+		function resetTransientState() {
+			resetState();
+			wheelGestureTriggered = false;
+			rockerGestureTriggered = false;
+			areaSelectPending = null;
+			visualizer.cleanup();
+			toaster.cleanup();
+			ctxMenu.close();
+			window.FlowMouseAreaSelect?.exit();
+		}
+
+		// The crossing from allowed to blocked has to be noticed in the gate, not in a
+		// handler: a handler behind a closed gate is exactly what does not run. Without
 		// this, a route change during a held gesture would leave the recognizer active
 		// and its trail on screen, because pointermove and pointerup stop arriving.
 		function refreshGate() {
 			const now = blockedNow();
-			if (now && !gateBlocked) {
-				resetState();
-				visualizer.cleanup();
-				toaster.cleanup();
-				ctxMenu.close();
-				window.FlowMouseAreaSelect?.exit();
-			}
+			if (now && !gateBlocked) resetTransientState();
 			gateBlocked = now;
 			return now;
 		}
+
+		eventManager.setLiveGate(() => !refreshGate());
 ```
 
-- [ ] **Step 3: Point every guard at it**
+> `wheelGestureTriggered` (`:2754`), `rockerGestureTriggered` (`:2755`) and
+> `areaSelectPending` (`:2874`) are declared *below* this point. That is safe:
+> `resetTransientState` is a hoisted function declaration, nothing calls it until a
+> listener fires, and no listener is attached until `update()` runs from
+> `loadSettings()` at the end of `initGestures()`.
+
+- [ ] **Step 3: Point the attach conditions at `originBlocked`**
 
 Replace lines 2591-2594 with:
 
 ```js
-		const isGestureEnabled = () => SETTINGS.enableGesture && !refreshGate();
-		const isWheelGestureEnabled = () => SETTINGS.enableWheelGestures && !refreshGate();
-		const isSpecialGestureEnabled = () => SETTINGS.enableSpecialGestures && !refreshGate();
-		const isDragEnabled = () => SETTINGS.enableDrag && !refreshGate();
+		const isGestureEnabled = () => SETTINGS.enableGesture && !originBlocked;
+		const isWheelGestureEnabled = () => SETTINGS.enableWheelGestures && !originBlocked;
+		const isSpecialGestureEnabled = () => SETTINGS.enableSpecialGestures && !originBlocked;
+		const isDragEnabled = () => SETTINGS.enableDrag && !originBlocked;
 ```
-
-Replace line 2872 (`isAreaSelectModifierEnabled`) with:
-
-```js
-		const isAreaSelectModifierEnabled = () => !refreshGate() && SETTINGS.enableAreaSelect !== false && SETTINGS.areaSelectModifierKey && SETTINGS.areaSelectModifierKey !== 'disabled';
-```
-
-> This guard had **no** blacklist check at all. Harmless until now — a blocked page
-> never reached `initGestures()` — but a path-blocked page does, and without this
-> its four listeners would leave modifier-drag area selection live on a page the
-> user silenced.
 
 Replace the `contextmenu` guard on line 2784:
 
 ```js
-		eventManager.add(() => !refreshGate(), window, 'contextmenu', (e) => {
+		eventManager.add(() => !originBlocked, window, 'contextmenu', (e) => {
 ```
+
+> **`isAreaSelectModifierEnabled` (`:2872`) is not changed.** It has no blacklist
+> check and does not need one: it is a binding *with* a condition, so the live gate
+> covers it. Adding an explicit check would be redundant.
 
 On line 2418, replace `isBlacklisted` with `blockedNow()`:
 
@@ -813,17 +930,31 @@ On lines 2512, 2609 and 2625, replace `isBlacklisted = true;` with:
 				hardStopped = true;
 ```
 
-- [ ] **Step 4: Confirm no reader of the old variable is left**
+- [ ] **Step 4: Let a blacklist-only change reach `update()`**
+
+The inner `onChanged` handler returns early when `blacklist` is the only changed
+key, which is now wrong — a blacklist edit can flip `originBlocked`, and the
+listeners have to be re-attached or dropped to match. Delete line 2409:
+
+```js
+			if (keys.length === 1 && keys[0] === 'blacklist') return;
+```
+
+The `const keys = Object.keys(changes);` above it becomes unused; delete it too.
+`loadSettings()` still excludes `blacklist` from `SETTINGS` (`:2339`), which stays
+right — it is read through `applyBlacklist`, not through `SETTINGS`.
+
+- [ ] **Step 5: Confirm no reader of the old variable is left**
 
 Run: `grep -n "isBlacklisted" js/content.js`
 Expected: no output. Any hit is a reader that was missed.
 
-- [ ] **Step 5: Run the whole suite**
+- [ ] **Step 6: Run the whole suite**
 
 Run: `npm test`
 Expected: all suites pass.
 
-- [ ] **Step 6: Verify in the browser**
+- [ ] **Step 7: Verify in the browser**
 
 `js/content.js` has no test harness, so this is checked by hand. **Use Edge, not
 Chrome** — Chrome ignores `--load-extension`, Edge accepts it. Pick a debugging
@@ -831,38 +962,45 @@ port above 9450 and check it is free first (`Get-NetTCPConnection -LocalPort <po
 -State Listen`); port 9333 belongs to the user's own browser, leave it alone.
 
 Load the repo folder as an unpacked extension, then with a local server on two
-ports check, in order:
+ports and a small single-page app, check in order:
 
-1. Blacklist `localhost:3000`. Gestures die on `localhost:3000`, and still work on
+1. Blacklist `localhost:3000`. Gestures die on `localhost:3000` and still work on
    `localhost:3001`. (Before this change, both would have died.)
 2. Replace it with `localhost:3001/galaxy-patrol.html`. Gestures die on that page
    and work on `localhost:3001/index.html`.
 3. On the blocked page, hold the modifier and drag — **area selection must not
-   start.** This is the guard that had none.
-4. In a single-page app, route from an allowed path into a blocked one without
-   reloading: gestures stop. Route back: they work again.
-5. With gestures blocked by a path entry, remove the entry in the options page.
-   Gestures come back without a reload.
-6. Trigger the `pauseGesture` action, then edit the blacklist. Gestures stay off —
+   start.** This is the guard that had no blacklist check.
+4. Route from an allowed path into a blocked one without reloading: gestures stop.
+   Route back: they work again. **This is the case the first version of this plan
+   would have failed entirely.**
+5. **Trigger a wheel or rocker gesture, route into the blocked path, route back,
+   then right-click:** the page's own context menu must open. A stranded
+   `wheelGestureTriggered` would swallow it.
+6. **Press the area-select modifier, route into the blocked path, route back, move
+   the pointer:** no selection rectangle may appear from the old press.
+7. With gestures blocked by a path entry, remove the entry in the options page.
+   Gestures come back without a reload — this is the path that needs Step 4.
+8. Trigger the `pauseGesture` action, then edit the blacklist. Gestures stay off —
    the hard stop must survive a settings change.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add js/content.js
-git commit -m "feat(blacklist): decide a path per gesture, host and port once
+git commit -m "feat(blacklist): decide a path per event, host and port once
 
-A path can change under a single-page app, so its verdict is re-taken in
-the guards, which already run on every gesture — no navigation listener,
-no new permission. The guards go through refreshGate() so the crossing
-from allowed to blocked resets a gesture in flight, and area selection
-gets the blacklist guard it never had: a path-blocked page now reaches
-initGestures(), where a host-blocked one never did."
+Host and port stay attach conditions, as now. The path goes through the
+live gate, so it follows an SPA's routing in both directions without a
+popstate listener and without patching the page's history object, which
+frameworks patch too and which this runs inside on every site.
+
+The crossing into blocked runs resetTransientState(), because resetState()
+leaves wheelGestureTriggered, rockerGestureTriggered and areaSelectPending
+standing — enough to swallow a context menu or resume a selection after a
+round trip. Area selection needs no explicit check: it is a binding with a
+condition, so the gate already covers it."
 ```
-
----
-
-### Task 6: An honest quick toggle
+### Task 7: An honest quick toggle
 
 **Files:**
 - Modify: `js/components/popup-page.js:362, 364, 385-392, 572, 609-625`
@@ -951,6 +1089,9 @@ Replace lines 362-364 with:
 		const showGestures = !this._isRestrictedPage && !this._needRefresh;
 		const canToggleBlacklist = !this._isRestrictedPage && this._currentDomain && !this._needRefresh && (!isBlacklisted || onlyHost);
 		const blockedByOther = isBlacklisted && !onlyHost;
+		const blockedNote = blockedByOther
+			? i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', finerEntry)
+			: '';
 ```
 
 Replace the toggle block (lines 385-392) with:
@@ -965,14 +1106,18 @@ Replace the toggle block (lines 385-392) with:
 					`
 					: blockedByOther
 						? html`
-							<label class="toggle disabled" title="${i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', finerEntry)}">
-								<input type="checkbox" .checked=${false} disabled>
+							<label class="toggle disabled" title="${blockedNote}">
+								<input type="checkbox" .checked=${false} disabled aria-disabled="true" aria-label="${blockedNote}">
 								<span class="slider"></span>
 							</label>
 						`
 						: ''
 				}
 ```
+
+The reason goes on `aria-label` as well as `title`, because a tooltip is reachable
+by neither keyboard nor screen reader — the switch would otherwise be inert with
+no announced explanation.
 
 Replace line 572's early return so a finer entry does not suppress the
 content-script check:
@@ -986,7 +1131,28 @@ content-script check:
 `#toggleBlacklist` (line 609) keeps working on `this._currentDomain` unchanged —
 it is only reachable when `onlyHost` or nothing matches.
 
-- [ ] **Step 5: Teach the context menu the same**
+- [ ] **Step 5: Give the disabled switch a visible state**
+
+`css/common.css` styles `.toggle` and its slider but has no rule for a disabled
+one, and `.toggle .slider` pins `cursor: pointer` (`css/common.css:122`). The
+`disabled` attribute alone stops the click and changes nothing a user can see,
+which reads as a broken control rather than a refused one.
+
+Add to `css/common.css`, after the `.toggle input:checked+.slider:before` rule
+(line 152):
+
+```css
+.toggle.disabled {
+	opacity: 0.45;
+}
+
+.toggle.disabled .slider,
+.toggle input:disabled+.slider {
+	cursor: not-allowed;
+}
+```
+
+- [ ] **Step 6: Teach the context menu the same**
 
 In `js/background.js`, replace line 1982:
 
@@ -1056,30 +1222,31 @@ In the click handler (lines 2170-2183), guard the toggle:
 	}
 ```
 
-- [ ] **Step 6: Run the whole suite**
+- [ ] **Step 7: Run the whole suite**
 
 Run: `npm test`
 Expected: all suites pass.
 
-- [ ] **Step 7: Verify in the browser**
+- [ ] **Step 8: Verify in the browser**
 
-With Edge as in Task 5:
+With Edge as in Task 6:
 
 1. On a page with no entry: the popup switch is on and works; clicking it adds the
    bare host and gestures stop.
 2. With only the bare host listed: the switch is off and clicking it removes the
    entry.
 3. With `localhost:3001/galaxy-patrol.html` listed, on that page: the switch is
-   **disabled**, its tooltip names the entry, and the context-menu item is greyed
-   out with the same text.
+   **disabled and visibly so** — dimmed, `not-allowed` cursor on hover — its
+   tooltip names the entry, and the context-menu item is greyed out with the same
+   text. A switch that refuses a click while looking normal reads as broken.
 4. With **both** `localhost` and `localhost:3001/galaxy-patrol.html` listed, on
    that page: still disabled — this is the case that would otherwise delete the
    host entry and change nothing visible.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add js/components/popup-page.js js/background.js _locales/en/messages.json _locales/de/messages.json tests/site-menu-locales.test.mjs
+git add js/components/popup-page.js js/background.js css/common.css _locales/en/messages.json _locales/de/messages.json tests/site-menu-locales.test.mjs
 git commit -m "feat(blacklist): the quick toggle says when it cannot act
 
 Actionable only when the bare host is the sole reason the page is blocked.
@@ -1089,7 +1256,7 @@ blocked by the finer entry, and snapped the switch back."
 
 ---
 
-### Task 7: The wording catches up
+### Task 8: The wording catches up
 
 Three strings still say "domain" for something that now takes an address.
 
@@ -1163,8 +1330,13 @@ catches that, so it is named here and in the changelog."
   port alone — including area selection on the blocked page.
 - Routing into and out of a blocked path in an SPA turns gestures off and on again
   without a reload.
-- The quick toggle is disabled, and names the entry, when something finer than the
-  bare host is blocking the page.
+- A wheel, rocker or pending area-select left behind by that crossing does not
+  come back with it: the next right-click opens the page's own context menu, and
+  no selection rectangle appears from the old modifier press.
+- Removing the entry restores gestures without a reload.
+- `pauseGesture` survives a later blacklist edit.
+- The quick toggle is disabled — and *looks* disabled — and names the finer entry
+  when something other than the bare host is blocking the page.
 - An existing bare-hostname entry behaves exactly as it did before.
 
 ## Out of scope
