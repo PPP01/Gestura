@@ -440,7 +440,7 @@
 		"description": "Website blacklist"
 	},
 	"blacklistPlaceholder": {
-		"message": "Domain eingeben, z.B. example.com, Enter zum Hinzufügen",
+		"message": "Adresse eingeben, z.B. example.com, localhost:3000 oder example.com/app",
 		"description": "Blacklist input placeholder"
 	},
 	"blacklistBlockedByEntry": {
@@ -451,7 +451,7 @@
 		"description": "Add button"
 	},
 	"emptyBlacklist": {
-		"message": "Keine blockierten Seiten. Domain oben eingeben zum Hinzufügen.",
+		"message": "Keine blockierten Seiten. Adresse oben eingeben zum Hinzufügen.",
 		"description": "Empty blacklist message"
 	},
 	"featuresSection": {
@@ -547,7 +547,7 @@
 		"description": "Import failed sync error message"
 	},
 	"invalidDomain": {
-		"message": "Bitte geben Sie eine gültige Domain ein",
+		"message": "Bitte geben Sie eine gültige Adresse ein",
 		"description": "Invalid domain message"
 	},
 	"domainExists": {

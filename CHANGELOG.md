@@ -69,6 +69,8 @@
   stays deleted instead of being resurrected, and only an entry both sides
   changed asks — Mine, Theirs, or Both. Uploads are still protected by the write
   token, so two racing browsers cannot lose a write.
+- Blacklist entries can name a port and a path, so a single page can lose its
+  gestures without the whole host losing them too (#6).
 
 **Fixes & Improvements:**
 
