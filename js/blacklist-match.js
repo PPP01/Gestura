@@ -69,10 +69,22 @@
 
 	// Every match, not the first: the quick toggle may only act when the bare host
 	// is the sole reason a page is blocked, and asking "which one wins" would make
-	// that depend on the order entries were added in.
+	// that depend on the order entries were added in. Deduplicated by normalized
+	// form, not raw string: two entries that only differ in case, or an exact
+	// duplicate from an import, must not defeat the "bare host is the only
+	// reason" check that decides whether the toggle may act.
 	function matchingEntries(url, entries) {
 		if (!Array.isArray(entries)) return [];
-		return entries.filter(entry => matches(url, entry));
+		const seen = new Set();
+		const result = [];
+		for (const entry of entries) {
+			if (!matches(url, entry)) continue;
+			const key = normalize(entry);
+			if (key === null || seen.has(key)) continue;
+			seen.add(key);
+			result.push(entry);
+		}
+		return result;
 	}
 
 	// The document-level verdict, split the way js/content.js needs it: host and

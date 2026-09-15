@@ -146,9 +146,10 @@ class BlacklistManager extends LitElement {
 		const parsed = entry && window.GesturaBlacklist.parse(entry);
 
 		// A host with no dot is almost always a typo. 'localhost' is the exception
-		// that matters, and the check runs against the host alone so that
-		// localhost:3000 and localhost:3001/game.html get through.
-		if (!parsed || (!parsed.host.includes('.') && parsed.host !== 'localhost')) {
+		// that matters, and an IPv6 literal always comes back bracketed (e.g.
+		// '[::1]') and never contains a dot either. The check runs against the host
+		// alone so that localhost:3000 and localhost:3001/game.html get through.
+		if (!parsed || (!parsed.host.includes('.') && parsed.host !== 'localhost' && !parsed.host.startsWith('['))) {
 			this.#dispatchError(window.i18n.getMessage('invalidDomain'));
 			return;
 		}

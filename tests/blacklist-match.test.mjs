@@ -138,6 +138,15 @@ describe('matchingEntries', () => {
 		expect(matchingEntries('http://other.com/', ['example.com'])).toEqual([]);
 		expect(matchingEntries('http://other.com/', null)).toEqual([]);
 	});
+	// An imported duplicate must not defeat the "bare host is the only reason"
+	// check: two entries that both normalize to the same bare host collapse to
+	// one, so callers still see the single-entry case they need to recognize.
+	it('deduplicates entries that normalize to the same thing', () => {
+		expect(matchingEntries('http://example.com/', ['example.com', 'example.com']))
+			.toEqual(['example.com']);
+		expect(matchingEntries('http://example.com/', ['example.com', 'EXAMPLE.com']))
+			.toEqual(['example.com']);
+	});
 });
 
 describe('evaluate', () => {

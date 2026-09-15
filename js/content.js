@@ -2523,7 +2523,11 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 
 			if (request.action === 'areaSelectEnter') {
-				if (window.FlowMouseAreaSelect && !window.FlowMouseAreaSelect.isActive) {
+				// This arrives over runtime messaging, not through eventManager, so
+				// neither an attach condition nor the live gate covers it on its own -
+				// a relay from another frame or a stale popup could still open it on a
+				// path-blocked document.
+				if (!blockedNow() && window.FlowMouseAreaSelect && !window.FlowMouseAreaSelect.isActive) {
 					const lang = window.ContentI18n.getHtmlLang();
 					const isRtl = window.ContentI18n.getDir() === 'rtl';
 					window.FlowMouseAreaSelect.enter(isIframe, request.warnThreshold, lang, isRtl, undefined, {
@@ -2635,7 +2639,25 @@ window.ContentContextMenu = ContentContextMenu;
 			resetState();
 			wheelGestureTriggered = false;
 			rockerGestureTriggered = false;
+			// rockerLeftExecuted, dropHandledAction and the preventContextMenu pair are
+			// declared further down (still safe: this only runs once a listener fires,
+			// long after initGestures() finished declaring them). resetState() does not
+			// touch them, so a route change during a rocker gesture or a drag would carry
+			// them across and swallow an unrelated click or dragend after the round trip.
+			rockerLeftExecuted = false;
+			dropHandledAction = false;
 			areaSelectPending = null;
+			if (preventContextMenuTimeoutId) {
+				clearTimeout(preventContextMenuTimeoutId);
+				preventContextMenuTimeoutId = null;
+			}
+			if (gestureState.preventContextMenu) {
+				gestureState.preventContextMenu = false;
+				// Balances the active: true this flag was set alongside — otherwise
+				// other frames would keep suppressing their context menu forever.
+				safeSendMessage({ action: 'gestureStateUpdate', active: false });
+			}
+			lastRightClickTime = 0;
 			visualizer.cleanup();
 			toaster.cleanup();
 			ctxMenu.close();

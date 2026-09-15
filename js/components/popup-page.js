@@ -352,6 +352,7 @@ class PopupPage extends LitElement {
 				: !!(settings.sectionAdvanced && settings.sectionAdvanced.basic);
 		}
 		this._blacklist = Array.isArray(settings.blacklist) ? settings.blacklist : [];
+		this._blacklistEnabled = settings.enableBlacklist !== false;
 
 		await this.#loadCurrentSite();
 	}
@@ -361,7 +362,7 @@ class PopupPage extends LitElement {
 		if (!this._ready) return html``;
 		const i18n = window.i18n;
 
-		const blocking = this._currentUrl
+		const blocking = (this._currentUrl && this._blacklistEnabled)
 			? window.GesturaBlacklist.matchingEntries(this._currentUrl, this._blacklist)
 			: [];
 		const isBlacklisted = blocking.length > 0;
@@ -631,21 +632,48 @@ class PopupPage extends LitElement {
 	}
 
 	async #toggleBlacklist() {
-		if (!this._currentDomain || this._isRestrictedPage) return;
+		if (!this._currentDomain || this._isRestrictedPage || !this._currentTabId) return;
 
-		const isBlacklisted = this._blacklist.includes(this._currentDomain);
+		// Re-read the live tab instead of trusting this._currentUrl: a single-page
+		// app can have routed to a finer-blocked path since the popup opened, and
+		// acting on the stale display would add the bare host, widening that block
+		// to the whole site instead of the one path the user never saw.
+		let liveUrl;
+		try {
+			liveUrl = (await chrome.tabs.get(this._currentTabId)).url;
+		} catch (e) {
+			return;
+		}
+		if (!liveUrl) return;
+
+		let liveHost;
+		try {
+			liveHost = new URL(liveUrl).hostname;
+		} catch (e) {
+			return;
+		}
+
+		const blocking = window.GesturaBlacklist.matchingEntries(liveUrl, this._blacklist);
+		const onlyHost = blocking.length === 1 && blocking[0] === liveHost;
+		if (blocking.length > 0 && !onlyHost) {
+			this._currentUrl = liveUrl;
+			this._currentDomain = liveHost;
+			return;
+		}
+
+		const isBlacklisted = blocking.length > 0;
 		if (isBlacklisted) {
-			this._blacklist = this._blacklist.filter(d => d !== this._currentDomain);
+			this._blacklist = this._blacklist.filter(d => d !== liveHost);
 		} else {
-			this._blacklist = [...this._blacklist, this._currentDomain];
+			this._blacklist = [...this._blacklist, liveHost];
 		}
 
 		const res = await this._store.save({ blacklist: this._blacklist });
 		if (!res.ok) {
 			if (isBlacklisted) {
-				this._blacklist = [...this._blacklist, this._currentDomain];
+				this._blacklist = [...this._blacklist, liveHost];
 			} else {
-				this._blacklist = this._blacklist.filter(d => d !== this._currentDomain);
+				this._blacklist = this._blacklist.filter(d => d !== liveHost);
 			}
 		}
 	}
