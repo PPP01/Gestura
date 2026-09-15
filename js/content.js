@@ -3472,7 +3472,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const wheelOptions = { capture: true, passive: false };
 
 			function addWheelListener() {
-				if (wheelListenerActive || !isWheelGestureEnabled()) return;
+				if (wheelListenerActive || !isWheelGestureEnabled() || blockedNow()) return;
 				window.addEventListener('wheel', onChromeWheel, wheelOptions);
 				wheelListenerActive = true;
 			}
@@ -3485,7 +3485,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 			function onChromeWheel(e) {
 				if (!e.isTrusted) return;
-				if (!isWheelGestureEnabled() || !(e.buttons & 2)) {
+				if (!isWheelGestureEnabled() || refreshGate() || !(e.buttons & 2)) {
 					removeWheelListener();
 					return;
 				}

@@ -2149,7 +2149,7 @@ async function updateMenuForTab(tab) {
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	if ((changeInfo.status === 'loading' || changeInfo.status === 'complete') && tab.active) {
+	if ((changeInfo.status === 'loading' || changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
 		updateMenuForTab(tab);
 	}
 });

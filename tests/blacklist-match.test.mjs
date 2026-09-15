@@ -26,6 +26,11 @@ describe('normalize', () => {
 		expect(normalize('example.com/Games')).toBe('example.com/Games');
 	});
 
+	it('punycodes and case-folds a non-ASCII host', () => {
+		expect(normalize('bücher.de')).toBe('xn--bcher-kva.de');
+		expect(normalize('BÜCHER.de')).toBe(normalize('bücher.de'));
+	});
+
 	it('drops a trailing slash, and treats a lone slash as no path', () => {
 		expect(normalize('example.com/a/b/')).toBe('example.com/a/b');
 		expect(normalize('example.com/')).toBe('example.com');

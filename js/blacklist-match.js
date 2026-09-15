@@ -29,8 +29,16 @@
 		if (!s) return null;
 		let u;
 		try { u = new URL('gestura://' + s); } catch { return null; }
-		const host = u.hostname.toLowerCase();
-		if (!host) return null;
+		if (!u.hostname) return null;
+		// The non-special scheme above is what keeps an explicit default port
+		// (:443, :80) from being silently dropped, but it also skips IDNA: a
+		// Unicode host like "bücher.de" comes back as percent-encoded garbage
+		// instead of the punycode form location.hostname would report. Re-parse
+		// just the host under a special scheme to get correct punycode and
+		// case-folding; keep port and path from the parse above, since a
+		// special-scheme parse is exactly the one that drops a default port.
+		let host;
+		try { host = new URL('https://' + u.hostname).hostname; } catch { return null; }
 		return { host, port: u.port || '', path: u.pathname.replace(/\/+$/, '') };
 	}
 
