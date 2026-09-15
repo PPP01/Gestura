@@ -12,6 +12,7 @@ class PopupPage extends LitElement {
 		_enableHUD: { state: true },
 		_gestureEnabled: { state: true },
 		_currentDomain: { state: true },
+		_currentUrl: { state: true },
 		_displayDomain: { state: true },
 		_blacklist: { state: true },
 		_isRestrictedPage: { state: true },
@@ -308,6 +309,7 @@ class PopupPage extends LitElement {
 		this._enableHUD = true;
 		this._gestureEnabled = true;
 		this._currentDomain = '';
+		this._currentUrl = '';
 		this._displayDomain = '';
 		this._blacklist = [];
 		this._isRestrictedPage = false;
@@ -359,9 +361,24 @@ class PopupPage extends LitElement {
 		if (!this._ready) return html``;
 		const i18n = window.i18n;
 
-		const isBlacklisted = this._blacklist.includes(this._currentDomain);
+		const blocking = this._currentUrl
+			? window.GesturaBlacklist.matchingEntries(this._currentUrl, this._blacklist)
+			: [];
+		const isBlacklisted = blocking.length > 0;
+		// Actionable only when the bare host is the sole reason. Removing a finer
+		// entry the user did not point at would take the block off every page under
+		// it — worse than sending them one screen further.
+		const onlyHost = blocking.length === 1 && blocking[0] === this._currentDomain;
+		// Name the entry that is NOT the bare host: with both listed, blocking[0]
+		// may be the host, and "blocked by localhost" would be a confusing reason
+		// for a switch that is disabled because of the finer entry.
+		const finerEntry = blocking.find(e => e !== this._currentDomain);
 		const showGestures = !this._isRestrictedPage && !this._needRefresh;
-		const canToggleBlacklist = !this._isRestrictedPage && this._currentDomain && !this._needRefresh;
+		const canToggleBlacklist = !this._isRestrictedPage && this._currentDomain && !this._needRefresh && (!isBlacklisted || onlyHost);
+		const blockedByOther = isBlacklisted && !onlyHost;
+		const blockedNote = blockedByOther
+			? i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', finerEntry)
+			: '';
 
 		return html`
 			<div class="header">
@@ -389,7 +406,14 @@ class PopupPage extends LitElement {
 							<span class="slider"></span>
 						</label>
 					`
-					: ''
+					: blockedByOther
+						? html`
+							<label class="toggle disabled" title="${blockedNote}">
+								<input type="checkbox" .checked=${false} disabled aria-disabled="true" aria-label="${blockedNote}">
+								<span class="slider"></span>
+							</label>
+						`
+						: ''
 				}
 			</div>
 
@@ -568,8 +592,9 @@ class PopupPage extends LitElement {
 			return;
 		}
 		this._currentDomain = hostname;
+		this._currentUrl = url;
 
-		if (this._blacklist.includes(this._currentDomain)) {
+		if (window.GesturaBlacklist.matchingEntries(url, this._blacklist).length > 0) {
 			return;
 		}
 

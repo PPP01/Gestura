@@ -443,6 +443,9 @@
 		"message": "Enter domain, e.g. example.com, press Enter to add",
 		"description": "Blacklist input placeholder"
 	},
+	"blacklistBlockedByEntry": {
+		"message": "Gestures blocked by {entry}"
+	},
 	"add": {
 		"message": "Add",
 		"description": "Add button"

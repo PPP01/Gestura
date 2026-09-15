@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 // Alle in diesem Feature eingeführten Keys müssen in JEDER Locale existieren.
-const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration', 'euSync', 'settingsPreview'];
+const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration', 'euSync', 'settingsPreview', 'blacklist'];
 const NEW_KEYS_EXPLICIT = ['customMenuOwnLabel', 'menuFallbackLabel', 'menuFallbackNone', 'editGlobalMenuHint', 'openSiteMenusSection',
 	'importDoneTitle', 'importBadgeNew', 'exchangeConflictModified'];
 
@@ -72,7 +72,8 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'storageSwitchToSyncConfirm', 'storageSwitchToSyncConfirmSince',
 	'storageBrowserSync', 'storageBrowserSyncOnDesc', 'storageBrowserSyncOffDesc',
 	'storageSwitchRefusedBranch', 'storageSwitchRefusedTotal', 'storageSwitchRefusedTier2', 'storageSwitchFailed',
-	'storageMovedNote', 'storageMovedSwitch', 'storageFullHint'];
+	'storageMovedNote', 'storageMovedSwitch', 'storageFullHint',
+	'blacklistBlockedByEntry'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

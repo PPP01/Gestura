@@ -163,6 +163,15 @@ html[lang="ko"] body {
 	box-shadow: 0 0 0 2px var(--input-focus-border-color);
 }
 
+.toggle.disabled {
+	opacity: 0.45;
+}
+
+.toggle.disabled .slider,
+.toggle input:disabled+.slider {
+	cursor: not-allowed;
+}
+
 input[type="checkbox"] {
 	-webkit-appearance: none;
 	appearance: none;

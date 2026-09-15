@@ -1894,14 +1894,19 @@ function getMsg(key, fallback) {
 	}
 }
 
-function createBlacklistMenu(isInBlacklist) {
-	const title = isInBlacklist
-		? chrome.i18n.getMessage('menuRemoveFromBlacklist')
-		: chrome.i18n.getMessage('menuAddToBlacklist');
+function createBlacklistMenu(isInBlacklist, blockedByEntry) {
+	// A finer entry than the bare host is blocking this page: say which, and do not
+	// offer a click that would delete an entry the user did not point at.
+	const title = blockedByEntry
+		? chrome.i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', blockedByEntry)
+		: isInBlacklist
+			? chrome.i18n.getMessage('menuRemoveFromBlacklist')
+			: chrome.i18n.getMessage('menuAddToBlacklist');
 	chrome.contextMenus.create({
 		id: MENU_ID_BLACKLIST,
 		title: title,
-		contexts: ['all']
+		contexts: ['all'],
+		enabled: !blockedByEntry
 	}, () => { chrome.runtime.lastError; });
 }
 
@@ -1980,7 +1985,16 @@ async function updateMenuForTab(tab) {
 	} catch (e) {
 	}
 	const restricted = isRestrictedUrl(url);
-	const isBlacklistedHost = blacklistEnabled && hostname && Array.isArray(items.blacklist) && items.blacklist.includes(hostname);
+	const blocking = blacklistEnabled && url && Array.isArray(items.blacklist)
+		? GesturaBlacklist.matchingEntries(url, items.blacklist)
+		: [];
+	const isBlacklistedHost = blocking.length > 0;
+	const onlyHostEntry = blocking.length === 1 && blocking[0] === hostname;
+	// The entry that is not the bare host — the reason the item has to be inert.
+	// blocking[0] would name the host when both are listed, which explains nothing.
+	const finerEntry = isBlacklistedHost && !onlyHostEntry
+		? blocking.find(e => e !== hostname)
+		: null;
 	const pageOk = !!hostname && !restricted && !isBlacklistedHost;
 
 	// Reihenfolge im Rechtsklick-Menü:
@@ -1998,7 +2012,7 @@ async function updateMenuForTab(tab) {
 
 	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren
 	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !restricted) {
-		createBlacklistMenu(isBlacklistedHost);
+		createBlacklistMenu(isBlacklistedHost, finerEntry);
 	}
 
 	// 3) Hinweis bei eingeschränkten / nicht geladenen Seiten (+ Badge)
@@ -2173,6 +2187,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 				if (!hostname) return;
 				const storageItems = await GesturaSettingsStorage.get(['blacklist']);
 				let blacklist = storageItems.blacklist || [];
+				const blocking = GesturaBlacklist.matchingEntries(tab.url, blacklist);
+				if (blocking.length > 0 && !(blocking.length === 1 && blocking[0] === hostname)) return;
 				if (blacklist.includes(hostname)) {
 					blacklist = blacklist.filter(d => d !== hostname);
 				} else {
