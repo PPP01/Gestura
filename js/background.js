@@ -1779,6 +1779,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 const MENU_ID_REFRESH = 'flowmouse-need-refresh';
 const MENU_ID_RESTRICTED = 'flowmouse-restricted';
 const MENU_ID_BLACKLIST = 'flowmouse-blacklist-toggle';
+const MENU_ID_BLACKLIST_NOTICE = 'flowmouse-blacklist-notice';
 const MENU_ID_OPTIONS = 'flowmouse-open-options';
 const MENU_ID_SITEMENU = 'flowmouse-open-sitemenu';
 const MENU_ID_ADD_PARENT = 'flowmouse-add-site-parent';
@@ -1896,7 +1897,8 @@ function getMsg(key, fallback) {
 
 function createBlacklistMenu(isInBlacklist, blockedByEntry) {
 	// A finer entry than the bare host is blocking this page: say which, and do not
-	// offer a click that would delete an entry the user did not point at.
+	// offer a click that would delete an entry the user did not point at - but the
+	// item stays clickable, opening the blacklist to manage it instead of a no-op.
 	const title = blockedByEntry
 		? chrome.i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', blockedByEntry)
 		: isInBlacklist
@@ -1905,8 +1907,18 @@ function createBlacklistMenu(isInBlacklist, blockedByEntry) {
 	chrome.contextMenus.create({
 		id: MENU_ID_BLACKLIST,
 		title: title,
-		contexts: ['all'],
-		enabled: !blockedByEntry
+		contexts: ['all']
+	}, () => { chrome.runtime.lastError; });
+}
+
+// Shown instead of createBlacklistMenu() when the quick toggle item is off
+// (enableBlacklistContextMenu defaults to false) but the page is blocked - the
+// popup already says so, but the context menu said nothing at all until now.
+function createBlacklistNoticeMenu() {
+	chrome.contextMenus.create({
+		id: MENU_ID_BLACKLIST_NOTICE,
+		title: chrome.i18n.getMessage('menuBlacklisted'),
+		contexts: ['all']
 	}, () => { chrome.runtime.lastError; });
 }
 
@@ -2010,9 +2022,15 @@ async function updateMenuForTab(tab) {
 		}, () => { chrome.runtime.lastError; });
 	}
 
-	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren
-	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !restricted) {
-		createBlacklistMenu(isBlacklistedHost, finerEntry);
+	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren, oder - wenn dieser
+	// Schnell-Umschalter aus ist (Standard) - wenigstens ein Hinweis mit Link zur
+	// Blacklist, statt die Sperre auf dieser Seite ganz zu verschweigen.
+	if (blacklistEnabled && hostname && !restricted) {
+		if (items.enableBlacklistContextMenu) {
+			createBlacklistMenu(isBlacklistedHost, finerEntry);
+		} else if (isBlacklistedHost && showNotice) {
+			createBlacklistNoticeMenu();
+		}
 	}
 
 	// 3) Hinweis bei eingeschränkten / nicht geladenen Seiten (+ Badge)
@@ -2188,7 +2206,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 				const storageItems = await GesturaSettingsStorage.get(['blacklist']);
 				let blacklist = storageItems.blacklist || [];
 				const blocking = GesturaBlacklist.matchingEntries(tab.url, blacklist);
-				if (blocking.length > 0 && !(blocking.length === 1 && blocking[0] === hostname)) return;
+				const onlyHost = blocking.length === 1 && blocking[0] === hostname;
+				if (blocking.length > 0 && !onlyHost) {
+					// Blocked by a finer entry than the bare host: no single click here is
+					// safe to toggle, so send them to the list instead of doing nothing.
+					await openOptionsPage('#blacklistManager');
+					return;
+				}
 				if (blacklist.includes(hostname)) {
 					blacklist = blacklist.filter(d => d !== hostname);
 				} else {
@@ -2199,6 +2223,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 			} catch (e) {
 			}
 		}
+	} else if (info.menuItemId === MENU_ID_BLACKLIST_NOTICE) {
+		await openOptionsPage('#blacklistManager');
 	} else if (info.menuItemId === MENU_ID_RESTRICTED) {
 		await openOptionsPage('#restricted-notice');
 	} else if (info.menuItemId === MENU_ID_OPTIONS) {

@@ -1390,6 +1390,10 @@
 		"message": "Gestura unavailable, learn why",
 		"description": "Context menu title for restricted pages"
 	},
+	"menuBlacklisted": {
+		"message": "Gestures blocked here, manage list",
+		"description": "Context menu title for pages blocked by the blacklist, shown when the quick toggle item is off"
+	},
 	"showRestrictedNotice": {
 		"message": "Restricted Page Notice",
 		"description": "Setting title for restricted page notice"
