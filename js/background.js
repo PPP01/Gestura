@@ -2055,7 +2055,7 @@ async function updateMenuForTab(tab) {
 		const addEntries = (m, parentId) => {
 			const name = menuDisplayName(m);
 			const has = !!self.FlowMouseMenuModel.findLinkInMenu(
-				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, self._siteMenusCache, m.id, url);
+				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, self._siteMenusCache, m.id, url, url);
 			const named = (key, fallback) => getMsg(key, fallback).replace('{NAME}', name);
 			const parent = parentId ? { parentId } : {};
 			chrome.contextMenus.create({
@@ -2224,7 +2224,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		const menuId = info.menuItemId.slice(CTX_REMOVE_PREFIX.length);
 		const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 		const { siteMenus, removed } = self.FlowMouseMenuModel.removeLinkFromMenu(
-			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url);
+			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url, tab.url);
 		if (!removed) return;
 		const res = await GesturaSettingsStorage.set({ siteMenus });
 		if (res.ok) self._siteMenusCache = siteMenus;
@@ -2242,7 +2242,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		// aufgebaut, bevor feststeht, worauf geklickt wird. Ohne diese Prüfung
 		// erschiene der Titel-Dialog und das Ergebnis verschwände wortlos.
 		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
-		if (self.FlowMouseMenuModel.findLinkInMenu(catalog, cur, menuId, url)) {
+		if (self.FlowMouseMenuModel.findLinkInMenu(catalog, cur, menuId, url, tab.url)) {
 			const m = activeSiteMenus().find(x => x.id === menuId);
 			chrome.tabs.sendMessage(tab.id, {
 				action: 'ctxToast',
@@ -2266,7 +2266,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		} catch (e) { /* Content nicht verfügbar → Fallback */ }
 		if (!label) label = isLink ? url : (tab.title || url);
 
-		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url });
+		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url, pageUrl: tab.url });
 		if (addPattern) {
 			const pat = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
 			({ siteMenus } = self.FlowMouseMenuModel.addPatternToMenu(catalog, siteMenus, menuId, pat));

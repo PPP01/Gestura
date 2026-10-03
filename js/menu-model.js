@@ -328,18 +328,40 @@
 		}
 	}
 
+	// A menu whose links already hang off the current page ({tabOrigin:raw}/…)
+	// is meant for a self-hosted service. A link added to it from that same
+	// origin is stored the same way, so it follows the instance when its
+	// address changes. Everywhere else the URL is stored as is.
+	const ORIGIN_PREFIX = '{tabOrigin:raw}';
+	function storedLinkUrl(base, url, pageUrl) {
+		if (!url || !pageUrl) return url;
+		const relative = (base.items || []).some(it =>
+			it && typeof it.customUrl === 'string' && it.customUrl.startsWith(ORIGIN_PREFIX + '/'));
+		if (!relative) return url;
+		try {
+			const u = new URL(url);
+			if (u.origin === 'null' || u.origin !== new URL(pageUrl).origin) return url;
+			return ORIGIN_PREFIX + u.pathname + u.search + u.hash;
+		} catch { return url; }
+	}
+	// The forms one URL can be stored in: as given, and relative to the page.
+	function linkUrlForms(base, url, pageUrl) {
+		return new Set([url, storedLinkUrl(base, url, pageUrl)]);
+	}
+
 	function addLinkToMenu(catalog, siteMenus, menuId, opts) {
 		const o = opts || {};
 		if (!o.url) return { siteMenus, added: null };
 		const base = getBaseMenu(catalog, siteMenus, menuId);
 		if (!base) return { siteMenus, added: null };
 		const items = base.items || [];
-		const dup = items.some(it => it && it.customUrl === o.url);
+		const forms = linkUrlForms(base, o.url, o.pageUrl);
+		const dup = items.some(it => it && forms.has(it.customUrl));
 		if (dup) return { siteMenus, added: null };
 		const item = {
 			id: o.id || newItemId(),
 			action: 'openCustomUrl',
-			customUrl: o.url,
+			customUrl: storedLinkUrl(base, o.url, o.pageUrl),
 			customName: o.label || o.url,
 			icon: o.icon || 'link',
 		};
@@ -350,19 +372,21 @@
 	// Gegenstück zur Dedupe-Prüfung in addLinkToMenu: dieselbe Gleichheit über
 	// customUrl. Katalog-Einträge mit {domain}-Platzhalter treffen dabei nie auf
 	// eine konkrete URL — das sind Vorlagen, keine hinzugefügten Seiten.
-	function findLinkInMenu(catalog, siteMenus, menuId, url) {
+	function findLinkInMenu(catalog, siteMenus, menuId, url, pageUrl) {
 		if (!url) return null;
 		const base = getBaseMenu(catalog, siteMenus, menuId);
 		if (!base) return null;
-		return (base.items || []).find(it => it && it.customUrl === url) || null;
+		const forms = linkUrlForms(base, url, pageUrl);
+		return (base.items || []).find(it => it && forms.has(it.customUrl)) || null;
 	}
 
-	function removeLinkFromMenu(catalog, siteMenus, menuId, url) {
-		const hit = findLinkInMenu(catalog, siteMenus, menuId, url);
+	function removeLinkFromMenu(catalog, siteMenus, menuId, url, pageUrl) {
+		const hit = findLinkInMenu(catalog, siteMenus, menuId, url, pageUrl);
 		if (!hit) return { siteMenus, removed: null };
 		const base = getBaseMenu(catalog, siteMenus, menuId);
+		const forms = linkUrlForms(base, url, pageUrl);
 		// Alle Dubletten mitnehmen — Altbestände können mehrere tragen.
-		const def = { ...base, items: (base.items || []).filter(it => !it || it.customUrl !== url) };
+		const def = { ...base, items: (base.items || []).filter(it => !it || !forms.has(it.customUrl)) };
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), removed: hit };
 	}
 

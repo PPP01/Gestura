@@ -499,3 +499,48 @@ describe('itemOpenConfig — Präzedenz Link → Menü → global', () => {
 		expect(M.itemOpenConfig(it_, '', 'standardReverse', 0)).toEqual({ position: 'current', active: true });
 	});
 });
+
+describe('links in origin-relative menus', () => {
+	const PAGE = 'https://assi.home.schep.de/energie-2/energie?x=1#top';
+	const REL = { ...EMPTY, custom: { ha: { name: 'HA', patterns: [], items: [
+		{ id: 'h', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/' },
+	] } } };
+	const urlsOf = (sm, id) => M.getBaseMenu(CATALOG, sm, id).items.map(i => i.customUrl);
+
+	it('a page on the current origin is stored relative to it', () => {
+		const { siteMenus, added } = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'Energie', url: PAGE, pageUrl: PAGE, id: 'item_e' });
+		expect(added.customUrl).toBe('{tabOrigin:raw}/energie-2/energie?x=1#top');
+		expect(urlsOf(siteMenus, 'ha')).toContain('{tabOrigin:raw}/energie-2/energie?x=1#top');
+	});
+	it('the port stays part of the origin', () => {
+		const page = 'http://192.168.1.5:8123/config/logs';
+		expect(M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'L', url: page, pageUrl: page }).added.customUrl)
+			.toBe('{tabOrigin:raw}/config/logs');
+	});
+	it('a link to another origin stays absolute', () => {
+		const url = 'https://grafana.example/d/abc';
+		expect(M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'G', url, pageUrl: PAGE }).added.customUrl).toBe(url);
+	});
+	it('an ordinary menu keeps absolute URLs even on the same origin', () => {
+		const url = 'https://github.com/a/b';
+		expect(M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'B', url, pageUrl: url }).added.customUrl).toBe(url);
+	});
+	it('without a page url nothing is rewritten', () => {
+		expect(M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'E', url: PAGE }).added.customUrl).toBe(PAGE);
+	});
+	it('the same page is recognised as already there, in both forms', () => {
+		const { siteMenus } = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'E', url: PAGE, pageUrl: PAGE, id: 'item_e' });
+		expect(M.addLinkToMenu(CATALOG, siteMenus, 'ha', { label: 'E2', url: PAGE, pageUrl: PAGE }).added).toBeNull();
+		expect(M.findLinkInMenu(CATALOG, siteMenus, 'ha', PAGE, PAGE).id).toBe('item_e');
+		expect(M.findLinkInMenu(CATALOG, siteMenus, 'ha', PAGE)).toBeNull();
+		// An absolute entry saved earlier is still found.
+		const old = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'Alt', url: PAGE, id: 'item_old' }).siteMenus;
+		expect(M.findLinkInMenu(CATALOG, old, 'ha', PAGE, PAGE).id).toBe('item_old');
+	});
+	it('removing by page url takes the relative entry out and round-trips', () => {
+		let { siteMenus } = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'E', url: PAGE, pageUrl: PAGE, id: 'item_e' });
+		const res = M.removeLinkFromMenu(CATALOG, siteMenus, 'ha', PAGE, PAGE);
+		expect(res.removed.id).toBe('item_e');
+		expect(urlsOf(res.siteMenus, 'ha')).toEqual(['{tabOrigin:raw}/']);
+	});
+});
