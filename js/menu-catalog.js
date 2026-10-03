@@ -159,7 +159,7 @@
 			{ id: 'ha-entities', labelKey: 'siteMenuItemEntities', icon: 'layoutList', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/entities' },
 			{ id: 'ha-automations', labelKey: 'siteMenuItemAutomations', icon: 'timer', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/automation/dashboard' },
 			{ id: 'ha-sep2', type: 'separator' },
-			{ id: 'ha-yaml', customName: 'YAML', icon: 'settings', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/tools/yaml' },
+			{ id: 'ha-yaml', labelKey: 'siteMenuItemTools', icon: 'settings', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/tools/yaml' },
 			{ id: 'ha-template', customName: 'Template', icon: 'squarePen', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/tools/template' },
 			{ id: 'ha-history', labelKey: 'siteMenuItemHistory', icon: 'history', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/history' },
 			{ id: 'ha-updates', labelKey: 'siteMenuItemUpdates', icon: 'download', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/updates' },

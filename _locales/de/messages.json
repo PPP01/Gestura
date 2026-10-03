@@ -2710,6 +2710,10 @@
 		"message": "Updates",
 		"description": "Label for a predefined site-menu item (Home Assistant)"
 	},
+	"siteMenuItemTools": {
+		"message": "Werkzeuge",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
 	"siteMenuExportRejected": {
 		"message": "Dieses Menü lässt sich nicht exportieren: Der Import würde es ablehnen – etwa wegen Links, die nicht mit https:// beginnen oder von der aktuellen Seite abhängen, wegen nicht unterstützter Aktionen oder weil das Menü leer ist.",
 		"description": "Alert when exporting a website menu whose file would not pass the import check (e.g. links using {tabOrigin})"

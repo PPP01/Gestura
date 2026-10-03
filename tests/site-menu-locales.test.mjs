@@ -75,7 +75,7 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'storageMovedNote', 'storageMovedSwitch', 'storageFullHint',
 	'blacklistBlockedByEntry', 'menuBlacklisted',
 	'siteMenuItemIntegrations', 'siteMenuItemLogs', 'siteMenuItemDevices',
-	'siteMenuItemEntities', 'siteMenuItemAutomations', 'siteMenuItemUpdates',
+	'siteMenuItemEntities', 'siteMenuItemAutomations', 'siteMenuItemUpdates', 'siteMenuItemTools',
 	'siteMenuExportRejected'];
 
 const featureKeys = Object.keys(en).filter(k =>
