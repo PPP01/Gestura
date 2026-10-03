@@ -265,6 +265,13 @@ class SiteMenuManager extends LitElement {
 			id: (m.def.source && m.def.source.indexId) || m.id,
 			version: (m.def.source && m.def.source.version) || '1.0.0',
 		});
+		// Never write a file our own import would refuse. Menus whose links hang
+		// off the current page ({tabOrigin}) cannot pass the exchange format's
+		// https:// rule yet.
+		if (!window.FlowMouseMenuExchange.validate(out).ok) {
+			alert(i18n.getMessage('siteMenuExportRejected'));
+			return;
+		}
 		downloadJson(out, `${sanitizeFilename(menuName)}.gestura-menu.json`);
 	}
 

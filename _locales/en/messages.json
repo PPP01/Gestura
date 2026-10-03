@@ -2790,6 +2790,10 @@
 		"message": "Updates",
 		"description": "Label for a predefined site-menu item (Home Assistant)"
 	},
+	"siteMenuExportRejected": {
+		"message": "This menu can't be exported: the import would reject it — for example links that don't start with https:// or depend on the current page, unsupported actions, or an empty menu.",
+		"description": "Alert when exporting a website menu whose file would not pass the import check (e.g. links using {tabOrigin})"
+	},
 	"iconPickerTitle": {
 		"message": "Icon",
 		"description": "Tooltip for icon picker button"
