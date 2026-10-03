@@ -221,24 +221,6 @@ async function getSenderWindow(sender) {
 	return await chrome.windows.getCurrent();
 }
 
-function replaceUrlPlaceholders(template, tab) {
-	const rawUrl = tab?.url || '';
-	const raw = {
-		tabUrl: rawUrl,
-		tabTitle: tab?.title || '',
-		tabDomain: '',
-	};
-	if (rawUrl) {
-		try {
-			raw.tabDomain = new URL(rawUrl).hostname;
-		} catch { }
-	}
-	return (template || '').replace(/\{(tabUrl|tabTitle|tabDomain)(?::(raw))?\}/g, (_, key, mod) => {
-		const val = raw[key] || '';
-		return mod ? val : encodeURIComponent(val);
-	});
-}
-
 let _offscreenCreating = null;
 
 async function ensureOffscreen() {
@@ -817,7 +799,7 @@ async function handleAction(request, sender) {
 		}
 
 		case 'openCustomUrl': {
-			let url = replaceUrlPlaceholders(request.customUrl, sender.tab);
+			let url = self.FlowMouseSearchUrl.replaceUrlPlaceholders(request.customUrl, sender.tab);
 			if (url) {
 				const protocolRegex = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
 
