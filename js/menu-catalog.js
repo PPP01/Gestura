@@ -146,6 +146,24 @@
 			{ id: 'wp-watchlist', labelKey: 'siteMenuItemWatchlist', icon: 'star', action: 'openCustomUrl', customUrl: 'https://{domain}/wiki/Special:Watchlist' },
 			{ id: 'wp-recent', labelKey: 'siteMenuItemRecentChanges', icon: 'history', action: 'openCustomUrl', customUrl: 'https://{domain}/wiki/Special:RecentChanges' },
 		] },
+		// Self-hosted: no fixed address, so every link hangs off the current
+		// tab's origin. The patterns cover the usual installations; an own
+		// domain on port 443 is assigned by the user ("Set website menu for
+		// this page").
+		{ id: 'homeassistant', name: 'Home Assistant', icon: 'house', patterns: ['*:8123/*', '*homeassistant.local*', '*.ui.nabu.casa*'], items: [
+			{ id: 'ha-home', labelKey: 'siteMenuItemHome', icon: 'house', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/' },
+			{ id: 'ha-integrations', labelKey: 'siteMenuItemIntegrations', icon: 'package', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/integrations/dashboard' },
+			{ id: 'ha-logs', labelKey: 'siteMenuItemLogs', icon: 'fileText', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/logs' },
+			{ id: 'ha-sep1', type: 'separator' },
+			{ id: 'ha-devices', labelKey: 'siteMenuItemDevices', icon: 'hardDrive', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/devices/dashboard' },
+			{ id: 'ha-entities', labelKey: 'siteMenuItemEntities', icon: 'layoutList', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/entities' },
+			{ id: 'ha-automations', labelKey: 'siteMenuItemAutomations', icon: 'timer', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/automation/dashboard' },
+			{ id: 'ha-sep2', type: 'separator' },
+			{ id: 'ha-yaml', customName: 'YAML', icon: 'settings', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/tools/yaml' },
+			{ id: 'ha-template', customName: 'Template', icon: 'squarePen', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/tools/template' },
+			{ id: 'ha-history', labelKey: 'siteMenuItemHistory', icon: 'history', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/history' },
+			{ id: 'ha-updates', labelKey: 'siteMenuItemUpdates', icon: 'download', action: 'openCustomUrl', customUrl: '{tabOrigin:raw}/config/updates' },
+		] },
 	];
 
 	const api = { SITE_MENU_CATALOG };

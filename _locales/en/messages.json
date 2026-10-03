@@ -2766,6 +2766,30 @@
 		"message": "Recent changes",
 		"description": "Label for a predefined site-menu item"
 	},
+	"siteMenuItemIntegrations": {
+		"message": "Integrations",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemLogs": {
+		"message": "Logs",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemDevices": {
+		"message": "Devices",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemEntities": {
+		"message": "Entities",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemAutomations": {
+		"message": "Automations",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemUpdates": {
+		"message": "Updates",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
 	"iconPickerTitle": {
 		"message": "Icon",
 		"description": "Tooltip for icon picker button"

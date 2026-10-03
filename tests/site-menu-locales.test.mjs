@@ -73,7 +73,9 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'storageBrowserSync', 'storageBrowserSyncOnDesc', 'storageBrowserSyncOffDesc',
 	'storageSwitchRefusedBranch', 'storageSwitchRefusedTotal', 'storageSwitchRefusedTier2', 'storageSwitchFailed',
 	'storageMovedNote', 'storageMovedSwitch', 'storageFullHint',
-	'blacklistBlockedByEntry', 'menuBlacklisted'];
+	'blacklistBlockedByEntry', 'menuBlacklisted',
+	'siteMenuItemIntegrations', 'siteMenuItemLogs', 'siteMenuItemDevices',
+	'siteMenuItemEntities', 'siteMenuItemAutomations', 'siteMenuItemUpdates'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

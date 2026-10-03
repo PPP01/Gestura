@@ -71,6 +71,13 @@
   token, so two racing browsers cannot lose a write.
 - Blacklist entries can name a port and a path, so a single page can lose its
   gestures without the whole host losing them too (#6).
+- **Home Assistant menu:** a website menu for your own Home Assistant
+  instance — integrations, logs, devices, entities, automations, YAML and
+  template tools, history and updates. The links follow whichever instance
+  you are on, so no address has to be configured. It recognizes port 8123,
+  `homeassistant.local` and Nabu Casa out of the box; for your own domain,
+  choose "Set website menu for this page" once. Custom URLs gain a matching
+  `{tabOrigin}` placeholder (scheme, host and port of the current tab).
 
 **Fixes & Improvements:**
 

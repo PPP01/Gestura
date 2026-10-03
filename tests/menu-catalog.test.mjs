@@ -14,7 +14,7 @@ describe('SITE_MENU_CATALOG', () => {
 	it('has the expected menus (specific menus before broad ones: gmail/gmaps before google)', () => {
 		expect(SITE_MENU_CATALOG.map(m => m.id)).toEqual([
 			'search', 'github', 'm365', 'amazon', 'shopping', 'gmail', 'gmaps', 'google', 'youtube',
-			'facebook', 'instagram', 'x', 'reddit', 'linkedin', 'wikipedia',
+			'facebook', 'instagram', 'x', 'reddit', 'linkedin', 'wikipedia', 'homeassistant',
 		]);
 	});
 	it('contextual resolution picks the specific menu on google subdomains', async () => {
@@ -73,7 +73,9 @@ describe('SITE_MENU_CATALOG', () => {
 					expect(en[it.labelKey], `en missing ${it.labelKey}`).toBeTruthy();
 					expect(de[it.labelKey], `de missing ${it.labelKey}`).toBeTruthy();
 				}
-				expect(it.customUrl, it.id).toMatch(/^https:\/\//);
+				// Self-hosted services have no fixed address: their links hang off
+				// the current tab's origin instead of a literal https:// URL.
+				expect(it.customUrl, it.id).toMatch(/^(https:\/\/|\{tabOrigin:raw\}\/)/);
 				if (it.customUrl.includes('{domain}')) {
 					expect(m.domains, `${m.id} uses {domain} without domains config`).toBeTruthy();
 				}
@@ -100,5 +102,46 @@ describe('SITE_MENU_CATALOG', () => {
 			if (!m.domains) continue;
 			expect(m.domains.choices).toContain(m.domains.default);
 		}
+	});
+	it('home assistant: every link is relative to the current instance', () => {
+		const ha = SITE_MENU_CATALOG.find(m => m.id === 'homeassistant');
+		const links = ha.items.filter(i => i.type !== 'separator');
+		expect(links.map(i => i.customUrl)).toEqual([
+			'{tabOrigin:raw}/',
+			'{tabOrigin:raw}/config/integrations/dashboard',
+			'{tabOrigin:raw}/config/logs',
+			'{tabOrigin:raw}/config/devices/dashboard',
+			'{tabOrigin:raw}/config/entities',
+			'{tabOrigin:raw}/config/automation/dashboard',
+			'{tabOrigin:raw}/config/tools/yaml',
+			'{tabOrigin:raw}/config/tools/template',
+			'{tabOrigin:raw}/history',
+			'{tabOrigin:raw}/config/updates',
+		]);
+	});
+	it('home assistant: default patterns, and a user host assigned on top', async () => {
+		await import('../js/menu-model.js');
+		await import('../js/search-url.js');
+		await import('../js/menu-patterns.js');
+		const M = globalThis.FlowMouseMenuModel;
+		const { matchesPatterns } = globalThis.FlowMouseSearchUrl;
+		const { siteToPattern } = globalThis.FlowMouseMenuPatterns;
+		const EMPTY = { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {} };
+		const resolve = (sm, url) => M.resolveContextualMenuId(SITE_MENU_CATALOG, sm, url, matchesPatterns);
+
+		expect(resolve(EMPTY, 'http://homeassistant.local:8123/lovelace/0')).toBe('homeassistant');
+		expect(resolve(EMPTY, 'http://192.168.1.5:8123/config/dashboard')).toBe('homeassistant');
+		expect(resolve(EMPTY, 'https://abcdef123.ui.nabu.casa/lovelace')).toBe('homeassistant');
+		// ':8123' that is not followed by a path slash does not count.
+		expect(resolve(EMPTY, 'https://example.com/?p=:8123')).toBeNull();
+		// Existing menus are unaffected.
+		expect(resolve(EMPTY, 'https://github.com/PPP01/Gestura')).toBe('github');
+
+		// A host on the default port needs the user's own pattern - the one
+		// "Set website menu for this page" assigns.
+		const url = 'https://assi.home.schep.de/lovelace/0';
+		expect(resolve(EMPTY, url)).toBeNull();
+		const { siteMenus } = M.addPatternToMenu(SITE_MENU_CATALOG, EMPTY, 'homeassistant', siteToPattern(url));
+		expect(resolve(siteMenus, url)).toBe('homeassistant');
 	});
 });
