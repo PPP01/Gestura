@@ -114,8 +114,10 @@ before activation can never count as a pause.
 - **Cap.** Never more than two equal directions in a row, from either source.
 - **Timestamps.** Only a finite timestamp not smaller than the previous one is
   pause-capable. Anything else (null, omitted, non-finite, decreasing) updates
-  position as today but neither arms a pause nor moves `rest.t`. Numeric 0 is
-  a valid timestamp.
+  position as today but never arms a pause. If such a move leaves the rest
+  radius, the new rest point's time is unknown (`t: null`) and the clock starts
+  with the next usable timestamp inside the radius — an unmeasured gap is never
+  counted as stillness. Numeric 0 is a valid timestamp.
 
 Order of evaluation per `move()`: activation (incl. replay and the long-stroke
 check) → pause bookkeeping (`rest`, arming) → segment classification (extend /
@@ -128,7 +130,10 @@ changes on their side.
 ### 2. Binding resolution — new [js/gesture-binding.js](../../../js/gesture-binding.js)
 
 A classic script exposing `window.GestureBinding`, registered in
-`content_scripts` before `content.js` (enforced by `tests/load-order.test.mjs`).
+`content_scripts` before `content.js` (enforced by `tests/load-order.test.mjs`)
+and in every extension page that loads `content.js` — `pages/options.html`,
+`pages/about.html`, `pages/css-editor.html` (enforced by
+`tests/page-content-deps.test.mjs`).
 It holds the decision logic so it can be unit-tested; `content.js` only calls
 it.
 

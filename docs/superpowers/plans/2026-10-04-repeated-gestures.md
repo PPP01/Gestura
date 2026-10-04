@@ -42,7 +42,8 @@
 | `js/gesture-recognizer.js` | long-stroke and pause rules, config normalisation, `start(..., { source })` |
 | `tests/gesture-recognizer.test.mjs` | **new** |
 | `manifest.json` | add `js/gesture-binding.js` to `content_scripts` |
-| `tests/load-order.test.mjs` | assert the new script loads before `content.js` |
+| `pages/options.html`, `pages/about.html`, `pages/css-editor.html` | load `js/gesture-binding.js` before `content.js` |
+| `tests/load-order.test.mjs`, `tests/page-content-deps.test.mjs` | assert the new script loads before `content.js` |
 | `js/content.js` | mouse + drag decisions through `GestureBinding`; drag `source`; pass repeat config |
 | `js/constants.js` | two `DEFAULT_SETTINGS` keys |
 | `js/settings-merge.js` | two `MERGE_MAP` entries |
@@ -52,6 +53,7 @@
 | `_locales/en/messages.json`, `_locales/de/messages.json` | five `fork*` keys |
 | `tests/site-menu-locales.test.mjs` | `PENDING_TRANSLATION` += five keys |
 | `CHANGELOG.md`, `README.md`, `README.de.md` | feature entry |
+| `CLAUDE.md` | pages as the fourth list for classic scripts `content.js` needs |
 
 ---
 
@@ -61,7 +63,9 @@
 - Create: `js/gesture-binding.js`
 - Create: `tests/gesture-binding.test.mjs`
 - Modify: `manifest.json` (content_scripts list)
+- Modify: `pages/options.html:51`, `pages/about.html:30`, `pages/css-editor.html:32` — these pages load `content.js` as a classic script and need the new global too
 - Modify: `tests/load-order.test.mjs`
+- Modify: `tests/page-content-deps.test.mjs` (`REQUIRED_BEFORE_CONTENT`)
 
 **Interfaces:**
 - Produces:
@@ -69,7 +73,7 @@
   - `GestureBinding.resolve(rawPattern: string, lookup: (p) => binding | undefined) → { rawPattern, effectivePattern, binding }` — `null` from `lookup` counts as "no entry" too.
   - `GestureBinding.suggestionBase(rawPattern: string, patterns: string[], isActive: (p) => boolean) → string`.
 
-**Acceptance:** all new tests pass; `load-order` test asserts the script is listed before `content.js`; `npm test` green; no other file changes.
+**Acceptance:** all new tests pass; `load-order` asserts the script is listed before `content.js` in the manifest, `page-content-deps` asserts the same for every page that loads `content.js`; `npm test` green; no other file changes.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -178,10 +182,16 @@ Add to `tests/load-order.test.mjs`, inside `describe('manifest.json content scri
 	});
 ```
 
+In `tests/page-content-deps.test.mjs`, add to `REQUIRED_BEFORE_CONTENT` after `'gesture-recognizer.js',`:
+
+```js
+	'gesture-binding.js',
+```
+
 - [ ] **Step 2: Run them to verify they fail**
 
-Run: `npx vitest run tests/gesture-binding.test.mjs tests/load-order.test.mjs`
-Expected: FAIL — cannot resolve `../js/gesture-binding.js`; load-order: "js/gesture-binding.js missing from content_scripts".
+Run: `npx vitest run tests/gesture-binding.test.mjs tests/load-order.test.mjs tests/page-content-deps.test.mjs`
+Expected: FAIL — cannot resolve `../js/gesture-binding.js`; load-order: "js/gesture-binding.js missing from content_scripts"; page-content-deps: "options.html is missing gesture-binding.js" (likewise `about.html`, `css-editor.html`).
 
 - [ ] **Step 3: Implement**
 
@@ -239,15 +249,21 @@ Expected: FAIL — cannot resolve `../js/gesture-binding.js`; load-order: "js/ge
                 "js/gesture-binding.js",
 ```
 
+In `pages/options.html`, `pages/about.html` and `pages/css-editor.html`, insert directly after the line `<script src="../js/gesture-recognizer.js"></script>` (same indentation, one tab):
+
+```html
+	<script src="../js/gesture-binding.js"></script>
+```
+
 - [ ] **Step 4: Run them to verify they pass**
 
-Run: `npx vitest run tests/gesture-binding.test.mjs tests/load-order.test.mjs`
+Run: `npx vitest run tests/gesture-binding.test.mjs tests/load-order.test.mjs tests/page-content-deps.test.mjs`
 Expected: PASS. Then `npm test` — all suites green.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add js/gesture-binding.js tests/gesture-binding.test.mjs manifest.json tests/load-order.test.mjs
+git add js/gesture-binding.js tests/gesture-binding.test.mjs manifest.json tests/load-order.test.mjs pages/options.html pages/about.html pages/css-editor.html tests/page-content-deps.test.mjs
 git commit -m "feat(gestures): GestureBinding resolves repeated patterns with a collapse fallback"
 ```
 
@@ -709,7 +725,7 @@ git commit -m "feat(gestures): recognizer repeats a direction after a long strok
 
 **Acceptance:** all recognizer tests pass, including Task 2's unchanged; `npm test` green.
 
-Note on one refinement of the spec's timestamp rule: when a move without a usable timestamp leaves the rest radius, the new rest point gets `t: null` ("unknown"), and the next usable timestamp inside the radius starts the clock. That is stricter than keeping the old `rest.t`, which would let the unknown gap count as stillness.
+Timestamp rule (spec §1, "Timestamps"): when a move without a usable timestamp leaves the rest radius, the new rest point gets `t: null` ("unknown"), and the next usable timestamp inside the radius starts the clock — an unmeasured gap never counts as stillness.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -817,16 +833,20 @@ describe('pause repeat (drag)', () => {
 });
 
 describe('pause and cap', () => {
+	// Consumed: after the capped attempt the ↓ segment grows to ~330 px, so the
+	// turn threshold is ~53 px and 35 px sideways is drift. Leaked: every ↓ step
+	// re-enters the armed branch, resets the segment to 30 px, the threshold stays
+	// ~23 px and the drift becomes a turn. Fails for both ways of leaking (pause
+	// kept after the cap, with or without consuming it on a turn).
 	it('consumes a pause the cap rejects, so it cannot leak into a later segment', () => {
 		const r = new R({ ...PAUSE, repeatDistance: 400 });
 		r.start(0, 0, 0);
 		path(r, [0, 0], [0, 420], { steps: 14 });            // ↓↓ by long stroke, t=112
 		expect(r.getPattern()).toBe('↓↓');
-		r.move(0, 430, 712);                                 // leaves the rest point after 600 ms
-		path(r, [0, 430], [0, 480], { steps: 5, t0: 712 });  // capped repeat attempt
-		path(r, [0, 480], [100, 480], { steps: 10, t0: 752 });
-		path(r, [100, 480], [200, 480], { steps: 10, t0: 832 });
-		expect(r.getPattern()).toBe('↓↓→');
+		r.move(0, 430, 712);                                 // leaves the rest point after 600 ms: armed
+		path(r, [0, 430], [0, 750], { steps: 32, t0: 712 }); // capped repeat attempt, then a long ↓
+		path(r, [0, 750], [35, 750], { steps: 7, t0: 968 }); // sideways drift
+		expect(r.getPattern()).toBe('↓↓');
 	});
 });
 
@@ -878,7 +898,7 @@ describe('pause timestamps and config', () => {
 - [ ] **Step 2: Run them to verify they fail**
 
 Run: `npx vitest run tests/gesture-recognizer.test.mjs`
-Expected: 7 FAIL — the pointer/drag "repeats" tests, "reports the repeat like a turn", the turn-after-pause test, the jitter test, the sparse-pointer test and the constants test. The "does not repeat"/"off" tests and the cap test already PASS (no pause logic yet); the cap test is a guard: it fails if a capped pause is not consumed (verified by mutation while writing this plan).
+Expected: 7 FAIL — the pointer/drag "repeats" tests, "reports the repeat like a turn", the turn-after-pause test, the jitter test, the sparse-pointer test and the constants test. The "does not repeat"/"off" tests and the cap test already PASS (no pause logic yet); the cap test is a guard: it fails if a capped pause is not consumed — checked against two mutations (pause kept after the cap; pause kept after the cap but consumed on a turn), both fail it, the plan's code passes it.
 
 - [ ] **Step 3: Implement**
 
@@ -1107,7 +1127,7 @@ git commit -m "feat(gestures): recognizer repeats a direction after a pause"
 - Consumes: `window.GestureBinding.resolve`, `window.GestureBinding.suggestionBase` (Task 1).
 - Produces (inside `initGestures`): `lookupMouseBinding(pattern) → binding | undefined`, `resolveMouseGesture(pattern) → { rawPattern, effectivePattern, binding }`, `getBindingName(binding) → string`, `getActionName(pattern) → string` (direct, no fallback), `getSuggestedGestures(rawPattern) → { base, suggestions }`.
 
-**Acceptance:** `npm test` green; `grep -n "getGestureAction" js/content.js` returns nothing; manual: reload the extension, all default gestures and HUD labels/suggestions behave as before (the recognizer still gets no repeat config, so no repeats occur yet); a gesture with a custom name still shows it.
+**Acceptance:** `npm test` green; `git grep -n "getGestureAction" -- js/content.js` returns nothing; manual: reload the extension, all default gestures and HUD labels/suggestions behave as before (the recognizer still gets no repeat config, so no repeats occur yet); a gesture with a custom name still shows it.
 
 - [ ] **Step 1: Replace `getGestureAction` and `getActionName`**
 
@@ -1178,7 +1198,12 @@ Replace the whole of `function getGestureAction(pattern) { … }` and `function 
 		}
 ```
 
-Before replacing, diff the old `getActionName` against this once more line by line: the only intended change is reading `binding` instead of `SETTINGS.mouseGestures?.[pattern]` / `getGestureAction(pattern)`.
+Intended differences from the old `getActionName` — there are exactly these, nothing else may change:
+
+1. The action comes from `binding.action` instead of `getGestureAction(pattern)`.
+2. Every `SETTINGS.mouseGestures?.[pattern]` read (custom name, `chainId`, `ownMenu`, site-menu config, `simulateKey` fields) reads `binding` instead.
+3. With customisation **on**, a stored entry that is not an object counts as "no entry" (`lookupMouseBinding` returns `undefined`); before, `config?.action` was `undefined` for it as well, so the visible result is the same.
+4. With customisation **off**, `binding` is `{ action }`; the old code read `SETTINGS.mouseGestures?.[pattern]` for `actionChain` / `customMenu` / `siteMenu` even then. `DEFAULT_GESTURES` contains none of those actions, so no default gesture is affected.
 
 - [ ] **Step 2: Replace `getSuggestedGestures`**
 
@@ -1278,8 +1303,18 @@ Replace its first lines and the `config` computation:
 
 - [ ] **Step 5: Verify**
 
-Run: `npm test` → green. Run: `grep -n "getGestureAction" js/content.js` → no output.
-Manual: reload the extension at `chrome://extensions` (or Edge with `--load-extension`); on any page draw `↓`, `↓→`, `→↓←↑`; HUD labels and suggestions as before; give `↓` a custom name in the options (customisation on) — HUD shows it.
+Run: `npm test` → green. Run: `git grep -n "getGestureAction" -- js/content.js` → no output.
+Manual: reload the extension at `chrome://extensions` (or Edge with `--load-extension`). With customisation **off**: draw `↓`, `↓→`, `→↓←↑` — HUD labels and suggestions as before. With customisation **on**, bind one gesture each to, and check HUD label and execution of:
+
+| action | expected HUD label |
+| --- | --- |
+| any action with a custom name | the custom name |
+| `actionChain` | the chain's name |
+| `customMenu` | the own menu's name |
+| `siteMenu` (standard mode) | the menu's name |
+| `simulateKey` with Ctrl+Shift | "Simulate key (Ctrl+Shift+…)" |
+
+Open `options.html`, `about.html` and the CSS editor page and draw a gesture on each — no console errors.
 
 - [ ] **Step 6: Commit**
 
@@ -1354,9 +1389,19 @@ with:
 			}
 ```
 
-- [ ] **Step 4: `dragenter`** — replace `if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {` with:
+- [ ] **Step 4: `dragenter`** — the line `if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {` also occurs in `dragover` until Step 3 is applied; match it with its `dragenter` context. Replace:
 
 ```js
+			if (!recognizer.isActive()) return;
+			if (gestureState.dropOnInputSuppressed) return;
+			if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {
+```
+
+with:
+
+```js
+			if (!recognizer.isActive()) return;
+			if (gestureState.dropOnInputSuppressed) return;
 			if (hasDragAction(gestureState.dragType, resolveDragPattern(gestureState.dragType, recognizer.getPattern()))) {
 ```
 
@@ -1368,7 +1413,7 @@ with:
 
 - [ ] **Step 6: Verify**
 
-Run: `npm test` → green. Run: `grep -n "recognizer.getPattern()" js/content.js` → every drag-related hit is wrapped in `resolveDragPattern(`; the pointerup hit (`executeGesture(recognizer.getPattern())`) stays raw — `executeGesture` resolves itself.
+Run: `npm test` → green. Run: `git grep -n "recognizer.getPattern()" -- js/content.js` → every drag-related hit is wrapped in `resolveDragPattern(`; the pointerup hit (`executeGesture(recognizer.getPattern())`) stays raw — `executeGesture` resolves itself.
 Manual: drag text `→` (search), a link `↓`, an image `→`; each runs as before with its HUD hint.
 
 - [ ] **Step 7: Commit**
@@ -1448,7 +1493,7 @@ git commit -m "feat(gestures): repeated gestures on by default (400 px, 500 ms)"
 
 ---
 
-### Task 7: Options page, recorders, i18n, docs
+### Task 7: Options page, recorders, i18n
 
 **Files:**
 - Modify: `js/components/gesture-recorder.js` (`open()` ~336–345)
@@ -1456,7 +1501,8 @@ git commit -m "feat(gestures): repeated gestures on by default (400 px, 500 ms)"
 - Modify: `js/components/options-page.js` (sliders after the `gestureTurnTolerance` row ~708, three `<drag-gesture-manager>` ~781/804/840, recorder call ~1701, new private method)
 - Modify: `_locales/en/messages.json`, `_locales/de/messages.json` (after `gestureTurnToleranceDesc` ~924)
 - Modify: `tests/site-menu-locales.test.mjs` (`PENDING_TRANSLATION`)
-- Modify: `CHANGELOG.md`, `README.md`, `README.de.md`
+
+Behaviour change to be aware of (and named in the commit message and, in Task 8, the CHANGELOG): the recorders used a hard-coded `distanceThreshold: 20` and the default turn tolerance; they now record with the user's own `distanceThreshold` and `gestureTurnTolerance`, so recording matches what pages recognise.
 
 **Interfaces:**
 - Consumes: settings keys from Task 6; recognizer config names from Tasks 2–3.
@@ -1495,17 +1541,23 @@ and in both `#changeDirection` and `#addRow` replace `recorder.open({ button: 'l
 recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig })
 ```
 
-- [ ] **Step 3: Options page — config helper** — add as a private method near `#coerce`:
+- [ ] **Step 3: Options page — config helper** — add a private field and method near `#coerce`. The object is reused while the four values are unchanged, so passing it as a property in `render()` does not re-render the three drag managers on every options render:
 
 ```js
+	#recognizerConfigCache = null;
+
 	#recognizerConfig() {
 		const s = this._settings;
-		return {
+		const next = {
 			distanceThreshold: s.distanceThreshold,
 			longGestureMultiplier: s.gestureTurnTolerance,
 			repeatDistance: s.gestureRepeatDistance,
 			repeatPause: s.gestureRepeatPause,
 		};
+		const prev = this.#recognizerConfigCache;
+		if (prev && Object.keys(next).every(k => prev[k] === next[k])) return prev;
+		this.#recognizerConfigCache = next;
+		return next;
 	}
 ```
 
@@ -1613,7 +1665,33 @@ and to the gesture recorder call (~1701):
 
 Run: `npx vitest run tests/site-menu-locales.test.mjs tests/locale-placeholders.test.mjs` → PASS.
 
-- [ ] **Step 6: Docs**
+- [ ] **Step 6: Verify**
+
+Run: `npm test` → green.
+Manual (reload extension, open options, advanced mode on in the gesture section):
+- both sliders visible with px/ms values; inline reset appears after changing a value and restores 400 / 500;
+- set both to 0 → notice appears; set one back → notice disappears;
+- "add gesture": record a long `↓` → recorder shows `↓↓`; record `↓`, pause, `↓` → `↓↓`; save, assign an action;
+- text-drag manager: "change direction" on a row, record a long `→` → `→→`.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add js/components/gesture-recorder.js js/components/drag-gesture-manager.js js/components/options-page.js _locales/en/messages.json _locales/de/messages.json tests/site-menu-locales.test.mjs
+git commit -m "feat(options): settings and recorders for repeated gestures" -m "The recorders now record with the user's distanceThreshold and turn tolerance instead of a fixed 20 px."
+```
+
+---
+
+### Task 8: Docs
+
+**Files:**
+- Modify: `CHANGELOG.md`, `README.md`, `README.de.md`
+- Modify: `CLAUDE.md` (gotcha about classic-script lists)
+
+**Acceptance:** the three entries are present; `CLAUDE.md` names the pages list as a fourth place for classic scripts that `content.js` needs; `npm test` green (docs only).
+
+- [ ] **Step 1: CHANGELOG and READMEs**
 
 `CHANGELOG.md`, under `### Unreleased` → `**New Features:**`, add as the first bullet:
 
@@ -1623,7 +1701,9 @@ Run: `npx vitest run tests/site-menu-locales.test.mjs tests/locale-placeholders.
   stop briefly and continue in the same direction. Both ways are on by default
   and tunable (or switched off) in the advanced gesture settings. Until you bind
   a repeated gesture nothing changes: an unbound `↓↓` simply runs `↓`. Works
-  for mouse gestures and super drag; record them like any custom gesture.
+  for mouse gestures and super drag; record them like any custom gesture. The
+  gesture recorders now use your own gesture threshold and turn tolerance, so
+  what you record is what pages recognise.
 ```
 
 `README.md`, under `### ✨ What Gestura adds`, append as the last bullet:
@@ -1638,25 +1718,24 @@ Run: `npx vitest run tests/site-menu-locales.test.mjs tests/locale-placeholders.
 - **Wiederholte Gesten** — `↓↓`, `→→`, `↑↑`, `←←` und längere wie `↓↓→`, gezeichnet als langer Strich oder als Strich, Pause, Strich. Unbelegte Wiederholungen fallen auf die einfache Geste zurück, es ändert sich also nichts, bis du sie nutzt.
 ```
 
-- [ ] **Step 7: Verify**
+- [ ] **Step 2: CLAUDE.md** — in the gotcha that ends "…surfaces only at runtime as `X is not defined` at `document_start` in every frame.", append:
+
+```markdown
+ Every `pages/*.html` that loads `content.js` is a fourth list: it needs the same globals, and `tests/page-content-deps.test.mjs` (`REQUIRED_BEFORE_CONTENT`) enforces it.
+```
+
+- [ ] **Step 3: Verify and commit**
 
 Run: `npm test` → green.
-Manual (reload extension, open options, advanced mode on in the gesture section):
-- both sliders visible with px/ms values; inline reset appears after changing a value and restores 400 / 500;
-- set both to 0 → notice appears; set one back → notice disappears;
-- "add gesture": record a long `↓` → recorder shows `↓↓`; record `↓`, pause, `↓` → `↓↓`; save, assign an action;
-- text-drag manager: "change direction" on a row, record a long `→` → `→→`.
-
-- [ ] **Step 8: Commit**
 
 ```bash
-git add js/components/gesture-recorder.js js/components/drag-gesture-manager.js js/components/options-page.js _locales/en/messages.json _locales/de/messages.json tests/site-menu-locales.test.mjs CHANGELOG.md README.md README.de.md
-git commit -m "feat(options): settings and recorders for repeated gestures"
+git add CHANGELOG.md README.md README.de.md CLAUDE.md
+git commit -m "docs: repeated gestures"
 ```
 
 ---
 
-### Task 8: End-to-end browser verification
+### Task 9: End-to-end browser verification
 
 **Files:** none, unless the decision point below triggers a change.
 
@@ -1668,4 +1747,9 @@ git commit -m "feat(options): settings and recorders for repeated gestures"
 - [ ] **Step 4: Tutorial** — `pages/tutorial.html` steps pass with long strokes (no repeats there).
 - [ ] **Step 5: Decision point — drag pause.** Hold a super drag still on mouse and on touchpad, then continue in the same direction. If the pause registers reliably, note "drag pause verified on mouse + touchpad" in the PR description. If it does not, **stop and report** what you observed (device, how long held, what the HUD showed). Switching the pause off for `source: 'drag'` is a design change: the spec is amended first, then a follow-up task is planned — no inline fix.
 - [ ] **Step 6: Defaults feel** — if 400 px / 500 ms / 6 px feel wrong on either device, report the observed values; changing defaults is a spec amendment, not an inline tweak.
-- [ ] **Step 7: Final** — `npm test` green; `git status` clean except intended changes.
+- [ ] **Step 7: Iframe HUD relay** — on a page with a same-origin iframe (e.g. a local test page with `<iframe src="…same origin…">`), draw inside the iframe: an unbound long `↓` shows `↓` and the `↓…` suggestions in the top frame's HUD; with `↓↓` bound it shows `↓↓`.
+- [ ] **Step 8: Suggestions with a bound extension** — bind `↓↓→` (leave `↓↓` unbound): a long `↓` shows the arrows `↓` with "Scroll down", and the suggestion list offers `↓↓→`. That is the specified behaviour (spec §3) — continuing `→` runs `↓↓→`.
+- [ ] **Step 9: Old settings** — import a settings export made before this branch (no `gestureRepeat*` keys): the import succeeds, the sliders show 400 / 500, gestures work.
+- [ ] **Step 10: Extension pages** — open options, about and the CSS editor page, draw a gesture on each: no console errors.
+- [ ] **Step 11: Final** — `npm test` green; `git status` clean (a `manifest.json` that differs only by the generated `version_name` stamp is expected and not a change).
+- [ ] **Step 12: Firefox merge checklist (when `main` is later merged into `firefox-build`, not on this branch)** — add `js/gesture-binding.js` to the Gecko `manifest.json`'s `content_scripts` list before `js/content.js`; `npm test` (load-order checks that list there); `npx web-ext lint --source-dir . --config web-ext-config.mjs` reports 0 errors; repeat Steps 1–2 in Firefox via `npm run ff:run`. Put this checklist into the PR description so it travels with the merge.
