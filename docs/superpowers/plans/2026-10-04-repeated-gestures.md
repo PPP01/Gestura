@@ -23,7 +23,7 @@
 - Missing entry → fallback to the collapsed pattern; an entry whose action is `none` → blocks (no fallback).
 - New i18n keys only in `en` and `de`, prefixed `fork`, listed in `PENDING_TRANSLATION`. Never put a `$WORD$` into a message.
 - Merging into `firefox-build` later: the Gecko `manifest.json` there has its own `content_scripts` list — `js/gesture-binding.js` must be added there too (`tests/load-order.test.mjs` catches it on that branch).
-- Commit messages end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Commit messages end with the trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` (every commit command below carries it as a final `-m`).
 
 ## Review Focus
 
@@ -167,6 +167,11 @@ describe('suggestionBase', () => {
 	it('leaves a pattern without repeats unchanged', () => {
 		expect(suggestionBase('↓', [], () => false)).toBe('↓');
 	});
+
+	it('collapses a longer raw pattern with no direct extension', () => {
+		const m = { '↓→': { action: 'closeTab' }, '↓→↑': { action: 'newTab' } };
+		expect(suggestionBase('↓↓→', Object.keys(m), activeIn(m))).toBe('↓→');
+	});
 });
 ```
 
@@ -264,7 +269,7 @@ Expected: PASS. Then `npm test` — all suites green.
 
 ```bash
 git add js/gesture-binding.js tests/gesture-binding.test.mjs manifest.json tests/load-order.test.mjs pages/options.html pages/about.html pages/css-editor.html tests/page-content-deps.test.mjs
-git commit -m "feat(gestures): GestureBinding resolves repeated patterns with a collapse fallback"
+git commit -m "feat(gestures): GestureBinding resolves repeated patterns with a collapse fallback" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -705,7 +710,7 @@ Expected: PASS. Then `npm test` — all green.
 
 ```bash
 git add js/gesture-recognizer.js tests/gesture-recognizer.test.mjs
-git commit -m "feat(gestures): recognizer repeats a direction after a long stroke"
+git commit -m "feat(gestures): recognizer repeats a direction after a long stroke" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -720,7 +725,7 @@ git commit -m "feat(gestures): recognizer repeats a direction after a long strok
 - Consumes: Task 2's recognizer (`#appendRepeat`, `#checkLongStroke`, `#repeatProgress`).
 - Produces:
   - Constructor / `updateConfig` accept `repeatPause` (ms; omitted/invalid = off; 0 accepted by `updateConfig`).
-  - `start(x, y, timestamp = 0, { source = 'pointer' } = {})` — `source` is `'pointer'` or `'drag'`; anything else is `'pointer'`.
+  - `start(x, y, timestamp = 0, options = {})` — `options.source` is `'pointer'` or `'drag'`; anything else, a missing `options` or `null` is `'pointer'`.
   - `GestureRecognizer.PAUSE_JITTER === 6`, `GestureRecognizer.REPEAT_PAUSE_MAX === 2000`.
 
 **Acceptance:** all recognizer tests pass, including Task 2's unchanged; `npm test` green.
@@ -963,9 +968,9 @@ class GestureRecognizer {
 5. `start` — replace with:
 
 ```js
-	start(x, y, timestamp = 0, { source = 'pointer' } = {}) {
+	start(x, y, timestamp = 0, options = {}) {
 		this.reset();
-		this.#source = source === 'drag' ? 'drag' : 'pointer';
+		this.#source = options?.source === 'drag' ? 'drag' : 'pointer';
 		this.#acceptTimestamp(timestamp);
 		this.#startX = x;
 		this.#startY = y;
@@ -1113,7 +1118,7 @@ Expected: PASS (Task 2 tests included). Then `npm test` — all green.
 
 ```bash
 git add js/gesture-recognizer.js tests/gesture-recognizer.test.mjs
-git commit -m "feat(gestures): recognizer repeats a direction after a pause"
+git commit -m "feat(gestures): recognizer repeats a direction after a pause" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1284,18 +1289,20 @@ with:
 
 - [ ] **Step 4: Update `executeGesture`**
 
-Replace its first lines and the `config` computation:
+Replace the whole function (the Edge block in the middle is unchanged):
 
 ```js
 		function executeGesture(pattern) {
 			const { binding } = resolveMouseGesture(pattern);
 			const action = binding?.action;
 			if (!action || action === 'none') return;
-```
 
-…keep the Edge block unchanged…
+			if (isEdgeDesktop && SETTINGS.edgeGestureConflict) {
+				SETTINGS.edgeGestureConflict = false;
+				edgeGestureBlurCount = 0;
+				try { window.GesturaSettingsStorage.set({ edgeGestureConflict: false }).catch(() => {}); } catch (e) { }
+			}
 
-```js
 			const config = SETTINGS.enableGestureCustomization ? binding : {};
 			executeAction(action, config, { startX: recognizer.startX, startY: recognizer.startY, endX: recognizer.currentX, endY: recognizer.currentY }, gestureState.startTarget);
 		}
@@ -1320,7 +1327,7 @@ Open `options.html`, `about.html` and the CSS editor page and draw a gesture on 
 
 ```bash
 git add js/content.js
-git commit -m "refactor(gestures): mouse gestures resolve through GestureBinding"
+git commit -m "refactor(gestures): mouse gestures resolve through GestureBinding" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1420,7 +1427,7 @@ Manual: drag text `→` (search), a link `↓`, an image `→`; each runs as bef
 
 ```bash
 git add js/content.js
-git commit -m "refactor(gestures): super drag resolves through GestureBinding"
+git commit -m "refactor(gestures): super drag resolves through GestureBinding" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1430,6 +1437,7 @@ git commit -m "refactor(gestures): super drag resolves through GestureBinding"
 **Files:**
 - Modify: `js/constants.js` (`DEFAULT_SETTINGS`, after `gestureTurnTolerance: 0.10,` ~265)
 - Modify: `js/settings-merge.js` (`MERGE_MAP`, after `gestureTurnTolerance: 'scalar',` ~76)
+- Modify: `tests/settings-defaults.test.mjs`
 - Modify: `js/content.js` (recognizer construction ~2192, `updateConfig` ~2405)
 
 **Interfaces:**
@@ -1437,12 +1445,25 @@ git commit -m "refactor(gestures): super drag resolves through GestureBinding"
 
 **Acceptance:** `npm test` green (the partition test in `settings-merge.test.mjs` covers the new keys); manual: with no repeated gesture bound, a long `↓` (> 400 px) still scrolls and the HUD shows `↓`; a pause between two `↓` strokes still scrolls as `↓`.
 
-- [ ] **Step 1: Defaults** — in `DEFAULT_SETTINGS` after `gestureTurnTolerance: 0.10,`:
+- [ ] **Step 1: Defaults test** — in `tests/settings-defaults.test.mjs`, inside `describe("DEFAULT_SETTINGS", …)`, add (the file uses double quotes):
+
+```js
+	it("repeated gestures default on: 400 px long stroke, 500 ms pause", () => {
+		expect(DEFAULT_SETTINGS.gestureRepeatDistance).toBe(400);
+		expect(DEFAULT_SETTINGS.gestureRepeatPause).toBe(500);
+	});
+```
+
+Run: `npx vitest run tests/settings-defaults.test.mjs` → FAIL (`undefined`).
+
+Then in `DEFAULT_SETTINGS` after `gestureTurnTolerance: 0.10,`:
 
 ```js
 		gestureRepeatDistance: 400,
 		gestureRepeatPause: 500,
 ```
+
+Run: `npx vitest run tests/settings-defaults.test.mjs` → PASS.
 
 - [ ] **Step 2: Run the partition test to see it fail**
 
@@ -1487,8 +1508,8 @@ Manual (reload extension): long `↓` > 400 px → scrolls, HUD shows `↓` + "S
 - [ ] **Step 6: Commit**
 
 ```bash
-git add js/constants.js js/settings-merge.js js/content.js
-git commit -m "feat(gestures): repeated gestures on by default (400 px, 500 ms)"
+git add js/constants.js js/settings-merge.js js/content.js tests/settings-defaults.test.mjs
+git commit -m "feat(gestures): repeated gestures on by default (400 px, 500 ms)" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1678,7 +1699,7 @@ Manual (reload extension, open options, advanced mode on in the gesture section)
 
 ```bash
 git add js/components/gesture-recorder.js js/components/drag-gesture-manager.js js/components/options-page.js _locales/en/messages.json _locales/de/messages.json tests/site-menu-locales.test.mjs
-git commit -m "feat(options): settings and recorders for repeated gestures" -m "The recorders now record with the user's distanceThreshold and turn tolerance instead of a fixed 20 px."
+git commit -m "feat(options): settings and recorders for repeated gestures" -m "The recorders now record with the user's distanceThreshold and turn tolerance instead of a fixed 20 px." -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1730,7 +1751,7 @@ Run: `npm test` → green.
 
 ```bash
 git add CHANGELOG.md README.md README.de.md CLAUDE.md
-git commit -m "docs: repeated gestures"
+git commit -m "docs: repeated gestures" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
 ---
