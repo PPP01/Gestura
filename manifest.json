@@ -52,6 +52,8 @@
                 "js/favicon-util.js",
                 "js/menu-catalog.js",
                 "js/menu-model.js",
+                "js/page-icons.js",
+                "js/page-icons-homeassistant.js",
                 "js/eu-bridge.js",
                 "js/content.js"
             ],

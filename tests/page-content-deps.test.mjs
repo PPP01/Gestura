@@ -20,6 +20,8 @@ const REQUIRED_BEFORE_CONTENT = [
 	'engine-registry.js',
 	'menu-catalog.js',
 	'menu-model.js',
+	'page-icons.js',
+	'page-icons-homeassistant.js',
 	'blacklist-match.js',
 ];
 

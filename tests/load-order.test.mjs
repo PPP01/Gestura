@@ -44,6 +44,15 @@ describe('manifest.json content scripts', () => {
 		expect(b, 'js/blacklist-match.js missing from content_scripts').toBeGreaterThanOrEqual(0);
 		expect(b).toBeLessThan(c);
 	});
+
+	// Both are classic scripts content.js reads at menu open; a missing or late
+	// entry shows up only as "FlowMousePageIcons is not defined" in every frame.
+	it('loads the page-icon scripts before content.js, generic part first', () => {
+		const i = (f) => list.indexOf(f);
+		expect(i('js/page-icons.js')).toBeGreaterThan(-1);
+		expect(i('js/page-icons-homeassistant.js')).toBeGreaterThan(i('js/page-icons.js'));
+		expect(i('js/content.js')).toBeGreaterThan(i('js/page-icons-homeassistant.js'));
+	});
 });
 
 // Inert here and load-bearing after the merge into firefox-build: that branch
