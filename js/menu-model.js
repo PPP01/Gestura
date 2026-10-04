@@ -358,12 +358,15 @@
 		const forms = linkUrlForms(base, o.url, o.pageUrl);
 		const dup = items.some(it => it && forms.has(it.customUrl));
 		if (dup) return { siteMenus, added: null };
+		const stored = storedLinkUrl(base, o.url, o.pageUrl);
 		const item = {
 			id: o.id || newItemId(),
 			action: 'openCustomUrl',
-			customUrl: storedLinkUrl(base, o.url, o.pageUrl),
+			customUrl: stored,
 			customName: o.label || o.url,
-			icon: o.icon || 'link',
+			// A link kept relative to the instance is one the page itself draws an
+			// icon for (a dashboard in Home Assistant's sidebar).
+			icon: o.icon || (stored !== o.url ? 'page' : 'link'),
 		};
 		const def = { ...base, items: [...items, item] };
 		return { siteMenus: withMenuDef(catalog, siteMenus, menuId, def), added: item };

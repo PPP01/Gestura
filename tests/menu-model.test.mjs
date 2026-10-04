@@ -543,4 +543,14 @@ describe('links in origin-relative menus', () => {
 		expect(res.removed.id).toBe('item_e');
 		expect(urlsOf(res.siteMenus, 'ha')).toEqual(['{tabOrigin:raw}/']);
 	});
+	it('a page added relative to the instance wears the page icon; everything else keeps the link icon', () => {
+		const rel = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'E', url: PAGE, pageUrl: PAGE }).added;
+		expect(rel.icon).toBe('page');
+		const foreign = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'G', url: 'https://grafana.example/d/abc', pageUrl: PAGE }).added;
+		expect(foreign.icon).toBe('link');
+		const ordinary = M.addLinkToMenu(CATALOG, EMPTY, 'gh', { label: 'B', url: 'https://github.com/a/b', pageUrl: 'https://github.com/a/b' }).added;
+		expect(ordinary.icon).toBe('link');
+		const explicit = M.addLinkToMenu(CATALOG, REL, 'ha', { label: 'E', url: PAGE, pageUrl: PAGE, icon: 'star' }).added;
+		expect(explicit.icon).toBe('star');
+	});
 });

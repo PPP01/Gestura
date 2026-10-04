@@ -77,7 +77,10 @@
   you are on, so no address has to be configured. It recognizes port 8123,
   `homeassistant.local` and Nabu Casa out of the box; for your own domain,
   choose "Set website menu for this page" once. Pages you add to it are
-  stored relative to the instance, so they survive a change of address. Custom
+  stored relative to the instance, so they survive a change of address, and
+  they wear the icon Home Assistant shows for them in its sidebar (icon mode
+  *Page icon*, also selectable in the icon picker for any entry); the fixed
+  entries use Home Assistant's own icons. Custom
   URLs gain a matching
   `{tabOrigin}` placeholder (scheme, host and port of the current tab). If you
   already built or imported your own Home Assistant menu, the built-in one now
