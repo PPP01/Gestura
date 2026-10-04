@@ -97,6 +97,22 @@ describe('SITE_MENU_CATALOG', () => {
 			expect(ENGINE_IDS.has(it.engineId), it.id).toBe(true);
 		}
 	});
+	it('home assistant: entries carry the icons Home Assistant itself shows', () => {
+		const ha = SITE_MENU_CATALOG.find(m => m.id === 'homeassistant');
+		const icons = Object.fromEntries(ha.items.filter(i => i.type !== 'separator').map(i => [i.id, i.icon]));
+		expect(icons).toEqual({
+			'ha-home': 'house',
+			'ha-integrations': 'mdiPuzzle',
+			'ha-logs': 'mdiTextBoxOutline',
+			'ha-devices': 'mdiDevices',
+			'ha-entities': 'mdiShape',
+			'ha-automations': 'mdiRobot',
+			'ha-yaml': 'mdiHammer',
+			'ha-template': 'squarePen',
+			'ha-history': 'mdiChartBox',
+			'ha-updates': 'mdiUpdate',
+		});
+	});
 	it('domains config: default is one of choices', () => {
 		for (const m of SITE_MENU_CATALOG) {
 			if (!m.domains) continue;
