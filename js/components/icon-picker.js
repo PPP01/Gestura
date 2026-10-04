@@ -3,7 +3,7 @@ import { commonStyles } from './shared-styles.js';
 import { tooltip } from '../tooltip.js';
 
 // Icon-Auswahl für Menüeinträge: Lucide-Subset (FlowMouseMenuIcons),
-// 'favicon' (Favicon der Ziel-URL) oder '' (kein Icon).
+// 'favicon' (Favicon der Ziel-URL), 'page' (Icon, das die Seite zeigt) oder '' (kein Icon).
 class IconPicker extends LitElement {
 
 	static properties = {
@@ -108,14 +108,14 @@ class IconPicker extends LitElement {
 		const names = Object.keys(icons)
 			.filter(n => !this._filter || n.toLowerCase().includes(this._filter.toLowerCase()))
 			.sort();
-		const current = this.value && this.value !== 'favicon' ? icons[this.value] : null;
+		const current = this.value && this.value !== 'favicon' && this.value !== 'page' ? icons[this.value] : null;
 		return html`
 			<button type="button" class="trigger"
 				.tooltip=${tooltip(i18n.getMessage('iconPickerTitle'))}
 				@click=${() => { this._open = !this._open; }}>
 				${current
 					? unsafeHTML(current)
-					: html`<span class="placeholder">${this.value === 'favicon' ? 'FAV' : '—'}</span>`}
+					: html`<span class="placeholder">${this.value === 'favicon' ? 'FAV' : this.value === 'page' ? 'PG' : '—'}</span>`}
 			</button>
 			${this._open ? html`
 				<div class="panel">
@@ -124,6 +124,9 @@ class IconPicker extends LitElement {
 					<div class="special-row">
 						<button type="button" class="btn btn-ghost" @click=${() => this.#pick('favicon')}>
 							${i18n.getMessage('iconPickerFavicon')}
+						</button>
+						<button type="button" class="btn btn-ghost" @click=${() => this.#pick('page')}>
+							${i18n.getMessage('iconPickerPage')}
 						</button>
 						<button type="button" class="btn btn-ghost" @click=${() => this.#pick('')}>
 							${i18n.getMessage('iconPickerNone')}

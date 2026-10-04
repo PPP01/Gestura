@@ -2730,6 +2730,10 @@
 		"message": "Favicon",
 		"description": "Button label for favicon option in icon picker"
 	},
+	"iconPickerPage": {
+		"message": "Seiten-Icon",
+		"description": "Icon picker button: use the icon the current page shows next to the link"
+	},
 	"iconPickerNone": {
 		"message": "Kein Icon",
 		"description": "Button label for no icon option in icon picker"

@@ -653,7 +653,7 @@ class ContentContextMenu {
 
 		const serializedItems = items.map(item => {
 			if (item === 'separator') return 'separator';
-			return { label: item.label, icon: item.icon, iconName: item.iconName, active: item.active, time: item.time };
+			return { label: item.label, icon: item.icon, iconName: item.iconName, iconPath: item.iconPath, active: item.active, time: item.time };
 		});
 
 		try {
@@ -3904,6 +3904,22 @@ window.ContentContextMenu = ContentContextMenu;
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
 						const buildItems = (resolved) => {
+							// Entries set to "icon of the page" are looked up once per menu
+							// build, and only if there is such an entry - the scan walks the
+							// page's shadow roots. A menu is built in the frame the gesture
+							// started in, but a link opens against the top-level tab, so the
+							// lookup reads the top-level page too: from a same-origin iframe
+							// (an add-on page) that is where the sidebar lives; from a
+							// cross-origin frame there is nothing to look at, link icons stay.
+							const pageIconFor = resolved.items.some(i => i && i.icon === 'page')
+								? (() => {
+									let topWin = null;
+									try { if (window.top.location.origin === location.origin) topWin = window.top; } catch { /* cross-origin top */ }
+									if (!topWin) return () => ({ iconName: 'link' });
+									return window.FlowMousePageIcons.createFinder(
+										topWin.location.href, topWin.document, window.FlowMouseSearchUrl.replaceUrlPlaceholders);
+								})()
+								: null;
 							return resolved.items
 							.filter(it => it.type === 'separator' || (it.action && it.action !== 'none'))
 							.map(it => {
@@ -3936,8 +3952,11 @@ window.ContentContextMenu = ContentContextMenu;
 								} else {
 									entry.label = label || msg(ACTION_KEYS[it.action]) || it.action;
 								}
-								// Icon-Feld: Lucide-Name oder 'favicon' (Ziel-URL-Favicon)
-								if (it.icon && it.icon !== 'favicon') {
+								// Icon field: Lucide name, 'favicon' (favicon of the target URL) or
+								// 'page' (the icon the page itself shows next to the link)
+								if (it.icon === 'page') {
+									Object.assign(entry, pageIconFor ? pageIconFor(it) : { iconName: 'link' });
+								} else if (it.icon && it.icon !== 'favicon') {
 									entry.iconName = it.icon;
 								} else if (it.icon === 'favicon') {
 									const target = it.customUrl || entry._faviconUrl;
