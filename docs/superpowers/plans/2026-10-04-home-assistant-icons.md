@@ -154,7 +154,7 @@ In `js/menu-catalog.js`, in the `homeassistant` entry change these `icon:` value
 
 Apache-2.0 §4(a) obliges a redistributor to hand recipients a copy of the license, and the other entries of this file carry their full text, so this one does too. Append the notice, then the license text itself, then the closing fence:
 
-````bash
+```bash
 cat >> THIRD_PARTY_LICENSES.md <<'EOF'
 
 ---
@@ -165,11 +165,11 @@ Eight icons in `js/menu-icons.js` (`mdiPuzzle`, `mdiDevices`, `mdiShape`, `mdiRo
 
 ### License Text:
 
-```text
 EOF
+echo '```text' >> THIRD_PARTY_LICENSES.md
 curl -sSL https://www.apache.org/licenses/LICENSE-2.0.txt >> THIRD_PARTY_LICENSES.md
 echo '```' >> THIRD_PARTY_LICENSES.md
-````
+```
 
 Check: `grep -c "Apache License" THIRD_PARTY_LICENSES.md` is at least 1, the file's last line is the closing code fence, and `git diff --stat THIRD_PARTY_LICENSES.md` shows only additions. If `curl` cannot reach apache.org, any `LICENSE` file under `node_modules` that begins with `Apache License` (for example `node_modules/chrome-launcher/LICENSE`) holds the same canonical text — use `cat` on it instead.
 
