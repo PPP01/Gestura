@@ -35,7 +35,13 @@ section. Keep it consistent with [PRIVACY.md](../../PRIVACY.md).
 
 ## Data usage disclosures (Chrome "Privacy practices" tab)
 
-- Does the item collect user data? **No.**
+- Does the item collect user data? **Only if the user opts in.** As shipped nothing
+  leaves the browser. Two optional switches, both off by default and each behind its
+  own consent, make the extension contact gestura.eu: the integration (version
+  checks, ids and version numbers only) and settings sync (the user's own settings,
+  encrypted in the browser, uploaded on an explicit click). Answer the form
+  accordingly and keep it consistent with `PRIVACY.md` and
+  `chrome-web-store-submission.md`.
 - Sold to third parties? **No.**
 - Used/transferred for purposes unrelated to core functionality? **No.**
 - Used/transferred to determine creditworthiness / lending? **No.**
