@@ -9,6 +9,14 @@
 
 **New Features:**
 
+- **Repeated gestures:** a direction can now repeat inside a gesture — `↓↓`,
+  `→→`, `↑↑`, `←←`, also within longer ones like `↓↓→`. Draw a long stroke, or
+  stop briefly and continue in the same direction. Both ways are on by default
+  and tunable (or switched off) in the advanced gesture settings. Until you bind
+  a repeated gesture nothing changes: an unbound `↓↓` simply runs `↓`. Works
+  for mouse gestures and super drag; record them like any custom gesture. The
+  gesture recorders now use your own gesture threshold and turn tolerance, so
+  what you record is what pages recognise.
 - **gestura.eu integration, off by default:** a new settings section with a
   single switch. Turning it on opens a consent overlay that explains what the
   service does for you and what it does not do; agreeing enables the

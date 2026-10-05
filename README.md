@@ -57,6 +57,7 @@ The reason Gestura exists — the extra features that didn't make it into FlowMo
 - **Per-link JavaScript transforms** — reshape the selected text with a small, sandboxed JS snippet before it is handed to a search URL (advanced, runs isolated from the page and the extension).
 - **Export and import show you the whole thing first** — both display the complete content before anything is written and check it against a real schema: entries Gestura does not know are listed and dropped instead of written, values with the wrong shape fall back to their default, and a file cannot smuggle in a switch, a consent or a sync code.
 - **Browser sync is a switch** — leave it on (the default) and nothing changes. Turn it off and the settings live on this device only, with room to grow to 1 MiB in total instead of 8192 bytes per section. When a save no longer fits, Gestura names the section and the numbers and offers the ways out.
+- **Repeated gestures** — `↓↓`, `→→`, `↑↑`, `←←` and longer ones like `↓↓→`, drawn as a long stroke or as stroke, pause, stroke. Unbound repeats fall back to the plain gesture, so nothing changes until you use them.
 
 ### Optional: gestura.eu
 

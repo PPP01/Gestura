@@ -57,6 +57,7 @@ Der Grund, warum Gestura existiert — die Zusatzfunktionen, die es nicht in Flo
 - **JavaScript-Transformationen pro Link** — den markierten Text mit einem kleinen, isolierten JS-Snippet umformen, bevor er an eine Such-URL übergeben wird (fortgeschritten, läuft getrennt von der Seite und von der Erweiterung).
 - **Export und Import zeigen dir zuerst das Ganze** — beide zeigen den vollständigen Inhalt, bevor etwas geschrieben wird, und prüfen ihn gegen ein echtes Schema: Einträge, die Gestura nicht kennt, werden aufgelistet und verworfen statt geschrieben, Werte mit falscher Form fallen auf ihren Standard zurück, und eine Datei kann weder einen Schalter noch eine Zustimmung noch einen Sync-Code einschleusen.
 - **Die Browser-Synchronisierung ist ein Schalter** — bleibt er an (Standard), ändert sich nichts. Aus, leben die Einstellungen nur auf diesem Gerät und dürfen auf insgesamt 1 MiB wachsen statt 8192 Bytes pro Abschnitt. Passt ein Speichern nicht mehr, nennt Gestura den Abschnitt und die Zahlen und bietet die Auswege an.
+- **Wiederholte Gesten** — `↓↓`, `→→`, `↑↑`, `←←` und längere wie `↓↓→`, gezeichnet als langer Strich oder als Strich, Pause, Strich. Unbelegte Wiederholungen fallen auf die einfache Geste zurück, es ändert sich also nichts, bis du sie nutzt.
 
 ### Optional: gestura.eu
 
