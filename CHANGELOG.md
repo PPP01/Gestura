@@ -7,6 +7,8 @@
 
 ### Unreleased
 
+### v2.9.0 (2026-10-05)
+
 **New Features:**
 
 - **Repeated gestures:** a direction can now repeat inside a gesture — `↓↓`,
@@ -142,6 +144,10 @@
   its lightest parts against a white tab strip, so `icon48-light.png` joins
   `icon48-dark.png`: both are one flat colour with all the shading in the alpha
   channel, near-black violet for light strips and white for dark ones.
+- **The newest texts are translated into all 39 languages.** The gestura.eu
+  integration, settings sync, the storage dialogs, the settings preview and the
+  repeated-gesture settings no longer fall back to English in the 37 other
+  languages. The translations are machine-made; corrections are welcome.
 
 ### v2.8.0 (2026-09-02)
 
