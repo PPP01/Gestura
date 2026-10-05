@@ -1,10 +1,16 @@
 class GestureRecognizer {
+	// Stillness radius for the pause rule, in CSS px. Fixed on purpose: tied to
+	// distanceThreshold it would grow to 25 px at that slider's maximum.
+	static PAUSE_JITTER = 6;
 	static REPEAT_DISTANCE_MAX = 600;
+	static REPEAT_PAUSE_MAX = 2000;
 
 	#distanceThreshold;
 	#longGestureMultiplier;
 	#maxThreshold;
 	#repeatDistance = 0;
+	#repeatPause = 0;
+	#source = 'pointer';
 	#active = false;
 	#startX = 0;
 	#startY = 0;
@@ -17,12 +23,16 @@ class GestureRecognizer {
 	#points = [];
 	#segmentLength = 0;
 	#repeatProgress = 0;
+	#rest = null;
+	#pauseArmed = false;
+	#lastTimestamp = null;
 
 	constructor(config = {}) {
 		this.#distanceThreshold = config.distanceThreshold || 20;
 		this.#longGestureMultiplier = config.longGestureMultiplier ?? 0.10;
 		this.#maxThreshold = config.maxThreshold ?? 120;
 		this.#repeatDistance = GestureRecognizer.#limit(config.repeatDistance, GestureRecognizer.REPEAT_DISTANCE_MAX);
+		this.#repeatPause = GestureRecognizer.#limit(config.repeatPause, GestureRecognizer.REPEAT_PAUSE_MAX);
 		this.reset();
 	}
 
@@ -43,6 +53,9 @@ class GestureRecognizer {
 		if (config.repeatDistance !== undefined) {
 			this.#repeatDistance = GestureRecognizer.#limit(config.repeatDistance, GestureRecognizer.REPEAT_DISTANCE_MAX);
 		}
+		if (config.repeatPause !== undefined) {
+			this.#repeatPause = GestureRecognizer.#limit(config.repeatPause, GestureRecognizer.REPEAT_PAUSE_MAX);
+		}
 	}
 
 	reset() {
@@ -58,10 +71,16 @@ class GestureRecognizer {
 		this.#points = [];
 		this.#segmentLength = 0;
 		this.#repeatProgress = 0;
+		this.#source = 'pointer';
+		this.#rest = null;
+		this.#pauseArmed = false;
+		this.#lastTimestamp = null;
 	}
 
-	start(x, y, timestamp = 0) {
+	start(x, y, timestamp = 0, options = {}) {
 		this.reset();
+		this.#source = options?.source === 'drag' ? 'drag' : 'pointer';
+		this.#acceptTimestamp(timestamp);
 		this.#startX = x;
 		this.#startY = y;
 		this.#startTimestamp = timestamp;
@@ -73,6 +92,7 @@ class GestureRecognizer {
 	}
 
 	move(x, y, timestamp = null) {
+		const ts = this.#acceptTimestamp(timestamp);
 		this.#currentX = x;
 		this.#currentY = y;
 		this.#points.push({ x, y, timestamp });
@@ -142,6 +162,10 @@ class GestureRecognizer {
 			result.direction = this.#pattern[this.#pattern.length - 1];
 			result.directionChanged = true;
 
+			// Rest tracking starts here, not in start(): slow movement before
+			// activation must never count as a pause.
+			this.#rest = { x: this.#currentX, y: this.#currentY, t: ts };
+
 			// A single long move event from pointer-down has no later move to
 			// cross repeatDistance on, so the replayed segment is checked here.
 			this.#repeatProgress = this.#segmentLength;
@@ -152,6 +176,10 @@ class GestureRecognizer {
 			return result;
 		}
 
+		if (!result.activated) {
+			this.#trackRest(ts);
+		}
+
 		const deltaX = this.#currentX - this.#anchorX;
 		const deltaY = this.#currentY - this.#anchorY;
 		const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -160,7 +188,23 @@ class GestureRecognizer {
 			const direction = this.#getDirection(deltaX, deltaY);
 			const lastDirection = this.#pattern[this.#pattern.length - 1];
 
-			if (direction === lastDirection) {
+			if (this.#pauseArmed) {
+				// Consumed whatever happens - also when the cap rejects the
+				// repeat - so it never leaks into a later segment.
+				this.#pauseArmed = false;
+				if (direction === lastDirection) {
+					this.#appendRepeat(result);
+				} else {
+					this.#pattern.push(direction);
+					result.directionChanged = true;
+					result.direction = direction;
+					result.pattern = this.#pattern.join('');
+				}
+				this.#segmentLength = distance;
+				this.#repeatProgress = distance;
+				this.#anchorX = this.#currentX;
+				this.#anchorY = this.#currentY;
+			} else if (direction === lastDirection) {
 				this.#segmentLength += distance;
 				this.#repeatProgress += distance;
 				this.#anchorX = this.#currentX;
@@ -243,6 +287,50 @@ class GestureRecognizer {
 		if (limit && this.#repeatProgress >= limit && this.#appendRepeat(result)) {
 			this.#repeatProgress -= limit;
 		}
+	}
+
+	// Only a finite timestamp that does not run backwards can measure a pause.
+	#acceptTimestamp(timestamp) {
+		if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) return null;
+		if (this.#lastTimestamp !== null && timestamp < this.#lastTimestamp) return null;
+		this.#lastTimestamp = timestamp;
+		return timestamp;
+	}
+
+	#trackRest(ts) {
+		if (!this.#repeatPause) return;
+		const x = this.#currentX;
+		const y = this.#currentY;
+		const rest = this.#rest;
+		if (!rest) {
+			this.#rest = { x, y, t: ts };
+			return;
+		}
+		const still = Math.hypot(x - rest.x, y - rest.y) <= GestureRecognizer.PAUSE_JITTER;
+		if (still) {
+			if (rest.t === null) rest.t = ts;
+			else if (ts !== null && ts - rest.t >= this.#repeatPause) this.#armPause(rest);
+			return;
+		}
+		// Mouse and pen send nothing while still, so for them the gap before the
+		// move that leaves the radius is the pause. dragover keeps firing while
+		// still and arrives sparsely while moving: there a gap proves nothing.
+		if (this.#source === 'pointer' && ts !== null && rest.t !== null && ts - rest.t >= this.#repeatPause) {
+			this.#armPause(rest);
+		}
+		// After arming, so the anchor above is the pre-pause rest point.
+		this.#rest = { x, y, t: ts };
+	}
+
+	// Anchors at the point of rest, so the resumed movement counts toward the
+	// next segment, and starts that segment from zero: after a full stop a turn
+	// needs only distanceThreshold.
+	#armPause(rest) {
+		this.#pauseArmed = true;
+		this.#anchorX = rest.x;
+		this.#anchorY = rest.y;
+		this.#segmentLength = 0;
+		this.#repeatProgress = 0;
 	}
 
 	#getDirection(deltaX, deltaY) {
