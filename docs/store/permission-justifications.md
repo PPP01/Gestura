@@ -16,7 +16,7 @@ section. Keep it consistent with [PRIVACY.md](../../PRIVACY.md).
 |---|---|
 | `tabs` | Gesture actions create, close, switch, reopen, and reorder tabs, and read the active tab's URL/title for copy actions. |
 | `sessions` | The "reopen closed tab/window" gesture restores recently closed sessions. |
-| `storage` | Stores the user's gesture/menu/engine/appearance settings locally (and via the browser's own sync if enabled). No remote storage. |
+| `storage` | Stores the user's gesture/menu/engine/appearance settings locally (and via the browser's own sync if enabled). Nothing is stored remotely unless the user switches on the optional gestura.eu settings sync, which uploads encrypted data only. |
 | `contextMenus` | Builds the extension's menu entries used by gesture/drag menus. |
 | `search` | The "search selected text" actions hand the query to the user's chosen search engine. |
 | `scripting` | Injects the gesture/drag detection logic into pages so gestures work where content scripts are needed. |
