@@ -232,24 +232,6 @@ async function getSenderWindow(sender) {
 	return await chrome.windows.getCurrent();
 }
 
-function replaceUrlPlaceholders(template, tab) {
-	const rawUrl = tab?.url || '';
-	const raw = {
-		tabUrl: rawUrl,
-		tabTitle: tab?.title || '',
-		tabDomain: '',
-	};
-	if (rawUrl) {
-		try {
-			raw.tabDomain = new URL(rawUrl).hostname;
-		} catch { }
-	}
-	return (template || '').replace(/\{(tabUrl|tabTitle|tabDomain)(?::(raw))?\}/g, (_, key, mod) => {
-		const val = raw[key] || '';
-		return mod ? val : encodeURIComponent(val);
-	});
-}
-
 let _offscreenCreating = null;
 
 async function ensureOffscreen() {
@@ -828,7 +810,7 @@ async function handleAction(request, sender) {
 		}
 
 		case 'openCustomUrl': {
-			let url = replaceUrlPlaceholders(request.customUrl, sender.tab);
+			let url = self.FlowMouseSearchUrl.replaceUrlPlaceholders(request.customUrl, sender.tab);
 			if (url) {
 				const protocolRegex = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
 
@@ -1790,6 +1772,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 const MENU_ID_REFRESH = 'flowmouse-need-refresh';
 const MENU_ID_RESTRICTED = 'flowmouse-restricted';
 const MENU_ID_BLACKLIST = 'flowmouse-blacklist-toggle';
+const MENU_ID_BLACKLIST_NOTICE = 'flowmouse-blacklist-notice';
 const MENU_ID_OPTIONS = 'flowmouse-open-options';
 const MENU_ID_SITEMENU = 'flowmouse-open-sitemenu';
 const MENU_ID_ADD_PARENT = 'flowmouse-add-site-parent';
@@ -1905,13 +1888,29 @@ function getMsg(key, fallback) {
 	}
 }
 
-function createBlacklistMenu(isInBlacklist) {
-	const title = isInBlacklist
-		? chrome.i18n.getMessage('menuRemoveFromBlacklist')
-		: chrome.i18n.getMessage('menuAddToBlacklist');
+function createBlacklistMenu(isInBlacklist, blockedByEntry) {
+	// A finer entry than the bare host is blocking this page: say which, and do not
+	// offer a click that would delete an entry the user did not point at - but the
+	// item stays clickable, opening the blacklist to manage it instead of a no-op.
+	const title = blockedByEntry
+		? chrome.i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', blockedByEntry)
+		: isInBlacklist
+			? chrome.i18n.getMessage('menuRemoveFromBlacklist')
+			: chrome.i18n.getMessage('menuAddToBlacklist');
 	chrome.contextMenus.create({
 		id: MENU_ID_BLACKLIST,
 		title: title,
+		contexts: ['all']
+	}, () => { chrome.runtime.lastError; });
+}
+
+// Shown instead of createBlacklistMenu() when the quick toggle item is off
+// (enableBlacklistContextMenu defaults to false) but the page is blocked - the
+// popup already says so, but the context menu said nothing at all until now.
+function createBlacklistNoticeMenu() {
+	chrome.contextMenus.create({
+		id: MENU_ID_BLACKLIST_NOTICE,
+		title: chrome.i18n.getMessage('menuBlacklisted'),
 		contexts: ['all']
 	}, () => { chrome.runtime.lastError; });
 }
@@ -1991,7 +1990,16 @@ async function updateMenuForTab(tab) {
 	} catch (e) {
 	}
 	const restricted = isRestrictedUrl(url);
-	const isBlacklistedHost = blacklistEnabled && hostname && Array.isArray(items.blacklist) && items.blacklist.includes(hostname);
+	const blocking = blacklistEnabled && url && Array.isArray(items.blacklist)
+		? GesturaBlacklist.matchingEntries(url, items.blacklist)
+		: [];
+	const isBlacklistedHost = blocking.length > 0;
+	const onlyHostEntry = blocking.length === 1 && blocking[0] === hostname;
+	// The entry that is not the bare host — the reason the item has to be inert.
+	// blocking[0] would name the host when both are listed, which explains nothing.
+	const finerEntry = isBlacklistedHost && !onlyHostEntry
+		? blocking.find(e => e !== hostname)
+		: null;
 	const pageOk = !!hostname && !restricted && !isBlacklistedHost;
 
 	// Reihenfolge im Rechtsklick-Menü:
@@ -2007,9 +2015,15 @@ async function updateMenuForTab(tab) {
 		}, () => { chrome.runtime.lastError; });
 	}
 
-	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren
-	if (blacklistEnabled && items.enableBlacklistContextMenu && hostname && !restricted) {
-		createBlacklistMenu(isBlacklistedHost);
+	// 2) Gesten für aktuelle Seite deaktivieren/aktivieren, oder - wenn dieser
+	// Schnell-Umschalter aus ist (Standard) - wenigstens ein Hinweis mit Link zur
+	// Blacklist, statt die Sperre auf dieser Seite ganz zu verschweigen.
+	if (blacklistEnabled && hostname && !restricted) {
+		if (items.enableBlacklistContextMenu) {
+			createBlacklistMenu(isBlacklistedHost, finerEntry);
+		} else if (isBlacklistedHost && showNotice) {
+			createBlacklistNoticeMenu();
+		}
 	}
 
 	// 3) Hinweis bei eingeschränkten / nicht geladenen Seiten (+ Badge)
@@ -2052,7 +2066,7 @@ async function updateMenuForTab(tab) {
 		const addEntries = (m, parentId) => {
 			const name = menuDisplayName(m);
 			const has = !!self.FlowMouseMenuModel.findLinkInMenu(
-				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, self._siteMenusCache, m.id, url);
+				self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, self._siteMenusCache, m.id, url, url);
 			const named = (key, fallback) => getMsg(key, fallback).replace('{NAME}', name);
 			const parent = parentId ? { parentId } : {};
 			chrome.contextMenus.create({
@@ -2146,7 +2160,7 @@ async function updateMenuForTab(tab) {
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	if ((changeInfo.status === 'loading' || changeInfo.status === 'complete') && tab.active) {
+	if ((changeInfo.status === 'loading' || changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
 		updateMenuForTab(tab);
 	}
 });
@@ -2184,6 +2198,14 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 				if (!hostname) return;
 				const storageItems = await GesturaSettingsStorage.get(['blacklist']);
 				let blacklist = storageItems.blacklist || [];
+				const blocking = GesturaBlacklist.matchingEntries(tab.url, blacklist);
+				const onlyHost = blocking.length === 1 && blocking[0] === hostname;
+				if (blocking.length > 0 && !onlyHost) {
+					// Blocked by a finer entry than the bare host: no single click here is
+					// safe to toggle, so send them to the list instead of doing nothing.
+					await openOptionsPage('#blacklistManager');
+					return;
+				}
 				if (blacklist.includes(hostname)) {
 					blacklist = blacklist.filter(d => d !== hostname);
 				} else {
@@ -2194,6 +2216,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 			} catch (e) {
 			}
 		}
+	} else if (info.menuItemId === MENU_ID_BLACKLIST_NOTICE) {
+		await openOptionsPage('#blacklistManager');
 	} else if (info.menuItemId === MENU_ID_RESTRICTED) {
 		await openOptionsPage('#restricted-notice');
 	} else if (info.menuItemId === MENU_ID_OPTIONS) {
@@ -2211,7 +2235,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		const menuId = info.menuItemId.slice(CTX_REMOVE_PREFIX.length);
 		const cur = (await GesturaSettingsStorage.get(['siteMenus'])).siteMenus || {};
 		const { siteMenus, removed } = self.FlowMouseMenuModel.removeLinkFromMenu(
-			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url);
+			self.FlowMouseMenuCatalog.SITE_MENU_CATALOG, cur, menuId, tab.url, tab.url);
 		if (!removed) return;
 		const res = await GesturaSettingsStorage.set({ siteMenus });
 		if (res.ok) self._siteMenusCache = siteMenus;
@@ -2229,7 +2253,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		// aufgebaut, bevor feststeht, worauf geklickt wird. Ohne diese Prüfung
 		// erschiene der Titel-Dialog und das Ergebnis verschwände wortlos.
 		const catalog = self.FlowMouseMenuCatalog.SITE_MENU_CATALOG;
-		if (self.FlowMouseMenuModel.findLinkInMenu(catalog, cur, menuId, url)) {
+		if (self.FlowMouseMenuModel.findLinkInMenu(catalog, cur, menuId, url, tab.url)) {
 			const m = activeSiteMenus().find(x => x.id === menuId);
 			chrome.tabs.sendMessage(tab.id, {
 				action: 'ctxToast',
@@ -2253,7 +2277,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 		} catch (e) { /* Content nicht verfügbar → Fallback */ }
 		if (!label) label = isLink ? url : (tab.title || url);
 
-		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url });
+		let { siteMenus } = self.FlowMouseMenuModel.addLinkToMenu(catalog, cur, menuId, { label, url, pageUrl: tab.url });
 		if (addPattern) {
 			const pat = self.FlowMouseMenuPatterns.siteToPattern(tab.url);
 			({ siteMenus } = self.FlowMouseMenuModel.addPatternToMenu(catalog, siteMenus, menuId, pat));

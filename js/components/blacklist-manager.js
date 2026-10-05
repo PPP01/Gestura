@@ -137,30 +137,29 @@ class BlacklistManager extends LitElement {
 	}
 
 	#addDomain() {
-		let domain = this._inputValue.trim().toLowerCase();
+		const raw = this._inputValue.trim();
+		if (!raw) return;
 
-		if (!domain) return;
+		// Canonicalises and, unlike the old inline new URL(), keeps the port and the
+		// path. See docs/superpowers/specs/2026-09-14-blacklist-port-path-design.md.
+		const entry = window.GesturaBlacklist.normalize(raw);
+		const parsed = entry && window.GesturaBlacklist.parse(entry);
 
-		try {
-			const urlStr = domain.includes('://') ? domain : 'https://' + domain;
-			const url = new URL(urlStr);
-			if (url.hostname) {
-				domain = url.hostname;
-			}
-		} catch (e) {
-		}
-
-		if (!domain.includes('.') && domain !== 'localhost') {
+		// A host with no dot is almost always a typo. 'localhost' is the exception
+		// that matters, and an IPv6 literal always comes back bracketed (e.g.
+		// '[::1]') and never contains a dot either. The check runs against the host
+		// alone so that localhost:3000 and localhost:3001/game.html get through.
+		if (!parsed || (!parsed.host.includes('.') && parsed.host !== 'localhost' && !parsed.host.startsWith('['))) {
 			this.#dispatchError(window.i18n.getMessage('invalidDomain'));
 			return;
 		}
 
-		if (this.blacklist.includes(domain)) {
+		if (this.blacklist.includes(entry)) {
 			this.#dispatchError(window.i18n.getMessage('domainExists'));
 			return;
 		}
 
-		this.blacklist = [...this.blacklist, domain];
+		this.blacklist = [...this.blacklist, entry];
 		this.#dispatchChange();
 		this._inputValue = '';
 	}

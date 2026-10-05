@@ -203,6 +203,7 @@
 			this._bindings = [];
 			this._onUpdateCallbacks = [];
 			this._onReattachCallbacks = [];
+			this._liveGate = null;
 		}
 
 		add(condition, target, event, handler, options) {
@@ -214,9 +215,24 @@
 			}
 			const safeHandler = (e) => {
 				if (!e.isTrusted) return;
+				if (condition && this._liveGate && !this._liveGate()) return;
 				handler(e);
 			};
 			this._bindings.push({ target, event, handler: safeHandler, options, condition, active: false });
+			return this;
+		}
+
+		// A binding's `condition` decides whether the listener is attached and is only
+		// re-read in update(). A live gate is re-read on every event, for state that
+		// changes without a settings change — the current path, under a single-page app
+		// that routes through the History API.
+		//
+		// It applies only to bindings that carry a condition. The ones registered with
+		// null are the cleanup handlers — pageshow, visibilitychange, pagehide, blur,
+		// Escape — and they have to keep running on a page whose gestures are off, or
+		// the state they clear is stranded across the transition.
+		setLiveGate(fn) {
+			this._liveGate = fn;
 			return this;
 		}
 
@@ -637,7 +653,7 @@ class ContentContextMenu {
 
 		const serializedItems = items.map(item => {
 			if (item === 'separator') return 'separator';
-			return { label: item.label, icon: item.icon, iconName: item.iconName, active: item.active, time: item.time };
+			return { label: item.label, icon: item.icon, iconName: item.iconName, iconPath: item.iconPath, active: item.active, time: item.time };
 		});
 
 		try {
@@ -2090,50 +2106,75 @@ window.ContentContextMenu = ContentContextMenu;
 	const isFirefox = false;
 	const isEdgeDesktop = navigator.userAgent.includes('Edg/');
 
-	const currentDomain = location.hostname;
-
-	function checkBlacklist(blacklist) {
-		if (!blacklistFeatureEnabled) return false;
-		if (blacklist.includes(currentDomain)) return true;
-		try {
-			const origins = location.ancestorOrigins;
-			if (origins && origins.length > 0) {
-				return blacklist.includes(new URL(origins[origins.length - 1]).hostname);
-			}
-		} catch (e) {}
-		return false;
-	}
-
-	let isBlacklisted = false;
+	// Four states, not one. hardStopped is a one-way street the user or the browser
+	// asked for; originBlocked is a verdict recomputed whenever the settings change.
+	// Mapping both onto one variable would let a later blacklist edit revive
+	// gestures after pauseGesture.
+	let hardStopped = false;
+	let originBlocked = false;
+	let livePathEntries = [];
+	let gateBlocked = false;
 	let initGesturesCalled = false;
 	let blacklistFeatureEnabled = true;
 	let currentBlacklist = [];
 
+	function ancestorOrigin() {
+		try {
+			const origins = location.ancestorOrigins;
+			if (origins && origins.length > 0) return origins[origins.length - 1];
+		} catch (e) {}
+		return null;
+	}
+
+	function applyBlacklist(list) {
+		if (!blacklistFeatureEnabled) {
+			originBlocked = false;
+			livePathEntries = [];
+			return;
+		}
+		const r = window.GesturaBlacklist.evaluate({
+			hostname: location.hostname,
+			port: location.port,
+			protocol: location.protocol,
+			ancestorOrigin: ancestorOrigin(),
+		}, list);
+		originBlocked = r.originBlocked;
+		livePathEntries = r.pathEntries;
+	}
+
+	// A host and a port are fixed for the life of this document; a path is not,
+	// because a single-page app can route without reloading. So the path verdict is
+	// taken here, per event, through the live gate. For every page without a path
+	// entry on its host this is one length check.
+	function blockedNow() {
+		if (hardStopped || originBlocked) return true;
+		if (livePathEntries.length === 0) return false;
+		const p = location.pathname;
+		return livePathEntries.some(e => window.GesturaBlacklist.pathMatches(p, e.path));
+	}
+
 	window.GesturaSettingsStorage.get({ blacklist: [], enableBlacklist: true }).then((items) => {
 		blacklistFeatureEnabled = items.enableBlacklist !== false;
 		currentBlacklist = items.blacklist || [];
-		isBlacklisted = checkBlacklist(currentBlacklist);
-		if (!isBlacklisted) {
+		applyBlacklist(currentBlacklist);
+		// Runs even when a path entry matches right now: the route may change, and a
+		// document that never attached its listeners could never notice.
+		if (!originBlocked) {
 			initGestures();
 		}
 	}).catch((e) => console.error('Gestura: blacklist init failed - settings facade unavailable?', e));
 
 	window.GesturaSettingsStorage.onChanged((changes) => {
-		if (changes.blacklist || changes.enableBlacklist) {
-			if (changes.blacklist) {
-				currentBlacklist = changes.blacklist.newValue || [];
-			}
-			if (changes.enableBlacklist) {
-				blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
-			}
-			const nowBlacklisted = checkBlacklist(currentBlacklist);
-
-			if (nowBlacklisted !== isBlacklisted) {
-				isBlacklisted = nowBlacklisted;
-				if (nowBlacklisted === false && !initGesturesCalled) {
-					initGestures();
-				}
-			}
+		if (!changes.blacklist && !changes.enableBlacklist) return;
+		if (changes.blacklist) {
+			currentBlacklist = changes.blacklist.newValue || [];
+		}
+		if (changes.enableBlacklist) {
+			blacklistFeatureEnabled = changes.enableBlacklist.newValue !== false;
+		}
+		applyBlacklist(currentBlacklist);
+		if (!originBlocked && !initGesturesCalled) {
+			initGestures();
 		}
 	});
 
@@ -2144,13 +2185,10 @@ window.ContentContextMenu = ContentContextMenu;
 		const { msg } = window.ContentI18n;
 
 		const CONFIG = {
-			DISTANCE_THRESHOLD: DEFAULT_SETTINGS.distanceThreshold,
 			SCROLL_AMOUNT: window.innerHeight * 0.75
 		};
 
-		const recognizer = new window.GestureRecognizer({
-			distanceThreshold: CONFIG.DISTANCE_THRESHOLD
-		});
+		const recognizer = new window.GestureRecognizer(window.GestureRecognizer.configFromSettings(DEFAULT_SETTINGS));
 
 		let isIframe = false;
 		try {
@@ -2236,61 +2274,74 @@ window.ContentContextMenu = ContentContextMenu;
 			return getDragGestureConfigs(gestures, pattern).some(g => g.action && g.action !== 'none');
 		}
 
+		// The raw pattern if it has drag gestures, else the collapsed one if that
+		// has. Drag configs derive from the pattern alone, so resolving the pattern
+		// once is enough for hints, drop acceptance and execution.
+		function resolveDragPattern(dragType, pattern) {
+			const gestures = getGesturesForDragType(dragType);
+			if (!gestures || !pattern) return pattern;
+			return window.GestureBinding.resolve(pattern, (p) => {
+				const configs = getDragGestureConfigs(gestures, p);
+				return configs.length ? configs : undefined;
+			}).effectivePattern;
+		}
+
 		let SETTINGS = {
 			...DEFAULT_SETTINGS,
 			enableDrag: DEFAULT_SETTINGS.enableTextDrag || DEFAULT_SETTINGS.enableImageDrag || DEFAULT_SETTINGS.enableLinkDrag
 		};
 
-		function getGestureAction(pattern) {
+		// One binding shape for both sources - the stored entry, or a default
+		// wrapped as { action } - so a fallback from ↓↓ to ↓ carries ↓'s
+		// configuration along with its action.
+		function lookupMouseBinding(pattern) {
 			if (!SETTINGS.enableGestureCustomization) {
-				return DEFAULT_GESTURES[pattern];
+				const action = DEFAULT_GESTURES[pattern];
+				return action ? { action } : undefined;
 			}
-
-			const config = SETTINGS.mouseGestures?.[pattern];
-			return config?.action;
+			const entry = SETTINGS.mouseGestures?.[pattern];
+			return entry && typeof entry === 'object' ? entry : undefined;
 		}
 
+		function resolveMouseGesture(pattern) {
+			return window.GestureBinding.resolve(pattern, lookupMouseBinding);
+		}
 
-		function getActionName(pattern) {
-			const action = getGestureAction(pattern);
+		function getBindingName(binding) {
+			const action = binding?.action;
 			if (!action || action === 'none') return '';
-			if (SETTINGS.enableGestureCustomization) {
-				const customName = SETTINGS.mouseGestures?.[pattern]?.customName;
-				if (customName) return customName;
+			if (SETTINGS.enableGestureCustomization && binding.customName) {
+				return binding.customName;
 			}
 			if (action === 'actionChain') {
-				const config = SETTINGS.mouseGestures?.[pattern];
-				const chain = SETTINGS.actionChains?.[config?.chainId];
+				const chain = SETTINGS.actionChains?.[binding.chainId];
 				if (chain?.name) return chain.name;
 				if (!chain) return `${msg(ACTION_KEYS[action])} ${msg('chainNotFound')}`;
 			}
 			if (action === 'customMenu') {
-				const config = SETTINGS.mouseGestures?.[pattern];
-				return config?.ownMenu?.name || msg('customMenuOwnLabel');
+				return binding.ownMenu?.name || msg('customMenuOwnLabel');
 			}
 			if (action === 'siteMenu') {
-				const config = SETTINGS.mouseGestures?.[pattern];
-				const resolved = resolveGestureMenu(siteMenuCfg(config));
+				const resolved = resolveGestureMenu(siteMenuCfg(binding));
 				if (resolved?.name) return resolved.name;
 				if (resolved?.nameKey) {
 					const localized = msg(resolved.nameKey);
 					if (localized) return localized;
 				}
 				if (!resolved) {
-					return (config?.mode === 'standard' || config?.mode === 'fork')
+					return (binding.mode === 'standard' || binding.mode === 'fork')
 						? `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`
 						: msg('customMenuContextualLabel');
 				}
 			}
 			if (action === 'simulateKey') {
-				const config = SETTINGS.mouseGestures?.[pattern] || {};
 				const defaults = ACTION_DEFAULTS.simulateKey || {};
-				const keyValue = config.keyValue || defaults.keyValue || 'ArrowLeft';
+				const keyValue = binding.keyValue || defaults.keyValue || 'ArrowLeft';
 				const mods = [];
-				if (config.modCtrl) mods.push('Ctrl');
-				if (config.modShift) mods.push('Shift');
-				if (config.modAlt) mods.push('Alt');
-				if (config.modMeta) mods.push('Meta');
+				if (binding.modCtrl) mods.push('Ctrl');
+				if (binding.modShift) mods.push('Shift');
+				if (binding.modAlt) mods.push('Alt');
+				if (binding.modMeta) mods.push('Meta');
 				mods.push(keyValue);
 				return `${msg(ACTION_KEYS[action])} (${mods.join('+')})`;
 			}
@@ -2298,25 +2349,34 @@ window.ContentContextMenu = ContentContextMenu;
 			return i18nKey ? msg(i18nKey) : '';
 		}
 
-		function getSuggestedGestures(currentPattern) {
+		function getSuggestedGestures(rawPattern) {
 			const source = SETTINGS.enableGestureCustomization
 				? (SETTINGS.mouseGestures || {})
 				: DEFAULT_GESTURES;
+			const patterns = Object.keys(source);
+			const isActive = (p) => {
+				const action = lookupMouseBinding(p)?.action;
+				return !!action && action !== 'none';
+			};
+			// The whole pipeline runs on the base: prefix, candidate length and
+			// the sort key's next direction.
+			const base = window.GestureBinding.suggestionBase(rawPattern, patterns, isActive);
 			const suggestions = [];
-			for (const pattern of Object.keys(source)) {
-				if (!pattern.startsWith(currentPattern)) continue;
-				if (pattern.length !== currentPattern.length + 1) continue;
-				const actionName = getActionName(pattern);
+			for (const pattern of patterns) {
+				if (!pattern.startsWith(base)) continue;
+				if (pattern.length !== base.length + 1) continue;
+				// Direct lookup, no fallback: suggestions list stored patterns as they are.
+				const actionName = getBindingName(lookupMouseBinding(pattern));
 				if (!actionName) continue;
 				suggestions.push({ pattern, actionName });
 			}
 
-			const lastDir = currentPattern.slice(-1);
+			const lastDir = base.slice(-1);
 			const isHorizontal = lastDir === '←' || lastDir === '→';
 			const isVertical = lastDir === '↑' || lastDir === '↓';
 
 			const getSortKey = (pattern) => {
-				const D = pattern[currentPattern.length];
+				const D = pattern[base.length];
 				if (isHorizontal) {
 					if (D === '↑') return 0;
 					if (D === '←' || D === '→') return 1;
@@ -2330,7 +2390,7 @@ window.ContentContextMenu = ContentContextMenu;
 			};
 
 			suggestions.sort((a, b) => getSortKey(a.pattern) - getSortKey(b.pattern));
-			return suggestions;
+			return { base, suggestions };
 		}
 
 		function loadSettings() {
@@ -2362,10 +2422,7 @@ window.ContentContextMenu = ContentContextMenu;
 				SETTINGS.enableDrag = SETTINGS.enableDragFeatures !== false && (SETTINGS.enableTextDrag || SETTINGS.enableImageDrag || SETTINGS.enableLinkDrag);
 
 				if (window.GestureRecognizer && recognizer && recognizer.updateConfig) {
-					recognizer.updateConfig({
-						distanceThreshold: SETTINGS.distanceThreshold,
-						longGestureMultiplier: SETTINGS.gestureTurnTolerance
-					});
+					recognizer.updateConfig(window.GestureRecognizer.configFromSettings(SETTINGS));
 				}
 
 				if (SETTINGS.enableTrail || SETTINGS.enableHUD) {
@@ -2405,9 +2462,6 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		window.GesturaSettingsStorage.onChanged((changes) => {
-			const keys = Object.keys(changes);
-			if (keys.length === 1 && keys[0] === 'blacklist') return;
-
 			loadSettings();
 		});
 
@@ -2415,7 +2469,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
-				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || isBlacklisted) return;
+				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || blockedNow()) return;
 				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
 				const cursor = { startX: p.x, startY: p.y, endX: p.x, endY: p.y };
 				const target = document.elementFromPoint(p.x, p.y);
@@ -2485,7 +2539,11 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 
 			if (request.action === 'areaSelectEnter') {
-				if (window.FlowMouseAreaSelect && !window.FlowMouseAreaSelect.isActive) {
+				// This arrives over runtime messaging, not through eventManager, so
+				// neither an attach condition nor the live gate covers it on its own -
+				// a relay from another frame or a stale popup could still open it on a
+				// path-blocked document.
+				if (!blockedNow() && window.FlowMouseAreaSelect && !window.FlowMouseAreaSelect.isActive) {
 					const lang = window.ContentI18n.getHtmlLang();
 					const isRtl = window.ContentI18n.getDir() === 'rtl';
 					window.FlowMouseAreaSelect.enter(isIframe, request.warnThreshold, lang, isRtl, undefined, {
@@ -2509,7 +2567,7 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 
 			if (request.action === 'pauseGesture') {
-				isBlacklisted = true;
+				hardStopped = true;
 				resetState();
 				eventManager.dispose();
 				visualizer.cleanup();
@@ -2588,11 +2646,57 @@ window.ContentContextMenu = ContentContextMenu;
 		const toaster = new window.ToastOverlay();
 		const ctxMenu = new ContentContextMenu();
 
-		const isGestureEnabled = () => SETTINGS.enableGesture && !isBlacklisted;
-		const isWheelGestureEnabled = () => SETTINGS.enableWheelGestures && !isBlacklisted;
-		const isSpecialGestureEnabled = () => SETTINGS.enableSpecialGestures && !isBlacklisted;
-		const isDragEnabled = () => SETTINGS.enableDrag && !isBlacklisted;
+		// resetState() resets the recognizer and gestureState and leaves three flags
+		// standing that only the ungated cleanup handlers ever clear. Routing into a
+		// blocked path and back out would carry them across: a stale
+		// wheelGestureTriggered swallows the next context menu, and a stale
+		// areaSelectPending resumes an old selection on the next pointermove.
+		function resetTransientState() {
+			resetState();
+			wheelGestureTriggered = false;
+			rockerGestureTriggered = false;
+			// rockerLeftExecuted, dropHandledAction and the preventContextMenu pair are
+			// declared further down (still safe: this only runs once a listener fires,
+			// long after initGestures() finished declaring them). resetState() does not
+			// touch them, so a route change during a rocker gesture or a drag would carry
+			// them across and swallow an unrelated click or dragend after the round trip.
+			rockerLeftExecuted = false;
+			dropHandledAction = false;
+			areaSelectPending = null;
+			if (preventContextMenuTimeoutId) {
+				clearTimeout(preventContextMenuTimeoutId);
+				preventContextMenuTimeoutId = null;
+			}
+			if (gestureState.preventContextMenu) {
+				gestureState.preventContextMenu = false;
+				// Balances the active: true this flag was set alongside — otherwise
+				// other frames would keep suppressing their context menu forever.
+				safeSendMessage({ action: 'gestureStateUpdate', active: false });
+			}
+			lastRightClickTime = 0;
+			visualizer.cleanup();
+			toaster.cleanup();
+			ctxMenu.close();
+			window.FlowMouseAreaSelect?.exit();
+		}
+
+		// The crossing from allowed to blocked has to be noticed in the gate, not in a
+		// handler: a handler behind a closed gate is exactly what does not run. Without
+		// this, a route change during a held gesture would leave the recognizer active
+		// and its trail on screen, because pointermove and pointerup stop arriving.
+		function refreshGate() {
+			const now = blockedNow();
+			if (now && !gateBlocked) resetTransientState();
+			gateBlocked = now;
+			return now;
+		}
+
+		const isGestureEnabled = () => SETTINGS.enableGesture && !originBlocked;
+		const isWheelGestureEnabled = () => SETTINGS.enableWheelGestures && !originBlocked;
+		const isSpecialGestureEnabled = () => SETTINGS.enableSpecialGestures && !originBlocked;
+		const isDragEnabled = () => SETTINGS.enableDrag && !originBlocked;
 		const eventManager = new window.EventManager();
+		eventManager.setLiveGate(() => !refreshGate());
 
 		let _docEl = document.documentElement;
 		new MutationObserver(() => {
@@ -2606,7 +2710,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const extensionId = chrome.runtime.id;
 			function onDispose(event) {
 				if (event.detail?.extensionId !== extensionId) return;
-				isBlacklisted = true;
+				hardStopped = true;
 				eventManager.dispose();
 				visualizer.cleanup();
 				toaster.cleanup();
@@ -2622,7 +2726,7 @@ window.ContentContextMenu = ContentContextMenu;
 		function isExtensionContextValid() {
 			{
 				if (!chrome.runtime?.id) {
-					isBlacklisted = true;
+					hardStopped = true;
 					eventManager.dispose();
 					visualizer.cleanup();
 					toaster.cleanup();
@@ -2781,7 +2885,7 @@ window.ContentContextMenu = ContentContextMenu;
 		let lastCtxMenuPoint = null;   // {x,y} in Viewport-Koordinaten dieses Frames
 		let lastCtxMenuTarget = null;  // Element unter dem Rechtsklick
 
-		eventManager.add(() => !isBlacklisted, window, 'contextmenu', (e) => {
+		eventManager.add(() => !originBlocked, window, 'contextmenu', (e) => {
 			if (!isExtensionContextValid()) return;
 
 			lastCtxMenuPoint = { x: e.clientX, y: e.clientY };
@@ -3011,11 +3115,13 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!recognizer.isActive()) return;
 
 			if (result.directionChanged && SETTINGS.enableHUD) {
-				const actionName = getActionName(result.pattern);
-				visualizer.updateAction(result.pattern, actionName ? [actionName] : []);
+				// Arrows show the effective pattern: an unbound long ↓ reads ↓.
+				const resolved = resolveMouseGesture(result.pattern);
+				const actionName = getBindingName(resolved.binding);
+				visualizer.updateAction(resolved.effectivePattern, actionName ? [actionName] : []);
 				if (SETTINGS.enableSuggestedGestures) {
-					const suggestions = getSuggestedGestures(result.pattern);
-					visualizer.updateSuggestedGestures(suggestions, result.pattern);
+					const { base, suggestions } = getSuggestedGestures(result.pattern);
+					visualizer.updateSuggestedGestures(suggestions, base);
 				}
 			}
 		}, { capture: true });
@@ -3237,7 +3343,7 @@ window.ContentContextMenu = ContentContextMenu;
 				gestureState.selectedText = dragContent;
 				gestureState.dragElement = dragElement;
 				gestureState.dragType = dragType;
-				recognizer.start(e.clientX, e.clientY, e.timeStamp);
+				recognizer.start(e.clientX, e.clientY, e.timeStamp, { source: 'drag' });
 				if (lastPointerType === 'touch' || lastPointerType === 'pen') {
 					gestureState.skipFirstDragOver = true;
 				}
@@ -3290,14 +3396,15 @@ window.ContentContextMenu = ContentContextMenu;
 				result.directionChanged = true;
 			}
 
-			if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {
+			const dragPattern = resolveDragPattern(gestureState.dragType, recognizer.getPattern());
+			if (hasDragAction(gestureState.dragType, dragPattern)) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 			}
 
 			if (result.directionChanged && SETTINGS.enableHUD) {
-				const hints = getDragHints(gestureState.dragType, result.pattern, gestureState.selectedText, gestureState.parentLink);
-				visualizer.updateAction(hints.length > 0 ? result.pattern : '', hints);
+				const hints = getDragHints(gestureState.dragType, dragPattern, gestureState.selectedText, gestureState.parentLink);
+				visualizer.updateAction(hints.length > 0 ? dragPattern : '', hints);
 			}
 		}, { capture: true });
 
@@ -3305,7 +3412,7 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!gestureState.isDrag) return;
 			if (!recognizer.isActive()) return;
 			if (gestureState.dropOnInputSuppressed) return;
-			if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {
+			if (hasDragAction(gestureState.dragType, resolveDragPattern(gestureState.dragType, recognizer.getPattern()))) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 			}
@@ -3330,7 +3437,7 @@ window.ContentContextMenu = ContentContextMenu;
 			try {
 				if (gestureState.isDrag && recognizer.isActive()) {
 					if (gestureState.dropOnInputSuppressed) return;
-					const pattern = recognizer.getPattern();
+					const pattern = resolveDragPattern(gestureState.dragType, recognizer.getPattern());
 					if (hasDragAction(gestureState.dragType, pattern)) {
 						dropHandledAction = true;
 						e.preventDefault();
@@ -3406,7 +3513,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const wheelOptions = { capture: true, passive: false };
 
 			function addWheelListener() {
-				if (wheelListenerActive || !isWheelGestureEnabled()) return;
+				if (wheelListenerActive || !isWheelGestureEnabled() || blockedNow()) return;
 				window.addEventListener('wheel', onChromeWheel, wheelOptions);
 				wheelListenerActive = true;
 			}
@@ -3419,7 +3526,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 			function onChromeWheel(e) {
 				if (!e.isTrusted) return;
-				if (!isWheelGestureEnabled() || !(e.buttons & 2)) {
+				if (!isWheelGestureEnabled() || refreshGate() || !(e.buttons & 2)) {
 					removeWheelListener();
 					return;
 				}
@@ -3816,6 +3923,22 @@ window.ContentContextMenu = ContentContextMenu;
 						const menuSelectionText = (window.getSelection()?.toString() || '').trim();
 
 						const buildItems = (resolved) => {
+							// Entries set to "icon of the page" are looked up once per menu
+							// build, and only if there is such an entry - the scan walks the
+							// page's shadow roots. A menu is built in the frame the gesture
+							// started in, but a link opens against the top-level tab, so the
+							// lookup reads the top-level page too: from a same-origin iframe
+							// (an add-on page) that is where the sidebar lives; from a
+							// cross-origin frame there is nothing to look at, link icons stay.
+							const pageIconFor = resolved.items.some(i => i && i.icon === 'page')
+								? (() => {
+									let topWin = null;
+									try { if (window.top.location.origin === location.origin) topWin = window.top; } catch { /* cross-origin top */ }
+									if (!topWin) return () => ({ iconName: 'link' });
+									return window.FlowMousePageIcons.createFinder(
+										topWin.location.href, topWin.document, window.FlowMouseSearchUrl.replaceUrlPlaceholders);
+								})()
+								: null;
 							return resolved.items
 							.filter(it => it.type === 'separator' || (it.action && it.action !== 'none'))
 							.map(it => {
@@ -3848,8 +3971,11 @@ window.ContentContextMenu = ContentContextMenu;
 								} else {
 									entry.label = label || msg(ACTION_KEYS[it.action]) || it.action;
 								}
-								// Icon-Feld: Lucide-Name oder 'favicon' (Ziel-URL-Favicon)
-								if (it.icon && it.icon !== 'favicon') {
+								// Icon field: Lucide name, 'favicon' (favicon of the target URL) or
+								// 'page' (the icon the page itself shows next to the link)
+								if (it.icon === 'page') {
+									Object.assign(entry, pageIconFor ? pageIconFor(it) : { iconName: 'link' });
+								} else if (it.icon && it.icon !== 'favicon') {
 									entry.iconName = it.icon;
 								} else if (it.icon === 'favicon') {
 									const target = it.customUrl || entry._faviconUrl;
@@ -3968,7 +4094,8 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		function executeGesture(pattern) {
-			const action = getGestureAction(pattern);
+			const { binding } = resolveMouseGesture(pattern);
+			const action = binding?.action;
 			if (!action || action === 'none') return;
 
 			if (isEdgeDesktop && SETTINGS.edgeGestureConflict) {
@@ -3977,9 +4104,7 @@ window.ContentContextMenu = ContentContextMenu;
 				try { window.GesturaSettingsStorage.set({ edgeGestureConflict: false }).catch(() => {}); } catch (e) { }
 			}
 
-			const config = SETTINGS.enableGestureCustomization
-				? (SETTINGS.mouseGestures?.[pattern] || {})
-				: {};
+			const config = SETTINGS.enableGestureCustomization ? binding : {};
 			executeAction(action, config, { startX: recognizer.startX, startY: recognizer.startY, endX: recognizer.currentX, endY: recognizer.currentY }, gestureState.startTarget);
 		}
 

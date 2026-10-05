@@ -440,15 +440,18 @@
 		"description": "Website blacklist"
 	},
 	"blacklistPlaceholder": {
-		"message": "Domain eingeben, z.B. example.com, Enter zum Hinzufügen",
+		"message": "Adresse eingeben, z.B. example.com, localhost:3000 oder example.com/app",
 		"description": "Blacklist input placeholder"
+	},
+	"blacklistBlockedByEntry": {
+		"message": "Gesten gesperrt durch {entry}"
 	},
 	"add": {
 		"message": "Hinzufügen",
 		"description": "Add button"
 	},
 	"emptyBlacklist": {
-		"message": "Keine blockierten Seiten. Domain oben eingeben zum Hinzufügen.",
+		"message": "Keine blockierten Seiten. Adresse oben eingeben zum Hinzufügen.",
 		"description": "Empty blacklist message"
 	},
 	"featuresSection": {
@@ -544,7 +547,7 @@
 		"description": "Import failed sync error message"
 	},
 	"invalidDomain": {
-		"message": "Bitte geben Sie eine gültige Domain ein",
+		"message": "Bitte geben Sie eine gültige Adresse ein",
 		"description": "Invalid domain message"
 	},
 	"domainExists": {
@@ -918,6 +921,30 @@
 	"gestureTurnToleranceDesc": {
 		"message": "Höhere Werte verringern versehentliche Richtungsänderungen, erfordern jedoch längere Bewegungen, um die Richtung zu ändern",
 		"description": "Description for gesture turn tolerance setting"
+	},
+	"forkGestureRepeatDistance": {
+		"message": "Wiederholung durch langen Strich",
+		"description": "Title of the setting for repeating a gesture direction with a long stroke"
+	},
+	"forkGestureRepeatDistanceDesc": {
+		"message": "Ein längerer Strich zählt als zweimal dieselbe Richtung, z. B. ↓↓. Wirkt nur bei Gesten, die du mit einer wiederholten Richtung belegst. 0 schaltet es aus.",
+		"description": "Description of the long-stroke repeat setting"
+	},
+	"forkGestureRepeatPause": {
+		"message": "Wiederholung durch Pause",
+		"description": "Title of the setting for repeating a gesture direction after a pause"
+	},
+	"forkGestureRepeatPauseDesc": {
+		"message": "So lange stillhalten und dann in dieselbe Richtung weiterziehen, um sie zu wiederholen, z. B. ↓ Pause ↓. Wirkt nur bei Gesten, die du mit einer wiederholten Richtung belegst. 0 schaltet es aus.",
+		"description": "Description of the pause repeat setting"
+	},
+	"forkGestureRepeatOffNotice": {
+		"message": "Beide sind aus: Wiederholte Gesten wie ↓↓ lassen sich weder zeichnen noch aufzeichnen.",
+		"description": "Notice shown when both repeat settings are 0"
+	},
+	"forkTabGestures": {
+		"message": "Gesten",
+		"description": "Tab label in the gesture settings section: the list of gestures (next to the Settings tab)"
 	},
 	"advanced": {
 		"message": "Erweiterte Einstellungen anzeigen",
@@ -1386,6 +1413,10 @@
 	"menuRestricted": {
 		"message": "Gestura nicht verfügbar, Grund erfahren",
 		"description": "Context menu title for restricted pages"
+	},
+	"menuBlacklisted": {
+		"message": "Gesten hier gesperrt, Liste verwalten",
+		"description": "Context menu title for pages blocked by the blacklist, shown when the quick toggle item is off"
 	},
 	"showRestrictedNotice": {
 		"message": "Hinweis bei eingeschränkte Seiten",
@@ -2679,6 +2710,38 @@
 		"message": "Letzte Änderungen",
 		"description": "Label for a predefined site-menu item"
 	},
+	"siteMenuItemIntegrations": {
+		"message": "Integrationen",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemLogs": {
+		"message": "Protokolle",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemDevices": {
+		"message": "Geräte",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemEntities": {
+		"message": "Entitäten",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemAutomations": {
+		"message": "Automatisierungen",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemUpdates": {
+		"message": "Updates",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemTools": {
+		"message": "Werkzeuge",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuExportRejected": {
+		"message": "Dieses Menü lässt sich nicht exportieren: Der Import würde es ablehnen – etwa wegen Links, die nicht mit https:// beginnen oder von der aktuellen Seite abhängen, wegen nicht unterstützter Aktionen oder weil das Menü leer ist.",
+		"description": "Alert when exporting a website menu whose file would not pass the import check (e.g. links using {tabOrigin})"
+	},
 	"iconPickerTitle": {
 		"message": "Icon",
 		"description": "Tooltip for icon picker button"
@@ -2690,6 +2753,10 @@
 	"iconPickerFavicon": {
 		"message": "Favicon",
 		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerPage": {
+		"message": "Seiten-Icon",
+		"description": "Icon picker button: use the icon the current page shows next to the link"
 	},
 	"iconPickerNone": {
 		"message": "Kein Icon",

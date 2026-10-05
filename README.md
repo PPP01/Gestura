@@ -50,13 +50,14 @@ Gestura ships the **complete FlowMouse feature set** — nothing removed:
 
 The reason Gestura exists — the extra features that didn't make it into FlowMouse:
 
-- **Website menus — Gestura's headline feature.** Ready-made, fully editable popup menus for the sites you use every day: GitHub, YouTube, Amazon (with country selection), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia, and more — every entry with a fitting icon. One contextual gesture opens the right menu on whatever site you're on; a default **Search** menu (Google, Brave, Perplexity, DuckDuckGo …) covers everything else, and a **Shopping** menu (Amazon, eBay, …) searches your selection where you buy.
+- **Website menus — Gestura's headline feature.** Ready-made, fully editable popup menus for the sites you use every day: GitHub, YouTube, Amazon (with country selection), Gmail, Google Maps, Microsoft 365, Facebook, Reddit, Wikipedia, your own Home Assistant, and more — every entry with a fitting icon. One contextual gesture opens the right menu on whatever site you're on; a default **Search** menu (Google, Brave, Perplexity, DuckDuckGo …) covers everything else, and a **Shopping** menu (Amazon, eBay, …) searches your selection where you buy.
 - **Menus that stay yours** — edit any predefined menu globally, or load one into a single gesture as a customized copy that keeps inheriting future improvements for the entries you didn't touch. Private per-gesture menus, an optional quick-search bar appended to every menu, per-menu switcher visibility, and configurable link opening (same tab, or a new tab left/right/first/last) — globally and per menu.
 - **Configurable search engines** — add, reorder, and hide your own text **and** image search engines, with sensible per-locale defaults; register the current site to a menu with a single swipe.
 - **Image search** — drag or invoke a reverse-image search on the engines you choose.
 - **Per-link JavaScript transforms** — reshape the selected text with a small, sandboxed JS snippet before it is handed to a search URL (advanced, runs isolated from the page and the extension).
 - **Export and import show you the whole thing first** — both display the complete content before anything is written and check it against a real schema: entries Gestura does not know are listed and dropped instead of written, values with the wrong shape fall back to their default, and a file cannot smuggle in a switch, a consent or a sync code.
 - **Browser sync is a switch** — leave it on (the default) and nothing changes. Turn it off and the settings live on this device only, with room to grow to 1 MiB in total instead of 8192 bytes per section. When a save no longer fits, Gestura names the section and the numbers and offers the ways out.
+- **Repeated gestures** — `↓↓`, `→→`, `↑↑`, `←←` and longer ones like `↓↓→`, drawn as a long stroke or as stroke, pause, stroke. Unbound repeats fall back to the plain gesture, so nothing changes until you use them.
 
 ### Optional: gestura.eu
 

@@ -10,6 +10,7 @@ class DragGestureManager extends LitElement {
 		type: { type: String },
 		dragGestures: { type: Array },
 		advancedMode: { type: Boolean, attribute: 'advanced-mode' },
+		recognizerConfig: { type: Object },
 	};
 
 	static styles = [
@@ -193,6 +194,7 @@ class DragGestureManager extends LitElement {
 		this.type = 'text';
 		this.dragGestures = [];
 		this.advancedMode = false;
+		this.recognizerConfig = {};
 	}
 
 	get _actions() {
@@ -496,7 +498,7 @@ class DragGestureManager extends LitElement {
 	async #changeDirection(index) {
 		const recorder = this.shadowRoot.getElementById('dragRecorder');
 		if (!recorder) return;
-		const result = await recorder.open({ button: 'left' });
+		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig });
 		if (result.cancelled || !result.pattern) return;
 		this.#updateRow(index, 'direction', result.pattern);
 	}
@@ -512,7 +514,7 @@ class DragGestureManager extends LitElement {
 		} else {
 			const recorder = this.shadowRoot.getElementById('dragRecorder');
 			if (!recorder) return;
-			const result = await recorder.open({ button: 'left' });
+			const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig });
 			if (result.cancelled || !result.pattern) return;
 			direction = result.pattern;
 		}

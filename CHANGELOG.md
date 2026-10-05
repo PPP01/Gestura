@@ -9,6 +9,18 @@
 
 **New Features:**
 
+- **Repeated gestures:** a direction can now repeat inside a gesture — `↓↓`,
+  `→→`, `↑↑`, `←←`, also within longer ones like `↓↓→`. Draw a long stroke, or
+  stop briefly and continue in the same direction. Both ways are on by default
+  and tunable (or switched off) in the advanced gesture settings. Until you bind
+  a repeated gesture nothing changes: an unbound `↓↓` simply runs `↓`. Works
+  for mouse gestures and super drag; record them like any custom gesture. The
+  gesture recorders now use your own gesture threshold and turn tolerance, so
+  what you record is what pages recognise.
+- **Gesture settings in two tabs:** with *Show advanced settings* on, the gesture
+  section now has a *Gestures* tab (your gestures) and a *Settings* tab (trigger
+  buttons, thresholds, repeat settings). Turning advanced settings on opens the
+  *Settings* tab straight away; the page itself opens on *Gestures*.
 - **gestura.eu integration, off by default:** a new settings section with a
   single switch. Turning it on opens a consent overlay that explains what the
   service does for you and what it does not do; agreeing enables the
@@ -69,6 +81,23 @@
   stays deleted instead of being resurrected, and only an entry both sides
   changed asks — Mine, Theirs, or Both. Uploads are still protected by the write
   token, so two racing browsers cannot lose a write.
+- Blacklist entries can name a port and a path, so a single page can lose its
+  gestures without the whole host losing them too (#6).
+- **Home Assistant menu:** a website menu for your own Home Assistant
+  instance — integrations, logs, devices, entities, automations, YAML and
+  template tools, history and updates. The links follow whichever instance
+  you are on, so no address has to be configured. It recognizes port 8123,
+  `homeassistant.local` and Nabu Casa out of the box; for your own domain,
+  choose "Set website menu for this page" once. Pages you add to it are
+  stored relative to the instance, so they survive a change of address, and
+  they wear the icon Home Assistant shows for them in its sidebar (icon mode
+  *Page icon*, also selectable in the icon picker for any entry); the fixed
+  entries use Home Assistant's own icons. Custom
+  URLs gain a matching
+  `{tabOrigin}` placeholder (scheme, host and port of the current tab). If you
+  already built or imported your own Home Assistant menu, the built-in one now
+  wins on the URLs it recognizes (built-in menus are matched before your own):
+  disable it under Website menus to keep yours.
 
 **Fixes & Improvements:**
 
@@ -102,6 +131,17 @@
   resets that setting to its default, and a malformed `mouseGestures` value no
   longer keeps the options page from loading.
 - The favicon cache is capped at 48 sites.
+- **New icon.** The toolbar tile is now a blue-to-violet gradient with the
+  white hand, replacing the dark teal tile, and the hand sits a little larger
+  in it than before — which is what keeps it readable at 16 and 32 px. The
+  standalone hand on the settings header and in the popup follows the same
+  palette on light backgrounds, kept as dark as the previous artwork; on dark
+  backgrounds it stays the white hand it was, which simply reads better there.
+  The popup's dark-mode tile is now the toolbar tile.
+- **The page favicon has its own pair of files now.** At 16 px a gradient loses
+  its lightest parts against a white tab strip, so `icon48-light.png` joins
+  `icon48-dark.png`: both are one flat colour with all the shading in the alpha
+  channel, near-black violet for light strips and white for dark ones.
 
 ### v2.8.0 (2026-09-02)
 

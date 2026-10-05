@@ -16,3 +16,6 @@ exchange/
 .gemini/
 .antigravity/
 
+
+# Isolated worktrees for plan execution (never committed)
+.worktrees/

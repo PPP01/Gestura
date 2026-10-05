@@ -274,3 +274,22 @@ describe('replace-standard mappers', () => {
 		expect(ov).not.toHaveProperty('source');
 	});
 });
+
+describe('export of menus with origin-relative links', () => {
+	it('an exported Home Assistant menu fails validation, an ordinary one passes', async () => {
+		await import('../js/menu-catalog.js');
+		const ha = globalThis.FlowMouseMenuCatalog.SITE_MENU_CATALOG.find(m => m.id === 'homeassistant');
+		// Same shape #exportMenu builds: labels resolved to literal customName.
+		const asExported = (def) => ({
+			...def,
+			items: def.items.map(it => it.type === 'separator' ? it : { ...it, customName: it.customName || 'x' }),
+		});
+		const haOut = X.menuToExchange(asExported(ha), { id: 'homeassistant', version: '1.0.0' });
+		const res = X.validate(haOut);
+		expect(res.ok).toBe(false);
+		expect(res.errors).toContain('itemUrl');
+
+		const gh = globalThis.FlowMouseMenuCatalog.SITE_MENU_CATALOG.find(m => m.id === 'github');
+		expect(X.validate(X.menuToExchange(asExported(gh), { id: 'github', version: '1.0.0' })).ok).toBe(true);
+	});
+});

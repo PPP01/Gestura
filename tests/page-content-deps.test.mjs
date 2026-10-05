@@ -15,11 +15,15 @@ const REQUIRED_BEFORE_CONTENT = [
 	'settings-storage.js',
 	'gesture-visual.js',
 	'gesture-recognizer.js',
+	'gesture-binding.js',
 	'search-url.js',
 	'search-engines-catalog.js',
 	'engine-registry.js',
 	'menu-catalog.js',
 	'menu-model.js',
+	'page-icons.js',
+	'page-icons-homeassistant.js',
+	'blacklist-match.js',
 ];
 
 function scriptSrcOrder(html) {
@@ -71,6 +75,28 @@ describe('extension pages that load i18n.js', () => {
 			expect(s, `${page} is missing settings-storage.js`).toBeGreaterThanOrEqual(0);
 			expect(c).toBeLessThan(s);
 			expect(s).toBeLessThan(i);
+		});
+	}
+});
+
+// popup.html loads neither content.js nor i18n.js in the shape the blocks above
+// look for, so it was reached by no assertion — and it needs GesturaBlacklist for
+// the switch that decides whether the current tab is blocked.
+describe('extension pages that load popup-page.js', () => {
+	const order = (html) => [...html.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)].map(m => m[1].split('/').pop());
+	const popupPages = pages.filter(f =>
+		order(readFileSync(join(pagesDir, f), 'utf8')).includes('popup-page.js'));
+
+	it('finds at least one such page', () => {
+		expect(popupPages.length).toBeGreaterThan(0);
+	});
+
+	for (const page of popupPages) {
+		it(`${page} loads blacklist-match.js before popup-page.js`, () => {
+			const scripts = order(readFileSync(join(pagesDir, page), 'utf8'));
+			const b = scripts.indexOf('blacklist-match.js');
+			expect(b, `${page} is missing blacklist-match.js`).toBeGreaterThanOrEqual(0);
+			expect(b).toBeLessThan(scripts.indexOf('popup-page.js'));
 		});
 	}
 });

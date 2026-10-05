@@ -594,7 +594,10 @@ class FmContextMenu extends LitElement {
 							<span class="fm-ctx-icon">
 								${item.iconName && globalThis.FlowMouseMenuIcons?.[item.iconName]
 									? unsafeHTML(globalThis.FlowMouseMenuIcons[item.iconName])
-									: item.icon ? html`<img src="${item.icon}" alt="" draggable="false">` : ''}
+									: typeof item.iconPath === 'string' && item.iconPath
+										// Path data only, bound as an attribute; the frame builds the SVG.
+										? html`<svg viewBox="0 0 24 24" fill="currentColor"><path d=${item.iconPath}></path></svg>`
+										: item.icon ? html`<img src="${item.icon}" alt="" draggable="false">` : ''}
 							</span>
 							<span class="fm-ctx-label">${item.label || ''}</span>
 							${item.time ? html`<span class="fm-ctx-time">${this.#formatTime(item.time)}</span>` : ''}

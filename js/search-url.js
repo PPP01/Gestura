@@ -49,6 +49,33 @@
 		if (!patterns || patterns.length === 0) return true;
 		return patterns.some(p => { try { return patternToRegExp(p).test(url); } catch { return false; } });
 	}
+	// Placeholders for openCustomUrl, resolved in the worker against the
+	// sender's tab - always the top-level page, even when the gesture started
+	// in an iframe. tabOrigin is scheme + host + port. A template that needs
+	// an origin the tab does not have (file:, about:, no tab) resolves to ''
+	// as a whole: '/config/logs' alone would be opened as http:///config/logs.
+	function replaceUrlPlaceholders(template, tab) {
+		const rawUrl = (tab && tab.url) || '';
+		const raw = {
+			tabUrl: rawUrl,
+			tabTitle: (tab && tab.title) || '',
+			tabDomain: '',
+			tabOrigin: '',
+		};
+		if (rawUrl) {
+			try {
+				const u = new URL(rawUrl);
+				raw.tabDomain = u.hostname;
+				raw.tabOrigin = u.origin === 'null' ? '' : u.origin;
+			} catch { }
+		}
+		const tpl = template || '';
+		if (!raw.tabOrigin && /\{tabOrigin(?::raw)?\}/.test(tpl)) return '';
+		return tpl.replace(/\{(tabUrl|tabTitle|tabDomain|tabOrigin)(?::(raw))?\}/g, (_, key, mod) => {
+			const val = raw[key] || '';
+			return mod ? val : encodeURIComponent(val);
+		});
+	}
 	function resolveSearchConfig(catalog, se, config) {
 		const engine = config.engine || 'system';
 		if (engine === 'system' || engine === 'custom') return { ...config };
@@ -59,7 +86,7 @@
 		if (eng.rawResult) out.rawTerm = true;
 		return out;
 	}
-	const api = { buildSearchUrl, resolveSearchConfig, looksLikeUrl, normalizeUrl, matchesPatterns, patternToRegExp };
+	const api = { buildSearchUrl, resolveSearchConfig, looksLikeUrl, normalizeUrl, matchesPatterns, patternToRegExp, replaceUrlPlaceholders };
 	if (typeof module !== "undefined" && module.exports) module.exports = api;
 	root.FlowMouseSearchUrl = api;
 })(typeof self !== "undefined" ? self : globalThis);

@@ -35,6 +35,32 @@ describe('manifest.json content scripts', () => {
 		const missing = list.filter(f => !existsSync(join(repo, f)));
 		expect(missing, `missing: ${missing.join(', ')}`).toEqual([]);
 	});
+
+	// GesturaBlacklist decides whether a frame gets gestures at all, so it has to
+	// be defined before content.js runs.
+	it('loads blacklist-match.js before content.js', () => {
+		const b = list.indexOf('js/blacklist-match.js');
+		const c = list.indexOf('js/content.js');
+		expect(b, 'js/blacklist-match.js missing from content_scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(c);
+	});
+
+	// Both are classic scripts content.js reads at menu open; a missing or late
+	// entry shows up only as "FlowMousePageIcons is not defined" in every frame.
+	it('loads the page-icon scripts before content.js, generic part first', () => {
+		const i = (f) => list.indexOf(f);
+		expect(i('js/page-icons.js')).toBeGreaterThan(-1);
+		expect(i('js/page-icons-homeassistant.js')).toBeGreaterThan(i('js/page-icons.js'));
+		expect(i('js/content.js')).toBeGreaterThan(i('js/page-icons-homeassistant.js'));
+	});
+
+	// content.js resolves every mouse and drag gesture through GestureBinding; a
+	// missing or late entry is "GestureBinding is not defined" on the first gesture.
+	it('loads gesture-binding.js before content.js', () => {
+		const b = list.indexOf('js/gesture-binding.js');
+		expect(b, 'js/gesture-binding.js missing from content_scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(list.indexOf('js/content.js'));
+	});
 });
 
 // Inert here and load-bearing after the merge into firefox-build: that branch
@@ -48,6 +74,13 @@ describe('the Gecko manifest background.scripts list', () => {
 
 	it.skipIf(!Array.isArray(scripts))('begins with constants.js, then settings-storage.js', () => {
 		expect(scripts.slice(0, 2)).toEqual(FIRST_TWO);
+	});
+
+	it.skipIf(!Array.isArray(scripts))('loads blacklist-match.js before background.js', () => {
+		const b = scripts.indexOf('js/blacklist-match.js');
+		const g = scripts.indexOf('js/background.js');
+		expect(b, 'js/blacklist-match.js missing from background.scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(g);
 	});
 });
 
@@ -64,6 +97,10 @@ describe('the service worker importScripts block', () => {
 	it('names only files that exist', () => {
 		const missing = imported.filter(f => !existsSync(join(repo, 'js', f)));
 		expect(missing, `missing: ${missing.join(', ')}`).toEqual([]);
+	});
+
+	it('imports blacklist-match.js', () => {
+		expect(imported).toContain('blacklist-match.js');
 	});
 });
 

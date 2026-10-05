@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 // Alle in diesem Feature eingeführten Keys müssen in JEDER Locale existieren.
-const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration', 'euSync', 'settingsPreview'];
+const NEW_KEY_PREFIXES = ['siteMenuItem', 'siteMenu', 'iconPicker', 'menuMode', 'fork', 'storage', 'euIntegration', 'euSync', 'settingsPreview', 'blacklist'];
 const NEW_KEYS_EXPLICIT = ['customMenuOwnLabel', 'menuFallbackLabel', 'menuFallbackNone', 'editGlobalMenuHint', 'openSiteMenusSection',
-	'importDoneTitle', 'importBadgeNew', 'exchangeConflictModified'];
+	'importDoneTitle', 'importBadgeNew', 'exchangeConflictModified', 'menuBlacklisted'];
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', '_locales');
 const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf8'));
@@ -15,64 +15,8 @@ const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf
 // other locale falls back to en at runtime, which chrome.i18n does on its own for
 // a missing key. Translating them means deleting them from this list - the two
 // tests below are what keep that from being forgotten before a release.
-const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
-	'euIntegrationConsentLead', 'euIntegrationConsentPoint4', 'euIntegrationConsentGranted',
-	'euIntegrationConsentDate', 'euIntegrationConsentRevoke',
-	'euIntegrationConsentPoint1Label', 'euIntegrationConsentPoint2Label',
-	'euIntegrationConsentPoint3Label', 'euIntegrationConsentPoint4Label',
-	'euIntegrationConsentPoint1', 'euIntegrationConsentPoint5Label', 'euIntegrationConsentPoint5',
-	'euIntegrationUpdateCheck', 'euIntegrationCheckNow',
-	'euIntegrationLastChecked', 'euIntegrationNeverChecked',
-	'euIntegrationUpdateBadge', 'euIntegrationUpdateTooltip', 'euIntegrationUpdateApply',
-	'euIntegrationRetiredBadge', 'euIntegrationRetiredTooltip', 'euIntegrationRetiredSuccessor',
-	'exchangeConflictModified',
-	'settingsPreviewExportTitle', 'settingsPreviewImportTitle', 'settingsPreviewUploadTitle',
-	'settingsPreviewSize', 'settingsPreviewReplaces', 'settingsPreviewDropped',
-	'settingsPreviewRetyped', 'settingsPreviewLegacy',
-	'settingsPreviewConfirmExport', 'settingsPreviewConfirmImport', 'settingsPreviewConfirmUpload',
-	'settingsPreviewCancel',
-	'settingsPreviewErrorTooLarge', 'settingsPreviewErrorNotJson', 'settingsPreviewErrorNotObject',
-	'settingsPreviewErrorNotSettings', 'settingsPreviewErrorUnknownFormat',
-	'settingsPreviewErrorForbiddenKey',
-	'euSyncHeading', 'euSyncToggle', 'euSyncToggleDesc',
-	'euSyncConsentTitle', 'euSyncConsentLead', 'euSyncConsentPoint1Label',
-	'euSyncConsentPoint1', 'euSyncConsentPoint2Label', 'euSyncConsentPoint2',
-	'euSyncConsentPoint3Label', 'euSyncConsentPoint3', 'euSyncConsentPoint4Label',
-	'euSyncConsentPoint4', 'euSyncConsentPoint5Label', 'euSyncConsentPoint5',
-	'euSyncConsentAccept', 'euSyncConsentCancel',
-	'euSyncConsentGranted', 'euSyncConsentDate', 'euSyncConsentRevoke',
-	'euSyncReconfirmTitle', 'euSyncReconfirmDesc', 'euSyncSecretTitle',
-	'euSyncSecretDesc', 'euSyncSecretCopy', 'euSyncSecretCopyFailed', 'euSyncSecretCopied',
-	'euSyncSecretSave', 'euSyncSecretNew', 'euSyncSecretNewConfirm',
-	'euSyncSecretPair', 'euSyncSecretPairDesc', 'euSyncSecretPairApply',
-	'euSyncSecretFileHeader', 'euSyncDevOriginNotice', 'euSyncCodeErrorPrefix',
-	'euSyncCodeErrorCharset', 'euSyncCodeErrorLength', 'euSyncCodeErrorPadding',
-	'euSyncCodeErrorChecksum',
-	'euSyncErrorConflict', 'euSyncConflictChangedAt',
-	'euSyncConflictReload', 'euSyncConflictOverwrite',
-	'euSyncStatesTitle', 'euSyncStatesEmpty', 'euSyncStateNamePlaceholder',
-	'euSyncCreate', 'euSyncUpload', 'euSyncDownload',
-	'euSyncDelete', 'euSyncDeleteAll', 'euSyncDeleteConfirm',
-	'euSyncDeleteAllConfirm', 'euSyncRefresh', 'euSyncChanged',
-	'euSyncUploadedAt', 'euSyncNeverUploadedHere', 'euSyncStateBroken',
-	'euSyncDuplicateName', 'euSyncQuotaReached', 'euSyncErrorNetwork',
-	'euSyncErrorBadRequest', 'euSyncErrorNotFound', 'euSyncErrorTooLarge',
-	'euSyncErrorQuotaStates', 'euSyncErrorRateLimited', 'euSyncErrorServer',
-	'euSyncErrorMalformed', 'euSyncErrorDecrypt', 'euSyncErrorDisabled',
-	'euSyncErrorNoSecret',
-	'euSyncMerge', 'euSyncMergeTitle', 'euSyncMergeSummary', 'euSyncMergeInSync',
-	'euSyncMergeNewerVersion', 'euSyncMergeNoBase', 'euSyncMergeMovedAgain',
-	'euSyncMergeConflictsLead', 'euSyncMergeMine', 'euSyncMergeTheirs', 'euSyncMergeBoth',
-	'euSyncMergeAllMine', 'euSyncMergeAllTheirs', 'euSyncMergeContinue', 'euSyncMergeCancel',
-	'euSyncMergeDeleted', 'euSyncMergeSectionSiteMenus', 'euSyncMergeSectionEngines',
-	'euSyncMergeSectionGestures', 'euSyncMergeSectionChains', 'euSyncMergeSectionOther',
-	'storageBranchFullTitle', 'storageTotalFullTitle', 'storageLocalFullTitle',
-	'storageWayShrink', 'storageWayShrinkDesc', 'storageWayEu', 'storageWayEuDesc',
-	'storageWayLocal', 'storageWayLocalDesc', 'storageBranchOther',
-	'storageSwitchToSyncConfirm', 'storageSwitchToSyncConfirmSince',
-	'storageBrowserSync', 'storageBrowserSyncOnDesc', 'storageBrowserSyncOffDesc',
-	'storageSwitchRefusedBranch', 'storageSwitchRefusedTotal', 'storageSwitchRefusedTier2', 'storageSwitchFailed',
-	'storageMovedNote', 'storageMovedSwitch', 'storageFullHint'];
+// Empty since all 175 pending keys were translated into the 37 other locales.
+const PENDING_TRANSLATION = [];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

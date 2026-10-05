@@ -440,15 +440,18 @@
 		"description": "Website blacklist"
 	},
 	"blacklistPlaceholder": {
-		"message": "Enter domain, e.g. example.com, press Enter to add",
+		"message": "Enter an address, e.g. example.com, localhost:3000 or example.com/app",
 		"description": "Blacklist input placeholder"
+	},
+	"blacklistBlockedByEntry": {
+		"message": "Gestures blocked by {entry}"
 	},
 	"add": {
 		"message": "Add",
 		"description": "Add button"
 	},
 	"emptyBlacklist": {
-		"message": "No blacklisted sites. Enter a domain above to add.",
+		"message": "No blocked pages. Enter an address above to add one.",
 		"description": "Empty blacklist message"
 	},
 	"featuresSection": {
@@ -544,7 +547,7 @@
 		"description": "Import failed sync error message"
 	},
 	"invalidDomain": {
-		"message": "Please enter a valid domain",
+		"message": "Please enter a valid address",
 		"description": "Invalid domain message"
 	},
 	"domainExists": {
@@ -918,6 +921,30 @@
 	"gestureTurnToleranceDesc": {
 		"message": "Higher values reduce accidental turns but require longer movements to change direction",
 		"description": "Description for gesture turn tolerance setting"
+	},
+	"forkGestureRepeatDistance": {
+		"message": "Repeat by long stroke",
+		"description": "Title of the setting for repeating a gesture direction with a long stroke"
+	},
+	"forkGestureRepeatDistanceDesc": {
+		"message": "A stroke longer than this counts as the same direction twice, e.g. ↓↓. Only matters for gestures you bind to a repeated direction. 0 turns it off.",
+		"description": "Description of the long-stroke repeat setting"
+	},
+	"forkGestureRepeatPause": {
+		"message": "Repeat by pause",
+		"description": "Title of the setting for repeating a gesture direction after a pause"
+	},
+	"forkGestureRepeatPauseDesc": {
+		"message": "Hold still this long, then continue in the same direction to repeat it, e.g. ↓ pause ↓. Only matters for gestures you bind to a repeated direction. 0 turns it off.",
+		"description": "Description of the pause repeat setting"
+	},
+	"forkGestureRepeatOffNotice": {
+		"message": "Both are off: repeated gestures such as ↓↓ can neither be drawn nor recorded.",
+		"description": "Notice shown when both repeat settings are 0"
+	},
+	"forkTabGestures": {
+		"message": "Gestures",
+		"description": "Tab label in the gesture settings section: the list of gestures (next to the Settings tab)"
 	},
 	"advanced": {
 		"message": "Show advanced settings",
@@ -1386,6 +1413,10 @@
 	"menuRestricted": {
 		"message": "Gestura unavailable, learn why",
 		"description": "Context menu title for restricted pages"
+	},
+	"menuBlacklisted": {
+		"message": "Gestures blocked here, manage list",
+		"description": "Context menu title for pages blocked by the blacklist, shown when the quick toggle item is off"
 	},
 	"showRestrictedNotice": {
 		"message": "Restricted Page Notice",
@@ -2759,6 +2790,38 @@
 		"message": "Recent changes",
 		"description": "Label for a predefined site-menu item"
 	},
+	"siteMenuItemIntegrations": {
+		"message": "Integrations",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemLogs": {
+		"message": "Logs",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemDevices": {
+		"message": "Devices",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemEntities": {
+		"message": "Entities",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemAutomations": {
+		"message": "Automations",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemUpdates": {
+		"message": "Updates",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuItemTools": {
+		"message": "Tools",
+		"description": "Label for a predefined site-menu item (Home Assistant)"
+	},
+	"siteMenuExportRejected": {
+		"message": "This menu can't be exported: the import would reject it — for example links that don't start with https:// or depend on the current page, unsupported actions, or an empty menu.",
+		"description": "Alert when exporting a website menu whose file would not pass the import check (e.g. links using {tabOrigin})"
+	},
 	"iconPickerTitle": {
 		"message": "Icon",
 		"description": "Tooltip for icon picker button"
@@ -2770,6 +2833,10 @@
 	"iconPickerFavicon": {
 		"message": "Favicon",
 		"description": "Button label for favicon option in icon picker"
+	},
+	"iconPickerPage": {
+		"message": "Page icon",
+		"description": "Icon picker button: use the icon the current page shows next to the link"
 	},
 	"iconPickerNone": {
 		"message": "No icon",

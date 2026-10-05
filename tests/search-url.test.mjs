@@ -101,3 +101,46 @@ describe('resolveSearchConfig rawResult', () => {
     expect(buildSearchUrl(r, 'https://x/a b.jpg', {})).toBe('https://s/?url=https%3A%2F%2Fx%2Fa%20b.jpg');
   });
 });
+
+describe("replaceUrlPlaceholders", () => {
+  const { replaceUrlPlaceholders } = globalThis.FlowMouseSearchUrl;
+  const tab = { url: "https://assi.home.schep.de/lovelace/0?edit=1#x", title: "Übersicht & mehr" };
+
+  it("keeps the existing placeholders unchanged", () => {
+    expect(replaceUrlPlaceholders("https://a.example/?u={tabUrl}&t={tabTitle}&d={tabDomain}", tab))
+      .toBe("https://a.example/?u=https%3A%2F%2Fassi.home.schep.de%2Flovelace%2F0%3Fedit%3D1%23x"
+        + "&t=%C3%9Cbersicht%20%26%20mehr&d=assi.home.schep.de");
+    expect(replaceUrlPlaceholders("https://web.archive.org/web/{tabUrl:raw}", tab))
+      .toBe("https://web.archive.org/web/https://assi.home.schep.de/lovelace/0?edit=1#x");
+  });
+  it("{tabOrigin:raw} is scheme + host without path, query or fragment", () => {
+    expect(replaceUrlPlaceholders("{tabOrigin:raw}/config/logs", tab))
+      .toBe("https://assi.home.schep.de/config/logs");
+  });
+  it("{tabOrigin:raw} keeps a non-default port", () => {
+    expect(replaceUrlPlaceholders("{tabOrigin:raw}/config/logs", { url: "http://192.168.1.5:8123/lovelace" }))
+      .toBe("http://192.168.1.5:8123/config/logs");
+  });
+  it("{tabOrigin} without :raw is percent-encoded like the others", () => {
+    expect(replaceUrlPlaceholders("https://x.example/?site={tabOrigin}", { url: "http://ha.local:8123/" }))
+      .toBe("https://x.example/?site=http%3A%2F%2Fha.local%3A8123");
+  });
+  it("a template needing an origin resolves to nothing when the tab has none", () => {
+    const t = "{tabOrigin:raw}/config/logs";
+    expect(replaceUrlPlaceholders(t, { url: "file:///C:/x.html" })).toBe("");
+    expect(replaceUrlPlaceholders(t, { url: "about:blank" })).toBe("");
+    expect(replaceUrlPlaceholders(t, { url: "" })).toBe("");
+    expect(replaceUrlPlaceholders(t, { url: "not a url" })).toBe("");
+    expect(replaceUrlPlaceholders(t, null)).toBe("");
+    expect(replaceUrlPlaceholders(t, undefined)).toBe("");
+    expect(replaceUrlPlaceholders("https://x.example/?site={tabOrigin}", { url: "about:blank" })).toBe("");
+  });
+  it("templates without {tabOrigin} are unaffected by a missing origin", () => {
+    expect(replaceUrlPlaceholders("https://x.example/?t={tabTitle:raw}", { url: "about:blank", title: "T" }))
+      .toBe("https://x.example/?t=T");
+  });
+  it("leaves unknown placeholders and a missing template alone", () => {
+    expect(replaceUrlPlaceholders("{domain}/{nope}", tab)).toBe("{domain}/{nope}");
+    expect(replaceUrlPlaceholders(undefined, tab)).toBe("");
+  });
+});

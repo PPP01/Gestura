@@ -12,6 +12,7 @@ class PopupPage extends LitElement {
 		_enableHUD: { state: true },
 		_gestureEnabled: { state: true },
 		_currentDomain: { state: true },
+		_currentUrl: { state: true },
 		_displayDomain: { state: true },
 		_blacklist: { state: true },
 		_isRestrictedPage: { state: true },
@@ -308,6 +309,7 @@ class PopupPage extends LitElement {
 		this._enableHUD = true;
 		this._gestureEnabled = true;
 		this._currentDomain = '';
+		this._currentUrl = '';
 		this._displayDomain = '';
 		this._blacklist = [];
 		this._isRestrictedPage = false;
@@ -350,6 +352,7 @@ class PopupPage extends LitElement {
 				: !!(settings.sectionAdvanced && settings.sectionAdvanced.basic);
 		}
 		this._blacklist = Array.isArray(settings.blacklist) ? settings.blacklist : [];
+		this._blacklistEnabled = settings.enableBlacklist !== false;
 
 		await this.#loadCurrentSite();
 	}
@@ -359,9 +362,24 @@ class PopupPage extends LitElement {
 		if (!this._ready) return html``;
 		const i18n = window.i18n;
 
-		const isBlacklisted = this._blacklist.includes(this._currentDomain);
+		const blocking = (this._currentUrl && this._blacklistEnabled)
+			? window.GesturaBlacklist.matchingEntries(this._currentUrl, this._blacklist)
+			: [];
+		const isBlacklisted = blocking.length > 0;
+		// Actionable only when the bare host is the sole reason. Removing a finer
+		// entry the user did not point at would take the block off every page under
+		// it — worse than sending them one screen further.
+		const onlyHost = blocking.length === 1 && blocking[0] === this._currentDomain;
+		// Name the entry that is NOT the bare host: with both listed, blocking[0]
+		// may be the host, and "blocked by localhost" would be a confusing reason
+		// for a switch that is disabled because of the finer entry.
+		const finerEntry = blocking.find(e => e !== this._currentDomain);
 		const showGestures = !this._isRestrictedPage && !this._needRefresh;
-		const canToggleBlacklist = !this._isRestrictedPage && this._currentDomain && !this._needRefresh;
+		const canToggleBlacklist = !this._isRestrictedPage && this._currentDomain && !this._needRefresh && (!isBlacklisted || onlyHost);
+		const blockedByOther = isBlacklisted && !onlyHost;
+		const blockedNote = blockedByOther
+			? i18n.getMessage('blacklistBlockedByEntry').replace('{entry}', finerEntry)
+			: '';
 
 		return html`
 			<div class="header">
@@ -389,7 +407,14 @@ class PopupPage extends LitElement {
 							<span class="slider"></span>
 						</label>
 					`
-					: ''
+					: blockedByOther
+						? html`
+							<label class="toggle disabled" title="${blockedNote}">
+								<input type="checkbox" .checked=${false} disabled aria-disabled="true" aria-label="${blockedNote}">
+								<span class="slider"></span>
+							</label>
+						`
+						: ''
 				}
 			</div>
 
@@ -568,8 +593,9 @@ class PopupPage extends LitElement {
 			return;
 		}
 		this._currentDomain = hostname;
+		this._currentUrl = url;
 
-		if (this._blacklist.includes(this._currentDomain)) {
+		if (window.GesturaBlacklist.matchingEntries(url, this._blacklist).length > 0) {
 			return;
 		}
 
@@ -606,21 +632,48 @@ class PopupPage extends LitElement {
 	}
 
 	async #toggleBlacklist() {
-		if (!this._currentDomain || this._isRestrictedPage) return;
+		if (!this._currentDomain || this._isRestrictedPage || !this._currentTabId) return;
 
-		const isBlacklisted = this._blacklist.includes(this._currentDomain);
+		// Re-read the live tab instead of trusting this._currentUrl: a single-page
+		// app can have routed to a finer-blocked path since the popup opened, and
+		// acting on the stale display would add the bare host, widening that block
+		// to the whole site instead of the one path the user never saw.
+		let liveUrl;
+		try {
+			liveUrl = (await chrome.tabs.get(this._currentTabId)).url;
+		} catch (e) {
+			return;
+		}
+		if (!liveUrl) return;
+
+		let liveHost;
+		try {
+			liveHost = new URL(liveUrl).hostname;
+		} catch (e) {
+			return;
+		}
+
+		const blocking = window.GesturaBlacklist.matchingEntries(liveUrl, this._blacklist);
+		const onlyHost = blocking.length === 1 && blocking[0] === liveHost;
+		if (blocking.length > 0 && !onlyHost) {
+			this._currentUrl = liveUrl;
+			this._currentDomain = liveHost;
+			return;
+		}
+
+		const isBlacklisted = blocking.length > 0;
 		if (isBlacklisted) {
-			this._blacklist = this._blacklist.filter(d => d !== this._currentDomain);
+			this._blacklist = this._blacklist.filter(d => d !== liveHost);
 		} else {
-			this._blacklist = [...this._blacklist, this._currentDomain];
+			this._blacklist = [...this._blacklist, liveHost];
 		}
 
 		const res = await this._store.save({ blacklist: this._blacklist });
 		if (!res.ok) {
 			if (isBlacklisted) {
-				this._blacklist = [...this._blacklist, this._currentDomain];
+				this._blacklist = [...this._blacklist, liveHost];
 			} else {
-				this._blacklist = this._blacklist.filter(d => d !== this._currentDomain);
+				this._blacklist = this._blacklist.filter(d => d !== liveHost);
 			}
 		}
 	}

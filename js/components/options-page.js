@@ -1,6 +1,6 @@
 import { settingsStore, isStorageFull } from '../settings-store.js';
 import { LitElement, html, css, unsafeHTML, unsafeCSS, live } from '../../js/lib/lit-all.min.js';
-import { commonStyles, optionStyles } from './shared-styles.js';
+import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icons, icon, iconUrl } from '../icons.js';
 import { tooltip } from '../tooltip.js';
 // Only the rounding rule is still imported: every ceiling the user sees comes
@@ -23,6 +23,7 @@ class OptionsPage extends LitElement {
 		_statusVisible: { state: true },
 		_ready: { state: true },
 		_activeSection: { state: true },
+		_basicTab: { state: true },
 		_navProximityShow: { state: true },
 		_preview: { state: true },
 		_storageFailure: { state: true },
@@ -33,12 +34,16 @@ class OptionsPage extends LitElement {
 	static styles = [
 		commonStyles,
 		optionStyles,
+		tabStyles,
 		css`
 			:host {
 				display: block;
 				padding: 20px;
 				font-size: 14px;
 			}
+
+			.basic-tabs { margin: 14px 0 4px; }
+			.basic-tabs .type-switch { display: inline-flex; }
 
 			.section-nav {
 				position: fixed;
@@ -279,6 +284,7 @@ class OptionsPage extends LitElement {
 		this._statusVisible = false;
 		this._ready = false;
 		this._activeSection = null;
+		this._basicTab = 'gestures';
 		this._mouseX = 0;
 		this._mouseY = 0;
 		this._navProximityShow = false;
@@ -451,6 +457,10 @@ class OptionsPage extends LitElement {
 
 		const gestureEnabled = this._settings.enableGesture;
 		const dragEnabled = this._settings.enableTextDrag || this._settings.enableImageDrag || this._settings.enableLinkDrag;
+		// With advanced settings on, the gesture section is split into two tabs.
+		const tabbed = this._settings.sectionAdvanced?.basic;
+		const showGestures = !tabbed || this._basicTab === 'gestures';
+		const showSettings = !tabbed || this._basicTab === 'settings';
 		const defaults = window.GestureConstants.DEFAULT_SETTINGS;
 
 		const distanceThresholdOutOfRange = this._settings.distanceThreshold < 10 || this._settings.distanceThreshold > 35;
@@ -632,8 +642,17 @@ class OptionsPage extends LitElement {
 							<div class="setting-warning" @click=${this.#handleEdgeGestureLink}><span>${unsafeHTML(i18n.getMessage('edgeGestureConflictNotice'))}</span></div>
 						` : ''}
 
-						<div class="setting-group" style="display:${gestureEnabled ? 'block' : 'none'}">
-							<div class="setting-row advanced-setting ${this._settings.sectionAdvanced?.basic ? 'first-row' : ''}">
+						<div class="basic-tabs advanced-only">
+							<div class="type-switch" role="tablist">
+								${[['gestures', 'forkTabGestures'], ['settings', 'siteMenuTabSettings']].map(([id, label]) => html`
+									<button class="type-tab ${this._basicTab === id ? 'active' : ''}" role="tab" aria-selected=${this._basicTab === id}
+										@click=${() => { this._basicTab = id; }}>${i18n.getMessage(label)}</button>
+								`)}
+							</div>
+						</div>
+
+						<div class="setting-group" style="display:${gestureEnabled && showSettings ? 'block' : 'none'}">
+							<div class="setting-row advanced-setting ${tabbed ? 'first-row' : ''}">
 								<div class="setting-label">
 									<span class="setting-title">${i18n.getMessage('gestureTriggerButtons')}${this.#renderInlineReset('gestureTriggerButtons')}</span>
 									<span>${i18n.getMessage('gestureTriggerButtonsDesc')}</span>
@@ -680,7 +699,7 @@ class OptionsPage extends LitElement {
 							` : ''}
 						</div>
 
-						<div class="setting-group" style="display:${(gestureEnabled || dragEnabled) ? 'block' : 'none'}">
+						<div class="setting-group" style="display:${(gestureEnabled || dragEnabled) && showSettings ? 'block' : 'none'}">
 							<div class="setting-row advanced-setting">
 								<div class="setting-label">
 									<span class="setting-title">${i18n.getMessage('distanceThreshold')}${this.#renderInlineReset('distanceThreshold')}</span>
@@ -705,11 +724,36 @@ class OptionsPage extends LitElement {
 									<span>${Math.round((this._settings.gestureTurnTolerance) * 100)}%</span>
 								</div>
 							</div>
+
+							<div class="setting-row advanced-setting">
+								<div class="setting-label">
+									<span class="setting-title">${i18n.getMessage('forkGestureRepeatDistance')}${this.#renderInlineReset('gestureRepeatDistance')}</span>
+									<span>${i18n.getMessage('forkGestureRepeatDistanceDesc')}</span>
+								</div>
+								<div class="slider-control">
+									<input type="range" id="gestureRepeatDistance" min="0" max="${window.GestureRecognizer.REPEAT_DISTANCE_MAX}" step="10" .value=${String(this._settings.gestureRepeatDistance)} @change=${e => this.#updateSetting('gestureRepeatDistance', e.target.value)} @input=${e => this.#debounceSetting('gestureRepeatDistance', e.target.value)}>
+									<span>${this._settings.gestureRepeatDistance} px</span>
+								</div>
+							</div>
+
+							<div class="setting-row advanced-setting">
+								<div class="setting-label">
+									<span class="setting-title">${i18n.getMessage('forkGestureRepeatPause')}${this.#renderInlineReset('gestureRepeatPause')}</span>
+									<span>${i18n.getMessage('forkGestureRepeatPauseDesc')}</span>
+								</div>
+								<div class="slider-control">
+									<input type="range" id="gestureRepeatPause" min="0" max="${window.GestureRecognizer.REPEAT_PAUSE_MAX}" step="50" .value=${String(this._settings.gestureRepeatPause)} @change=${e => this.#updateSetting('gestureRepeatPause', e.target.value)} @input=${e => this.#debounceSetting('gestureRepeatPause', e.target.value)}>
+									<span>${this._settings.gestureRepeatPause} ms</span>
+								</div>
+							</div>
+							${(this._settings.gestureRepeatDistance === 0 && this._settings.gestureRepeatPause === 0) ? html`
+								<div class="setting-notice advanced-setting">${i18n.getMessage('forkGestureRepeatOffNotice')}</div>
+							` : ''}
 						</div>
 
-						<div class="setting-group" style="display:${gestureEnabled ? 'block' : 'none'}">
+						<div class="setting-group" style="display:${gestureEnabled && showGestures ? 'block' : 'none'}">
 							<div id="gesture-customization-row">
-								<div class="setting-row ${this._settings.sectionAdvanced?.basic ? '' : 'first-row'}">
+								<div class="setting-row first-row">
 									<div class="setting-label">
 										<span>${i18n.getMessage('enableCustomGestures')}</span>
 										<span>${i18n.getMessage('enableCustomGesturesDesc')}</span>
@@ -780,6 +824,7 @@ class OptionsPage extends LitElement {
 								<div class="drag-settings-section">
 									<drag-gesture-manager type="text" id="textDragManager"
 										.dragGestures=${this._settings.textDragGestures || []}
+										.recognizerConfig=${this.#recognizerConfig()}
 										?advanced-mode=${(this._settings.sectionAdvanced?.drag)}
 										@drag-gestures-change=${e => this.#onDragGesturesChange('textDragGestures', e)}
 										@permission-check=${this.#onPermissionCheck}
@@ -803,6 +848,7 @@ class OptionsPage extends LitElement {
 								<div class="drag-settings-section">
 									<drag-gesture-manager type="image" id="imageDragManager"
 										.dragGestures=${this._settings.imageDragGestures || []}
+										.recognizerConfig=${this.#recognizerConfig()}
 										?advanced-mode=${(this._settings.sectionAdvanced?.drag)}
 										@drag-gestures-change=${e => this.#onDragGesturesChange('imageDragGestures', e)}
 										@permission-check=${this.#onPermissionCheck}
@@ -839,6 +885,7 @@ class OptionsPage extends LitElement {
 								<div class="drag-settings-section">
 									<drag-gesture-manager type="link" id="linkDragManager"
 										.dragGestures=${this._settings.linkDragGestures || []}
+										.recognizerConfig=${this.#recognizerConfig()}
 										?advanced-mode=${(this._settings.sectionAdvanced?.drag)}
 										@drag-gestures-change=${e => this.#onDragGesturesChange('linkDragGestures', e)}
 										@permission-check=${this.#onPermissionCheck}
@@ -1386,6 +1433,8 @@ class OptionsPage extends LitElement {
 
 	#toggleSectionAdvanced(section) {
 		const current = this._settings.sectionAdvanced || {};
+		// Turning advanced on opens the settings tab straight away; off hides the tabs.
+		if (section === 'basic') this._basicTab = current.basic ? 'gestures' : 'settings';
 		this.#updateSetting('sectionAdvanced', {
 			...current,
 			[section]: !current[section]
@@ -1586,6 +1635,16 @@ class OptionsPage extends LitElement {
 	}
 
 
+	#recognizerConfigCache = null;
+
+	#recognizerConfig() {
+		const next = window.GestureRecognizer.configFromSettings(this._settings);
+		const prev = this.#recognizerConfigCache;
+		if (prev && Object.keys(next).every(k => prev[k] === next[k])) return prev;
+		this.#recognizerConfigCache = next;
+		return next;
+	}
+
 	#coerce(key, value) {
 		const def = window.GestureConstants.DEFAULT_SETTINGS[key];
 		if (typeof def === 'number') return Number(value);
@@ -1698,7 +1757,7 @@ class OptionsPage extends LitElement {
 			...Object.keys(DEFAULT_GESTURES),
 			...Object.keys(mouseGestures),
 		]));
-		const result = await recorder.open({ button: 'right', bannedPatterns: existingPatterns });
+		const result = await recorder.open({ button: 'right', bannedPatterns: existingPatterns, recognizerConfig: this.#recognizerConfig() });
 		if (result.cancelled || !result.pattern) return;
 
 		const pattern = result.pattern;

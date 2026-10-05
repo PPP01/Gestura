@@ -1753,7 +1753,7 @@ class ActionSelect extends LitElement {
 						.value=${this._pendingConfig.customUrl || ''}
 						@input=${(e) => { this._pendingConfig = { ...this._pendingConfig, customUrl: e.target.value }; }}
 					>
-					<div class="action-config-hint">${unsafeHTML(window.i18n.getMessage('customUrlPlaceholderHint').replace('%placeholders%', '<code>{tabUrl}</code> <code>{tabTitle}</code> <code>{tabDomain}</code>').replace('%example%', '<code>{tabUrl:raw}</code>'))}</div>
+					<div class="action-config-hint">${unsafeHTML(window.i18n.getMessage('customUrlPlaceholderHint').replace('%placeholders%', '<code>{tabUrl}</code> <code>{tabTitle}</code> <code>{tabDomain}</code> <code>{tabOrigin}</code>').replace('%example%', '<code>{tabUrl:raw}</code>'))}</div>
 				</div>
 				${this.context === 'menu-item' ? this.#renderMenuItemOpenRows(true) : this.#renderPositionSelect(true, true, true)}
 			`;
