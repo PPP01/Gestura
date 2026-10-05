@@ -2277,6 +2277,18 @@ window.ContentContextMenu = ContentContextMenu;
 			return getDragGestureConfigs(gestures, pattern).some(g => g.action && g.action !== 'none');
 		}
 
+		// The raw pattern if it has drag gestures, else the collapsed one if that
+		// has. Drag configs derive from the pattern alone, so resolving the pattern
+		// once is enough for hints, drop acceptance and execution.
+		function resolveDragPattern(dragType, pattern) {
+			const gestures = getGesturesForDragType(dragType);
+			if (!gestures || !pattern) return pattern;
+			return window.GestureBinding.resolve(pattern, (p) => {
+				const configs = getDragGestureConfigs(gestures, p);
+				return configs.length ? configs : undefined;
+			}).effectivePattern;
+		}
+
 		let SETTINGS = {
 			...DEFAULT_SETTINGS,
 			enableDrag: DEFAULT_SETTINGS.enableTextDrag || DEFAULT_SETTINGS.enableImageDrag || DEFAULT_SETTINGS.enableLinkDrag
@@ -3341,7 +3353,7 @@ window.ContentContextMenu = ContentContextMenu;
 				gestureState.selectedText = dragContent;
 				gestureState.dragElement = dragElement;
 				gestureState.dragType = dragType;
-				recognizer.start(e.clientX, e.clientY, e.timeStamp);
+				recognizer.start(e.clientX, e.clientY, e.timeStamp, { source: 'drag' });
 				if (lastPointerType === 'touch' || lastPointerType === 'pen') {
 					gestureState.skipFirstDragOver = true;
 				}
@@ -3394,14 +3406,15 @@ window.ContentContextMenu = ContentContextMenu;
 				result.directionChanged = true;
 			}
 
-			if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {
+			const dragPattern = resolveDragPattern(gestureState.dragType, recognizer.getPattern());
+			if (hasDragAction(gestureState.dragType, dragPattern)) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 			}
 
 			if (result.directionChanged && SETTINGS.enableHUD) {
-				const hints = getDragHints(gestureState.dragType, result.pattern, gestureState.selectedText, gestureState.parentLink);
-				visualizer.updateAction(hints.length > 0 ? result.pattern : '', hints);
+				const hints = getDragHints(gestureState.dragType, dragPattern, gestureState.selectedText, gestureState.parentLink);
+				visualizer.updateAction(hints.length > 0 ? dragPattern : '', hints);
 			}
 		}, { capture: true });
 
@@ -3409,7 +3422,7 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!gestureState.isDrag) return;
 			if (!recognizer.isActive()) return;
 			if (gestureState.dropOnInputSuppressed) return;
-			if (hasDragAction(gestureState.dragType, recognizer.getPattern())) {
+			if (hasDragAction(gestureState.dragType, resolveDragPattern(gestureState.dragType, recognizer.getPattern()))) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 			}
@@ -3434,7 +3447,7 @@ window.ContentContextMenu = ContentContextMenu;
 			try {
 				if (gestureState.isDrag && recognizer.isActive()) {
 					if (gestureState.dropOnInputSuppressed) return;
-					const pattern = recognizer.getPattern();
+					const pattern = resolveDragPattern(gestureState.dragType, recognizer.getPattern());
 					if (hasDragAction(gestureState.dragType, pattern)) {
 						dropHandledAction = true;
 						e.preventDefault();
