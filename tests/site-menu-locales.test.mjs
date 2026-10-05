@@ -78,7 +78,7 @@ const PENDING_TRANSLATION = ['euIntegrationIntro', 'euIntegrationIntroLink',
 	'siteMenuItemEntities', 'siteMenuItemAutomations', 'siteMenuItemUpdates', 'siteMenuItemTools',
 	'siteMenuExportRejected', 'iconPickerPage',
 	'forkGestureRepeatDistance', 'forkGestureRepeatDistanceDesc', 'forkGestureRepeatPause',
-	'forkGestureRepeatPauseDesc', 'forkGestureRepeatOffNotice'];
+	'forkGestureRepeatPauseDesc', 'forkGestureRepeatOffNotice', 'forkTabGestures'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

@@ -17,6 +17,10 @@
   for mouse gestures and super drag; record them like any custom gesture. The
   gesture recorders now use your own gesture threshold and turn tolerance, so
   what you record is what pages recognise.
+- **Gesture settings in two tabs:** with *Show advanced settings* on, the gesture
+  section now has a *Gestures* tab (your gestures) and a *Settings* tab (trigger
+  buttons, thresholds, repeat settings). Turning advanced settings on opens the
+  *Settings* tab straight away; the page itself opens on *Gestures*.
 - **gestura.eu integration, off by default:** a new settings section with a
   single switch. Turning it on opens a consent overlay that explains what the
   service does for you and what it does not do; agreeing enables the

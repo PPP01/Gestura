@@ -942,6 +942,10 @@
 		"message": "Both are off: repeated gestures such as ↓↓ can neither be drawn nor recorded.",
 		"description": "Notice shown when both repeat settings are 0"
 	},
+	"forkTabGestures": {
+		"message": "Gestures",
+		"description": "Tab label in the gesture settings section: the list of gestures (next to the Settings tab)"
+	},
 	"advanced": {
 		"message": "Show advanced settings",
 		"description": "Short label for per-section advanced toggle"
