@@ -53,6 +53,14 @@ describe('manifest.json content scripts', () => {
 		expect(i('js/page-icons-homeassistant.js')).toBeGreaterThan(i('js/page-icons.js'));
 		expect(i('js/content.js')).toBeGreaterThan(i('js/page-icons-homeassistant.js'));
 	});
+
+	// content.js resolves every mouse and drag gesture through GestureBinding; a
+	// missing or late entry is "GestureBinding is not defined" on the first gesture.
+	it('loads gesture-binding.js before content.js', () => {
+		const b = list.indexOf('js/gesture-binding.js');
+		expect(b, 'js/gesture-binding.js missing from content_scripts').toBeGreaterThanOrEqual(0);
+		expect(b).toBeLessThan(list.indexOf('js/content.js'));
+	});
 });
 
 // Inert here and load-bearing after the merge into firefox-build: that branch
