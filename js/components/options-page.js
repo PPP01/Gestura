@@ -705,6 +705,31 @@ class OptionsPage extends LitElement {
 									<span>${Math.round((this._settings.gestureTurnTolerance) * 100)}%</span>
 								</div>
 							</div>
+
+							<div class="setting-row advanced-setting">
+								<div class="setting-label">
+									<span class="setting-title">${i18n.getMessage('forkGestureRepeatDistance')}${this.#renderInlineReset('gestureRepeatDistance')}</span>
+									<span>${i18n.getMessage('forkGestureRepeatDistanceDesc')}</span>
+								</div>
+								<div class="slider-control">
+									<input type="range" id="gestureRepeatDistance" min="0" max="600" step="10" .value=${String(this._settings.gestureRepeatDistance)} @change=${e => this.#updateSetting('gestureRepeatDistance', e.target.value)} @input=${e => this.#debounceSetting('gestureRepeatDistance', e.target.value)}>
+									<span>${this._settings.gestureRepeatDistance} px</span>
+								</div>
+							</div>
+
+							<div class="setting-row advanced-setting">
+								<div class="setting-label">
+									<span class="setting-title">${i18n.getMessage('forkGestureRepeatPause')}${this.#renderInlineReset('gestureRepeatPause')}</span>
+									<span>${i18n.getMessage('forkGestureRepeatPauseDesc')}</span>
+								</div>
+								<div class="slider-control">
+									<input type="range" id="gestureRepeatPause" min="0" max="2000" step="50" .value=${String(this._settings.gestureRepeatPause)} @change=${e => this.#updateSetting('gestureRepeatPause', e.target.value)} @input=${e => this.#debounceSetting('gestureRepeatPause', e.target.value)}>
+									<span>${this._settings.gestureRepeatPause} ms</span>
+								</div>
+							</div>
+							${(this._settings.gestureRepeatDistance === 0 && this._settings.gestureRepeatPause === 0) ? html`
+								<div class="setting-notice advanced-setting">${i18n.getMessage('forkGestureRepeatOffNotice')}</div>
+							` : ''}
 						</div>
 
 						<div class="setting-group" style="display:${gestureEnabled ? 'block' : 'none'}">
@@ -780,6 +805,7 @@ class OptionsPage extends LitElement {
 								<div class="drag-settings-section">
 									<drag-gesture-manager type="text" id="textDragManager"
 										.dragGestures=${this._settings.textDragGestures || []}
+										.recognizerConfig=${this.#recognizerConfig()}
 										?advanced-mode=${(this._settings.sectionAdvanced?.drag)}
 										@drag-gestures-change=${e => this.#onDragGesturesChange('textDragGestures', e)}
 										@permission-check=${this.#onPermissionCheck}
@@ -803,6 +829,7 @@ class OptionsPage extends LitElement {
 								<div class="drag-settings-section">
 									<drag-gesture-manager type="image" id="imageDragManager"
 										.dragGestures=${this._settings.imageDragGestures || []}
+										.recognizerConfig=${this.#recognizerConfig()}
 										?advanced-mode=${(this._settings.sectionAdvanced?.drag)}
 										@drag-gestures-change=${e => this.#onDragGesturesChange('imageDragGestures', e)}
 										@permission-check=${this.#onPermissionCheck}
@@ -839,6 +866,7 @@ class OptionsPage extends LitElement {
 								<div class="drag-settings-section">
 									<drag-gesture-manager type="link" id="linkDragManager"
 										.dragGestures=${this._settings.linkDragGestures || []}
+										.recognizerConfig=${this.#recognizerConfig()}
 										?advanced-mode=${(this._settings.sectionAdvanced?.drag)}
 										@drag-gestures-change=${e => this.#onDragGesturesChange('linkDragGestures', e)}
 										@permission-check=${this.#onPermissionCheck}
@@ -1586,6 +1614,22 @@ class OptionsPage extends LitElement {
 	}
 
 
+	#recognizerConfigCache = null;
+
+	#recognizerConfig() {
+		const s = this._settings;
+		const next = {
+			distanceThreshold: s.distanceThreshold,
+			longGestureMultiplier: s.gestureTurnTolerance,
+			repeatDistance: s.gestureRepeatDistance,
+			repeatPause: s.gestureRepeatPause,
+		};
+		const prev = this.#recognizerConfigCache;
+		if (prev && Object.keys(next).every(k => prev[k] === next[k])) return prev;
+		this.#recognizerConfigCache = next;
+		return next;
+	}
+
 	#coerce(key, value) {
 		const def = window.GestureConstants.DEFAULT_SETTINGS[key];
 		if (typeof def === 'number') return Number(value);
@@ -1698,7 +1742,7 @@ class OptionsPage extends LitElement {
 			...Object.keys(DEFAULT_GESTURES),
 			...Object.keys(mouseGestures),
 		]));
-		const result = await recorder.open({ button: 'right', bannedPatterns: existingPatterns });
+		const result = await recorder.open({ button: 'right', bannedPatterns: existingPatterns, recognizerConfig: this.#recognizerConfig() });
 		if (result.cancelled || !result.pattern) return;
 
 		const pattern = result.pattern;

@@ -333,7 +333,7 @@ class GestureRecorder extends LitElement {
 		this._onKeyDown = this.#onKeyDown.bind(this);
 	}
 
-	async open({ button = 'right', bannedPatterns = [] } = {}) {
+	async open({ button = 'right', bannedPatterns = [], recognizerConfig = {} } = {}) {
 		this.#button = button === 'left' ? 0 : 2;
 		this.#bannedPatterns = new Set(bannedPatterns);
 		this._state = 'ready';
@@ -342,7 +342,8 @@ class GestureRecorder extends LitElement {
 		this._toast = '';
 		document.documentElement.style.overflow = 'hidden';
 
-		this.#recognizer = new window.GestureRecognizer({ distanceThreshold: 20 });
+		// The live recognizer settings, so what is recorded is what pages recognise.
+		this.#recognizer = new window.GestureRecognizer({ distanceThreshold: 20, ...recognizerConfig });
 
 		if (!this.#visualizer) {
 			this.#visualizer = new window.GestureOverlay();

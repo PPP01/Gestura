@@ -922,6 +922,26 @@
 		"message": "Higher values reduce accidental turns but require longer movements to change direction",
 		"description": "Description for gesture turn tolerance setting"
 	},
+	"forkGestureRepeatDistance": {
+		"message": "Repeat by long stroke",
+		"description": "Title of the setting for repeating a gesture direction with a long stroke"
+	},
+	"forkGestureRepeatDistanceDesc": {
+		"message": "A stroke longer than this counts as the same direction twice, e.g. ↓↓. Only matters for gestures you bind to a repeated direction. 0 turns it off.",
+		"description": "Description of the long-stroke repeat setting"
+	},
+	"forkGestureRepeatPause": {
+		"message": "Repeat by pause",
+		"description": "Title of the setting for repeating a gesture direction after a pause"
+	},
+	"forkGestureRepeatPauseDesc": {
+		"message": "Hold still this long, then continue in the same direction to repeat it, e.g. ↓ pause ↓. Only matters for gestures you bind to a repeated direction. 0 turns it off.",
+		"description": "Description of the pause repeat setting"
+	},
+	"forkGestureRepeatOffNotice": {
+		"message": "Both are off: repeated gestures such as ↓↓ can neither be drawn nor recorded.",
+		"description": "Notice shown when both repeat settings are 0"
+	},
 	"advanced": {
 		"message": "Show advanced settings",
 		"description": "Short label for per-section advanced toggle"

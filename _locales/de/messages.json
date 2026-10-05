@@ -922,6 +922,26 @@
 		"message": "Höhere Werte verringern versehentliche Richtungsänderungen, erfordern jedoch längere Bewegungen, um die Richtung zu ändern",
 		"description": "Description for gesture turn tolerance setting"
 	},
+	"forkGestureRepeatDistance": {
+		"message": "Wiederholung durch langen Strich",
+		"description": "Title of the setting for repeating a gesture direction with a long stroke"
+	},
+	"forkGestureRepeatDistanceDesc": {
+		"message": "Ein längerer Strich zählt als zweimal dieselbe Richtung, z. B. ↓↓. Wirkt nur bei Gesten, die du mit einer wiederholten Richtung belegst. 0 schaltet es aus.",
+		"description": "Description of the long-stroke repeat setting"
+	},
+	"forkGestureRepeatPause": {
+		"message": "Wiederholung durch Pause",
+		"description": "Title of the setting for repeating a gesture direction after a pause"
+	},
+	"forkGestureRepeatPauseDesc": {
+		"message": "So lange stillhalten und dann in dieselbe Richtung weiterziehen, um sie zu wiederholen, z. B. ↓ Pause ↓. Wirkt nur bei Gesten, die du mit einer wiederholten Richtung belegst. 0 schaltet es aus.",
+		"description": "Description of the pause repeat setting"
+	},
+	"forkGestureRepeatOffNotice": {
+		"message": "Beide sind aus: Wiederholte Gesten wie ↓↓ lassen sich weder zeichnen noch aufzeichnen.",
+		"description": "Notice shown when both repeat settings are 0"
+	},
 	"advanced": {
 		"message": "Erweiterte Einstellungen anzeigen",
 		"description": "Short label for per-section advanced toggle"
