@@ -263,6 +263,8 @@
 		customCss: '',
 		distanceThreshold: 20,
 		gestureTurnTolerance: 0.10,
+		gestureRepeatDistance: 400,
+		gestureRepeatPause: 500,
 		showRestrictedNotice: true,
 		macLinuxHintDismissed: false,
 		edgeGestureConflict: false,

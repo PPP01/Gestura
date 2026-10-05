@@ -74,6 +74,8 @@
 		customCss: 'scalar',
 		distanceThreshold: 'scalar',
 		gestureTurnTolerance: 'scalar',
+		gestureRepeatDistance: 'scalar',
+		gestureRepeatPause: 'scalar',
 		showRestrictedNotice: 'scalar',
 		enableWheelGestures: 'scalar',
 		wheelGestures: 'record',

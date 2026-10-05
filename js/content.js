@@ -2190,7 +2190,9 @@ window.ContentContextMenu = ContentContextMenu;
 		};
 
 		const recognizer = new window.GestureRecognizer({
-			distanceThreshold: CONFIG.DISTANCE_THRESHOLD
+			distanceThreshold: CONFIG.DISTANCE_THRESHOLD,
+			repeatDistance: DEFAULT_SETTINGS.gestureRepeatDistance,
+			repeatPause: DEFAULT_SETTINGS.gestureRepeatPause
 		});
 
 		let isIframe = false;
@@ -2431,7 +2433,9 @@ window.ContentContextMenu = ContentContextMenu;
 				if (window.GestureRecognizer && recognizer && recognizer.updateConfig) {
 					recognizer.updateConfig({
 						distanceThreshold: SETTINGS.distanceThreshold,
-						longGestureMultiplier: SETTINGS.gestureTurnTolerance
+						longGestureMultiplier: SETTINGS.gestureTurnTolerance,
+						repeatDistance: SETTINGS.gestureRepeatDistance,
+						repeatPause: SETTINGS.gestureRepeatPause
 					});
 				}
 

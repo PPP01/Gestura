@@ -62,4 +62,8 @@ describe("DEFAULT_SETTINGS", () => {
 		expect(DEFAULT_SETTINGS.ctxMenuOptions).toBe(true);
 		expect(DEFAULT_SETTINGS.siteMenuAddAsk).toBe(true);
 	});
+	it("repeated gestures default on: 400 px long stroke, 500 ms pause", () => {
+		expect(DEFAULT_SETTINGS.gestureRepeatDistance).toBe(400);
+		expect(DEFAULT_SETTINGS.gestureRepeatPause).toBe(500);
+	});
 });
