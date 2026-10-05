@@ -1,7 +1,10 @@
 class GestureRecognizer {
+	static REPEAT_DISTANCE_MAX = 600;
+
 	#distanceThreshold;
 	#longGestureMultiplier;
 	#maxThreshold;
+	#repeatDistance = 0;
 	#active = false;
 	#startX = 0;
 	#startY = 0;
@@ -13,12 +16,21 @@ class GestureRecognizer {
 	#pattern = [];
 	#points = [];
 	#segmentLength = 0;
+	#repeatProgress = 0;
 
 	constructor(config = {}) {
 		this.#distanceThreshold = config.distanceThreshold || 20;
 		this.#longGestureMultiplier = config.longGestureMultiplier ?? 0.10;
 		this.#maxThreshold = config.maxThreshold ?? 120;
+		this.#repeatDistance = GestureRecognizer.#limit(config.repeatDistance, GestureRecognizer.REPEAT_DISTANCE_MAX);
 		this.reset();
+	}
+
+	// Anything but a finite positive number - omitted, negative, a string from a
+	// hand-edited import - means off.
+	static #limit(value, max) {
+		if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return 0;
+		return Math.min(value, max);
 	}
 
 	updateConfig(config) {
@@ -27,6 +39,9 @@ class GestureRecognizer {
 		}
 		if (config.longGestureMultiplier !== undefined) {
 			this.#longGestureMultiplier = config.longGestureMultiplier;
+		}
+		if (config.repeatDistance !== undefined) {
+			this.#repeatDistance = GestureRecognizer.#limit(config.repeatDistance, GestureRecognizer.REPEAT_DISTANCE_MAX);
 		}
 	}
 
@@ -42,6 +57,7 @@ class GestureRecognizer {
 		this.#pattern = [];
 		this.#points = [];
 		this.#segmentLength = 0;
+		this.#repeatProgress = 0;
 	}
 
 	start(x, y, timestamp = 0) {
@@ -125,6 +141,11 @@ class GestureRecognizer {
 			result.pattern = this.#pattern.join('');
 			result.direction = this.#pattern[this.#pattern.length - 1];
 			result.directionChanged = true;
+
+			// A single long move event from pointer-down has no later move to
+			// cross repeatDistance on, so the replayed segment is checked here.
+			this.#repeatProgress = this.#segmentLength;
+			this.#checkLongStroke(result);
 		}
 
 		if (!this.#active) {
@@ -141,8 +162,10 @@ class GestureRecognizer {
 
 			if (direction === lastDirection) {
 				this.#segmentLength += distance;
+				this.#repeatProgress += distance;
 				this.#anchorX = this.#currentX;
 				this.#anchorY = this.#currentY;
+				this.#checkLongStroke(result);
 			} else {
 				const adaptiveThreshold = Math.min(
 					this.#maxThreshold,
@@ -156,6 +179,7 @@ class GestureRecognizer {
 					result.pattern = this.#pattern.join('');
 
 					this.#segmentLength = distance;
+					this.#repeatProgress = distance;
 					this.#anchorX = this.#currentX;
 					this.#anchorY = this.#currentY;
 				}
@@ -191,6 +215,34 @@ class GestureRecognizer {
 
 	get startTimestamp() {
 		return this.#startTimestamp;
+	}
+
+	// Never below twice the activation threshold, or every stroke would double
+	// on its first step.
+	#effectiveRepeatDistance() {
+		return this.#repeatDistance ? Math.max(this.#repeatDistance, 2 * this.#distanceThreshold) : 0;
+	}
+
+	// Appends the last direction once more - never a third time in a row - and
+	// reports it exactly like a turn, so HUD, suggestions and recorder update.
+	#appendRepeat(result) {
+		const n = this.#pattern.length;
+		const direction = this.#pattern[n - 1];
+		if (n >= 2 && this.#pattern[n - 2] === direction) return false;
+		this.#pattern.push(direction);
+		result.directionChanged = true;
+		result.direction = direction;
+		result.pattern = this.#pattern.join('');
+		return true;
+	}
+
+	// segmentLength is deliberately left alone: it is the physical stroke, and
+	// the adaptive turn threshold depends on it.
+	#checkLongStroke(result) {
+		const limit = this.#effectiveRepeatDistance();
+		if (limit && this.#repeatProgress >= limit && this.#appendRepeat(result)) {
+			this.#repeatProgress -= limit;
+		}
 	}
 
 	#getDirection(deltaX, deltaY) {
