@@ -2282,56 +2282,57 @@ window.ContentContextMenu = ContentContextMenu;
 			enableDrag: DEFAULT_SETTINGS.enableTextDrag || DEFAULT_SETTINGS.enableImageDrag || DEFAULT_SETTINGS.enableLinkDrag
 		};
 
-		function getGestureAction(pattern) {
+		// One binding shape for both sources - the stored entry, or a default
+		// wrapped as { action } - so a fallback from ↓↓ to ↓ carries ↓'s
+		// configuration along with its action.
+		function lookupMouseBinding(pattern) {
 			if (!SETTINGS.enableGestureCustomization) {
-				return DEFAULT_GESTURES[pattern];
+				const action = DEFAULT_GESTURES[pattern];
+				return action ? { action } : undefined;
 			}
-
-			const config = SETTINGS.mouseGestures?.[pattern];
-			return config?.action;
+			const entry = SETTINGS.mouseGestures?.[pattern];
+			return entry && typeof entry === 'object' ? entry : undefined;
 		}
 
+		function resolveMouseGesture(pattern) {
+			return window.GestureBinding.resolve(pattern, lookupMouseBinding);
+		}
 
-		function getActionName(pattern) {
-			const action = getGestureAction(pattern);
+		function getBindingName(binding) {
+			const action = binding?.action;
 			if (!action || action === 'none') return '';
-			if (SETTINGS.enableGestureCustomization) {
-				const customName = SETTINGS.mouseGestures?.[pattern]?.customName;
-				if (customName) return customName;
+			if (SETTINGS.enableGestureCustomization && binding.customName) {
+				return binding.customName;
 			}
 			if (action === 'actionChain') {
-				const config = SETTINGS.mouseGestures?.[pattern];
-				const chain = SETTINGS.actionChains?.[config?.chainId];
+				const chain = SETTINGS.actionChains?.[binding.chainId];
 				if (chain?.name) return chain.name;
 				if (!chain) return `${msg(ACTION_KEYS[action])} ${msg('chainNotFound')}`;
 			}
 			if (action === 'customMenu') {
-				const config = SETTINGS.mouseGestures?.[pattern];
-				return config?.ownMenu?.name || msg('customMenuOwnLabel');
+				return binding.ownMenu?.name || msg('customMenuOwnLabel');
 			}
 			if (action === 'siteMenu') {
-				const config = SETTINGS.mouseGestures?.[pattern];
-				const resolved = resolveGestureMenu(siteMenuCfg(config));
+				const resolved = resolveGestureMenu(siteMenuCfg(binding));
 				if (resolved?.name) return resolved.name;
 				if (resolved?.nameKey) {
 					const localized = msg(resolved.nameKey);
 					if (localized) return localized;
 				}
 				if (!resolved) {
-					return (config?.mode === 'standard' || config?.mode === 'fork')
+					return (binding.mode === 'standard' || binding.mode === 'fork')
 						? `${msg(ACTION_KEYS[action])} ${msg('menuNotFound')}`
 						: msg('customMenuContextualLabel');
 				}
 			}
 			if (action === 'simulateKey') {
-				const config = SETTINGS.mouseGestures?.[pattern] || {};
 				const defaults = ACTION_DEFAULTS.simulateKey || {};
-				const keyValue = config.keyValue || defaults.keyValue || 'ArrowLeft';
+				const keyValue = binding.keyValue || defaults.keyValue || 'ArrowLeft';
 				const mods = [];
-				if (config.modCtrl) mods.push('Ctrl');
-				if (config.modShift) mods.push('Shift');
-				if (config.modAlt) mods.push('Alt');
-				if (config.modMeta) mods.push('Meta');
+				if (binding.modCtrl) mods.push('Ctrl');
+				if (binding.modShift) mods.push('Shift');
+				if (binding.modAlt) mods.push('Alt');
+				if (binding.modMeta) mods.push('Meta');
 				mods.push(keyValue);
 				return `${msg(ACTION_KEYS[action])} (${mods.join('+')})`;
 			}
@@ -2339,25 +2340,38 @@ window.ContentContextMenu = ContentContextMenu;
 			return i18nKey ? msg(i18nKey) : '';
 		}
 
-		function getSuggestedGestures(currentPattern) {
+		// Direct lookup, no fallback: suggestions list stored patterns as they are.
+		function getActionName(pattern) {
+			return getBindingName(lookupMouseBinding(pattern));
+		}
+
+		function getSuggestedGestures(rawPattern) {
 			const source = SETTINGS.enableGestureCustomization
 				? (SETTINGS.mouseGestures || {})
 				: DEFAULT_GESTURES;
+			const patterns = Object.keys(source);
+			const isActive = (p) => {
+				const action = lookupMouseBinding(p)?.action;
+				return !!action && action !== 'none';
+			};
+			// The whole pipeline runs on the base: prefix, candidate length and
+			// the sort key's next direction.
+			const base = window.GestureBinding.suggestionBase(rawPattern, patterns, isActive);
 			const suggestions = [];
-			for (const pattern of Object.keys(source)) {
-				if (!pattern.startsWith(currentPattern)) continue;
-				if (pattern.length !== currentPattern.length + 1) continue;
+			for (const pattern of patterns) {
+				if (!pattern.startsWith(base)) continue;
+				if (pattern.length !== base.length + 1) continue;
 				const actionName = getActionName(pattern);
 				if (!actionName) continue;
 				suggestions.push({ pattern, actionName });
 			}
 
-			const lastDir = currentPattern.slice(-1);
+			const lastDir = base.slice(-1);
 			const isHorizontal = lastDir === '←' || lastDir === '→';
 			const isVertical = lastDir === '↑' || lastDir === '↓';
 
 			const getSortKey = (pattern) => {
-				const D = pattern[currentPattern.length];
+				const D = pattern[base.length];
 				if (isHorizontal) {
 					if (D === '↑') return 0;
 					if (D === '←' || D === '→') return 1;
@@ -2371,7 +2385,7 @@ window.ContentContextMenu = ContentContextMenu;
 			};
 
 			suggestions.sort((a, b) => getSortKey(a.pattern) - getSortKey(b.pattern));
-			return suggestions;
+			return { base, suggestions };
 		}
 
 		function loadSettings() {
@@ -3099,11 +3113,13 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!recognizer.isActive()) return;
 
 			if (result.directionChanged && SETTINGS.enableHUD) {
-				const actionName = getActionName(result.pattern);
-				visualizer.updateAction(result.pattern, actionName ? [actionName] : []);
+				// Arrows show the effective pattern: an unbound long ↓ reads ↓.
+				const resolved = resolveMouseGesture(result.pattern);
+				const actionName = getBindingName(resolved.binding);
+				visualizer.updateAction(resolved.effectivePattern, actionName ? [actionName] : []);
 				if (SETTINGS.enableSuggestedGestures) {
-					const suggestions = getSuggestedGestures(result.pattern);
-					visualizer.updateSuggestedGestures(suggestions, result.pattern);
+					const { base, suggestions } = getSuggestedGestures(result.pattern);
+					visualizer.updateSuggestedGestures(suggestions, base);
 				}
 			}
 		}, { capture: true });
@@ -4075,7 +4091,8 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		function executeGesture(pattern) {
-			const action = getGestureAction(pattern);
+			const { binding } = resolveMouseGesture(pattern);
+			const action = binding?.action;
 			if (!action || action === 'none') return;
 
 			if (isEdgeDesktop && SETTINGS.edgeGestureConflict) {
@@ -4084,9 +4101,7 @@ window.ContentContextMenu = ContentContextMenu;
 				try { window.GesturaSettingsStorage.set({ edgeGestureConflict: false }).catch(() => {}); } catch (e) { }
 			}
 
-			const config = SETTINGS.enableGestureCustomization
-				? (SETTINGS.mouseGestures?.[pattern] || {})
-				: {};
+			const config = SETTINGS.enableGestureCustomization ? binding : {};
 			executeAction(action, config, { startX: recognizer.startX, startY: recognizer.startY, endX: recognizer.currentX, endY: recognizer.currentY }, gestureState.startTarget);
 		}
 
