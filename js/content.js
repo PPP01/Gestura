@@ -2185,15 +2185,10 @@ window.ContentContextMenu = ContentContextMenu;
 		const { msg } = window.ContentI18n;
 
 		const CONFIG = {
-			DISTANCE_THRESHOLD: DEFAULT_SETTINGS.distanceThreshold,
 			SCROLL_AMOUNT: window.innerHeight * 0.75
 		};
 
-		const recognizer = new window.GestureRecognizer({
-			distanceThreshold: CONFIG.DISTANCE_THRESHOLD,
-			repeatDistance: DEFAULT_SETTINGS.gestureRepeatDistance,
-			repeatPause: DEFAULT_SETTINGS.gestureRepeatPause
-		});
+		const recognizer = new window.GestureRecognizer(window.GestureRecognizer.configFromSettings(DEFAULT_SETTINGS));
 
 		let isIframe = false;
 		try {
@@ -2354,11 +2349,6 @@ window.ContentContextMenu = ContentContextMenu;
 			return i18nKey ? msg(i18nKey) : '';
 		}
 
-		// Direct lookup, no fallback: suggestions list stored patterns as they are.
-		function getActionName(pattern) {
-			return getBindingName(lookupMouseBinding(pattern));
-		}
-
 		function getSuggestedGestures(rawPattern) {
 			const source = SETTINGS.enableGestureCustomization
 				? (SETTINGS.mouseGestures || {})
@@ -2375,7 +2365,8 @@ window.ContentContextMenu = ContentContextMenu;
 			for (const pattern of patterns) {
 				if (!pattern.startsWith(base)) continue;
 				if (pattern.length !== base.length + 1) continue;
-				const actionName = getActionName(pattern);
+				// Direct lookup, no fallback: suggestions list stored patterns as they are.
+				const actionName = getBindingName(lookupMouseBinding(pattern));
 				if (!actionName) continue;
 				suggestions.push({ pattern, actionName });
 			}
@@ -2431,12 +2422,7 @@ window.ContentContextMenu = ContentContextMenu;
 				SETTINGS.enableDrag = SETTINGS.enableDragFeatures !== false && (SETTINGS.enableTextDrag || SETTINGS.enableImageDrag || SETTINGS.enableLinkDrag);
 
 				if (window.GestureRecognizer && recognizer && recognizer.updateConfig) {
-					recognizer.updateConfig({
-						distanceThreshold: SETTINGS.distanceThreshold,
-						longGestureMultiplier: SETTINGS.gestureTurnTolerance,
-						repeatDistance: SETTINGS.gestureRepeatDistance,
-						repeatPause: SETTINGS.gestureRepeatPause
-					});
+					recognizer.updateConfig(window.GestureRecognizer.configFromSettings(SETTINGS));
 				}
 
 				if (SETTINGS.enableTrail || SETTINGS.enableHUD) {

@@ -5,6 +5,17 @@ class GestureRecognizer {
 	static REPEAT_DISTANCE_MAX = 600;
 	static REPEAT_PAUSE_MAX = 2000;
 
+	// The one place that maps settings to recognizer config; the content script
+	// and the options page (for its recorders) both use it.
+	static configFromSettings(s) {
+		return {
+			distanceThreshold: s.distanceThreshold,
+			longGestureMultiplier: s.gestureTurnTolerance,
+			repeatDistance: s.gestureRepeatDistance,
+			repeatPause: s.gestureRepeatPause,
+		};
+	}
+
 	#distanceThreshold;
 	#longGestureMultiplier;
 	#maxThreshold;
@@ -195,15 +206,9 @@ class GestureRecognizer {
 				if (direction === lastDirection) {
 					this.#appendRepeat(result);
 				} else {
-					this.#pattern.push(direction);
-					result.directionChanged = true;
-					result.direction = direction;
-					result.pattern = this.#pattern.join('');
+					this.#pushDirection(direction, result);
 				}
-				this.#segmentLength = distance;
-				this.#repeatProgress = distance;
-				this.#anchorX = this.#currentX;
-				this.#anchorY = this.#currentY;
+				this.#startSegment(distance);
 			} else if (direction === lastDirection) {
 				this.#segmentLength += distance;
 				this.#repeatProgress += distance;
@@ -217,15 +222,8 @@ class GestureRecognizer {
 				);
 
 				if (distance > adaptiveThreshold) {
-					this.#pattern.push(direction);
-					result.directionChanged = true;
-					result.direction = direction;
-					result.pattern = this.#pattern.join('');
-
-					this.#segmentLength = distance;
-					this.#repeatProgress = distance;
-					this.#anchorX = this.#currentX;
-					this.#anchorY = this.#currentY;
+					this.#pushDirection(direction, result);
+					this.#startSegment(distance);
 				}
 			}
 		}
@@ -267,16 +265,29 @@ class GestureRecognizer {
 		return this.#repeatDistance ? Math.max(this.#repeatDistance, 2 * this.#distanceThreshold) : 0;
 	}
 
-	// Appends the last direction once more - never a third time in a row - and
-	// reports it exactly like a turn, so HUD, suggestions and recorder update.
-	#appendRepeat(result) {
-		const n = this.#pattern.length;
-		const direction = this.#pattern[n - 1];
-		if (n >= 2 && this.#pattern[n - 2] === direction) return false;
+	// Reports a new direction exactly like a turn, so HUD, suggestions and
+	// recorder update - also for a repeat.
+	#pushDirection(direction, result) {
 		this.#pattern.push(direction);
 		result.directionChanged = true;
 		result.direction = direction;
 		result.pattern = this.#pattern.join('');
+	}
+
+	// A new physical segment begins at the current point.
+	#startSegment(distance) {
+		this.#segmentLength = distance;
+		this.#repeatProgress = distance;
+		this.#anchorX = this.#currentX;
+		this.#anchorY = this.#currentY;
+	}
+
+	// Appends the last direction once more - never a third time in a row.
+	#appendRepeat(result) {
+		const n = this.#pattern.length;
+		const direction = this.#pattern[n - 1];
+		if (n >= 2 && this.#pattern[n - 2] === direction) return false;
+		this.#pushDirection(direction, result);
 		return true;
 	}
 
@@ -306,7 +317,9 @@ class GestureRecognizer {
 			this.#rest = { x, y, t: ts };
 			return;
 		}
-		const still = Math.hypot(x - rest.x, y - rest.y) <= GestureRecognizer.PAUSE_JITTER;
+		const dx = x - rest.x;
+		const dy = y - rest.y;
+		const still = dx * dx + dy * dy <= GestureRecognizer.PAUSE_JITTER ** 2;
 		if (still) {
 			if (rest.t === null) rest.t = ts;
 			else if (ts !== null && ts - rest.t >= this.#repeatPause) this.#armPause(rest);
@@ -318,8 +331,11 @@ class GestureRecognizer {
 		if (this.#source === 'pointer' && ts !== null && rest.t !== null && ts - rest.t >= this.#repeatPause) {
 			this.#armPause(rest);
 		}
-		// After arming, so the anchor above is the pre-pause rest point.
-		this.#rest = { x, y, t: ts };
+		// After arming, which reads the pre-pause rest point. In place: this runs
+		// on every move while the pointer travels.
+		rest.x = x;
+		rest.y = y;
+		rest.t = ts;
 	}
 
 	// Anchors at the point of rest, so the resumed movement counts toward the

@@ -293,3 +293,11 @@ describe('pause timestamps and config', () => {
 		expect(R.REPEAT_PAUSE_MAX).toBe(2000);
 	});
 });
+
+describe('configFromSettings', () => {
+	it('maps the four settings to recognizer config', () => {
+		expect(R.configFromSettings({
+			distanceThreshold: 25, gestureTurnTolerance: 0.2, gestureRepeatDistance: 350, gestureRepeatPause: 700, other: 1,
+		})).toEqual({ distanceThreshold: 25, longGestureMultiplier: 0.2, repeatDistance: 350, repeatPause: 700 });
+	});
+});
