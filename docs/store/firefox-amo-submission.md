@@ -35,10 +35,9 @@ Was **nur du** tun kannst (Konto, API-Keys, Einreichung) ist mit 👤 markiert.
   Installiert-/Versions-/Verändert-Status von dort importierter Einträge mit — das
   fällt unter Mozillas Kategorie „technicalAndInteraction" (Geräte-/Browser-Infos,
   Nutzungs- und Einstellungsdaten), nie unter eine der personenbezogenen Kategorien.
-  **Der aktuelle `firefox-build`-Manifest-Stand (`required: ["none"]` ohne
-  `optional`) ist noch der vor-R1-Stand** — dieser Branch hat R1 noch nicht gemerged;
-  beim nächsten Merge von `main`/dieser Funktion nach `firefox-build` diesen Schlüssel
-  mitziehen, sonst weicht die AMO-Angabe von PRIVACY.md ab.
+  Der `firefox-build`-Manifest-Stand trägt seit dem Abgleich vor dem Einreichen von
+  2.8.0 beide Teile (`required` und `optional`); beide Angaben müssen mit `PRIVACY.md`
+  übereinstimmen, sonst weicht die AMO-Angabe von der Datenschutzerklärung ab.
 - `background.scripts` (Event-Page statt Service-Worker), inkl. `favicon-util.js`
 
 ---
