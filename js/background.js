@@ -19,6 +19,7 @@
 if (typeof importScripts === 'function') {
 	importScripts('constants.js');
 	importScripts('settings-storage.js');
+	importScripts('blacklist-match.js');
 	importScripts('menu-patterns.js');
 	importScripts('menu-catalog.js');
 	importScripts('menu-model.js');
