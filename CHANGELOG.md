@@ -34,6 +34,11 @@
 - A scroll gesture that cannot scroll (already at the edge) no longer leaves a
   phantom target behind, so the next scroll the other way starts from where the
   page really is. From FlowMouse v2.5.
+- "Suppress gesture over input fields" now only counts fields that take text;
+  dropping on a checkbox, button or colour picker no longer suppresses a drag
+  gesture. From FlowMouse v2.5.
+- A drop that a drag gesture took is no longer also handled by the page's own
+  drag-and-drop code. From FlowMouse v2.5.
 
 ### v2.9.0 (2026-10-05)
 

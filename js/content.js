@@ -2315,8 +2315,14 @@ window.ContentContextMenu = ContentContextMenu;
 		function isEditableTarget(e) {
 			const node = e.composedPath()[0];
 			const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+			if (!el) return false;
 			const tag = el.tagName;
-			return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
+			// Buttons, checkboxes and the like take no text, so dropping on them is no
+			// reason to hold a gesture back.
+			if (tag === 'INPUT') {
+				return !['button', 'checkbox', 'color', 'radio', 'range', 'image', 'reset', 'submit'].includes(el.type);
+			}
+			return tag === 'TEXTAREA' || el.isContentEditable;
 		}
 
 		function hasDragAction(dragType, pattern) {
@@ -3490,6 +3496,9 @@ window.ContentContextMenu = ContentContextMenu;
 			if (dropHandledAction) {
 				dropHandledAction = false;
 				e.preventDefault();
+				// The page's own dragend handler would otherwise read a finished
+				// drop and act on it (move the item, upload the file, ...).
+				if (e.dataTransfer) e.dataTransfer.dropEffect = 'none';
 			}
 			resetState();
 		}, { capture: true });
@@ -3502,6 +3511,8 @@ window.ContentContextMenu = ContentContextMenu;
 					if (hasDragAction(gestureState.dragType, pattern)) {
 						dropHandledAction = true;
 						e.preventDefault();
+						// Keep the page's own drop handlers out of a drop the gesture took.
+						e.stopImmediatePropagation();
 						executeDragGesture({ ...gestureState, startX: recognizer.startX, startY: recognizer.startY }, pattern, e.dataTransfer);
 					}
 				}
