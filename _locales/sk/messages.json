@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Opakovanie pauzou" },
 	"forkGestureRepeatPauseDesc": { "message": "Zostaňte takto dlho nehybní a potom pokračujte v rovnakom smere, aby sa zopakoval, napr. ↓ pauza ↓. Týka sa iba gest, ktoré priradíte k opakovanému smeru. 0 to vypne." },
 	"forkGestureRepeatOffNotice": { "message": "Obe sú vypnuté: opakované gestá ako ↓↓ nemožno ani nakresliť, ani zaznamenať." },
-	"forkTabGestures": { "message": "Gestá" }
+	"forkTabGestures": { "message": "Gestá" },
+	"ctxMenuWheelNav": { "message": "Rýchla navigácia kolieskom" },
+	"ctxMenuWheelNavTooltip": { "message": "Počas držania tlačidla myši posúvajte kolieskom, aby ste rýchlo vybrali položky ponuky." }
 }

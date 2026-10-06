@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Понављање паузом" },
 	"forkGestureRepeatPauseDesc": { "message": "Држите мирно толико дуго, па наставите у истом смеру да га поновите, нпр. ↓ пауза ↓. Важи само за гестове које везујете за поновљени смер. 0 га искључује." },
 	"forkGestureRepeatOffNotice": { "message": "Оба су искључена: поновљени гестови као што је ↓↓ не могу се ни цртати ни снимити." },
-	"forkTabGestures": { "message": "Гестови" }
+	"forkTabGestures": { "message": "Гестови" },
+	"ctxMenuWheelNav": { "message": "Брза навигација точкићем" },
+	"ctxMenuWheelNavTooltip": { "message": "Док држите дугме миша, скролујте точкићем да бисте брзо изабрали ставке менија." }
 }

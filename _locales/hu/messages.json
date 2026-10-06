@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Ismétlés szünettel" },
 	"forkGestureRepeatPauseDesc": { "message": "Tartsd ennyi ideig mozdulatlanul, majd folytasd ugyanabban az irányban az ismétléshez, pl. ↓ szünet ↓. Csak azoknál a gesztusoknál számít, amelyeket ismételt irányhoz rendelsz. A 0 kikapcsolja." },
 	"forkGestureRepeatOffNotice": { "message": "Mindkettő ki van kapcsolva: az ismételt gesztusok, például a ↓↓, nem rajzolhatók és nem rögzíthetők." },
-	"forkTabGestures": { "message": "Gesztusok" }
+	"forkTabGestures": { "message": "Gesztusok" },
+	"ctxMenuWheelNav": { "message": "Gyors navigáció görgővel" },
+	"ctxMenuWheelNavTooltip": { "message": "Az egérgomb nyomva tartása közben görgessen a görgővel a menüpontok gyors kiválasztásához." }
 }

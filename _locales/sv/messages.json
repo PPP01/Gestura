@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Upprepa med paus" },
 	"forkGestureRepeatPauseDesc": { "message": "Håll stilla så här länge och fortsätt sedan i samma riktning för att upprepa den, t.ex. ↓ paus ↓. Spelar bara roll för gester som du binder till en upprepad riktning. 0 stänger av det." },
 	"forkGestureRepeatOffNotice": { "message": "Båda är avstängda: upprepade gester som ↓↓ kan varken ritas eller spelas in." },
-	"forkTabGestures": { "message": "Gester" }
+	"forkTabGestures": { "message": "Gester" },
+	"ctxMenuWheelNav": { "message": "Snabb hjulnavigering" },
+	"ctxMenuWheelNavTooltip": { "message": "Håll ner musknappen och rulla hjulet för att snabbt välja menyalternativ." }
 }

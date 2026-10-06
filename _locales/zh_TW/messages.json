@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "以停頓重複" },
 	"forkGestureRepeatPauseDesc": { "message": "停住不動達此時間，再朝同一方向繼續滑動，即可重複該方向，例如 ↓ 停頓 ↓。僅對你綁定到重複方向的手勢有效。0 表示關閉。" },
 	"forkGestureRepeatOffNotice": { "message": "兩者皆已關閉：像 ↓↓ 這樣的重複手勢既無法繪製，也無法錄製。" },
-	"forkTabGestures": { "message": "手勢" }
+	"forkTabGestures": { "message": "手勢" },
+	"ctxMenuWheelNav": { "message": "滾輪快速導航" },
+	"ctxMenuWheelNavTooltip": { "message": "按住滑鼠按鍵時，滾動滾輪即可快速選擇選單中的項目。" }
 }

@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Gentag med pause" },
 	"forkGestureRepeatPauseDesc": { "message": "Hold musen stille så længe, og fortsæt derefter i samme retning for at gentage den, f.eks. ↓ pause ↓. Har kun betydning for bevægelser, du binder til en gentaget retning. 0 slår det fra." },
 	"forkGestureRepeatOffNotice": { "message": "Begge er slået fra: Gentagne bevægelser som ↓↓ kan hverken tegnes eller optages." },
-	"forkTabGestures": { "message": "Bevægelser" }
+	"forkTabGestures": { "message": "Bevægelser" },
+	"ctxMenuWheelNav": { "message": "Hurtig hjulnavigation" },
+	"ctxMenuWheelNavTooltip": { "message": "Hold museknappen nede og rul på hjulet for hurtigt at vælge menupunkter." }
 }

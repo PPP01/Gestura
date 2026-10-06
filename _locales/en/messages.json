@@ -3321,5 +3321,7 @@
 	"trailColorEnd": { "message": "End colour" },
 	"enableTrailGradient": { "message": "Colour gradient" },
 	"showTrailArrow": { "message": "Arrowhead" },
-	"enableTrailGlow": { "message": "Glow" }
+	"enableTrailGlow": { "message": "Glow" },
+	"ctxMenuWheelNav": { "message": "Quick wheel navigation" },
+	"ctxMenuWheelNavTooltip": { "message": "While holding the mouse button, scroll the wheel to quickly select menu items." }
 }

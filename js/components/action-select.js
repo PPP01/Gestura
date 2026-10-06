@@ -114,6 +114,7 @@ const CONTEXTS = {
 	'menu-item': { namedRow: true, nameHint: 'siteMenuItemNameHint' },
 	'chain-step': { namedRow: true, nameHint: 'customHudNameTooltip' },
 	'gesture': { namedRow: false, nameHint: 'customHudNameTooltip' },
+	'wheel': { namedRow: false, nameHint: 'customHudNameTooltip' },
 };
 
 const SCROLL_SMOOTHNESS = {
@@ -1675,6 +1676,28 @@ class ActionSelect extends LitElement {
 		`;
 	}
 
+	// Only a wheel gesture can steer a menu with the wheel.
+	#renderWheelNavToggle() {
+		if (this.context !== 'wheel') return '';
+		const defaults = window.GestureConstants.ACTION_DEFAULTS[this._pendingValue] || {};
+		const wheelNav = this._pendingConfig.wheelNav ?? defaults.wheelNav;
+		return html`
+			<div class="action-config-row">
+				<label class="action-config-checkbox">
+					<input type="checkbox"
+						.checked=${wheelNav}
+						@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, wheelNav: e.target.checked }; this.requestUpdate(); }}
+					>
+					<span>${window.i18n.getMessage('ctxMenuWheelNav')}</span>
+					<span class="help-icon"
+						.tooltip=${tooltip(window.i18n.getMessage('ctxMenuWheelNavTooltip'))}>
+						${unsafeHTML(icon('circleHelp', { size: 14 }))}
+					</span>
+				</label>
+			</div>
+		`;
+	}
+
 	#renderTimeDisplay() {
 		const action = this._pendingValue;
 		const defaults = window.GestureConstants.ACTION_DEFAULTS[action] || {};
@@ -1721,6 +1744,7 @@ class ActionSelect extends LitElement {
 					.config=${this._pendingConfig}
 					@menu-config-change=${(e) => { this._pendingConfig = { ...e.detail.config }; this.requestUpdate(); }}
 				></gesture-menu-config>
+				${this.#renderWheelNavToggle()}
 			`;
 		}
 		if (action === 'addSiteToMenu') {
@@ -2151,12 +2175,14 @@ class ActionSelect extends LitElement {
 			return html`
 				${this.#renderMenuConfigRow()}
 				${this.#renderTimeDisplay()}
+				${this.#renderWheelNavToggle()}
 			`;
 		}
 		if (action === 'menuRecentlyClosed') {
 			return html`
 				${this.#renderMenuConfigRow()}
 				${this.#renderTimeDisplay()}
+				${this.#renderWheelNavToggle()}
 			`;
 		}
 		if (action === 'menuShowBookmarks') {
@@ -2165,6 +2191,7 @@ class ActionSelect extends LitElement {
 				${this.#renderMenuConfigRow()}
 				${this.#renderTimeDisplay()}
 				${this.#renderPositionSelect(true, true, true)}
+				${this.#renderWheelNavToggle()}
 			`;
 		}
 		if (action === 'addToBookmarks') {

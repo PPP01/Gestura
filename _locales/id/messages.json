@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Ulangi dengan jeda" },
 	"forkGestureRepeatPauseDesc": { "message": "Tahan diam selama ini, lalu lanjutkan ke arah yang sama untuk mengulanginya, mis. ↓ jeda ↓. Hanya berpengaruh pada gerakan yang Anda kaitkan dengan arah berulang. 0 menonaktifkannya." },
 	"forkGestureRepeatOffNotice": { "message": "Keduanya nonaktif: gerakan berulang seperti ↓↓ tidak dapat digambar maupun direkam." },
-	"forkTabGestures": { "message": "Gerakan" }
+	"forkTabGestures": { "message": "Gerakan" },
+	"ctxMenuWheelNav": { "message": "Navigasi cepat roda mouse" },
+	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan tombol mouse, gulir roda untuk memilih item menu dengan cepat." }
 }

@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "التكرار بالتوقف" },
 	"forkGestureRepeatPauseDesc": { "message": "ابقَ ثابتًا لهذه المدة ثم تابع في الاتجاه نفسه لتكراره، مثل ↓ توقف ↓. يهم فقط للإيماءات التي تربطها باتجاه مكرر. القيمة 0 تعطّله." },
 	"forkGestureRepeatOffNotice": { "message": "كلاهما متوقف: لا يمكن رسم الإيماءات المكررة مثل ↓↓ ولا تسجيلها." },
-	"forkTabGestures": { "message": "الإيماءات" }
+	"forkTabGestures": { "message": "الإيماءات" },
+	"ctxMenuWheelNav": { "message": "التنقل السريع بعجلة الماوس" },
+	"ctxMenuWheelNavTooltip": { "message": "أثناء الضغط باستمرار على زر الماوس، قم بالتمرير بعجلة الماوس لتحديد عناصر القائمة بسرعة." }
 }

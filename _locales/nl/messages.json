@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Herhalen door pauze" },
 	"forkGestureRepeatPauseDesc": { "message": "Houd zo lang stil en ga dan door in dezelfde richting om die te herhalen, bijv. ↓ pauze ↓. Alleen van belang voor gebaren die u aan een herhaalde richting koppelt. 0 schakelt het uit." },
 	"forkGestureRepeatOffNotice": { "message": "Beide zijn uit: herhaalde gebaren zoals ↓↓ kunnen niet worden getekend of opgenomen." },
-	"forkTabGestures": { "message": "Gebaren" }
+	"forkTabGestures": { "message": "Gebaren" },
+	"ctxMenuWheelNav": { "message": "Snelle muiswielnavigatie" },
+	"ctxMenuWheelNavTooltip": { "message": "Terwijl u de muisknop ingedrukt houdt, scrolt u met het wieltje om snel menu-items te selecteren." }
 }

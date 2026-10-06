@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Ulang dengan jeda" },
 	"forkGestureRepeatPauseDesc": { "message": "Tahan diam selama ini, kemudian teruskan ke arah yang sama untuk mengulanginya, cth. ↓ jeda ↓. Hanya penting untuk gerak isyarat yang anda ikat pada arah berulang. 0 mematikannya." },
 	"forkGestureRepeatOffNotice": { "message": "Kedua-duanya mati: gerak isyarat berulang seperti ↓↓ tidak boleh dilukis mahupun dirakam." },
-	"forkTabGestures": { "message": "Gerak isyarat" }
+	"forkTabGestures": { "message": "Gerak isyarat" },
+	"ctxMenuWheelNav": { "message": "Navigasi pantas roda tetikus" },
+	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan butang tetikus, tatal roda untuk memilih item menu dengan pantas." }
 }

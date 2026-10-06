@@ -3259,5 +3259,7 @@
 	"trailColorEnd": { "message": "Zielfarbe" },
 	"enableTrailGradient": { "message": "Farbverlauf" },
 	"showTrailArrow": { "message": "Pfeilspitze" },
-	"enableTrailGlow": { "message": "Leuchten" }
+	"enableTrailGlow": { "message": "Leuchten" },
+	"ctxMenuWheelNav": { "message": "Schnelle Mausrad-Navigation" },
+	"ctxMenuWheelNavTooltip": { "message": "Halten Sie die Maustaste gedrückt und scrollen Sie mit dem Rad, um schnell Menüpunkte auszuwählen." }
 }

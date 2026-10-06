@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Répétition par pause" },
 	"forkGestureRepeatPauseDesc": { "message": "Restez immobile pendant cette durée, puis continuez dans la même direction pour la répéter, p. ex. ↓ pause ↓. Ne concerne que les gestes liés à une direction répétée. 0 la désactive." },
 	"forkGestureRepeatOffNotice": { "message": "Les deux sont désactivées : les gestes répétés comme ↓↓ ne peuvent être ni tracés ni enregistrés." },
-	"forkTabGestures": { "message": "Gestes" }
+	"forkTabGestures": { "message": "Gestes" },
+	"ctxMenuWheelNav": { "message": "Navigation rapide à la molette" },
+	"ctxMenuWheelNavTooltip": { "message": "Tout en maintenant le bouton de la souris enfoncé, faites défiler la molette pour sélectionner rapidement des éléments du menu." }
 }

@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "বিরতিতে পুনরাবৃত্তি" },
 	"forkGestureRepeatPauseDesc": { "message": "এতক্ষণ স্থির থাকুন, তারপর একই দিকে চালিয়ে যান — পুনরাবৃত্তি হবে, যেমন ↓ বিরতি ↓। শুধু তখনই কাজে লাগে যখন আপনি পুনরাবৃত্ত দিকে জেসচার বাঁধেন। ০ দিলে বন্ধ হয়।" },
 	"forkGestureRepeatOffNotice": { "message": "দুটোই বন্ধ: ↓↓-এর মতো পুনরাবৃত্ত জেসচার আঁকা বা রেকর্ড করা কোনোটাই যাবে না।" },
-	"forkTabGestures": { "message": "জেসচার" }
+	"forkTabGestures": { "message": "জেসচার" },
+	"ctxMenuWheelNav": { "message": "দ্রুত হুইল নেভিগেশন" },
+	"ctxMenuWheelNavTooltip": { "message": "মাউসের বোতাম চেপে ধরে থাকা অবস্থায়, মেনু আইটেমগুলি দ্রুত নির্বাচন করতে হুইল স্ক্রোল করুন।" }
 }

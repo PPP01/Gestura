@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "חזרה באמצעות השהיה" },
 	"forkGestureRepeatPauseDesc": { "message": "השאר את העכבר דומם כל כך הרבה זמן ואז המשך באותו כיוון כדי לחזור עליו, למשל ↓ השהיה ↓. משפיע רק על מחוות שהקצית להן כיוון חוזר. 0 מכבה את זה." },
 	"forkGestureRepeatOffNotice": { "message": "שניהם כבויים: מחוות חוזרות כמו ↓↓ אי אפשר לצייר ולא להקליט." },
-	"forkTabGestures": { "message": "מחוות" }
+	"forkTabGestures": { "message": "מחוות" },
+	"ctxMenuWheelNav": { "message": "ניווט מהיר בגלגלת" },
+	"ctxMenuWheelNavTooltip": { "message": "תוך כדי לחיצה ממושכת על לחצן העכבר, גלול את הגלגלת כדי לבחור במהירות פריטי תפריט." }
 }

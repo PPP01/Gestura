@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Ulitin sa paghinto" },
 	"forkGestureRepeatPauseDesc": { "message": "Tumigil nang ganito katagal, saka magpatuloy sa parehong direksyon para ulitin ito, hal. ↓ hinto ↓. May epekto lang sa mga galaw na itinakda mo sa inuulit na direksyon. Ino-off ito ng 0." },
 	"forkGestureRepeatOffNotice": { "message": "Parehong naka-off: hindi maiguhit o marekord ang mga inuulit na galaw gaya ng ↓↓." },
-	"forkTabGestures": { "message": "Mga galaw" }
+	"forkTabGestures": { "message": "Mga galaw" },
+	"ctxMenuWheelNav": { "message": "Mabilis na nabigasyon ng wheel" },
+	"ctxMenuWheelNavTooltip": { "message": "Habang nakapindot ang mouse button, i-scroll ang wheel para mabilis na pumili ng mga item sa menu." }
 }

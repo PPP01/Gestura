@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "一時停止で繰り返す" },
 	"forkGestureRepeatPauseDesc": { "message": "この時間だけ静止してから同じ方向に動かすと、その方向を繰り返します（例：↓ 停止 ↓）。繰り返しの方向にジェスチャーを割り当てている場合にのみ有効です。0 でオフになります。" },
 	"forkGestureRepeatOffNotice": { "message": "どちらもオフです。↓↓ のような繰り返しジェスチャーは、描くことも記録することもできません。" },
-	"forkTabGestures": { "message": "ジェスチャー" }
+	"forkTabGestures": { "message": "ジェスチャー" },
+	"ctxMenuWheelNav": { "message": "ホイールのクイックナビゲーション" },
+	"ctxMenuWheelNavTooltip": { "message": "マウスボタンを押したままホイールをスクロールすると、メニュー項目をすばやく選択できます。" }
 }

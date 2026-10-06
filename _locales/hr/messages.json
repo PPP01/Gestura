@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Ponavljanje pauzom" },
 	"forkGestureRepeatPauseDesc": { "message": "Zadržite miš toliko dugo mirno, a zatim nastavite u istom smjeru da ga ponovite, npr. ↓ pauza ↓. Bitno samo za geste koje vežete na ponovljeni smjer. 0 isključuje." },
 	"forkGestureRepeatOffNotice": { "message": "Oba su isključena: ponovljene geste poput ↓↓ ne mogu se ni crtati ni snimiti." },
-	"forkTabGestures": { "message": "Geste" }
+	"forkTabGestures": { "message": "Geste" },
+	"ctxMenuWheelNav": { "message": "Brza navigacija kotačićem" },
+	"ctxMenuWheelNavTooltip": { "message": "Dok držite tipku miša, pomičite kotačić za brzi odabir stavki izbornika." }
 }

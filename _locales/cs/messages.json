@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Opakování pauzou" },
 	"forkGestureRepeatPauseDesc": { "message": "Chvíli podržte myš na místě a pak pokračujte stejným směrem, tím se směr zopakuje, např. ↓ pauza ↓. Týká se jen gest přiřazených k opakovanému směru. 0 to vypne." },
 	"forkGestureRepeatOffNotice": { "message": "Obojí je vypnuto: opakovaná gesta jako ↓↓ nelze ani kreslit, ani zaznamenat." },
-	"forkTabGestures": { "message": "Gesta" }
+	"forkTabGestures": { "message": "Gesta" },
+	"ctxMenuWheelNav": { "message": "Rychlá navigace kolečkem" },
+	"ctxMenuWheelNavTooltip": { "message": "Během držení tlačítka myši procházejte položky nabídky posouváním kolečka." }
 }

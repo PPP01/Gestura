@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Repetir con pausa" },
 	"forkGestureRepeatPauseDesc": { "message": "Mantente quieto este tiempo y continúa en la misma dirección para repetirla, p. ej. ↓ pausa ↓. Solo importa para los gestos que asignes a una dirección repetida. 0 lo desactiva." },
 	"forkGestureRepeatOffNotice": { "message": "Ambas están desactivadas: los gestos repetidos como ↓↓ no se pueden dibujar ni grabar." },
-	"forkTabGestures": { "message": "Gestos" }
+	"forkTabGestures": { "message": "Gestos" },
+	"ctxMenuWheelNav": { "message": "Navegación rápida con la rueda" },
+	"ctxMenuWheelNavTooltip": { "message": "Mientras mantiene pulsado el botón del ratón, gire la rueda para seleccionar rápidamente los elementos del menú." }
 }

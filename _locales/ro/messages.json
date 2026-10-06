@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Repetare prin pauză" },
 	"forkGestureRepeatPauseDesc": { "message": "Rămâneți nemișcat atât timp, apoi continuați în aceeași direcție pentru a o repeta, de ex. ↓ pauză ↓. Contează doar pentru gesturile pe care le legați de o direcție repetată. 0 dezactivează." },
 	"forkGestureRepeatOffNotice": { "message": "Ambele sunt dezactivate: gesturile repetate precum ↓↓ nu pot fi nici desenate, nici înregistrate." },
-	"forkTabGestures": { "message": "Gesturi" }
+	"forkTabGestures": { "message": "Gesturi" },
+	"ctxMenuWheelNav": { "message": "Navigare rapidă cu rotița" },
+	"ctxMenuWheelNavTooltip": { "message": "În timp ce țineți apăsat butonul mouse-ului, derulați rotița pentru a selecta rapid elementele din meniu." }
 }

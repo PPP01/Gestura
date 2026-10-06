@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Lặp lại bằng tạm dừng" },
 	"forkGestureRepeatPauseDesc": { "message": "Giữ yên chừng này thời gian, rồi tiếp tục kéo cùng hướng để lặp lại, ví dụ ↓ tạm dừng ↓. Chỉ có tác dụng với các cử chỉ bạn gán cho hướng lặp lại. 0 là tắt." },
 	"forkGestureRepeatOffNotice": { "message": "Cả hai đều tắt: các cử chỉ lặp lại như ↓↓ không thể vẽ cũng không thể ghi." },
-	"forkTabGestures": { "message": "Cử chỉ" }
+	"forkTabGestures": { "message": "Cử chỉ" },
+	"ctxMenuWheelNav": { "message": "Điều hướng nhanh bằng con lăn" },
+	"ctxMenuWheelNavTooltip": { "message": "Trong khi giữ nút chuột, hãy cuộn con lăn để nhanh chóng chọn các mục menu." }
 }

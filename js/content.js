@@ -599,6 +599,9 @@ class ContentContextMenu {
 	#activeItems = null;
 	#activeIframe = null;
 	#switchHandler = null;
+	// Set while a wheel gesture drives the open menu. The menu frame is not ready
+	// to take wheel events until it has reported its size, so they queue up here.
+	#wheel = null;
 
 	updateSettings(s) {
 		this.#settings = { ...this.#settings, ...s };
@@ -619,6 +622,11 @@ class ContentContextMenu {
 					corner-shape: superellipse(1.4);
 					border-radius: calc(8px * 1.4);
 				}
+			}
+
+			/* Opened by a wheel gesture: show without fading in */
+			.fm-ctx-frame--wheel {
+				transition: none;
 			}
 
 			.fm-ctx-frame.fm-theme-dark {
@@ -724,6 +732,12 @@ class ContentContextMenu {
 		if (this.#settings.lang) url.searchParams.set('lang', this.#settings.lang);
 		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
 		url.searchParams.set('theme', theme);
+		const wheelDir = options?.wheelDir;
+		if (wheelDir != null) {
+			url.searchParams.set('wheel', String(Math.sign(wheelDir)));
+			iframe.classList.add('fm-ctx-frame--wheel');
+			this.#wheel = { ready: false, queue: [], activate: false };
+		}
 
 		try {
 			iframe.contentWindow.location = url.href;
@@ -787,6 +801,10 @@ class ContentContextMenu {
 				iframe.style.setProperty('top', Math.round(placedTop) + 'px', 'important');
 				iframe.style.setProperty('opacity', '1', 'important');
 				iframe.style.setProperty('pointer-events', 'auto', 'important');
+				if (this.#wheel) {
+					this.#wheel.ready = true;
+					this.#flushWheel();
+				}
 			}
 
 			if (request.action === 'ctxMenuSelect') {
@@ -815,6 +833,7 @@ class ContentContextMenu {
 			this.#activeItems = null;
 			this.#activeIframe = null;
 			this.#switchHandler = null;
+			this.#wheel = null;
 			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
 			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
 			host.cleanup();
@@ -830,6 +849,34 @@ class ContentContextMenu {
 
 	get currentMenuId() {
 		return this.#activeMenuId;
+	}
+
+	get isWheelNav() {
+		return this.#wheel !== null;
+	}
+
+	wheelNavigate(deltaY, deltaMode) {
+		if (!this.#wheel) return;
+		this.#wheel.queue.push({ deltaY, deltaMode });
+		this.#flushWheel();
+	}
+
+	// The right button went up: the menu picks the item the wheel stopped on.
+	wheelActivate() {
+		if (!this.#wheel) return;
+		this.#wheel.activate = true;
+		this.#flushWheel();
+	}
+
+	#flushWheel() {
+		const w = this.#wheel;
+		if (!w?.ready || (!w.queue.length && !w.activate)) return;
+		try {
+			this.#activeIframe?.contentWindow?.postMessage(
+				{ __gestura: 'ctxWheel', menuId: this.#activeMenuId, wheel: w.queue, activate: w.activate }, '*');
+		} catch { /* the frame is gone; the menu closes itself */ }
+		w.queue = [];
+		if (w.activate) this.#wheel = null;
 	}
 
 	close() {
@@ -3477,12 +3524,19 @@ window.ContentContextMenu = ContentContextMenu;
 				gestureState.isRightButton = false;
 				recognizer.reset();
 				wheelGestureTriggered = true;
-				executeAction(wheelConfig.action, wheelConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY }, gestureState.startTarget);
+				executeAction(wheelConfig.action, wheelConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY, wheelDir: 0 }, gestureState.startTarget);
 			}
 		}, { capture: true });
 
 		function handleWheelGesture(e) {
 			if (!(e.buttons & 2)) return;
+			// A menu the wheel opened is steered by the wheel from here on.
+			if (ctxMenu.isWheelNav) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				if (e.deltaY) ctxMenu.wheelNavigate(e.deltaY, e.deltaMode);
+				return;
+			}
 			if (recognizer.isActive()) return;
 			if (e.deltaY === 0) return;
 
@@ -3498,8 +3552,13 @@ window.ContentContextMenu = ContentContextMenu;
 			recognizer.reset();
 			wheelGestureTriggered = true;
 
-			executeAction(action, scrollConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY }, gestureState.startTarget);
+			executeAction(action, scrollConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY, wheelDir: Math.sign(e.deltaY) }, gestureState.startTarget);
 		}
+
+		// Letting go of the right button picks the item the wheel stopped on.
+		eventManager.add(isWheelGestureEnabled, window, 'mouseup', (e) => {
+			if (e.button === 2 && ctxMenu.isWheelNav) ctxMenu.wheelActivate();
+		}, { capture: true });
 
 		eventManager.add(isWheelGestureEnabled, window, 'auxclick', (e) => {
 			if (e.button === 1 && wheelGestureTriggered) {
@@ -3843,7 +3902,7 @@ window.ContentContextMenu = ContentContextMenu;
 							sortOrder: mergedConfig.sortOrder,
 							maxItems: mergedConfig.maxItems,
 						});
-						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
+						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom, wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						const result = await fetchPromise;
 						if (result?.success) {
 							const td = mergedConfig.timeDisplay || 'lastAccess';
@@ -3870,7 +3929,7 @@ window.ContentContextMenu = ContentContextMenu;
 							maxItems: mergedConfig.maxItems,
 							sortOrder: mergedConfig.sortOrder,
 						});
-						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
+						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom, wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						const result = await fetchPromise;
 						if (result?.success) {
 							const td = mergedConfig.timeDisplay || 'closedTime';
@@ -3895,7 +3954,7 @@ window.ContentContextMenu = ContentContextMenu;
 							sortOrder: mergedConfig.sortOrder,
 							maxItems: mergedConfig.maxItems,
 						});
-						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
+						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom, wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						const result = await fetchPromise;
 						if (result?.success) {
 							const position = mergedConfig.position || 'right';
@@ -3960,7 +4019,8 @@ window.ContentContextMenu = ContentContextMenu;
 											itemConfig.position = oc.position;
 											itemConfig.active = oc.active;
 										}
-										executeAction(it.action, itemConfig, cursor, startTarget);
+										// The right button is long up by now: whatever the entry opens is no wheel menu.
+										executeAction(it.action, itemConfig, { ...cursor, wheelDir: undefined }, startTarget);
 									}
 								};
 								if (it.action === 'searchLink') {
@@ -4016,7 +4076,7 @@ window.ContentContextMenu = ContentContextMenu;
 						const initial = buildMenu(initialResolved);
 						if (!initial) break;
 
-						ctxMenu.prepare(cursor.endX, cursor.endY);
+						ctxMenu.prepare(cursor.endX, cursor.endY, { wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						ctxMenu.setSwitcher((id) => {
 							// Umschalten zeigt immer die Standard-Version des Ziel-Menüs.
 							const resolved = resolveGestureMenu({ mode: 'standard', menuId: id });

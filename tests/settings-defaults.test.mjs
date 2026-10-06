@@ -46,9 +46,14 @@ describe("DEFAULT_SETTINGS", () => {
 		expect(DEFAULT_SETTINGS.enableWheelGestures).toBe(false);
 		expect(DEFAULT_SETTINGS.enableSpecialGestures).toBe(false);
 	});
+	it("every menu a wheel gesture can open is steered by the wheel unless switched off", () => {
+		for (const action of ["menuShowTabs", "menuRecentlyClosed", "menuShowBookmarks", "customMenu", "siteMenu"]) {
+			expect(globalThis.GestureConstants.ACTION_DEFAULTS[action].wheelNav, action).toBe(true);
+		}
+	});
 	it("customMenu is the private own-menu action; siteMenu covers the website menus (contextual default)", () => {
-		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ ownMenu: null });
-		expect(globalThis.GestureConstants.ACTION_DEFAULTS.siteMenu).toEqual({ mode: "contextual", menuId: "", fork: null });
+		expect(globalThis.GestureConstants.ACTION_DEFAULTS.customMenu).toEqual({ ownMenu: null, wheelNav: true });
+		expect(globalThis.GestureConstants.ACTION_DEFAULTS.siteMenu).toEqual({ mode: "contextual", menuId: "", fork: null, wheelNav: true });
 		expect(globalThis.GestureConstants.ACTION_KEYS.siteMenu).toBe("siteMenusTitle");
 		expect(globalThis.GestureConstants.LOCAL_ACTIONS.has("siteMenu")).toBe(true);
 	});

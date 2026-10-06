@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Duraklayarak tekrar" },
 	"forkGestureRepeatPauseDesc": { "message": "Bu süre kadar hareketsiz kal, sonra aynı yönde devam ederek tekrarla, örn. ↓ duraklama ↓. Yalnızca tekrarlanan bir yöne bağladığın jestlerde önemlidir. 0 kapatır." },
 	"forkGestureRepeatOffNotice": { "message": "İkisi de kapalı: ↓↓ gibi tekrarlanan jestler ne çizilebilir ne de kaydedilebilir." },
-	"forkTabGestures": { "message": "Jestler" }
+	"forkTabGestures": { "message": "Jestler" },
+	"ctxMenuWheelNav": { "message": "Hızlı tekerlek navigasyonu" },
+	"ctxMenuWheelNavTooltip": { "message": "Fare düğmesini basılı tutarken, menü öğelerini hızlıca seçmek için tekerleği kaydırın." }
 }

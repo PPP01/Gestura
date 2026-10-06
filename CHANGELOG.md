@@ -7,6 +7,15 @@
 
 ### Unreleased
 
+**New Features:**
+
+- **Wheel navigation in menus:** a menu opened by a wheel gesture (scroll up/down
+  or wheel click while holding the right button) is now steered with the wheel —
+  keep the right button down, scroll to move the highlight, release to pick the
+  item. Applies to the tabs, recently closed, bookmarks, own and website menus;
+  switch it off per gesture with "Quick wheel navigation". Ported from
+  FlowMouse v2.5.
+
 ### v2.9.0 (2026-10-05)
 
 **New Features:**

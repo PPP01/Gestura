@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Powtórzenie przez pauzę" },
 	"forkGestureRepeatPauseDesc": { "message": "Przytrzymaj kursor tak długo, a potem kontynuuj w tym samym kierunku, aby go powtórzyć, np. ↓ pauza ↓. Ma znaczenie tylko dla gestów przypisanych do powtórzonego kierunku. 0 wyłącza." },
 	"forkGestureRepeatOffNotice": { "message": "Oba są wyłączone: powtórzonych gestów, takich jak ↓↓, nie można ani narysować, ani nagrać." },
-	"forkTabGestures": { "message": "Gesty" }
+	"forkTabGestures": { "message": "Gesty" },
+	"ctxMenuWheelNav": { "message": "Szybka nawigacja kółkiem" },
+	"ctxMenuWheelNavTooltip": { "message": "Przytrzymując przycisk myszy, przewiń kółkiem, aby szybko wybrać pozycje menu." }
 }

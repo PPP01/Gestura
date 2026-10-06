@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "Toisto tauolla" },
 	"forkGestureRepeatPauseDesc": { "message": "Pysy paikallasi näin kauan ja jatka sitten samaan suuntaan toistaaksesi sen, esim. ↓ tauko ↓. Vaikuttaa vain eleisiin, jotka sidot toistettuun suuntaan. 0 poistaa käytöstä." },
 	"forkGestureRepeatOffNotice": { "message": "Molemmat ovat pois käytöstä: toistettuja eleitä, kuten ↓↓, ei voi piirtää eikä tallentaa." },
-	"forkTabGestures": { "message": "Eleet" }
+	"forkTabGestures": { "message": "Eleet" },
+	"ctxMenuWheelNav": { "message": "Nopea rullanavigointi" },
+	"ctxMenuWheelNavTooltip": { "message": "Pidä hiiren painiketta painettuna ja vieritä rullaa valitaksesi valikon kohteita nopeasti." }
 }

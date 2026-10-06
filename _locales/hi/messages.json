@@ -3107,5 +3107,7 @@
 	"forkGestureRepeatPause": { "message": "ठहराव से दोहराव" },
 	"forkGestureRepeatPauseDesc": { "message": "इतनी देर स्थिर रहें, फिर उसी दिशा में आगे बढ़ें तो वह दोहराई जाती है, जैसे ↓ ठहराव ↓। केवल उन जेस्चर के लिए मायने रखता है जिन्हें आप दोहराई गई दिशा से जोड़ते हैं। 0 इसे बंद कर देता है।" },
 	"forkGestureRepeatOffNotice": { "message": "दोनों बंद हैं: ↓↓ जैसे दोहराए गए जेस्चर न बनाए जा सकते हैं और न रिकॉर्ड किए जा सकते हैं।" },
-	"forkTabGestures": { "message": "जेस्चर" }
+	"forkTabGestures": { "message": "जेस्चर" },
+	"ctxMenuWheelNav": { "message": "त्वरित व्हील नेविगेशन" },
+	"ctxMenuWheelNavTooltip": { "message": "माउस बटन दबाए रखते हुए, मेनू आइटम को जल्दी से चुनने के लिए व्हील को स्क्रॉल करें।" }
 }
