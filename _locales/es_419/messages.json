@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Ambas están desactivadas: los gestos repetidos como ↓↓ no se pueden dibujar ni grabar." },
 	"forkTabGestures": { "message": "Gestos" },
 	"ctxMenuWheelNav": { "message": "Navegación rápida con la rueda" },
-	"ctxMenuWheelNavTooltip": { "message": "Mientras mantiene presionado el botón del mouse, gire la rueda para seleccionar rápidamente elementos del menú." }
+	"ctxMenuWheelNavTooltip": { "message": "Mientras mantiene presionado el botón del mouse, gire la rueda para seleccionar rápidamente elementos del menú." },
+	"actionReloadFrame": { "message": "Volver a cargar el marco" },
+	"actionViewFrameSource": { "message": "Ver código fuente del marco" }
 }

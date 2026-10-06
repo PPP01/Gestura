@@ -185,7 +185,7 @@ function asyncMessageHandler(asyncHandler) {
 
 const CONTENT_ACTIONS = new Set([
 	'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
-	'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent',
+	'stopLoading', 'reloadFrame', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent',
 	'simulateKey', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 	'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
 	'customMenu', 'siteMenu',
@@ -906,9 +906,12 @@ async function handleAction(request, sender) {
 			}
 			return { success: true };
 
-		case 'viewPageSource': {
-			if (sender.tab?.url) {
-				const url = 'view-source:' + sender.tab.url;
+		// The frame's own document for the gesture's frame, the tab's for the page.
+		case 'viewPageSource':
+		case 'viewFrameSource': {
+			const srcUrl = request.action === 'viewFrameSource' ? (sender.url || sender.tab?.url) : sender.tab?.url;
+			if (srcUrl) {
+				const url = 'view-source:' + srcUrl;
 				const pos = request.position || 'right';
 				if (pos === 'newWindow') {
 					await openInNewWindow(url, request.active !== false, sender.tab?.incognito);

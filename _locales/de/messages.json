@@ -3261,5 +3261,7 @@
 	"showTrailArrow": { "message": "Pfeilspitze" },
 	"enableTrailGlow": { "message": "Leuchten" },
 	"ctxMenuWheelNav": { "message": "Schnelle Mausrad-Navigation" },
-	"ctxMenuWheelNavTooltip": { "message": "Halten Sie die Maustaste gedrückt und scrollen Sie mit dem Rad, um schnell Menüpunkte auszuwählen." }
+	"ctxMenuWheelNavTooltip": { "message": "Halten Sie die Maustaste gedrückt und scrollen Sie mit dem Rad, um schnell Menüpunkte auszuwählen." },
+	"actionReloadFrame": { "message": "Frame neu laden" },
+	"actionViewFrameSource": { "message": "Frame-Quelltext anzeigen" }
 }

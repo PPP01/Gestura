@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Entrambi sono disattivati: i gesti ripetuti come ↓↓ non possono essere né disegnati né registrati." },
 	"forkTabGestures": { "message": "Gesti" },
 	"ctxMenuWheelNav": { "message": "Navigazione rapida con la rotellina" },
-	"ctxMenuWheelNavTooltip": { "message": "Mentre tieni premuto il pulsante del mouse, scorri la rotellina per selezionare rapidamente le voci di menu." }
+	"ctxMenuWheelNavTooltip": { "message": "Mentre tieni premuto il pulsante del mouse, scorri la rotellina per selezionare rapidamente le voci di menu." },
+	"actionReloadFrame": { "message": "Ricarica frame" },
+	"actionViewFrameSource": { "message": "Visualizza sorgente frame" }
 }

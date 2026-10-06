@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "兩者皆已關閉：像 ↓↓ 這樣的重複手勢既無法繪製，也無法錄製。" },
 	"forkTabGestures": { "message": "手勢" },
 	"ctxMenuWheelNav": { "message": "滾輪快速導航" },
-	"ctxMenuWheelNavTooltip": { "message": "按住滑鼠按鍵時，滾動滾輪即可快速選擇選單中的項目。" }
+	"ctxMenuWheelNavTooltip": { "message": "按住滑鼠按鍵時，滾動滾輪即可快速選擇選單中的項目。" },
+	"actionReloadFrame": { "message": "重新載入框架" },
+	"actionViewFrameSource": { "message": "檢視框架原始碼" }
 }

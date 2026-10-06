@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "দুটোই বন্ধ: ↓↓-এর মতো পুনরাবৃত্ত জেসচার আঁকা বা রেকর্ড করা কোনোটাই যাবে না।" },
 	"forkTabGestures": { "message": "জেসচার" },
 	"ctxMenuWheelNav": { "message": "দ্রুত হুইল নেভিগেশন" },
-	"ctxMenuWheelNavTooltip": { "message": "মাউসের বোতাম চেপে ধরে থাকা অবস্থায়, মেনু আইটেমগুলি দ্রুত নির্বাচন করতে হুইল স্ক্রোল করুন।" }
+	"ctxMenuWheelNavTooltip": { "message": "মাউসের বোতাম চেপে ধরে থাকা অবস্থায়, মেনু আইটেমগুলি দ্রুত নির্বাচন করতে হুইল স্ক্রোল করুন।" },
+	"actionReloadFrame": { "message": "ফ্রেমটি পুনরায় লোড করুন" },
+	"actionViewFrameSource": { "message": "ফ্রেমের উৎস দেখুন" }
 }

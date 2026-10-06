@@ -85,6 +85,8 @@ const ACTION_ICONS = {
 	'zoomOut': 'zoomOut',
 	'resetZoom': 'searchX',
 	'viewPageSource': 'fileCode',
+	'viewFrameSource': 'squareCode',
+	'reloadFrame': 'refreshCw',
 	'pauseGesture': 'circlePause',
 	'menuShowTabs': 'layoutList',
 	'menuRecentlyClosed': 'history',
@@ -134,7 +136,7 @@ const ACTION_CATEGORIES = [
 	{ key: 'actionCategoryContextMenu', icon: 'menu', actions: ['menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks', 'siteMenu', 'customMenu', 'addSiteToMenu'] },
 	{ key: 'actionCategoryTabs', icon: 'panelTop', actions: ['newTab', 'closeTab', 'refresh', 'refreshAllTabs', 'switchLeftTab', 'switchRightTab', 'switchFirstTab', 'switchLastTab', 'closeOtherTabs', 'closeLeftTabs', 'closeRightTabs', 'closeAllTabs', 'switchLastActiveTab', 'restoreTab', 'duplicateTab', 'togglePinTab', 'moveTabToNewWindow'] },
 	{ key: 'actionCategoryWindow', icon: 'appWindow', actions: ['newWindow', 'newIncognito', 'toggleFullscreen', 'toggleMaximize', 'minimize', 'closeWindow', 'closeBrowser'] },
-	{ key: 'actionCategoryUtilities', icon: 'wrench', actions: ['addToBookmarks', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'openCustomUrl', 'openDownloads', 'openHistory', 'openExtensions', 'openOptionsPage', 'zoomIn', 'zoomOut', 'resetZoom', 'toggleMuteTab', 'toggleMuteAllTabs', 'stopLoading', 'stopAllLoading', 'printPage', 'saveAsMhtml', 'viewPageSource', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink', 'pauseGesture', 'simulateKey', 'sendCustomEvent', 'sendExtensionMessage', 'areaSelect'] },
+	{ key: 'actionCategoryUtilities', icon: 'wrench', actions: ['addToBookmarks', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'openCustomUrl', 'openDownloads', 'openHistory', 'openExtensions', 'openOptionsPage', 'zoomIn', 'zoomOut', 'resetZoom', 'toggleMuteTab', 'toggleMuteAllTabs', 'stopLoading', 'stopAllLoading', 'printPage', 'saveAsMhtml', 'viewPageSource', 'viewFrameSource', 'reloadFrame', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink', 'pauseGesture', 'simulateKey', 'sendCustomEvent', 'sendExtensionMessage', 'areaSelect'] },
 ];
 
 class ActionSelect extends LitElement {
@@ -1912,7 +1914,7 @@ class ActionSelect extends LitElement {
 				</label>
 			`;
 		}
-		if (action === 'viewPageSource') {
+		if (action === 'viewPageSource' || action === 'viewFrameSource') {
 			return this.#renderPositionSelect(true, true, false);
 		}
 		if (action === 'copyTitleAndUrl') {

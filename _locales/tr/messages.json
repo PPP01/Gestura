@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "İkisi de kapalı: ↓↓ gibi tekrarlanan jestler ne çizilebilir ne de kaydedilebilir." },
 	"forkTabGestures": { "message": "Jestler" },
 	"ctxMenuWheelNav": { "message": "Hızlı tekerlek navigasyonu" },
-	"ctxMenuWheelNavTooltip": { "message": "Fare düğmesini basılı tutarken, menü öğelerini hızlıca seçmek için tekerleği kaydırın." }
+	"ctxMenuWheelNavTooltip": { "message": "Fare düğmesini basılı tutarken, menü öğelerini hızlıca seçmek için tekerleği kaydırın." },
+	"actionReloadFrame": { "message": "Çerçeveyi yeniden yükle" },
+	"actionViewFrameSource": { "message": "Çerçeve kaynağını görüntüle" }
 }

@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Molemmat ovat pois käytöstä: toistettuja eleitä, kuten ↓↓, ei voi piirtää eikä tallentaa." },
 	"forkTabGestures": { "message": "Eleet" },
 	"ctxMenuWheelNav": { "message": "Nopea rullanavigointi" },
-	"ctxMenuWheelNavTooltip": { "message": "Pidä hiiren painiketta painettuna ja vieritä rullaa valitaksesi valikon kohteita nopeasti." }
+	"ctxMenuWheelNavTooltip": { "message": "Pidä hiiren painiketta painettuna ja vieritä rullaa valitaksesi valikon kohteita nopeasti." },
+	"actionReloadFrame": { "message": "Lataa kehys uudelleen" },
+	"actionViewFrameSource": { "message": "Näytä kehyksen lähdekoodi" }
 }

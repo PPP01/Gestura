@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Oba su isključena: ponovljene geste poput ↓↓ ne mogu se ni crtati ni snimiti." },
 	"forkTabGestures": { "message": "Geste" },
 	"ctxMenuWheelNav": { "message": "Brza navigacija kotačićem" },
-	"ctxMenuWheelNavTooltip": { "message": "Dok držite tipku miša, pomičite kotačić za brzi odabir stavki izbornika." }
+	"ctxMenuWheelNavTooltip": { "message": "Dok držite tipku miša, pomičite kotačić za brzi odabir stavki izbornika." },
+	"actionReloadFrame": { "message": "Ponovno učitaj okvir" },
+	"actionViewFrameSource": { "message": "Prikaži izvorni kod okvira" }
 }

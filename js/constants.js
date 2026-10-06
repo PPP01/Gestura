@@ -96,6 +96,8 @@
 		'searchClipboard': 'actionSearchClipboard',
 		'searchLink': 'actionSearchLink',
 		'viewPageSource': 'actionViewPageSource',
+		'viewFrameSource': 'actionViewFrameSource',
+		'reloadFrame': 'actionReloadFrame',
 		'pauseGesture': 'actionPauseGesture',
 		'areaSelect': 'actionAreaSelect',
 		'menuShowTabs': 'actionMenuShowTabs',
@@ -146,6 +148,7 @@
 		zoomOut: { zoomMode: 'browser', zoomDelta: 10 },
 		resetZoom: { resetZoomLevel: 0 },
 		viewPageSource: { position: 'right', active: true },
+		viewFrameSource: { position: 'right', active: true },
 		menuShowTabs: { sortOrder: 'default', maxItems: 0, scrollToBottom: false, timeDisplay: 'lastAccess', wheelNav: true },
 		menuRecentlyClosed: { maxItems: 12, sortOrder: 'default', scrollToBottom: false, timeDisplay: 'closedTime', wheelNav: true },
 		menuShowBookmarks: { folderId: { id: '1' }, position: 'right', active: true, incognito: false, sortOrder: 'default', maxItems: 30, scrollToBottom: false, timeDisplay: 'dateAdded', wheelNav: true },
@@ -159,7 +162,7 @@
 
 	const LOCAL_ACTIONS = new Set([
 		'none', 'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
-		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent', 'simulateKey',
+		'stopLoading', 'reloadFrame', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent', 'simulateKey',
 		'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 		'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
 		'customMenu', 'siteMenu',

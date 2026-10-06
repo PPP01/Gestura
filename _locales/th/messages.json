@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "ปิดทั้งสองอย่าง: ท่าทางซ้ำเช่น ↓↓ จะวาดหรือบันทึกไม่ได้" },
 	"forkTabGestures": { "message": "ท่าทาง" },
 	"ctxMenuWheelNav": { "message": "การนำทางอย่างรวดเร็วด้วยลูกกลิ้งเมาส์" },
-	"ctxMenuWheelNavTooltip": { "message": "ขณะกดปุ่มเมาส์ค้างไว้ ให้เลื่อนลูกกลิ้งเพื่อเลือกรายการเมนูอย่างรวดเร็ว" }
+	"ctxMenuWheelNavTooltip": { "message": "ขณะกดปุ่มเมาส์ค้างไว้ ให้เลื่อนลูกกลิ้งเพื่อเลือกรายการเมนูอย่างรวดเร็ว" },
+	"actionReloadFrame": { "message": "โหลดเฟรมซ้ำ" },
+	"actionViewFrameSource": { "message": "ดูซอร์สโค้ดของเฟรม" }
 }

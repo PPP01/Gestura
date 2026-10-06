@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Обидва вимкнено: повторювані жести, як-от ↓↓, неможливо ні намалювати, ні записати." },
 	"forkTabGestures": { "message": "Жести" },
 	"ctxMenuWheelNav": { "message": "Швидка навігація коліщатком" },
-	"ctxMenuWheelNavTooltip": { "message": "Утримуючи кнопку миші, прокрутіть коліщатко для швидкого вибору пунктів меню." }
+	"ctxMenuWheelNavTooltip": { "message": "Утримуючи кнопку миші, прокрутіть коліщатко для швидкого вибору пунктів меню." },
+	"actionReloadFrame": { "message": "Перезавантажити фрейм" },
+	"actionViewFrameSource": { "message": "Переглянути код фрейму" }
 }

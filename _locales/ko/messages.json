@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "둘 다 꺼져 있습니다. ↓↓ 같은 반복 제스처는 그릴 수도, 기록할 수도 없습니다." },
 	"forkTabGestures": { "message": "제스처" },
 	"ctxMenuWheelNav": { "message": "휠 빠른 탐색" },
-	"ctxMenuWheelNavTooltip": { "message": "마우스 버튼을 누른 상태에서 휠을 스크롤하여 메뉴 항목을 빠르게 선택합니다." }
+	"ctxMenuWheelNavTooltip": { "message": "마우스 버튼을 누른 상태에서 휠을 스크롤하여 메뉴 항목을 빠르게 선택합니다." },
+	"actionReloadFrame": { "message": "프레임 새로고침" },
+	"actionViewFrameSource": { "message": "프레임 소스 보기" }
 }

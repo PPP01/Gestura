@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Les deux sont désactivées : les gestes répétés comme ↓↓ ne peuvent être ni tracés ni enregistrés." },
 	"forkTabGestures": { "message": "Gestes" },
 	"ctxMenuWheelNav": { "message": "Navigation rapide à la molette" },
-	"ctxMenuWheelNavTooltip": { "message": "Tout en maintenant le bouton de la souris enfoncé, faites défiler la molette pour sélectionner rapidement des éléments du menu." }
+	"ctxMenuWheelNavTooltip": { "message": "Tout en maintenant le bouton de la souris enfoncé, faites défiler la molette pour sélectionner rapidement des éléments du menu." },
+	"actionReloadFrame": { "message": "Recharger le cadre" },
+	"actionViewFrameSource": { "message": "Afficher le code source du cadre" }
 }

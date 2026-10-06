@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Kedua-duanya mati: gerak isyarat berulang seperti ↓↓ tidak boleh dilukis mahupun dirakam." },
 	"forkTabGestures": { "message": "Gerak isyarat" },
 	"ctxMenuWheelNav": { "message": "Navigasi pantas roda tetikus" },
-	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan butang tetikus, tatal roda untuk memilih item menu dengan pantas." }
+	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan butang tetikus, tatal roda untuk memilih item menu dengan pantas." },
+	"actionReloadFrame": { "message": "Muat semula bingkai" },
+	"actionViewFrameSource": { "message": "Lihat sumber bingkai" }
 }

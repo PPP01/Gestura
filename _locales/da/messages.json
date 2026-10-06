@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Begge er slået fra: Gentagne bevægelser som ↓↓ kan hverken tegnes eller optages." },
 	"forkTabGestures": { "message": "Bevægelser" },
 	"ctxMenuWheelNav": { "message": "Hurtig hjulnavigation" },
-	"ctxMenuWheelNavTooltip": { "message": "Hold museknappen nede og rul på hjulet for hurtigt at vælge menupunkter." }
+	"ctxMenuWheelNavTooltip": { "message": "Hold museknappen nede og rul på hjulet for hurtigt at vælge menupunkter." },
+	"actionReloadFrame": { "message": "Genindlæs ramme" },
+	"actionViewFrameSource": { "message": "Vis kildekode for ramme" }
 }

@@ -18,6 +18,8 @@
 - **Close Tab can keep the tab:** "Preserve tabs (unload page content)" for the
   Close Tab gesture, as the batch close gestures already have. The focus moves
   on to the neighbouring tab. From FlowMouse v2.4.1.
+- **Reload Frame** and **View Frame Source** gestures: act on the iframe the
+  gesture started in instead of the whole tab. From FlowMouse v2.5.
 
 **Fixes:**
 

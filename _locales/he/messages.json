@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "שניהם כבויים: מחוות חוזרות כמו ↓↓ אי אפשר לצייר ולא להקליט." },
 	"forkTabGestures": { "message": "מחוות" },
 	"ctxMenuWheelNav": { "message": "ניווט מהיר בגלגלת" },
-	"ctxMenuWheelNavTooltip": { "message": "תוך כדי לחיצה ממושכת על לחצן העכבר, גלול את הגלגלת כדי לבחור במהירות פריטי תפריט." }
+	"ctxMenuWheelNavTooltip": { "message": "תוך כדי לחיצה ממושכת על לחצן העכבר, גלול את הגלגלת כדי לבחור במהירות פריטי תפריט." },
+	"actionReloadFrame": { "message": "טען מסגרת מחדש" },
+	"actionViewFrameSource": { "message": "הצג מקור מסגרת" }
 }

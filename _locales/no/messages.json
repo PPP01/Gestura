@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Begge er av: gjentatte bevegelser som ↓↓ kan verken tegnes eller tas opp." },
 	"forkTabGestures": { "message": "Bevegelser" },
 	"ctxMenuWheelNav": { "message": "Rask musehjulnavigering" },
-	"ctxMenuWheelNavTooltip": { "message": "Hold nede museknappen og rull med hjulet for å raskt velge menyelementer." }
+	"ctxMenuWheelNavTooltip": { "message": "Hold nede museknappen og rull med hjulet for å raskt velge menyelementer." },
+	"actionReloadFrame": { "message": "Last inn rammen på nytt" },
+	"actionViewFrameSource": { "message": "Vis kildekode for rammen" }
 }

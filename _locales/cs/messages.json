@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Obojí je vypnuto: opakovaná gesta jako ↓↓ nelze ani kreslit, ani zaznamenat." },
 	"forkTabGestures": { "message": "Gesta" },
 	"ctxMenuWheelNav": { "message": "Rychlá navigace kolečkem" },
-	"ctxMenuWheelNavTooltip": { "message": "Během držení tlačítka myši procházejte položky nabídky posouváním kolečka." }
+	"ctxMenuWheelNavTooltip": { "message": "Během držení tlačítka myši procházejte položky nabídky posouváním kolečka." },
+	"actionReloadFrame": { "message": "Znovu načíst rámec" },
+	"actionViewFrameSource": { "message": "Zobrazit zdrojový kód rámce" }
 }

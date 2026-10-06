@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Båda är avstängda: upprepade gester som ↓↓ kan varken ritas eller spelas in." },
 	"forkTabGestures": { "message": "Gester" },
 	"ctxMenuWheelNav": { "message": "Snabb hjulnavigering" },
-	"ctxMenuWheelNavTooltip": { "message": "Håll ner musknappen och rulla hjulet för att snabbt välja menyalternativ." }
+	"ctxMenuWheelNavTooltip": { "message": "Håll ner musknappen och rulla hjulet för att snabbt välja menyalternativ." },
+	"actionReloadFrame": { "message": "Ladda om ram" },
+	"actionViewFrameSource": { "message": "Visa ramens källkod" }
 }

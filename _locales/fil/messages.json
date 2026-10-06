@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Parehong naka-off: hindi maiguhit o marekord ang mga inuulit na galaw gaya ng ↓↓." },
 	"forkTabGestures": { "message": "Mga galaw" },
 	"ctxMenuWheelNav": { "message": "Mabilis na nabigasyon ng wheel" },
-	"ctxMenuWheelNavTooltip": { "message": "Habang nakapindot ang mouse button, i-scroll ang wheel para mabilis na pumili ng mga item sa menu." }
+	"ctxMenuWheelNavTooltip": { "message": "Habang nakapindot ang mouse button, i-scroll ang wheel para mabilis na pumili ng mga item sa menu." },
+	"actionReloadFrame": { "message": "I-reload ang frame" },
+	"actionViewFrameSource": { "message": "Tingnan ang source ng frame" }
 }

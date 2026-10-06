@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "どちらもオフです。↓↓ のような繰り返しジェスチャーは、描くことも記録することもできません。" },
 	"forkTabGestures": { "message": "ジェスチャー" },
 	"ctxMenuWheelNav": { "message": "ホイールのクイックナビゲーション" },
-	"ctxMenuWheelNavTooltip": { "message": "マウスボタンを押したままホイールをスクロールすると、メニュー項目をすばやく選択できます。" }
+	"ctxMenuWheelNavTooltip": { "message": "マウスボタンを押したままホイールをスクロールすると、メニュー項目をすばやく選択できます。" },
+	"actionReloadFrame": { "message": "フレームを再読み込み" },
+	"actionViewFrameSource": { "message": "フレームのソースを表示" }
 }

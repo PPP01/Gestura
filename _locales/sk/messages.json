@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Obe sú vypnuté: opakované gestá ako ↓↓ nemožno ani nakresliť, ani zaznamenať." },
 	"forkTabGestures": { "message": "Gestá" },
 	"ctxMenuWheelNav": { "message": "Rýchla navigácia kolieskom" },
-	"ctxMenuWheelNavTooltip": { "message": "Počas držania tlačidla myši posúvajte kolieskom, aby ste rýchlo vybrali položky ponuky." }
+	"ctxMenuWheelNavTooltip": { "message": "Počas držania tlačidla myši posúvajte kolieskom, aby ste rýchlo vybrali položky ponuky." },
+	"actionReloadFrame": { "message": "Znova načítať rámec" },
+	"actionViewFrameSource": { "message": "Zobraziť zdrojový kód rámca" }
 }

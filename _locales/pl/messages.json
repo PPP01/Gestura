@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Oba są wyłączone: powtórzonych gestów, takich jak ↓↓, nie można ani narysować, ani nagrać." },
 	"forkTabGestures": { "message": "Gesty" },
 	"ctxMenuWheelNav": { "message": "Szybka nawigacja kółkiem" },
-	"ctxMenuWheelNavTooltip": { "message": "Przytrzymując przycisk myszy, przewiń kółkiem, aby szybko wybrać pozycje menu." }
+	"ctxMenuWheelNavTooltip": { "message": "Przytrzymując przycisk myszy, przewiń kółkiem, aby szybko wybrać pozycje menu." },
+	"actionReloadFrame": { "message": "Ponownie załaduj ramkę" },
+	"actionViewFrameSource": { "message": "Wyświetl źródło ramki" }
 }

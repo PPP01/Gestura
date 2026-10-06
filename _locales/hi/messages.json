@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "दोनों बंद हैं: ↓↓ जैसे दोहराए गए जेस्चर न बनाए जा सकते हैं और न रिकॉर्ड किए जा सकते हैं।" },
 	"forkTabGestures": { "message": "जेस्चर" },
 	"ctxMenuWheelNav": { "message": "त्वरित व्हील नेविगेशन" },
-	"ctxMenuWheelNavTooltip": { "message": "माउस बटन दबाए रखते हुए, मेनू आइटम को जल्दी से चुनने के लिए व्हील को स्क्रॉल करें।" }
+	"ctxMenuWheelNavTooltip": { "message": "माउस बटन दबाए रखते हुए, मेनू आइटम को जल्दी से चुनने के लिए व्हील को स्क्रॉल करें।" },
+	"actionReloadFrame": { "message": "फ़्रेम को फिर से लोड करें" },
+	"actionViewFrameSource": { "message": "फ़्रेम का स्रोत देखें" }
 }

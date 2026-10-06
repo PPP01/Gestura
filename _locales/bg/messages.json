@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "И двете са изключени: повторени жестове като ↓↓ не могат нито да се чертаят, нито да се записват." },
 	"forkTabGestures": { "message": "Жестове" },
 	"ctxMenuWheelNav": { "message": "Бърза навигация с колелцето" },
-	"ctxMenuWheelNavTooltip": { "message": "Докато задържате бутона на мишката, превъртете колелцето, за да изберете бързо елементи от менюто." }
+	"ctxMenuWheelNavTooltip": { "message": "Докато задържате бутона на мишката, превъртете колелцето, за да изберете бързо елементи от менюто." },
+	"actionReloadFrame": { "message": "Презареждане на рамката" },
+	"actionViewFrameSource": { "message": "Преглед на изходния код на рамката" }
 }

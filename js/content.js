@@ -3758,6 +3758,7 @@ window.ContentContextMenu = ContentContextMenu;
 						handleScroll(action, scrollConfig, false, cursor.startX, cursor.startY);
 						break;
 					case 'stopLoading': window.stop(); break;
+					case 'reloadFrame': location.reload(); break;
 					case 'copyUrl': {
 						const { url } = await tabInfo();
 						copyText(url);
@@ -4167,7 +4168,7 @@ window.ContentContextMenu = ContentContextMenu;
 					msg_obj.active = mergedConfig.active !== false;
 				} else if (action === 'newWindow') {
 					msg_obj.focused = mergedConfig.focused !== false;
-				} else if (action === 'viewPageSource') {
+				} else if (action === 'viewPageSource' || action === 'viewFrameSource') {
 					msg_obj.position = mergedConfig.position || 'right';
 					msg_obj.active = mergedConfig.active !== false;
 				} else if (action === 'zoomIn' || action === 'zoomOut') {

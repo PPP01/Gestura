@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Mindkettő ki van kapcsolva: az ismételt gesztusok, például a ↓↓, nem rajzolhatók és nem rögzíthetők." },
 	"forkTabGestures": { "message": "Gesztusok" },
 	"ctxMenuWheelNav": { "message": "Gyors navigáció görgővel" },
-	"ctxMenuWheelNavTooltip": { "message": "Az egérgomb nyomva tartása közben görgessen a görgővel a menüpontok gyors kiválasztásához." }
+	"ctxMenuWheelNavTooltip": { "message": "Az egérgomb nyomva tartása közben görgessen a görgővel a menüpontok gyors kiválasztásához." },
+	"actionReloadFrame": { "message": "Keret újratöltése" },
+	"actionViewFrameSource": { "message": "Keret forráskódjának megtekintése" }
 }

@@ -3109,5 +3109,7 @@
 	"forkGestureRepeatOffNotice": { "message": "Оба су искључена: поновљени гестови као што је ↓↓ не могу се ни цртати ни снимити." },
 	"forkTabGestures": { "message": "Гестови" },
 	"ctxMenuWheelNav": { "message": "Брза навигација точкићем" },
-	"ctxMenuWheelNavTooltip": { "message": "Док држите дугме миша, скролујте точкићем да бисте брзо изабрали ставке менија." }
+	"ctxMenuWheelNavTooltip": { "message": "Док држите дугме миша, скролујте точкићем да бисте брзо изабрали ставке менија." },
+	"actionReloadFrame": { "message": "Поново учитај оквир" },
+	"actionViewFrameSource": { "message": "Прикажи изворни код оквира" }
 }
