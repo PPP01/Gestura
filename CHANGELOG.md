@@ -31,6 +31,9 @@
 - Opening a link, search or custom URL in incognito from a normal window reuses an
   incognito window that is already open instead of creating a new one each time.
   "New window" still opens a window of its own. From FlowMouse v2.5.
+- A scroll gesture that cannot scroll (already at the edge) no longer leaves a
+  phantom target behind, so the next scroll the other way starts from where the
+  page really is. From FlowMouse v2.5.
 
 ### v2.9.0 (2026-10-05)
 

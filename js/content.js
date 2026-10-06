@@ -454,7 +454,7 @@
 
 	function handleScroll(action, scrollConfig, forceTargetWindow = false, cursorX, cursorY) {
 		const meta = SCROLL_ACTIONS[action];
-		if (!meta) return;
+		if (!meta) return false;
 		const ax = AXES[meta.axis];
 		const target = getScrollTarget(action, forceTargetWindow, cursorX, cursorY);
 		const smoothness = resolveScrollSmoothness(scrollConfig.scrollSmoothness);
@@ -489,8 +489,12 @@
 		}
 
 		cancelEaseScroll();
+
+		// Nothing to scroll (already at the edge): remember no goal either, or the
+		// next gesture in the other direction starts from a position never reached.
+		if (Math.abs(cur - goal) <= 1) return false;
+
 		scrollGoals.set(target, { [meta.axis]: goal });
-		if (cur === goal) return;
 
 		if (smoothness === 'none') {
 			scrollGoals.delete(target);
@@ -507,6 +511,7 @@
 		} else {
 			easeScrollTo(target, meta.axis, goal, unclampedGoal, scrollConfig.scrollDuration ?? 500);
 		}
+		return true;
 	}
 
 
