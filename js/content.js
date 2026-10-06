@@ -3771,13 +3771,26 @@ window.ContentContextMenu = ContentContextMenu;
 		function ownMenuCfg(config) {
 			return { mode: 'own', ownMenu: (config || {}).ownMenu || null };
 		}
+		// The page a website menu is chosen for is the tab's, not the frame's: a
+		// gesture inside an iframe (a listing's description, an embedded widget)
+		// would otherwise match the iframe's own URL and miss the menu of the site
+		// the user is looking at. The worker knows the tab URL; an iframe keeps the
+		// last answer so the synchronous callers (the HUD label) have one.
+		let tabUrlCache = null;
+		async function refreshTabUrl() {
+			if (!isIframe) return;
+			const info = await safeSendMessage({ action: 'getTabInfo' });
+			if (info?.success && info.url) tabUrlCache = info.url;
+		}
+		if (isIframe) refreshTabUrl();
+
 		function resolveGestureMenu(cfg) {
 			if (!window.FlowMouseMenuCatalog || !window.FlowMouseMenuModel) return null;
 			return window.FlowMouseMenuModel.resolveMenu(
 				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG,
 				SETTINGS.siteMenus,
 				cfg,
-				{ url: location.href, matchesPatterns: window.FlowMouseSearchUrl.matchesPatterns }
+				{ url: (isIframe && tabUrlCache) || location.href, matchesPatterns: window.FlowMouseSearchUrl.matchesPatterns }
 			);
 		}
 
@@ -4182,6 +4195,10 @@ window.ContentContextMenu = ContentContextMenu;
 							return { items: buildItems(appended), switcher: buildSwitcher(appended) };
 						};
 
+						// Wait for the tab URL only when there is none yet: an await here
+						// would let a wheel gesture's next event slip in before the menu exists.
+						if (isIframe && !tabUrlCache) await refreshTabUrl();
+						else refreshTabUrl();
 						const initialResolved = resolveGestureMenu(gestureCfg);
 						const initial = buildMenu(initialResolved);
 						if (!initial) break;
