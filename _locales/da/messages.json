@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Tilsidesæt globale indstillinger" },
 	"areaSelectUseGlobal": { "message": "Brug globale indstillinger" },
 	"wheelThreshold": { "message": "Hjuludløserafstand" },
-	"wheelThresholdDesc": { "message": "Rulning med musehjulet skal nå denne afstand for gentagne gange at udløse hjulbevægelser" }
+	"wheelThresholdDesc": { "message": "Rulning med musehjulet skal nå denne afstand for gentagne gange at udløse hjulbevægelser" },
+	"gestureRecorderAny": { "message": "Tilføj wildcard-bevægelse" },
+	"fallbackGestureTip": { "message": "Udløses, når det tegnede spor ikke matcher nogen anden bevægelse" }
 }

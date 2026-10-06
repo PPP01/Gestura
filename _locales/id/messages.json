@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Timpa pengaturan global" },
 	"areaSelectUseGlobal": { "message": "Gunakan pengaturan global" },
 	"wheelThreshold": { "message": "Jarak Pemicu Roda" },
-	"wheelThresholdDesc": { "message": "Pengguliran roda mouse harus mencapai jarak ini untuk memicu gestur roda berulang kali" }
+	"wheelThresholdDesc": { "message": "Pengguliran roda mouse harus mencapai jarak ini untuk memicu gestur roda berulang kali" },
+	"gestureRecorderAny": { "message": "Tambahkan gestur untuk pola tak dikenali" },
+	"fallbackGestureTip": { "message": "Terpicu ketika jejak yang digambar tidak cocok dengan gestur lainnya" }
 }

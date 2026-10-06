@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import '../js/gesture-binding.js';
-const { collapse, resolve, suggestionBase } = globalThis.GestureBinding;
+const { ANY, collapse, resolve, suggestionBase } = globalThis.GestureBinding;
 
 const lookupIn = (map) => (p) => map[p];
 const activeIn = (map) => (p) => !!map[p] && map[p].action !== 'none';
@@ -58,6 +58,46 @@ describe('resolve', () => {
 		const r = resolve('↓↓', lookup);
 		expect(r.effectivePattern).toBe('↓');
 		expect(r.binding).toBe(lists['↓']);
+	});
+});
+
+describe('resolve with an any entry', () => {
+	const any = { action: 'copyUrl' };
+
+	it('takes a pattern that has no entry of its own', () => {
+		const r = resolve('↑→↓', lookupIn({ '*': any }));
+		expect(r).toEqual({ rawPattern: '↑→↓', effectivePattern: '*', binding: any });
+		expect(ANY).toBe('*');
+	});
+
+	it('prefers the pattern itself, then its collapsed form, over the any entry', () => {
+		const m = { '↓': { action: 'scrollDown' }, '*': any };
+		expect(resolve('↓', lookupIn(m)).binding).toBe(m['↓']);
+		expect(resolve('↓↓', lookupIn(m)).effectivePattern).toBe('↓');
+	});
+
+	it('lets an entry with action none block the any entry as well', () => {
+		const r = resolve('←', lookupIn({ '←': { action: 'none' }, '*': any }));
+		expect(r.effectivePattern).toBe('←');
+		expect(r.binding).toEqual({ action: 'none' });
+	});
+
+	it('ignores an any entry that does nothing', () => {
+		const m = { '*': { action: 'none' } };
+		const isActive = (b) => b.action !== 'none';
+		expect(resolve('←', lookupIn(m), isActive)).toEqual({ rawPattern: '←', effectivePattern: '←', binding: undefined });
+	});
+
+	it('works with drag-style list lookups', () => {
+		const lists = { '*': [{ direction: '*', action: 'search' }] };
+		const lookup = (p) => (lists[p]?.length ? lists[p] : undefined);
+		const r = resolve('↑', lookup, (cs) => cs.some(c => c.action !== 'none'));
+		expect(r.effectivePattern).toBe('*');
+		expect(r.binding).toBe(lists['*']);
+	});
+
+	it('does not resolve an empty pattern to the any entry', () => {
+		expect(resolve('', lookupIn({ '*': any })).binding).toBeUndefined();
 	});
 });
 

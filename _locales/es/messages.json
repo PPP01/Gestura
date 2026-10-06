@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Anular configuración global" },
 	"areaSelectUseGlobal": { "message": "Usar configuración global" },
 	"wheelThreshold": { "message": "Distancia de activación de la rueda" },
-	"wheelThresholdDesc": { "message": "El desplazamiento de la rueda del ratón debe alcanzar esta distancia para activar gestos de la rueda repetidamente" }
+	"wheelThresholdDesc": { "message": "El desplazamiento de la rueda del ratón debe alcanzar esta distancia para activar gestos de la rueda repetidamente" },
+	"gestureRecorderAny": { "message": "Añadir gesto comodín" },
+	"fallbackGestureTip": { "message": "Se activa cuando el trazo dibujado no coincide con ningún otro gesto" }
 }

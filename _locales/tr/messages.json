@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Genel ayarları geçersiz kıl" },
 	"areaSelectUseGlobal": { "message": "Genel ayarları kullan" },
 	"wheelThreshold": { "message": "Tekerlek Tetikleme Mesafesi" },
-	"wheelThresholdDesc": { "message": "Tekerlek hareketlerinin art arda tetiklenebilmesi için fare tekerleği kaydırmasının bu mesafeye ulaşması gerekir" }
+	"wheelThresholdDesc": { "message": "Tekerlek hareketlerinin art arda tetiklenebilmesi için fare tekerleği kaydırmasının bu mesafeye ulaşması gerekir" },
+	"gestureRecorderAny": { "message": "Eşleşmeyen desenler için hareket ekle" },
+	"fallbackGestureTip": { "message": "Çizilen iz başka hiçbir hareketle eşleşmediğinde tetiklenir" }
 }

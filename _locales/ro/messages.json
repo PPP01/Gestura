@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Suprascrieți setările globale" },
 	"areaSelectUseGlobal": { "message": "Utilizați setările globale" },
 	"wheelThreshold": { "message": "Distanța de declanșare a rotiței" },
-	"wheelThresholdDesc": { "message": "Derularea rotiței mouse-ului trebuie să atingă această distanță pentru a declanșa repetat gesturile cu rotița" }
+	"wheelThresholdDesc": { "message": "Derularea rotiței mouse-ului trebuie să atingă această distanță pentru a declanșa repetat gesturile cu rotița" },
+	"gestureRecorderAny": { "message": "Adaugă un gest pentru modele nerecunoscute" },
+	"fallbackGestureTip": { "message": "Se declanșează când urma desenată nu se potrivește cu niciun alt gest" }
 }

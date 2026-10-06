@@ -180,6 +180,12 @@ class DragGestureManager extends LitElement {
 				margin-top: 8px;
 				margin-inline: auto;
 			}
+			.drag-add-group {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 8px;
+			}
 			.configure-btn svg {
 				transform: translateY(1px);
 			}
@@ -221,7 +227,16 @@ class DragGestureManager extends LitElement {
 			<div class="drag-rows-container">
 				${dragGestures.map((cfg, index) => this.#renderRow(cfg, index, dragGestures.length))}
 			</div>
-			<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addRow}>${unsafeHTML(icon('plus', { strokeWidth: 2 }))}</button>
+			<div class="drag-add-group">
+				<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addRow}>${unsafeHTML(icon('plus', { strokeWidth: 2 }))}</button>
+				${this.advancedMode && !this.dragGestures.some(g => g.direction === '*') ? html`
+					<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addFallback}
+						.tooltip=${tooltip(window.i18n.getMessage('fallbackGestureTip'))}>
+						<span class="gesture-icon-wrap">${unsafeHTML(window.GestureConstants.arrowsToSvg('*'))}</span>
+						<span>${window.i18n.getMessage('gestureRecorderAny')}</span>
+					</button>
+				` : ''}
+			</div>
 			<gesture-recorder id="dragRecorder" data-gesture-ignore></gesture-recorder>
 			<event-config-dialog id="eventConfigDialog"></event-config-dialog>
 		`;
@@ -506,7 +521,8 @@ class DragGestureManager extends LitElement {
 	async #changeDirection(index) {
 		const recorder = this.shadowRoot.getElementById('dragRecorder');
 		if (!recorder) return;
-		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig });
+		const taken = this.dragGestures.map((g, i) => i === index ? null : g.direction).filter(Boolean);
+		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig, bannedPatterns: taken, allowAny: this.advancedMode && !taken.includes('*') });
 		if (result.cancelled || !result.pattern) return;
 		this.#updateRow(index, 'direction', result.pattern);
 	}
@@ -530,6 +546,15 @@ class DragGestureManager extends LitElement {
 		const action = this.type === 'text' ? 'search' : 'openTab';
 		const dragGestures = structuredClone(this.dragGestures);
 		dragGestures.push({ direction, action, simple: true });
+		this.#dispatchChange(dragGestures);
+	}
+
+	// The fallback row: it runs for a drag that no other row of this type matches.
+	#addFallback() {
+		if (this.dragGestures.some(g => g.direction === '*')) return;
+		const action = this.type === 'text' ? 'search' : 'openTab';
+		const dragGestures = structuredClone(this.dragGestures);
+		dragGestures.push({ direction: '*', action, simple: true });
 		this.#dispatchChange(dragGestures);
 	}
 

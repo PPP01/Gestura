@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Prepiši globalne postavke" },
 	"areaSelectUseGlobal": { "message": "Koristi globalne postavke" },
 	"wheelThreshold": { "message": "Udaljenost okidanja kotačića" },
-	"wheelThresholdDesc": { "message": "Pomicanje kotačića miša mora dosegnuti ovu udaljenost da bi se više puta pokrenule geste kotačićem" }
+	"wheelThresholdDesc": { "message": "Pomicanje kotačića miša mora dosegnuti ovu udaljenost da bi se više puta pokrenule geste kotačićem" },
+	"gestureRecorderAny": { "message": "Dodaj gestu za neprepoznate uzorke" },
+	"fallbackGestureTip": { "message": "Pokreće se kada nacrtani trag ne odgovara nijednoj drugoj gesti" }
 }

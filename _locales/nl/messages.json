@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Globale instellingen overschrijven" },
 	"areaSelectUseGlobal": { "message": "Globale instellingen gebruiken" },
 	"wheelThreshold": { "message": "Activeringsafstand muiswiel" },
-	"wheelThresholdDesc": { "message": "Het scrollen met het muiswiel moet deze afstand bereiken om wielgebaren herhaaldelijk te activeren" }
+	"wheelThresholdDesc": { "message": "Het scrollen met het muiswiel moet deze afstand bereiken om wielgebaren herhaaldelijk te activeren" },
+	"gestureRecorderAny": { "message": "Fallback-gebaar toevoegen" },
+	"fallbackGestureTip": { "message": "Wordt geactiveerd wanneer het getekende spoor niet overeenkomt met een ander gebaar" }
 }

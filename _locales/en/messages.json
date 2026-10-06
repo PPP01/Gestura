@@ -3335,5 +3335,7 @@
 	"areaSelectOverrideGlobal": { "message": "Override global settings" },
 	"areaSelectUseGlobal": { "message": "Use global settings" },
 	"wheelThreshold": { "message": "Wheel Trigger Distance" },
-	"wheelThresholdDesc": { "message": "Mouse wheel scrolling must reach this distance to repeatedly trigger wheel gestures" }
+	"wheelThresholdDesc": { "message": "Mouse wheel scrolling must reach this distance to repeatedly trigger wheel gestures" },
+	"gestureRecorderAny": { "message": "Add Fallback Gesture" },
+	"fallbackGestureTip": { "message": "Triggers when the drawn trail doesn't match any other gesture" }
 }

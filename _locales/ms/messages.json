@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Ganti tetapan global" },
 	"areaSelectUseGlobal": { "message": "Gunakan tetapan global" },
 	"wheelThreshold": { "message": "Jarak Pencetus Roda" },
-	"wheelThresholdDesc": { "message": "Penatalan roda tetikus mesti mencapai jarak ini untuk mencetuskan gerak isyarat roda secara berulang" }
+	"wheelThresholdDesc": { "message": "Penatalan roda tetikus mesti mencapai jarak ini untuk mencetuskan gerak isyarat roda secara berulang" },
+	"gestureRecorderAny": { "message": "Tambah gerak isyarat untuk corak tidak dikenali" },
+	"fallbackGestureTip": { "message": "Dicetuskan apabila jejak yang dilukis tidak sepadan dengan mana-mana gerak isyarat lain" }
 }

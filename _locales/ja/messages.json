@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "グローバル設定を上書きする" },
 	"areaSelectUseGlobal": { "message": "グローバル設定を使用する" },
 	"wheelThreshold": { "message": "ホイールトリガー距離" },
-	"wheelThresholdDesc": { "message": "ホイールジェスチャーを繰り返しトリガーするには、マウスホイールのスクロールがこの距離に達する必要があります" }
+	"wheelThresholdDesc": { "message": "ホイールジェスチャーを繰り返しトリガーするには、マウスホイールのスクロールがこの距離に達する必要があります" },
+	"gestureRecorderAny": { "message": "フォールバックジェスチャーを追加" },
+	"fallbackGestureTip": { "message": "描かれた軌跡が他のどのジェスチャーにも一致しない場合にトリガーされます" }
 }

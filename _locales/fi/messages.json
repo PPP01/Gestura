@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Ohita yleiset asetukset" },
 	"areaSelectUseGlobal": { "message": "Käytä yleisiä asetuksia" },
 	"wheelThreshold": { "message": "Rullan laukaisuetäisyys" },
-	"wheelThresholdDesc": { "message": "Hiiren rullan vierityksen on saavutettava tämä etäisyys laukaistakseen rullan eleitä toistuvasti" }
+	"wheelThresholdDesc": { "message": "Hiiren rullan vierityksen on saavutettava tämä etäisyys laukaistakseen rullan eleitä toistuvasti" },
+	"gestureRecorderAny": { "message": "Lisää jokeriele" },
+	"fallbackGestureTip": { "message": "Käynnistyy, kun piirretty jälki ei vastaa mitään muuta elettä" }
 }

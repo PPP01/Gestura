@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Zastąp ustawienia globalne" },
 	"areaSelectUseGlobal": { "message": "Użyj ustawień globalnych" },
 	"wheelThreshold": { "message": "Dystans wyzwalania kółka" },
-	"wheelThresholdDesc": { "message": "Przewijanie kółkiem myszy musi osiągnąć ten dystans, aby wielokrotnie wyzwalać gesty kółkiem" }
+	"wheelThresholdDesc": { "message": "Przewijanie kółkiem myszy musi osiągnąć ten dystans, aby wielokrotnie wyzwalać gesty kółkiem" },
+	"gestureRecorderAny": { "message": "Dodaj gest wieloznaczny" },
+	"fallbackGestureTip": { "message": "Uruchamia się, gdy narysowany ślad nie pasuje do żadnego innego gestu" }
 }

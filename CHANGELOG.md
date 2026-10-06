@@ -20,6 +20,11 @@
   event of a scroll still fires at once; a notch of a mouse wheel is one step,
   a trackpad swipe a few instead of dozens. Default 30 px, 0 fires on every
   event. From FlowMouse v2.5.
+- **Fallback gesture for drags** (advanced): a drag row for "any direction" that runs
+  when no other row of that drag type matches. The recorder offers it as "Add
+  Fallback Gesture". A pattern that has a row of its own, even one set to "none",
+  never falls through to it. The stored `*` entry works for mouse gestures too,
+  but the gesture list does not offer it there yet. From FlowMouse v2.5.
 - **Close Tab can keep the tab:** "Preserve tabs (unload page content)" for the
   Close Tab gesture, as the batch close gestures already have. The focus moves
   on to the neighbouring tab. From FlowMouse v2.4.1.

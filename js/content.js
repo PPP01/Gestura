@@ -2394,7 +2394,7 @@ window.ContentContextMenu = ContentContextMenu;
 			return window.GestureBinding.resolve(pattern, (p) => {
 				const configs = getDragGestureConfigs(gestures, p);
 				return configs.length ? configs : undefined;
-			}).effectivePattern;
+			}, (configs) => configs.some(g => g.action && g.action !== 'none')).effectivePattern;
 		}
 
 		let SETTINGS = {
@@ -2445,7 +2445,7 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		function resolveMouseGesture(pattern) {
-			return window.GestureBinding.resolve(pattern, lookupMouseBinding);
+			return window.GestureBinding.resolve(pattern, lookupMouseBinding, (b) => !!b.action && b.action !== 'none');
 		}
 
 		function getBindingName(binding) {
@@ -2504,6 +2504,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const base = window.GestureBinding.suggestionBase(rawPattern, patterns, isActive);
 			const suggestions = [];
 			for (const pattern of patterns) {
+				if (pattern === window.GestureBinding.ANY) continue;
 				if (!pattern.startsWith(base)) continue;
 				if (pattern.length !== base.length + 1) continue;
 				// Direct lookup, no fallback: suggestions list stored patterns as they are.

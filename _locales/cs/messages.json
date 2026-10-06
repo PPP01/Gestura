@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Přepsat globální nastavení" },
 	"areaSelectUseGlobal": { "message": "Použít globální nastavení" },
 	"wheelThreshold": { "message": "Vzdálenost pro spuštění kolečkem" },
-	"wheelThresholdDesc": { "message": "Posouvání kolečkem myši musí dosáhnout této vzdálenosti, aby se opakovaně spouštěla gesta kolečkem" }
+	"wheelThresholdDesc": { "message": "Posouvání kolečkem myši musí dosáhnout této vzdálenosti, aby se opakovaně spouštěla gesta kolečkem" },
+	"gestureRecorderAny": { "message": "Přidat zástupné gesto" },
+	"fallbackGestureTip": { "message": "Spustí se, když se nakreslená stopa neshoduje s žádným jiným gestem" }
 }

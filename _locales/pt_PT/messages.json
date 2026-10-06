@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Substituir definições globais" },
 	"areaSelectUseGlobal": { "message": "Usar definições globais" },
 	"wheelThreshold": { "message": "Distância de ativação da roda" },
-	"wheelThresholdDesc": { "message": "O deslocamento da roda do rato deve atingir esta distância para acionar gestos da roda repetidamente" }
+	"wheelThresholdDesc": { "message": "O deslocamento da roda do rato deve atingir esta distância para acionar gestos da roda repetidamente" },
+	"gestureRecorderAny": { "message": "Adicionar gesto curinga" },
+	"fallbackGestureTip": { "message": "Dispara quando o traço desenhado não corresponde a nenhum outro gesto" }
 }

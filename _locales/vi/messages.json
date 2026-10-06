@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "Ghi đè cài đặt chung" },
 	"areaSelectUseGlobal": { "message": "Sử dụng cài đặt chung" },
 	"wheelThreshold": { "message": "Khoảng cách kích hoạt con lăn" },
-	"wheelThresholdDesc": { "message": "Thao tác cuộn con lăn chuột phải đạt đến khoảng cách này để liên tục kích hoạt cử chỉ con lăn" }
+	"wheelThresholdDesc": { "message": "Thao tác cuộn con lăn chuột phải đạt đến khoảng cách này để liên tục kích hoạt cử chỉ con lăn" },
+	"gestureRecorderAny": { "message": "Thêm cử chỉ cho mẫu không khớp" },
+	"fallbackGestureTip": { "message": "Kích hoạt khi vệt được vẽ không khớp với bất kỳ cử chỉ nào khác" }
 }

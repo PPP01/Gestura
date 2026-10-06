@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "تجاوز الإعدادات العامة" },
 	"areaSelectUseGlobal": { "message": "استخدام الإعدادات العامة" },
 	"wheelThreshold": { "message": "مسافة تحفيز العجلة" },
-	"wheelThresholdDesc": { "message": "يجب تمرير عجلة الماوس لهذه المسافة لتشغيل إيماءات العجلة بشكل متكرر" }
+	"wheelThresholdDesc": { "message": "يجب تمرير عجلة الماوس لهذه المسافة لتشغيل إيماءات العجلة بشكل متكرر" },
+	"gestureRecorderAny": { "message": "إضافة إيماءة للأنماط غير المطابقة" },
+	"fallbackGestureTip": { "message": "يتم التشغيل عندما لا يتطابق المسار المرسوم مع أي إيماءة أخرى" }
 }

@@ -3121,5 +3121,7 @@
 	"areaSelectOverrideGlobal": { "message": "I-override ang pangkalahatang mga setting" },
 	"areaSelectUseGlobal": { "message": "Gamitin ang pangkalahatang mga setting" },
 	"wheelThreshold": { "message": "Distansya ng Pag-trigger ng Wheel" },
-	"wheelThresholdDesc": { "message": "Ang pag-scroll ng mouse wheel ay dapat umabot sa distansyang ito upang paulit-ulit na ma-trigger ang mga wheel gesture" }
+	"wheelThresholdDesc": { "message": "Ang pag-scroll ng mouse wheel ay dapat umabot sa distansyang ito upang paulit-ulit na ma-trigger ang mga wheel gesture" },
+	"gestureRecorderAny": { "message": "Magdagdag ng wildcard na galaw" },
+	"fallbackGestureTip": { "message": "Nagsisimula kapag ang iginuhit na bakas ay hindi tumutugma sa anumang iba pang galaw" }
 }
