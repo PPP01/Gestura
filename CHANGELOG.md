@@ -15,6 +15,15 @@
   item. Applies to the tabs, recently closed, bookmarks, own and website menus;
   switch it off per gesture with "Quick wheel navigation". Ported from
   FlowMouse v2.5.
+- **Close Tab can keep the tab:** "Preserve tabs (unload page content)" for the
+  Close Tab gesture, as the batch close gestures already have. The focus moves
+  on to the neighbouring tab. From FlowMouse v2.4.1.
+
+**Fixes:**
+
+- Close Tab with "after closing: left/right" no longer wraps around to the far
+  end of the window when the closed tab was the first or last one; the
+  neighbour on the other side takes over. From FlowMouse v2.5.
 
 ### v2.9.0 (2026-10-05)
 

@@ -297,25 +297,38 @@ async function handleAction(request, sender) {
 				}
 				const tabs = await chrome.tabs.query({ windowId: sender.tab.windowId });
 				const currentPos = tabs.findIndex(t => t.id === sender.tab.id);
-				const afterClose = request.afterClose || 'default';
+				let afterClose = request.afterClose || 'default';
 
-				if (request.keepWindow && tabs.length === 1) {
+				// A discarded tab stays in the strip, so the focus has to move on
+				// by itself: to the right, or to the left from the last tab.
+				if (request.preserveTab && afterClose === 'default') {
+					afterClose = currentPos === tabs.length - 1 ? 'left' : 'right';
+				}
+
+				if (!request.preserveTab && request.keepWindow && tabs.length === 1) {
 					await chrome.tabs.create({ active: true, windowId: sender.tab.windowId });
 				}
 
 				if (afterClose !== 'default' && tabs.length > 1 && currentPos !== -1) {
+					// At the end of the strip the neighbour on the other side takes
+					// over; wrapping around to the far end would jump across the window.
 					let targetPos;
 					if (afterClose === 'left') {
-						targetPos = currentPos > 0 ? currentPos - 1 : tabs.length - 1;
+						targetPos = currentPos > 0 ? currentPos - 1 : currentPos + 1;
 					} else if (afterClose === 'right') {
-						targetPos = currentPos < tabs.length - 1 ? currentPos + 1 : 0;
+						targetPos = currentPos < tabs.length - 1 ? currentPos + 1 : currentPos - 1;
 					}
 					if (targetPos !== undefined) {
 						await chrome.tabs.update(tabs[targetPos].id, { active: true });
 					}
 				}
 
-				await chrome.tabs.remove(sender.tab.id);
+				if (request.preserveTab) {
+					if (tabs.length <= 1 || sender.tab.discarded) return { success: false };
+					await chrome.tabs.discard(sender.tab.id);
+				} else {
+					await chrome.tabs.remove(sender.tab.id);
+				}
 			}
 			return { success: true };
 		}

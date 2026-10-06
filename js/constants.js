@@ -106,7 +106,7 @@
 	};
 
 	const ACTION_DEFAULTS = {
-		closeTab: { keepWindow: false, afterClose: 'default', skipPinned: false },
+		closeTab: { keepWindow: false, afterClose: 'default', skipPinned: false, preserveTab: false },
 		closeOtherTabs: { skipPinned: true, preserveTab: false },
 		closeLeftTabs: { skipPinned: true, preserveTab: false },
 		closeRightTabs: { skipPinned: true, preserveTab: false },

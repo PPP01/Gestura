@@ -4103,6 +4103,7 @@ window.ContentContextMenu = ContentContextMenu;
 					msg_obj.keepWindow = !!mergedConfig.keepWindow;
 					msg_obj.afterClose = mergedConfig.afterClose || 'default';
 					msg_obj.skipPinned = !!mergedConfig.skipPinned;
+					msg_obj.preserveTab = !!mergedConfig.preserveTab;
 				} else if (action === 'closeOtherTabs' || action === 'closeLeftTabs' || action === 'closeRightTabs') {
 					msg_obj.skipPinned = !!mergedConfig.skipPinned;
 					msg_obj.preserveTab = !!mergedConfig.preserveTab;
