@@ -3271,5 +3271,7 @@
 	"areaSelectCopyOne": { "message": "%count% Link kopieren" },
 	"areaSelectOpenCount": { "message": "%count% Links öffnen" },
 	"areaSelectOverrideGlobal": { "message": "Globale Einstellungen überschreiben" },
-	"areaSelectUseGlobal": { "message": "Globale Einstellungen verwenden" }
+	"areaSelectUseGlobal": { "message": "Globale Einstellungen verwenden" },
+	"wheelThreshold": { "message": "Auslösedistanz des Mausrads" },
+	"wheelThresholdDesc": { "message": "Das Scrollen des Mausrads muss diese Distanz erreichen, um Radgesten wiederholt auszulösen" }
 }

@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "คัดลอก %count% ลิงก์" },
 	"areaSelectOpenCount": { "message": "เปิด %count% ลิงก์" },
 	"areaSelectOverrideGlobal": { "message": "ลบล้างการตั้งค่าส่วนกลาง" },
-	"areaSelectUseGlobal": { "message": "ใช้การตั้งค่าส่วนกลาง" }
+	"areaSelectUseGlobal": { "message": "ใช้การตั้งค่าส่วนกลาง" },
+	"wheelThreshold": { "message": "ระยะกระตุ้นลูกกลิ้ง" },
+	"wheelThresholdDesc": { "message": "การเลื่อนลูกกลิ้งเมาส์จะต้องไปถึงระยะนี้เพื่อทริกเกอร์ท่าทางลูกกลิ้งอย่างต่อเนื่อง" }
 }

@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "%count%টি লিঙ্ক কপি করুন" },
 	"areaSelectOpenCount": { "message": "%count%টি লিঙ্ক খুলুন" },
 	"areaSelectOverrideGlobal": { "message": "গ্লোবাল সেটিংস ওভাররাইড করুন" },
-	"areaSelectUseGlobal": { "message": "গ্লোবাল সেটিংস ব্যবহার করুন" }
+	"areaSelectUseGlobal": { "message": "গ্লোবাল সেটিংস ব্যবহার করুন" },
+	"wheelThreshold": { "message": "হুইল ট্রিগার দূরত্ব" },
+	"wheelThresholdDesc": { "message": "হুইল জেসচার বারবার ট্রিগার করতে মাউস হুইল স্ক্রোলিং অবশ্যই এই দূরত্বে পৌঁছাতে হবে" }
 }

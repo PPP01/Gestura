@@ -81,6 +81,7 @@
 		wheelGestures: 'record',
 		enableSpecialGestures: 'scalar',
 		specialGestures: 'record',
+		wheelThreshold: 'scalar',
 		areaSelectModifierKey: 'scalar',
 		areaSelectTextUrl: 'scalar',
 		areaSelectAutoAction: 'scalar',

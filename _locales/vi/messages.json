@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Sao chép %count% liên kết" },
 	"areaSelectOpenCount": { "message": "Mở %count% liên kết" },
 	"areaSelectOverrideGlobal": { "message": "Ghi đè cài đặt chung" },
-	"areaSelectUseGlobal": { "message": "Sử dụng cài đặt chung" }
+	"areaSelectUseGlobal": { "message": "Sử dụng cài đặt chung" },
+	"wheelThreshold": { "message": "Khoảng cách kích hoạt con lăn" },
+	"wheelThresholdDesc": { "message": "Thao tác cuộn con lăn chuột phải đạt đến khoảng cách này để liên tục kích hoạt cử chỉ con lăn" }
 }

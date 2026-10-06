@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Αντιγραφή %count% συνδέσμου" },
 	"areaSelectOpenCount": { "message": "Άνοιγμα %count% συνδέσμων" },
 	"areaSelectOverrideGlobal": { "message": "Παράκαμψη καθολικών ρυθμίσεων" },
-	"areaSelectUseGlobal": { "message": "Χρήση καθολικών ρυθμίσεων" }
+	"areaSelectUseGlobal": { "message": "Χρήση καθολικών ρυθμίσεων" },
+	"wheelThreshold": { "message": "Απόσταση ενεργοποίησης ροδέλας" },
+	"wheelThresholdDesc": { "message": "Η κύλιση της ροδέλας του ποντικιού πρέπει να φτάσει σε αυτήν την απόσταση για να ενεργοποιούνται επανειλημμένα οι χειρονομίες ροδέλας" }
 }

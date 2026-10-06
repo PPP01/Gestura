@@ -3333,5 +3333,7 @@
 	"areaSelectCopyOne": { "message": "Copy %count% link" },
 	"areaSelectOpenCount": { "message": "Open %count% links" },
 	"areaSelectOverrideGlobal": { "message": "Override global settings" },
-	"areaSelectUseGlobal": { "message": "Use global settings" }
+	"areaSelectUseGlobal": { "message": "Use global settings" },
+	"wheelThreshold": { "message": "Wheel Trigger Distance" },
+	"wheelThresholdDesc": { "message": "Mouse wheel scrolling must reach this distance to repeatedly trigger wheel gestures" }
 }

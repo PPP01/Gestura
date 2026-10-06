@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Kopírovat %count% odkaz" },
 	"areaSelectOpenCount": { "message": "Otevřít %count% odkazů" },
 	"areaSelectOverrideGlobal": { "message": "Přepsat globální nastavení" },
-	"areaSelectUseGlobal": { "message": "Použít globální nastavení" }
+	"areaSelectUseGlobal": { "message": "Použít globální nastavení" },
+	"wheelThreshold": { "message": "Vzdálenost pro spuštění kolečkem" },
+	"wheelThresholdDesc": { "message": "Posouvání kolečkem myši musí dosáhnout této vzdálenosti, aby se opakovaně spouštěla gesta kolečkem" }
 }

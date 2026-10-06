@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { WheelAccumulator } from '../js/wheel-accumulator.js';
+import '../js/wheel-accumulator.js';
+const WheelAccumulator = globalThis.GesturaWheelAccumulator;
 
 describe('WheelAccumulator', () => {
 	it('lets the first event of a scroll through at once', () => {
@@ -48,6 +49,13 @@ describe('WheelAccumulator', () => {
 		const w = new WheelAccumulator(30);
 		w.step(1, 2, 0);
 		expect(w.step(1, 2, 10)).toBe(true);
+	});
+
+	it('follows a threshold that changes while it is in use', () => {
+		const w = new WheelAccumulator(30);
+		w.step(10, 0, 0);
+		w.threshold = 5;
+		expect(w.step(10, 0, 10)).toBe(true);
 	});
 
 	it('forgets its state on reset', () => {

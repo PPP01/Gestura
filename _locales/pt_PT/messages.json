@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Copiar %count% link" },
 	"areaSelectOpenCount": { "message": "Abrir %count% links" },
 	"areaSelectOverrideGlobal": { "message": "Substituir definições globais" },
-	"areaSelectUseGlobal": { "message": "Usar definições globais" }
+	"areaSelectUseGlobal": { "message": "Usar definições globais" },
+	"wheelThreshold": { "message": "Distância de ativação da roda" },
+	"wheelThresholdDesc": { "message": "O deslocamento da roda do rato deve atingir esta distância para acionar gestos da roda repetidamente" }
 }

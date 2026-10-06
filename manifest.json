@@ -47,6 +47,7 @@
                 "js/gesture-visual.js",
                 "js/gesture-recognizer.js",
                 "js/gesture-binding.js",
+                "js/wheel-accumulator.js",
                 "js/search-url.js",
                 "js/search-engines-catalog.js",
                 "js/engine-registry.js",

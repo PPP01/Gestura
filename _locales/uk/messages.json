@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Копіювати %count% посилання" },
 	"areaSelectOpenCount": { "message": "Відкрити %count% посилань" },
 	"areaSelectOverrideGlobal": { "message": "Перевизначити глобальні налаштування" },
-	"areaSelectUseGlobal": { "message": "Використовувати глобальні налаштування" }
+	"areaSelectUseGlobal": { "message": "Використовувати глобальні налаштування" },
+	"wheelThreshold": { "message": "Дистанція спрацьовування коліщатка" },
+	"wheelThresholdDesc": { "message": "Прокручування коліщатком миші має досягти цієї дистанції для багаторазового спрацьовування жестів коліщатком" }
 }

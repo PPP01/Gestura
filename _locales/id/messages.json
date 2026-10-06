@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Salin %count% tautan" },
 	"areaSelectOpenCount": { "message": "Buka %count% tautan" },
 	"areaSelectOverrideGlobal": { "message": "Timpa pengaturan global" },
-	"areaSelectUseGlobal": { "message": "Gunakan pengaturan global" }
+	"areaSelectUseGlobal": { "message": "Gunakan pengaturan global" },
+	"wheelThreshold": { "message": "Jarak Pemicu Roda" },
+	"wheelThresholdDesc": { "message": "Pengguliran roda mouse harus mencapai jarak ini untuk memicu gestur roda berulang kali" }
 }

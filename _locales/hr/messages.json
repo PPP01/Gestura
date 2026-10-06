@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Kopiraj %count% poveznicu" },
 	"areaSelectOpenCount": { "message": "Otvori %count% poveznica" },
 	"areaSelectOverrideGlobal": { "message": "Prepiši globalne postavke" },
-	"areaSelectUseGlobal": { "message": "Koristi globalne postavke" }
+	"areaSelectUseGlobal": { "message": "Koristi globalne postavke" },
+	"wheelThreshold": { "message": "Udaljenost okidanja kotačića" },
+	"wheelThresholdDesc": { "message": "Pomicanje kotačića miša mora dosegnuti ovu udaljenost da bi se više puta pokrenule geste kotačićem" }
 }

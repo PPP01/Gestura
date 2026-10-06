@@ -597,6 +597,7 @@ class ContentContextMenu {
 		isRtl: false,
 		customCss: '',
 		menuTheme: 'auto',
+		wheelThreshold: 30,
 	};
 
 	#activeMenuClose = null;
@@ -740,6 +741,7 @@ class ContentContextMenu {
 		const wheelDir = options?.wheelDir;
 		if (wheelDir != null) {
 			url.searchParams.set('wheel', String(Math.sign(wheelDir)));
+			url.searchParams.set('wt', String(this.#settings.wheelThreshold));
 			iframe.classList.add('fm-ctx-frame--wheel');
 			this.#wheel = { ready: false, queue: [], activate: false };
 		}
@@ -2593,7 +2595,7 @@ window.ContentContextMenu = ContentContextMenu;
 						lang,
 						isRtl
 					});
-					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss, menuTheme: SETTINGS.customMenuTheme });
+					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss, menuTheme: SETTINGS.customMenuTheme, wheelThreshold: SETTINGS.wheelThreshold });
 				}
 
 				eventManager.update();
@@ -3619,6 +3621,8 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		}, { capture: true });
 
+		const wheelTrigger = new window.GesturaWheelAccumulator(DEFAULT_SETTINGS.wheelThreshold);
+
 		function handleWheelGesture(e) {
 			if (!(e.buttons & 2)) return;
 			// A menu the wheel opened is steered by the wheel from here on.
@@ -3638,6 +3642,10 @@ window.ContentContextMenu = ContentContextMenu;
 
 			e.preventDefault();
 			e.stopImmediatePropagation();
+			// The wheel has to travel the trigger distance before it fires again;
+			// the first event of a scroll fires at once.
+			wheelTrigger.threshold = SETTINGS.wheelThreshold;
+			if (!wheelTrigger.step(e.deltaY, e.deltaMode, e.timeStamp)) return;
 			gestureState.preventContextMenu = true;
 			gestureState.isRightButton = false;
 			recognizer.reset();
@@ -3648,7 +3656,9 @@ window.ContentContextMenu = ContentContextMenu;
 
 		// Letting go of the right button picks the item the wheel stopped on.
 		eventManager.add(isWheelGestureEnabled, window, 'mouseup', (e) => {
-			if (e.button === 2 && ctxMenu.isWheelNav) ctxMenu.wheelActivate();
+			if (e.button !== 2) return;
+			wheelTrigger.reset();
+			if (ctxMenu.isWheelNav) ctxMenu.wheelActivate();
 		}, { capture: true });
 
 		eventManager.add(isWheelGestureEnabled, window, 'auxclick', (e) => {

@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "%count% 個のリンクをコピー" },
 	"areaSelectOpenCount": { "message": "%count% 個のリンクを開く" },
 	"areaSelectOverrideGlobal": { "message": "グローバル設定を上書きする" },
-	"areaSelectUseGlobal": { "message": "グローバル設定を使用する" }
+	"areaSelectUseGlobal": { "message": "グローバル設定を使用する" },
+	"wheelThreshold": { "message": "ホイールトリガー距離" },
+	"wheelThresholdDesc": { "message": "ホイールジェスチャーを繰り返しトリガーするには、マウスホイールのスクロールがこの距離に達する必要があります" }
 }

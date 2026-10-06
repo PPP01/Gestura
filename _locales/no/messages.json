@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Kopier %count% lenke" },
 	"areaSelectOpenCount": { "message": "Åpne %count% lenker" },
 	"areaSelectOverrideGlobal": { "message": "Overstyr globale innstillinger" },
-	"areaSelectUseGlobal": { "message": "Bruk globale innstillinger" }
+	"areaSelectUseGlobal": { "message": "Bruk globale innstillinger" },
+	"wheelThreshold": { "message": "Utløseravstand for hjul" },
+	"wheelThresholdDesc": { "message": "Rullingen med musehjulet må nå denne avstanden for å utløse hjulbevegelser gjentatte ganger" }
 }

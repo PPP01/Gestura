@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "کپی %count% پیوند" },
 	"areaSelectOpenCount": { "message": "باز کردن %count% پیوند" },
 	"areaSelectOverrideGlobal": { "message": "لغو تنظیمات سراسری" },
-	"areaSelectUseGlobal": { "message": "استفاده از تنظیمات سراسری" }
+	"areaSelectUseGlobal": { "message": "استفاده از تنظیمات سراسری" },
+	"wheelThreshold": { "message": "فاصله راه‌اندازی چرخ" },
+	"wheelThresholdDesc": { "message": "پیمایش چرخ ماوس باید به این فاصله برسد تا حرکات چرخ به طور مکرر اجرا شوند" }
 }

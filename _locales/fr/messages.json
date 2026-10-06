@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Copier %count% lien" },
 	"areaSelectOpenCount": { "message": "Ouvrir %count% liens" },
 	"areaSelectOverrideGlobal": { "message": "Remplacer les paramètres globaux" },
-	"areaSelectUseGlobal": { "message": "Utiliser les paramètres globaux" }
+	"areaSelectUseGlobal": { "message": "Utiliser les paramètres globaux" },
+	"wheelThreshold": { "message": "Distance de déclenchement de la molette" },
+	"wheelThresholdDesc": { "message": "Le défilement de la molette de la souris doit atteindre cette distance pour déclencher des gestes de la molette de façon répétée" }
 }

@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Copiați %count% link" },
 	"areaSelectOpenCount": { "message": "Deschideți %count% linkuri" },
 	"areaSelectOverrideGlobal": { "message": "Suprascrieți setările globale" },
-	"areaSelectUseGlobal": { "message": "Utilizați setările globale" }
+	"areaSelectUseGlobal": { "message": "Utilizați setările globale" },
+	"wheelThreshold": { "message": "Distanța de declanșare a rotiței" },
+	"wheelThresholdDesc": { "message": "Derularea rotiței mouse-ului trebuie să atingă această distanță pentru a declanșa repetat gesturile cu rotița" }
 }

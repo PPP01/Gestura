@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Копирај %count% везу" },
 	"areaSelectOpenCount": { "message": "Отвори %count% веза" },
 	"areaSelectOverrideGlobal": { "message": "Замени глобална подешавања" },
-	"areaSelectUseGlobal": { "message": "Користи глобална подешавања" }
+	"areaSelectUseGlobal": { "message": "Користи глобална подешавања" },
+	"wheelThreshold": { "message": "Удаљеност покретања точкића" },
+	"wheelThresholdDesc": { "message": "Померање точкића миша мора да достигне ову удаљеност да би се покрети точкићем више пута покренули" }
 }

@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "%count% link másolása" },
 	"areaSelectOpenCount": { "message": "%count% link megnyitása" },
 	"areaSelectOverrideGlobal": { "message": "Globális beállítások felülbírálása" },
-	"areaSelectUseGlobal": { "message": "Globális beállítások használata" }
+	"areaSelectUseGlobal": { "message": "Globális beállítások használata" },
+	"wheelThreshold": { "message": "Görgő aktiválási távolsága" },
+	"wheelThresholdDesc": { "message": "Az egérgörgő görgetésének el kell érnie ezt a távolságot a görgő gesztusainak ismételt aktiválásához" }
 }

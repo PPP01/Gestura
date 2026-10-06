@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "%count% लिंक कॉपी करें" },
 	"areaSelectOpenCount": { "message": "%count% लिंक खोलें" },
 	"areaSelectOverrideGlobal": { "message": "वैश्विक सेटिंग्स को ओवरराइड करें" },
-	"areaSelectUseGlobal": { "message": "वैश्विक सेटिंग्स का उपयोग करें" }
+	"areaSelectUseGlobal": { "message": "वैश्विक सेटिंग्स का उपयोग करें" },
+	"wheelThreshold": { "message": "व्हील ट्रिगर दूरी" },
+	"wheelThresholdDesc": { "message": "व्हील जेस्चर को बार-बार ट्रिगर करने के लिए माउस व्हील स्क्रॉलिंग को इस दूरी तक पहुंचना होगा" }
 }

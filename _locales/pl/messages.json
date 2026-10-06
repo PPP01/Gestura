@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Kopiuj %count% link" },
 	"areaSelectOpenCount": { "message": "Otwórz %count% linków" },
 	"areaSelectOverrideGlobal": { "message": "Zastąp ustawienia globalne" },
-	"areaSelectUseGlobal": { "message": "Użyj ustawień globalnych" }
+	"areaSelectUseGlobal": { "message": "Użyj ustawień globalnych" },
+	"wheelThreshold": { "message": "Dystans wyzwalania kółka" },
+	"wheelThresholdDesc": { "message": "Przewijanie kółkiem myszy musi osiągnąć ten dystans, aby wielokrotnie wyzwalać gesty kółkiem" }
 }

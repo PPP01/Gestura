@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Copiar %count% enlace" },
 	"areaSelectOpenCount": { "message": "Abrir %count% enlaces" },
 	"areaSelectOverrideGlobal": { "message": "Anular configuración global" },
-	"areaSelectUseGlobal": { "message": "Usar configuración global" }
+	"areaSelectUseGlobal": { "message": "Usar configuración global" },
+	"wheelThreshold": { "message": "Distancia de activación de la rueda" },
+	"wheelThresholdDesc": { "message": "El desplazamiento de la rueda del mouse debe alcanzar esta distancia para activar gestos de la rueda repetidamente" }
 }

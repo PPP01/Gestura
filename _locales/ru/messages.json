@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Копировать %count% ссылку" },
 	"areaSelectOpenCount": { "message": "Открыть %count% ссылок" },
 	"areaSelectOverrideGlobal": { "message": "Переопределить глобальные настройки" },
-	"areaSelectUseGlobal": { "message": "Использовать глобальные настройки" }
+	"areaSelectUseGlobal": { "message": "Использовать глобальные настройки" },
+	"wheelThreshold": { "message": "Дистанция срабатывания колесика" },
+	"wheelThresholdDesc": { "message": "Прокрутка колесиком мыши должна достичь этой дистанции для многократного срабатывания жестов колесиком" }
 }

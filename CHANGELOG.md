@@ -15,6 +15,11 @@
   item. Applies to the tabs, recently closed, bookmarks, own and website menus;
   switch it off per gesture with "Quick wheel navigation". Ported from
   FlowMouse v2.5.
+- **Wheel Trigger Distance** (advanced, Wheel gestures): how far the wheel has to
+  travel before a wheel gesture or a wheel-driven menu fires again. The first
+  event of a scroll still fires at once; a notch of a mouse wheel is one step,
+  a trackpad swipe a few instead of dozens. Default 30 px, 0 fires on every
+  event. From FlowMouse v2.5.
 - **Close Tab can keep the tab:** "Preserve tabs (unload page content)" for the
   Close Tab gesture, as the batch close gestures already have. The focus moves
   on to the neighbouring tab. From FlowMouse v2.4.1.

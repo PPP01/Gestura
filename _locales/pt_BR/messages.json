@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Copiar %count% link" },
 	"areaSelectOpenCount": { "message": "Abrir %count% links" },
 	"areaSelectOverrideGlobal": { "message": "Substituir configurações globais" },
-	"areaSelectUseGlobal": { "message": "Usar configurações globais" }
+	"areaSelectUseGlobal": { "message": "Usar configurações globais" },
+	"wheelThreshold": { "message": "Distância de ativação da roda" },
+	"wheelThresholdDesc": { "message": "A rolagem da roda do mouse deve atingir essa distância para acionar gestos da roda repetidamente" }
 }

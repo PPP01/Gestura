@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Copia %count% link" },
 	"areaSelectOpenCount": { "message": "Apri %count% link" },
 	"areaSelectOverrideGlobal": { "message": "Sostituisci impostazioni globali" },
-	"areaSelectUseGlobal": { "message": "Usa impostazioni globali" }
+	"areaSelectUseGlobal": { "message": "Usa impostazioni globali" },
+	"wheelThreshold": { "message": "Distanza di attivazione della rotellina" },
+	"wheelThresholdDesc": { "message": "Lo scorrimento della rotellina del mouse deve raggiungere questa distanza per attivare ripetutamente i gesti della rotellina" }
 }

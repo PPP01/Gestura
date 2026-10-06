@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "%count% link kopiëren" },
 	"areaSelectOpenCount": { "message": "Open %count% links" },
 	"areaSelectOverrideGlobal": { "message": "Globale instellingen overschrijven" },
-	"areaSelectUseGlobal": { "message": "Globale instellingen gebruiken" }
+	"areaSelectUseGlobal": { "message": "Globale instellingen gebruiken" },
+	"wheelThreshold": { "message": "Activeringsafstand muiswiel" },
+	"wheelThresholdDesc": { "message": "Het scrollen met het muiswiel moet deze afstand bereiken om wielgebaren herhaaldelijk te activeren" }
 }

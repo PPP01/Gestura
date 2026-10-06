@@ -981,6 +981,18 @@ class OptionsPage extends LitElement {
 								@permission-check=${this.#onPermissionCheck}
 							></wheel-gesture-manager>
 						</div>
+						<div class="setting-group" style="display:${this._settings.enableWheelGestures ? 'block' : 'none'}">
+							<div class="setting-row advanced-setting">
+								<div class="setting-label">
+									<span class="setting-title">${i18n.getMessage('wheelThreshold')}${this.#renderInlineReset('wheelThreshold')}</span>
+									<span class="setting-desc">${i18n.getMessage('wheelThresholdDesc')}</span>
+								</div>
+								<div class="slider-control">
+									<input type="range" id="wheelThreshold" min="0" max="300" step="5" .value=${String(this._settings.wheelThreshold)} @change=${e => this.#updateSetting('wheelThreshold', e.target.value)} @input=${e => this.#debounceSetting('wheelThreshold', e.target.value)}>
+									<span>${this._settings.wheelThreshold}</span>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 

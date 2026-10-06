@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Salin %count% pautan" },
 	"areaSelectOpenCount": { "message": "Buka %count% pautan" },
 	"areaSelectOverrideGlobal": { "message": "Ganti tetapan global" },
-	"areaSelectUseGlobal": { "message": "Gunakan tetapan global" }
+	"areaSelectUseGlobal": { "message": "Gunakan tetapan global" },
+	"wheelThreshold": { "message": "Jarak Pencetus Roda" },
+	"wheelThresholdDesc": { "message": "Penatalan roda tetikus mesti mencapai jarak ini untuk mencetuskan gerak isyarat roda secara berulang" }
 }

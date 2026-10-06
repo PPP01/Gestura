@@ -16,6 +16,7 @@ const REQUIRED_BEFORE_CONTENT = [
 	'gesture-visual.js',
 	'gesture-recognizer.js',
 	'gesture-binding.js',
+	'wheel-accumulator.js',
 	'search-url.js',
 	'search-engines-catalog.js',
 	'engine-registry.js',

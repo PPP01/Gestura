@@ -296,6 +296,7 @@
 			leftClickHoldingRight: { action: 'back' },
 			rightClickHoldingLeft: { action: 'forward' },
 		},
+		wheelThreshold: 30,
 		areaSelectModifierKey: 'Shift',
 		areaSelectTextUrl: ACTION_DEFAULTS.areaSelect.textUrl,
 		areaSelectAutoAction: ACTION_DEFAULTS.areaSelect.autoAction,

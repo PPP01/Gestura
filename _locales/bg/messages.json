@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "Копиране на %count% връзка" },
 	"areaSelectOpenCount": { "message": "Отваряне на %count% връзки" },
 	"areaSelectOverrideGlobal": { "message": "Замести глобални настройки" },
-	"areaSelectUseGlobal": { "message": "Използвай глобални настройки" }
+	"areaSelectUseGlobal": { "message": "Използвай глобални настройки" },
+	"wheelThreshold": { "message": "Разстояние за задействане на колелцето" },
+	"wheelThresholdDesc": { "message": "Превъртането на колелцето на мишката трябва да достигне това разстояние, за да задейства многократно жестовете с колелцето" }
 }

@@ -3119,5 +3119,7 @@
 	"areaSelectCopyOne": { "message": "העתק קישור %count%" },
 	"areaSelectOpenCount": { "message": "פתח %count% קישורים" },
 	"areaSelectOverrideGlobal": { "message": "עקוף הגדרות גלובליות" },
-	"areaSelectUseGlobal": { "message": "השתמש בהגדרות גלובליות" }
+	"areaSelectUseGlobal": { "message": "השתמש בהגדרות גלובליות" },
+	"wheelThreshold": { "message": "מרחק הפעלת גלגלת" },
+	"wheelThresholdDesc": { "message": "גלילת גלגלת העכבר חייבת להגיע למרחק זה כדי להפעיל מחוות גלגלת שוב ושוב" }
 }
