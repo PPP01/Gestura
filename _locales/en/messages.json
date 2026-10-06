@@ -3325,5 +3325,6 @@
 	"ctxMenuWheelNav": { "message": "Quick wheel navigation" },
 	"ctxMenuWheelNavTooltip": { "message": "While holding the mouse button, scroll the wheel to quickly select menu items." },
 	"actionReloadFrame": { "message": "Reload Frame" },
-	"actionViewFrameSource": { "message": "View Frame Source" }
+	"actionViewFrameSource": { "message": "View Frame Source" },
+	"saveImageSubdirLabel": { "message": "Subdirectory" }
 }

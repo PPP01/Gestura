@@ -249,6 +249,7 @@ class DragGestureManager extends LitElement {
 			(this.type === 'image' && action === 'imageSearch' && engine === 'custom');
 		const showPreferLink = this.type === 'image' && action === 'openTab';
 		const showCustomEvent = action === 'sendCustomEvent';
+		const showSubdir = this.type === 'image' && action === 'saveImage';
 
 		const showSecondary = showPos || this.advancedMode;
 
@@ -304,6 +305,13 @@ class DragGestureManager extends LitElement {
 											@change=${(e) => this.#updateRow(index, 'preferLink', e.target.checked)}>
 										<span>${window.i18n.getMessage('preferLink')}</span>
 									</label>
+								` : ''}
+
+								${showSubdir ? html`
+									<input type="text" class="url-input" maxlength="100"
+										placeholder=${window.i18n.getMessage('saveImageSubdirLabel')}
+										.value=${cfg.subdir ?? defaults.subdir ?? ''}
+										@input=${(e) => this.#updateRow(index, 'subdir', e.target.value)}>
 								` : ''}
 
 								${this.type === 'link' && action === 'copyLinkAndText' ? html`

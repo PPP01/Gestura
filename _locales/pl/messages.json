@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Szybka nawigacja kółkiem" },
 	"ctxMenuWheelNavTooltip": { "message": "Przytrzymując przycisk myszy, przewiń kółkiem, aby szybko wybrać pozycje menu." },
 	"actionReloadFrame": { "message": "Ponownie załaduj ramkę" },
-	"actionViewFrameSource": { "message": "Wyświetl źródło ramki" }
+	"actionViewFrameSource": { "message": "Wyświetl źródło ramki" },
+	"saveImageSubdirLabel": { "message": "Podkatalog" }
 }

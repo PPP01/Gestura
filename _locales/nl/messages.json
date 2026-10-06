@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Snelle muiswielnavigatie" },
 	"ctxMenuWheelNavTooltip": { "message": "Terwijl u de muisknop ingedrukt houdt, scrolt u met het wieltje om snel menu-items te selecteren." },
 	"actionReloadFrame": { "message": "Frame opnieuw laden" },
-	"actionViewFrameSource": { "message": "Paginabron van frame weergeven" }
+	"actionViewFrameSource": { "message": "Paginabron van frame weergeven" },
+	"saveImageSubdirLabel": { "message": "Submap" }
 }

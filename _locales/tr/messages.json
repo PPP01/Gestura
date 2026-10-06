@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Hızlı tekerlek navigasyonu" },
 	"ctxMenuWheelNavTooltip": { "message": "Fare düğmesini basılı tutarken, menü öğelerini hızlıca seçmek için tekerleği kaydırın." },
 	"actionReloadFrame": { "message": "Çerçeveyi yeniden yükle" },
-	"actionViewFrameSource": { "message": "Çerçeve kaynağını görüntüle" }
+	"actionViewFrameSource": { "message": "Çerçeve kaynağını görüntüle" },
+	"saveImageSubdirLabel": { "message": "Alt dizin" }
 }

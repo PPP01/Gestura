@@ -20,6 +20,8 @@
   on to the neighbouring tab. From FlowMouse v2.4.1.
 - **Reload Frame** and **View Frame Source** gestures: act on the iframe the
   gesture started in instead of the whole tab. From FlowMouse v2.5.
+- **Save Image drag:** an optional subdirectory below the download folder. From
+  FlowMouse v2.4.
 
 **Fixes:**
 

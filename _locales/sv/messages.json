@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Snabb hjulnavigering" },
 	"ctxMenuWheelNavTooltip": { "message": "Håll ner musknappen och rulla hjulet för att snabbt välja menyalternativ." },
 	"actionReloadFrame": { "message": "Ladda om ram" },
-	"actionViewFrameSource": { "message": "Visa ramens källkod" }
+	"actionViewFrameSource": { "message": "Visa ramens källkod" },
+	"saveImageSubdirLabel": { "message": "Underkatalog" }
 }

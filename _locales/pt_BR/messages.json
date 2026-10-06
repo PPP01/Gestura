@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Navegação rápida com a roda do mouse" },
 	"ctxMenuWheelNavTooltip": { "message": "Enquanto mantém o botão do mouse pressionado, role a roda para selecionar rapidamente os itens do menu." },
 	"actionReloadFrame": { "message": "Recarregar frame" },
-	"actionViewFrameSource": { "message": "Exibir código-fonte do frame" }
+	"actionViewFrameSource": { "message": "Exibir código-fonte do frame" },
+	"saveImageSubdirLabel": { "message": "Subdiretório" }
 }

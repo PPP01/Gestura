@@ -4319,7 +4319,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 				case 'saveImage':
 					if (content.startsWith('data:')) {
-						safeSendMessage({ action: 'saveImage', url: content });
+						safeSendMessage({ action: 'saveImage', url: content, subdir: config.subdir });
 						break;
 					}
 
@@ -4330,7 +4330,8 @@ window.ContentContextMenu = ContentContextMenu;
 							safeSendMessage({
 								action: 'saveImage',
 								url: reader.result,
-								filename: file.name
+								filename: file.name,
+								subdir: config.subdir
 							});
 						};
 						reader.readAsDataURL(file);
@@ -4380,7 +4381,8 @@ window.ContentContextMenu = ContentContextMenu;
 								safeSendMessage({
 									action: 'saveImage',
 									url: content,
-									origin: window.location.origin
+									origin: window.location.origin,
+									subdir: config.subdir
 								});
 							})
 							.catch((err) => {

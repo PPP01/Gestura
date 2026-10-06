@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "滾輪快速導航" },
 	"ctxMenuWheelNavTooltip": { "message": "按住滑鼠按鍵時，滾動滾輪即可快速選擇選單中的項目。" },
 	"actionReloadFrame": { "message": "重新載入框架" },
-	"actionViewFrameSource": { "message": "檢視框架原始碼" }
+	"actionViewFrameSource": { "message": "檢視框架原始碼" },
+	"saveImageSubdirLabel": { "message": "子目錄" }
 }

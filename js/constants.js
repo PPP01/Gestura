@@ -210,6 +210,7 @@
 		openTab:         { position: 'right', active: true, incognito: false, preferLink: false },
 		imageSearch:     { engine: 'google-lens', url: '', position: 'right', active: true, incognito: false },
 		copyLinkAndText: { asMarkdown: false },
+		saveImage:       { subdir: '' },
 		sendCustomEvent: { eventType: 'flowmouse:drag', eventDetail: '{}', gestureInfo: true },
 	};
 

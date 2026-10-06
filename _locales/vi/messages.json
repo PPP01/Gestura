@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Điều hướng nhanh bằng con lăn" },
 	"ctxMenuWheelNavTooltip": { "message": "Trong khi giữ nút chuột, hãy cuộn con lăn để nhanh chóng chọn các mục menu." },
 	"actionReloadFrame": { "message": "Tải lại khung" },
-	"actionViewFrameSource": { "message": "Xem nguồn khung" }
+	"actionViewFrameSource": { "message": "Xem nguồn khung" },
+	"saveImageSubdirLabel": { "message": "Thư mục con" }
 }

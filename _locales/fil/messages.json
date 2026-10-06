@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Mabilis na nabigasyon ng wheel" },
 	"ctxMenuWheelNavTooltip": { "message": "Habang nakapindot ang mouse button, i-scroll ang wheel para mabilis na pumili ng mga item sa menu." },
 	"actionReloadFrame": { "message": "I-reload ang frame" },
-	"actionViewFrameSource": { "message": "Tingnan ang source ng frame" }
+	"actionViewFrameSource": { "message": "Tingnan ang source ng frame" },
+	"saveImageSubdirLabel": { "message": "Subdirectory" }
 }

@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Быстрая навигация колесиком" },
 	"ctxMenuWheelNavTooltip": { "message": "Удерживая кнопку мыши, прокручивайте колесико для быстрого выбора пунктов меню." },
 	"actionReloadFrame": { "message": "Перезагрузить фрейм" },
-	"actionViewFrameSource": { "message": "Просмотр кода фрейма" }
+	"actionViewFrameSource": { "message": "Просмотр кода фрейма" },
+	"saveImageSubdirLabel": { "message": "Подкаталог" }
 }

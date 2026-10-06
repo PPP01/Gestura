@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Nopea rullanavigointi" },
 	"ctxMenuWheelNavTooltip": { "message": "Pidä hiiren painiketta painettuna ja vieritä rullaa valitaksesi valikon kohteita nopeasti." },
 	"actionReloadFrame": { "message": "Lataa kehys uudelleen" },
-	"actionViewFrameSource": { "message": "Näytä kehyksen lähdekoodi" }
+	"actionViewFrameSource": { "message": "Näytä kehyksen lähdekoodi" },
+	"saveImageSubdirLabel": { "message": "Alikansio" }
 }

@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Γρήγορη πλοήγηση με τη ροδέλα" },
 	"ctxMenuWheelNavTooltip": { "message": "Κρατώντας πατημένο το κουμπί του ποντικιού, κάντε κύλιση με τη ροδέλα για να επιλέξετε γρήγορα στοιχεία μενού." },
 	"actionReloadFrame": { "message": "Επαναφόρτωση πλαισίου" },
-	"actionViewFrameSource": { "message": "Προβολή κώδικα πλαισίου" }
+	"actionViewFrameSource": { "message": "Προβολή κώδικα πλαισίου" },
+	"saveImageSubdirLabel": { "message": "Υποκατάλογος" }
 }

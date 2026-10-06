@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "휠 빠른 탐색" },
 	"ctxMenuWheelNavTooltip": { "message": "마우스 버튼을 누른 상태에서 휠을 스크롤하여 메뉴 항목을 빠르게 선택합니다." },
 	"actionReloadFrame": { "message": "프레임 새로고침" },
-	"actionViewFrameSource": { "message": "프레임 소스 보기" }
+	"actionViewFrameSource": { "message": "프레임 소스 보기" },
+	"saveImageSubdirLabel": { "message": "하위 디렉터리" }
 }

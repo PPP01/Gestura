@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "التنقل السريع بعجلة الماوس" },
 	"ctxMenuWheelNavTooltip": { "message": "أثناء الضغط باستمرار على زر الماوس، قم بالتمرير بعجلة الماوس لتحديد عناصر القائمة بسرعة." },
 	"actionReloadFrame": { "message": "إعادة تحميل الإطار" },
-	"actionViewFrameSource": { "message": "عرض مصدر الإطار" }
+	"actionViewFrameSource": { "message": "عرض مصدر الإطار" },
+	"saveImageSubdirLabel": { "message": "دليل فرعي" }
 }

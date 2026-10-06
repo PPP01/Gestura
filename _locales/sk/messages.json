@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Rýchla navigácia kolieskom" },
 	"ctxMenuWheelNavTooltip": { "message": "Počas držania tlačidla myši posúvajte kolieskom, aby ste rýchlo vybrali položky ponuky." },
 	"actionReloadFrame": { "message": "Znova načítať rámec" },
-	"actionViewFrameSource": { "message": "Zobraziť zdrojový kód rámca" }
+	"actionViewFrameSource": { "message": "Zobraziť zdrojový kód rámca" },
+	"saveImageSubdirLabel": { "message": "Podadresár" }
 }

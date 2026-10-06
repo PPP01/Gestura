@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Navigare rapidă cu rotița" },
 	"ctxMenuWheelNavTooltip": { "message": "În timp ce țineți apăsat butonul mouse-ului, derulați rotița pentru a selecta rapid elementele din meniu." },
 	"actionReloadFrame": { "message": "Reîncarcă cadrul" },
-	"actionViewFrameSource": { "message": "Vezi sursa cadrului" }
+	"actionViewFrameSource": { "message": "Vezi sursa cadrului" },
+	"saveImageSubdirLabel": { "message": "Subdirector" }
 }

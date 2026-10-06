@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "ホイールのクイックナビゲーション" },
 	"ctxMenuWheelNavTooltip": { "message": "マウスボタンを押したままホイールをスクロールすると、メニュー項目をすばやく選択できます。" },
 	"actionReloadFrame": { "message": "フレームを再読み込み" },
-	"actionViewFrameSource": { "message": "フレームのソースを表示" }
+	"actionViewFrameSource": { "message": "フレームのソースを表示" },
+	"saveImageSubdirLabel": { "message": "サブディレクトリ" }
 }

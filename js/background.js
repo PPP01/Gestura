@@ -475,11 +475,14 @@ async function handleAction(request, sender) {
 				requestPermission(['downloads', 'pageCapture'], sender.tab?.windowId ?? null).then(async (granted) => {
 					if (!granted) return;
 
+					const subdir = sanitizeSubdir(request.subdir);
+
 					if (request.url.startsWith('data:')) {
 						{
+							const filename = request.filename || (subdir ? getFilename(null, request.url.match(/^data:([^;,]+)/)?.[1]) : null);
 							await chrome.downloads.download({
 								url: request.url,
-								filename: request.filename || null,
+								filename: joinDownloadPath(subdir, filename),
 								saveAs: false
 							});
 						}
@@ -515,7 +518,7 @@ async function handleAction(request, sender) {
 								const filename = getFilename(imageUrl, resource.type);
 								await chrome.downloads.download({
 									url: resource.dataUrl,
-									filename: filename,
+									filename: joinDownloadPath(subdir, filename),
 									saveAs: false
 								});
 							} else {
@@ -2375,6 +2378,46 @@ GesturaSettingsStorage.onChanged((changes) => {
 		});
 	}
 });
+
+// A relative folder below the browser's download folder: no absolute paths, no
+// ".." and no characters the file system refuses. What is left may be empty.
+function sanitizeSubdir(raw) {
+	if (!raw || typeof raw !== 'string') return '';
+	let s = raw.trim()
+		.replace(/\\/g, '/')
+		.replace(/\/+/g, '/');
+	s = s.replace(/^\/|\/$/g, '');
+	const segments = s.split('/').filter(seg => {
+		if (!seg || seg === '.' || seg === '..') return false;
+		if (/[<>:"|?*\x00-\x1f]/.test(seg)) return false;
+		return true;
+	});
+	return segments.join('/');
+}
+
+function sanitizeFilename(raw) {
+	if (!raw || typeof raw !== 'string') return '';
+	const illegalRe = /[\/?<>\\:*|"]/g;
+	const controlRe = /[\x00-\x1f\x80-\x9f]/g;
+	const reservedRe = /^\.+$/;
+	const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
+	let name = raw
+		.replace(illegalRe, '_')
+		.replace(controlRe, '_')
+		.replace(reservedRe, '_')
+		.replace(windowsReservedRe, '_');
+	let end = name.length;
+	while (end > 0 && (name[end - 1] === '.' || name[end - 1] === ' ')) end--;
+	name = name.slice(0, end);
+	if (name.length > 255) name = name.slice(0, 255);
+	return name;
+}
+
+function joinDownloadPath(subdir, filename) {
+	const name = sanitizeFilename(filename);
+	if (subdir) return subdir + '/' + (name || 'image.png');
+	return name || null;
+}
 
 function getFilename(url, mimeType) {
 	let filename = null;

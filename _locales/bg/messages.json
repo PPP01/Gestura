@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Бърза навигация с колелцето" },
 	"ctxMenuWheelNavTooltip": { "message": "Докато задържате бутона на мишката, превъртете колелцето, за да изберете бързо елементи от менюто." },
 	"actionReloadFrame": { "message": "Презареждане на рамката" },
-	"actionViewFrameSource": { "message": "Преглед на изходния код на рамката" }
+	"actionViewFrameSource": { "message": "Преглед на изходния код на рамката" },
+	"saveImageSubdirLabel": { "message": "Поддиректория" }
 }

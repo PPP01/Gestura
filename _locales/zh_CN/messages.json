@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "滚轮快速导航" },
 	"ctxMenuWheelNavTooltip": { "message": "按住鼠标按键时，滚动滚轮快速选择菜单中的项目。" },
 	"actionReloadFrame": { "message": "重新加载框架" },
-	"actionViewFrameSource": { "message": "查看框架源代码" }
+	"actionViewFrameSource": { "message": "查看框架源代码" },
+	"saveImageSubdirLabel": { "message": "子目录" }
 }

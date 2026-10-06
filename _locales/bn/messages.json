@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "দ্রুত হুইল নেভিগেশন" },
 	"ctxMenuWheelNavTooltip": { "message": "মাউসের বোতাম চেপে ধরে থাকা অবস্থায়, মেনু আইটেমগুলি দ্রুত নির্বাচন করতে হুইল স্ক্রোল করুন।" },
 	"actionReloadFrame": { "message": "ফ্রেমটি পুনরায় লোড করুন" },
-	"actionViewFrameSource": { "message": "ফ্রেমের উৎস দেখুন" }
+	"actionViewFrameSource": { "message": "ফ্রেমের উৎস দেখুন" },
+	"saveImageSubdirLabel": { "message": "সাবডিরেক্টরি" }
 }

@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Hurtig hjulnavigation" },
 	"ctxMenuWheelNavTooltip": { "message": "Hold museknappen nede og rul på hjulet for hurtigt at vælge menupunkter." },
 	"actionReloadFrame": { "message": "Genindlæs ramme" },
-	"actionViewFrameSource": { "message": "Vis kildekode for ramme" }
+	"actionViewFrameSource": { "message": "Vis kildekode for ramme" },
+	"saveImageSubdirLabel": { "message": "Undermappe" }
 }

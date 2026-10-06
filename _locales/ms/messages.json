@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Navigasi pantas roda tetikus" },
 	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan butang tetikus, tatal roda untuk memilih item menu dengan pantas." },
 	"actionReloadFrame": { "message": "Muat semula bingkai" },
-	"actionViewFrameSource": { "message": "Lihat sumber bingkai" }
+	"actionViewFrameSource": { "message": "Lihat sumber bingkai" },
+	"saveImageSubdirLabel": { "message": "Subdirektori" }
 }

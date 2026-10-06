@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "Gyors navigáció görgővel" },
 	"ctxMenuWheelNavTooltip": { "message": "Az egérgomb nyomva tartása közben görgessen a görgővel a menüpontok gyors kiválasztásához." },
 	"actionReloadFrame": { "message": "Keret újratöltése" },
-	"actionViewFrameSource": { "message": "Keret forráskódjának megtekintése" }
+	"actionViewFrameSource": { "message": "Keret forráskódjának megtekintése" },
+	"saveImageSubdirLabel": { "message": "Alkönyvtár" }
 }

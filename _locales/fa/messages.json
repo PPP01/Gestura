@@ -3111,5 +3111,6 @@
 	"ctxMenuWheelNav": { "message": "ناوبری سریع با چرخ ماوس" },
 	"ctxMenuWheelNavTooltip": { "message": "در حالی که دکمه ماوس را نگه داشته‌اید، با چرخ ماوس پیمایش کنید تا به سرعت موارد منو را انتخاب کنید." },
 	"actionReloadFrame": { "message": "بارگیری مجدد قاب" },
-	"actionViewFrameSource": { "message": "مشاهده منبع قاب" }
+	"actionViewFrameSource": { "message": "مشاهده منبع قاب" },
+	"saveImageSubdirLabel": { "message": "زیرپوشه" }
 }
