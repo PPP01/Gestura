@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Buka %count% pautan",
+		"message": "Buka Pautan",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan butang tetikus, tatal roda untuk memilih item menu dengan pantas." },
 	"actionReloadFrame": { "message": "Muat semula bingkai" },
 	"actionViewFrameSource": { "message": "Lihat sumber bingkai" },
-	"saveImageSubdirLabel": { "message": "Subdirektori" }
+	"saveImageSubdirLabel": { "message": "Subdirektori" },
+	"areaSelectAutoAction": { "message": "Laksana Secara Automatik Selepas Pemilihan" },
+	"areaSelectAutoActionDesc": { "message": "Buka atau salin pautan yang dipilih secara automatik setelah pemilihan selesai" },
+	"areaSelectCopyCount": { "message": "Salin %count% pautan" },
+	"areaSelectCopyOne": { "message": "Salin %count% pautan" },
+	"areaSelectOpenCount": { "message": "Buka %count% pautan" },
+	"areaSelectOverrideGlobal": { "message": "Ganti tetapan global" },
+	"areaSelectUseGlobal": { "message": "Gunakan tetapan global" }
 }

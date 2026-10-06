@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% लिंक खोलें",
+		"message": "लिंक खोलें",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "माउस बटन दबाए रखते हुए, मेनू आइटम को जल्दी से चुनने के लिए व्हील को स्क्रॉल करें।" },
 	"actionReloadFrame": { "message": "फ़्रेम को फिर से लोड करें" },
 	"actionViewFrameSource": { "message": "फ़्रेम का स्रोत देखें" },
-	"saveImageSubdirLabel": { "message": "उपनिर्देशिका" }
+	"saveImageSubdirLabel": { "message": "उपनिर्देशिका" },
+	"areaSelectAutoAction": { "message": "चयन के बाद स्वचालित रूप से चलाएं" },
+	"areaSelectAutoActionDesc": { "message": "चयन पूरा होने पर चयनित लिंक स्वचालित रूप से खोलें या कॉपी करें" },
+	"areaSelectCopyCount": { "message": "%count% लिंक कॉपी करें" },
+	"areaSelectCopyOne": { "message": "%count% लिंक कॉपी करें" },
+	"areaSelectOpenCount": { "message": "%count% लिंक खोलें" },
+	"areaSelectOverrideGlobal": { "message": "वैश्विक सेटिंग्स को ओवरराइड करें" },
+	"areaSelectUseGlobal": { "message": "वैश्विक सेटिंग्स का उपयोग करें" }
 }

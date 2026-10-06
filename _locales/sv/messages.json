@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Öppna %count% länkar",
+		"message": "Öppna länkar",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Håll ner musknappen och rulla hjulet för att snabbt välja menyalternativ." },
 	"actionReloadFrame": { "message": "Ladda om ram" },
 	"actionViewFrameSource": { "message": "Visa ramens källkod" },
-	"saveImageSubdirLabel": { "message": "Underkatalog" }
+	"saveImageSubdirLabel": { "message": "Underkatalog" },
+	"areaSelectAutoAction": { "message": "Utför automatiskt efter val" },
+	"areaSelectAutoActionDesc": { "message": "Öppna eller kopiera automatiskt valda länkar när ett val är slutfört" },
+	"areaSelectCopyCount": { "message": "Kopiera %count% länkar" },
+	"areaSelectCopyOne": { "message": "Kopiera %count% länk" },
+	"areaSelectOpenCount": { "message": "Öppna %count% länkar" },
+	"areaSelectOverrideGlobal": { "message": "Åsidosätt globala inställningar" },
+	"areaSelectUseGlobal": { "message": "Använd globala inställningar" }
 }

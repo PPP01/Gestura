@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Abrir %count% links",
+		"message": "Abrir links",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Enquanto mantém o botão do mouse pressionado, role a roda para selecionar rapidamente os itens do menu." },
 	"actionReloadFrame": { "message": "Recarregar frame" },
 	"actionViewFrameSource": { "message": "Exibir código-fonte do frame" },
-	"saveImageSubdirLabel": { "message": "Subdiretório" }
+	"saveImageSubdirLabel": { "message": "Subdiretório" },
+	"areaSelectAutoAction": { "message": "Executar automaticamente após seleção" },
+	"areaSelectAutoActionDesc": { "message": "Abrir ou copiar automaticamente os links selecionados ao concluir a seleção" },
+	"areaSelectCopyCount": { "message": "Copiar %count% links" },
+	"areaSelectCopyOne": { "message": "Copiar %count% link" },
+	"areaSelectOpenCount": { "message": "Abrir %count% links" },
+	"areaSelectOverrideGlobal": { "message": "Substituir configurações globais" },
+	"areaSelectUseGlobal": { "message": "Usar configurações globais" }
 }

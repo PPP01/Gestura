@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "開啟 %count% 個連結",
+		"message": "開啟連結",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "按住滑鼠按鍵時，滾動滾輪即可快速選擇選單中的項目。" },
 	"actionReloadFrame": { "message": "重新載入框架" },
 	"actionViewFrameSource": { "message": "檢視框架原始碼" },
-	"saveImageSubdirLabel": { "message": "子目錄" }
+	"saveImageSubdirLabel": { "message": "子目錄" },
+	"areaSelectAutoAction": { "message": "框選後自動執行" },
+	"areaSelectAutoActionDesc": { "message": "框選完成後，自動開啟或複製選取連結" },
+	"areaSelectCopyCount": { "message": "複製 %count% 個連結" },
+	"areaSelectCopyOne": { "message": "複製 %count% 個連結" },
+	"areaSelectOpenCount": { "message": "開啟 %count% 個連結" },
+	"areaSelectOverrideGlobal": { "message": "覆寫全域設定" },
+	"areaSelectUseGlobal": { "message": "使用全域設定" }
 }

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Otvori %count% poveznica",
+		"message": "Otvori poveznice",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Dok držite tipku miša, pomičite kotačić za brzi odabir stavki izbornika." },
 	"actionReloadFrame": { "message": "Ponovno učitaj okvir" },
 	"actionViewFrameSource": { "message": "Prikaži izvorni kod okvira" },
-	"saveImageSubdirLabel": { "message": "Podmapa" }
+	"saveImageSubdirLabel": { "message": "Podmapa" },
+	"areaSelectAutoAction": { "message": "Automatski izvrši nakon odabira" },
+	"areaSelectAutoActionDesc": { "message": "Automatski otvori ili kopiraj odabrane veze po završetku odabira" },
+	"areaSelectCopyCount": { "message": "Kopiraj %count% poveznica" },
+	"areaSelectCopyOne": { "message": "Kopiraj %count% poveznicu" },
+	"areaSelectOpenCount": { "message": "Otvori %count% poveznica" },
+	"areaSelectOverrideGlobal": { "message": "Prepiši globalne postavke" },
+	"areaSelectUseGlobal": { "message": "Koristi globalne postavke" }
 }

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "فتح %count% من الروابط",
+		"message": "فتح الروابط",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "أثناء الضغط باستمرار على زر الماوس، قم بالتمرير بعجلة الماوس لتحديد عناصر القائمة بسرعة." },
 	"actionReloadFrame": { "message": "إعادة تحميل الإطار" },
 	"actionViewFrameSource": { "message": "عرض مصدر الإطار" },
-	"saveImageSubdirLabel": { "message": "دليل فرعي" }
+	"saveImageSubdirLabel": { "message": "دليل فرعي" },
+	"areaSelectAutoAction": { "message": "تنفيذ تلقائي بعد التحديد" },
+	"areaSelectAutoActionDesc": { "message": "فتح أو نسخ الروابط المحددة تلقائيًا عند اكتمال التحديد" },
+	"areaSelectCopyCount": { "message": "نسخ %count% روابط" },
+	"areaSelectCopyOne": { "message": "نسخ رابط %count%" },
+	"areaSelectOpenCount": { "message": "فتح %count% من الروابط" },
+	"areaSelectOverrideGlobal": { "message": "تجاوز الإعدادات العامة" },
+	"areaSelectUseGlobal": { "message": "استخدام الإعدادات العامة" }
 }

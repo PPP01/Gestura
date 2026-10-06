@@ -1010,9 +1010,11 @@ async function handleAction(request, sender) {
 			if (sender.tab?.id) {
 				await chrome.tabs.sendMessage(sender.tab.id, {
 					action: 'areaSelectEnter',
+					overrideGlobal: request.overrideGlobal,
 					warnThreshold: request.warnThreshold,
 					textUrl: request.textUrl,
-					operationInterval: request.operationInterval,
+					delay: request.delay,
+					autoAction: request.autoAction,
 				}).catch(() => {});
 			}
 			return { success: true };

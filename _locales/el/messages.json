@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Άνοιγμα %count% συνδέσμων",
+		"message": "Άνοιγμα συνδέσμων",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Κρατώντας πατημένο το κουμπί του ποντικιού, κάντε κύλιση με τη ροδέλα για να επιλέξετε γρήγορα στοιχεία μενού." },
 	"actionReloadFrame": { "message": "Επαναφόρτωση πλαισίου" },
 	"actionViewFrameSource": { "message": "Προβολή κώδικα πλαισίου" },
-	"saveImageSubdirLabel": { "message": "Υποκατάλογος" }
+	"saveImageSubdirLabel": { "message": "Υποκατάλογος" },
+	"areaSelectAutoAction": { "message": "Αυτόματη εκτέλεση μετά την επιλογή" },
+	"areaSelectAutoActionDesc": { "message": "Αυτόματο άνοιγμα ή αντιγραφή επιλεγμένων συνδέσμων μετά την ολοκλήρωση της επιλογής" },
+	"areaSelectCopyCount": { "message": "Αντιγραφή %count% συνδέσμων" },
+	"areaSelectCopyOne": { "message": "Αντιγραφή %count% συνδέσμου" },
+	"areaSelectOpenCount": { "message": "Άνοιγμα %count% συνδέσμων" },
+	"areaSelectOverrideGlobal": { "message": "Παράκαμψη καθολικών ρυθμίσεων" },
+	"areaSelectUseGlobal": { "message": "Χρήση καθολικών ρυθμίσεων" }
 }

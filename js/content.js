@@ -1378,6 +1378,8 @@ window.ContentContextMenu = ContentContextMenu;
 		#firstHitIsFixed = false;
 		#cursorStyle = null;
 		#quickEntry = false;
+		#autoAction = 'none';
+		#autoDone = false;
 
 		get isActive() { return this.#state !== STATES.INACTIVE; }
 
@@ -1387,6 +1389,9 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#isIframe = isIframe;
 			this.#warnThreshold = warnThreshold ?? 15;
 			this.#operationInterval = options?.operationInterval ?? 0;
+			this.#autoAction = options?.autoAction ?? 'none';
+			this.#autoDone = false;
+			this.#quickEntry = !!initialEvent;
 			this.#highlighter = new LinkHighlighter();
 			if (options?.textUrl === false) this.#highlighter.textLinks = false;
 			this.#highlighter.onFirstPreviewHit = (item) => {
@@ -1413,6 +1418,7 @@ window.ContentContextMenu = ContentContextMenu;
 				shadow.appendChild(this.#overlay);
 
 				this.#createToolbar(shadow);
+				this.#createModal(shadow);
 			}
 
 			this.#rectEl = this.#host.createElement('div');
@@ -1448,7 +1454,6 @@ window.ContentContextMenu = ContentContextMenu;
 			document.documentElement.appendChild(this.#cursorStyle);
 
 			if (initialEvent) {
-				this.#quickEntry = true;
 				this.#onPointerDown(initialEvent);
 			}
 		}
@@ -1458,6 +1463,7 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#cancelAutoScroll();
 			this.#hoveredItem = null;
 			this.#quickEntry = false;
+			this.#autoDone = false;
 			if (this.#highlighter) {
 				this.#highlighter.cleanup();
 				this.#highlighter = null;
@@ -1490,9 +1496,10 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		updateFromFrame(frameId, links) {
-			if (this.#isIframe) return;
+			if (this.#isIframe || this.#state === STATES.INACTIVE) return;
 			this.#frameLinks.set(frameId, links);
 			this.#updateToolbarCount();
+			if (this.#state === STATES.WAITING) this.#tryAutoAction();
 		}
 
 
@@ -1567,7 +1574,8 @@ window.ContentContextMenu = ContentContextMenu;
 			const width = Math.abs(x - svx);
 			const height = Math.abs(y - svy);
 
-			if (width > CLICK_THRESHOLD || height > CLICK_THRESHOLD) {
+			const clickThreshold = CLICK_THRESHOLD;
+			if (width > clickThreshold || height > clickThreshold) {
 				if (this.#rectEl.style.display !== 'block') {
 					this.#rectEl.style.display = 'block';
 				}
@@ -1593,8 +1601,9 @@ window.ContentContextMenu = ContentContextMenu;
 
 			const svx = this.#startX - window.scrollX;
 			const svy = this.#startY - window.scrollY;
-			const isClick = Math.abs(e.clientX - svx) < CLICK_THRESHOLD
-						 && Math.abs(e.clientY - svy) < CLICK_THRESHOLD;
+			const clickThreshold = CLICK_THRESHOLD;
+			const isClick = Math.abs(e.clientX - svx) < clickThreshold
+						 && Math.abs(e.clientY - svy) < clickThreshold;
 
 			this.#highlighter.clearPreview();
 			const rect = isClick
@@ -1624,6 +1633,7 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#highlighter.invalidateCache();
 			if (!this.#isIframe) {
 				this.#updateToolbarCount();
+				this.#tryAutoAction();
 			}
 			this.#reportSelection();
 
@@ -1648,6 +1658,8 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#highlighter.clearPreview();
 			this.#currentRect = null;
 			this.#state = STATES.WAITING;
+			if (!this.#isIframe) this.#updateToolbarCount();
+			this.#reportSelection();
 		}
 
 		#onKeyDown(e) {
@@ -1657,10 +1669,12 @@ window.ContentContextMenu = ContentContextMenu;
 				e.stopImmediatePropagation();
 				if (this.#modal && this.#modal.style.display !== 'none') {
 					this.#modal.style.display = 'none';
+					if (this.#autoAction !== 'none') this.#broadcastExit();
 					return;
 				}
 				if (this.#state === STATES.SELECTING) {
 					this.#abandonCurrentRect();
+					if (this.#quickEntry) this.#broadcastExit();
 					return;
 				}
 				this.#broadcastExit();
@@ -1698,9 +1712,10 @@ window.ContentContextMenu = ContentContextMenu;
 
 		#handleAutoScroll(x, y) {
 			const vh = window.innerHeight;
+			const scrollZone = AUTO_SCROLL_ZONE;
 			let scrollDy = 0;
-			if (y < AUTO_SCROLL_ZONE) scrollDy = -AUTO_SCROLL_SPEED;
-			else if (y > vh - AUTO_SCROLL_ZONE) scrollDy = AUTO_SCROLL_SPEED;
+			if (y < scrollZone) scrollDy = -AUTO_SCROLL_SPEED;
+			else if (y > vh - scrollZone) scrollDy = AUTO_SCROLL_SPEED;
 
 			if (scrollDy !== 0) {
 				if (!this.#autoScrollRAF) {
@@ -1725,9 +1740,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 		#broadcastExit() {
 			try {
-				if (chrome.runtime?.sendMessage) {
-					chrome.runtime.sendMessage({ action: 'areaSelectExit' }).catch(() => {});
-				}
+				chrome.runtime.sendMessage({ action: 'areaSelectExit' }).catch(() => {});
 			} catch { }
 		}
 
@@ -1735,24 +1748,26 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!this.#isIframe) return;
 			const links = this.#highlighter ? this.#highlighter.links : [];
 			try {
-				if (chrome.runtime?.sendMessage) {
-					chrome.runtime.sendMessage({
-						action: 'areaSelectUpdate',
-						links,
-					}).catch(() => {});
-				}
+				chrome.runtime.sendMessage({
+					action: 'areaSelectUpdate',
+					links,
+				}).catch(() => {});
 			} catch { }
 		}
 
 
 		#createToolbar(shadow) {
+			const auto = this.#autoAction !== 'none';
 			const toolbar = this.#host.createElement('div');
 			toolbar.className = 'fm-as-toolbar';
+			toolbar.classList.toggle('hide-cancel', auto && this.#quickEntry);
 			this.#host.setHTML(toolbar, `
 				<div class="fm-as-toolbar-hint">
-					<span class="fm-as-icon">${this.#icon('squareDashedMousePointer')}</span>
-					<span>${this.#msg('areaSelectHint')}</span>
+					<span class="fm-as-icon idle">${this.#icon('squareDashedMousePointer')}</span>
+					${auto ? `<span class="fm-as-icon action">${this.#icon(this.#autoAction === 'open' ? 'externalLink' : 'copy')}</span>` : ''}
+					<span data-ref="hintText">${this.#msg('areaSelectHint')}</span>
 				</div>
+				${auto ? '' : `
 				<div class="fm-as-action-group" style="display:none">
 					<button class="fm-as-btn fm-as-btn-primary" disabled data-ref="openBtn">
 						<span class="fm-as-icon">${this.#icon('externalLink')}</span>
@@ -1763,28 +1778,30 @@ window.ContentContextMenu = ContentContextMenu;
 						<span>${this.#msg('areaSelectCopy')}</span>
 					</button>
 				</div>
+				`}
 				<div class="fm-as-divider"></div>
 				<button class="fm-as-btn fm-as-btn-icon" title="${this.#msg('areaSelectCancel')}" data-ref="cancelBtn">${this.#icon('x')}</button>
 			`);
 
 			const ref = (name) => toolbar.querySelector(`[data-ref="${name}"]`);
-			const openBtn = ref('openBtn');
-			const copyBtn = ref('copyBtn');
-			openBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onOpenAll(); });
-			copyBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onCopyLinks(); });
-			ref('cancelBtn').addEventListener('click', (e) => { e.stopPropagation(); this.#broadcastExit(); });
-
-			shadow.appendChild(toolbar);
 			this.#toolbar = {
 				root: toolbar,
 				hintLabel: toolbar.querySelector('.fm-as-toolbar-hint'),
-				actionGroup: toolbar.querySelector('.fm-as-action-group'),
-				openBtn,
-				openLabel: ref('openLabel'),
-				copyBtn,
+				hintText: ref('hintText'),
 			};
+			if (!auto) {
+				const openBtn = ref('openBtn');
+				const copyBtn = ref('copyBtn');
+				openBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onOpenAll(); });
+				copyBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onCopyLinks(); });
+				this.#toolbar.actionGroup = toolbar.querySelector('.fm-as-action-group');
+				this.#toolbar.openBtn = openBtn;
+				this.#toolbar.openLabel = ref('openLabel');
+				this.#toolbar.copyBtn = copyBtn;
+			}
+			ref('cancelBtn').addEventListener('click', (e) => { e.stopPropagation(); this.#broadcastExit(); });
 
-			this.#createModal(shadow);
+			shadow.appendChild(toolbar);
 		}
 
 		#createModal(shadow) {
@@ -1807,7 +1824,10 @@ window.ContentContextMenu = ContentContextMenu;
 			`);
 
 			const ref = (name) => modal.querySelector(`[data-ref="${name}"]`);
-			ref('cancelBtn').addEventListener('click', () => { modal.style.display = 'none'; });
+			ref('cancelBtn').addEventListener('click', () => {
+				modal.style.display = 'none';
+				if (this.#autoAction !== 'none') this.#broadcastExit();
+			});
 			ref('confirmBtn').addEventListener('click', () => {
 				modal.style.display = 'none';
 				this.#doBatchOpen();
@@ -1821,12 +1841,25 @@ window.ContentContextMenu = ContentContextMenu;
 		#updateToolbarCount(preview = false) {
 			if (!this.#toolbar) return;
 			const count = this.#getDeduplicatedUrls(preview).length;
-			const msgKey = count === 1 ? 'areaSelectOpenOne' : 'areaSelectOpen';
-			this.#toolbar.openLabel.textContent = this.#msg(msgKey).replaceAll('%count%', String(count));
+			if (this.#autoAction !== 'none') {
+				this.#toolbar.root.classList.toggle('auto-action-ready', count > 0);
+				this.#toolbar.hintText.textContent = count === 0
+					? this.#msg('areaSelectHint')
+					: this.#countLabel(this.#autoAction, count);
+				return;
+			}
+			this.#toolbar.openLabel.textContent = this.#countLabel('open', count);
 			this.#toolbar.openBtn.disabled = count === 0;
 			this.#toolbar.copyBtn.disabled = count === 0;
 			if (count === 0) this.#showToolbarHint();
 			else this.#showToolbarActions();
+		}
+
+		#countLabel(kind, count) {
+			const key = kind === 'open'
+				? (count === 1 ? 'areaSelectOpenOne' : 'areaSelectOpenCount')
+				: (count === 1 ? 'areaSelectCopyOne' : 'areaSelectCopyCount');
+			return this.#msg(key).replaceAll('%count%', String(count));
 		}
 
 		#showToolbarActions() {
@@ -1853,6 +1886,14 @@ window.ContentContextMenu = ContentContextMenu;
 			return Array.from(urls);
 		}
 
+		#tryAutoAction() {
+			if (this.#autoDone) return;
+			switch (this.#autoAction) {
+				case 'open': this.#onOpenAll(); return;
+				case 'copy': this.#onCopyLinks(); return;
+			}
+		}
+
 		#onOpenAll() {
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
@@ -1870,14 +1911,13 @@ window.ContentContextMenu = ContentContextMenu;
 		#doBatchOpen() {
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
+			this.#autoDone = true;
 			try {
-				if (chrome.runtime?.sendMessage) {
-					chrome.runtime.sendMessage({
-						action: 'areaSelectBatchOpen',
-						urls,
-						operationInterval: this.#operationInterval,
-					}).catch(() => {});
-				}
+				chrome.runtime.sendMessage({
+					action: 'areaSelectBatchOpen',
+					urls,
+					operationInterval: this.#operationInterval,
+				}).catch(() => {});
 			} catch { }
 			this.#broadcastExit();
 		}
@@ -1885,9 +1925,8 @@ window.ContentContextMenu = ContentContextMenu;
 		#onCopyLinks() {
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
-			if (window.FlowMouseUtils?.copyText) {
-				window.FlowMouseUtils.copyText(urls.join('\n'));
-			}
+			this.#autoDone = true;
+			window.FlowMouseUtils.copyText(urls.join('\n'));
 			this.#broadcastExit();
 		}
 
@@ -1974,6 +2013,18 @@ window.ContentContextMenu = ContentContextMenu;
 					line-height: 16px;
 					opacity: .4;
 					user-select: none;
+				}
+				.fm-as-toolbar.auto-action-ready .fm-as-toolbar-hint {
+					opacity: 0.8;
+				}
+				.fm-as-toolbar-hint .action { display: none; }
+				.fm-as-toolbar.auto-action-ready .fm-as-toolbar-hint .idle { display: none; }
+				.fm-as-toolbar.auto-action-ready .fm-as-toolbar-hint .action { display: flex; }
+				.fm-as-toolbar.hide-cancel .fm-as-divider,
+				.fm-as-toolbar.hide-cancel [data-ref="cancelBtn"],
+				.fm-as-toolbar.auto-action-ready .fm-as-divider,
+				.fm-as-toolbar.auto-action-ready [data-ref="cancelBtn"] {
+					display: none;
 				}
 				.fm-as-action-group {
 					display: flex;
@@ -2349,6 +2400,36 @@ window.ContentContextMenu = ContentContextMenu;
 			enableDrag: DEFAULT_SETTINGS.enableTextDrag || DEFAULT_SETTINGS.enableImageDrag || DEFAULT_SETTINGS.enableLinkDrag
 		};
 
+		// A gesture can carry its own area-select settings instead of the global ones.
+		function resolveAreaSelectConfig(cfg) {
+			if (cfg?.overrideGlobal) {
+				return {
+					warnThreshold: cfg.warnThreshold,
+					textUrl: cfg.textUrl,
+					delay: cfg.delay,
+					autoAction: cfg.autoAction,
+				};
+			}
+			return {
+				warnThreshold: SETTINGS.areaSelectWarnThreshold,
+				textUrl: SETTINGS.areaSelectTextUrl,
+				delay: SETTINGS.areaSelectDelay,
+				autoAction: SETTINGS.areaSelectAutoAction,
+			};
+		}
+
+		function enterAreaSelect(initialEvent, cfg) {
+			const lang = window.ContentI18n.getHtmlLang();
+			const isRtl = window.ContentI18n.getDir() === 'rtl';
+			const resolved = resolveAreaSelectConfig(cfg);
+			window.FlowMouseAreaSelect?.enter(isIframe, resolved.warnThreshold || 0, lang, isRtl, initialEvent, {
+				textUrl: resolved.textUrl,
+				operationInterval: resolved.delay,
+				autoAction: resolved.autoAction,
+				customCss: SETTINGS.customCss,
+			});
+		}
+
 		// One binding shape for both sources - the stored entry, or a default
 		// wrapped as { action } - so a fallback from ↓↓ to ↓ carries ↓'s
 		// configuration along with its action.
@@ -2603,13 +2684,7 @@ window.ContentContextMenu = ContentContextMenu;
 				// a relay from another frame or a stale popup could still open it on a
 				// path-blocked document.
 				if (!blockedNow() && window.FlowMouseAreaSelect && !window.FlowMouseAreaSelect.isActive) {
-					const lang = window.ContentI18n.getHtmlLang();
-					const isRtl = window.ContentI18n.getDir() === 'rtl';
-					window.FlowMouseAreaSelect.enter(isIframe, request.warnThreshold, lang, isRtl, undefined, {
-						textUrl: request.textUrl,
-						operationInterval: request.operationInterval,
-						customCss: SETTINGS.customCss,
-					});
+					enterAreaSelect(undefined, request);
 				}
 			}
 
@@ -3062,22 +3137,10 @@ window.ContentContextMenu = ContentContextMenu;
 			const pending = areaSelectPending;
 			areaSelectPending = null;
 			if (window.FlowMouseAreaSelect?.isActive) return;
-			const lang = window.ContentI18n.getHtmlLang();
-			const isRtl = window.ContentI18n.getDir() === 'rtl';
-			const warnThreshold = SETTINGS.areaSelectWarnThreshold || 0;
 			const initialEvent = pending.event.pointerType !== 'pen' ? pending.event : null;
 			window.getSelection()?.removeAllRanges();
-			window.FlowMouseAreaSelect?.enter(isIframe, warnThreshold, lang, isRtl, initialEvent, {
-				textUrl: SETTINGS.areaSelectTextUrl,
-				operationInterval: SETTINGS.areaSelectDelay,
-				customCss: SETTINGS.customCss,
-			});
-			safeSendMessage({
-				action: 'areaSelect',
-				warnThreshold,
-				textUrl: SETTINGS.areaSelectTextUrl,
-				operationInterval: SETTINGS.areaSelectDelay,
-			});
+			enterAreaSelect(initialEvent);
+			safeSendMessage({ action: 'areaSelect' });
 			e.preventDefault();
 			e.stopImmediatePropagation();
 		}, true);
@@ -4187,9 +4250,11 @@ window.ContentContextMenu = ContentContextMenu;
 							.map(s => ({ ...(ACTION_DEFAULTS[s.action] || {}), ...s }));
 					}
 				} else if (action === 'areaSelect') {
-					msg_obj.warnThreshold = SETTINGS.areaSelectWarnThreshold;
-					msg_obj.textUrl = SETTINGS.areaSelectTextUrl;
-					msg_obj.operationInterval = SETTINGS.areaSelectDelay;
+					msg_obj.overrideGlobal = !!mergedConfig.overrideGlobal;
+					msg_obj.warnThreshold = mergedConfig.warnThreshold;
+					msg_obj.textUrl = mergedConfig.textUrl;
+					msg_obj.delay = mergedConfig.delay;
+					msg_obj.autoAction = mergedConfig.autoAction;
 				} else if (action === 'sendExtensionMessage') {
 					msg_obj.extensionId = mergedConfig.extensionId || '';
 					msg_obj.message = mergedConfig.message || '{}';

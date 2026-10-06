@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Отваряне на %count% връзки",
+		"message": "Отваряне на връзки",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Докато задържате бутона на мишката, превъртете колелцето, за да изберете бързо елементи от менюто." },
 	"actionReloadFrame": { "message": "Презареждане на рамката" },
 	"actionViewFrameSource": { "message": "Преглед на изходния код на рамката" },
-	"saveImageSubdirLabel": { "message": "Поддиректория" }
+	"saveImageSubdirLabel": { "message": "Поддиректория" },
+	"areaSelectAutoAction": { "message": "Автоматично изпълнение след избор" },
+	"areaSelectAutoActionDesc": { "message": "Автоматично отваряне или копиране на избраните връзки след завършване на избора" },
+	"areaSelectCopyCount": { "message": "Копиране на %count% връзки" },
+	"areaSelectCopyOne": { "message": "Копиране на %count% връзка" },
+	"areaSelectOpenCount": { "message": "Отваряне на %count% връзки" },
+	"areaSelectOverrideGlobal": { "message": "Замести глобални настройки" },
+	"areaSelectUseGlobal": { "message": "Използвай глобални настройки" }
 }

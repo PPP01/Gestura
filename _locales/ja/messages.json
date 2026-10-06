@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% 個のリンクを開く",
+		"message": "リンクを開く",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "マウスボタンを押したままホイールをスクロールすると、メニュー項目をすばやく選択できます。" },
 	"actionReloadFrame": { "message": "フレームを再読み込み" },
 	"actionViewFrameSource": { "message": "フレームのソースを表示" },
-	"saveImageSubdirLabel": { "message": "サブディレクトリ" }
+	"saveImageSubdirLabel": { "message": "サブディレクトリ" },
+	"areaSelectAutoAction": { "message": "選択後に自動実行" },
+	"areaSelectAutoActionDesc": { "message": "範囲選択が完了した後、選択したリンクを自動的に開くかコピーします" },
+	"areaSelectCopyCount": { "message": "%count% 個のリンクをコピー" },
+	"areaSelectCopyOne": { "message": "%count% 個のリンクをコピー" },
+	"areaSelectOpenCount": { "message": "%count% 個のリンクを開く" },
+	"areaSelectOverrideGlobal": { "message": "グローバル設定を上書きする" },
+	"areaSelectUseGlobal": { "message": "グローバル設定を使用する" }
 }

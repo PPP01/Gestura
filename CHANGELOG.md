@@ -22,6 +22,10 @@
   gesture started in instead of the whole tab. From FlowMouse v2.5.
 - **Save Image drag:** an optional subdirectory below the download folder. From
   FlowMouse v2.4.
+- **Area Select auto action:** open or copy the selected links as soon as the
+  selection is done, without pressing a button. Set globally, or per Area Select
+  gesture ("Override global settings"). Pressing Esc after a selection now
+  updates the link count on the toolbar correctly. From FlowMouse v2.4.
 
 **Fixes:**
 

@@ -83,6 +83,7 @@
 		specialGestures: 'record',
 		areaSelectModifierKey: 'scalar',
 		areaSelectTextUrl: 'scalar',
+		areaSelectAutoAction: 'scalar',
 		areaSelectWarnThreshold: 'scalar',
 		areaSelectDelay: 'scalar',
 		actionChains: { kind: 'record', both: true, idPrefix: 'chain_' },

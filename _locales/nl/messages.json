@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Open %count% links",
+		"message": "Links openen",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Terwijl u de muisknop ingedrukt houdt, scrolt u met het wieltje om snel menu-items te selecteren." },
 	"actionReloadFrame": { "message": "Frame opnieuw laden" },
 	"actionViewFrameSource": { "message": "Paginabron van frame weergeven" },
-	"saveImageSubdirLabel": { "message": "Submap" }
+	"saveImageSubdirLabel": { "message": "Submap" },
+	"areaSelectAutoAction": { "message": "Automatisch uitvoeren na selectie" },
+	"areaSelectAutoActionDesc": { "message": "Geselecteerde links automatisch openen of kopiëren nadat een selectie is voltooid" },
+	"areaSelectCopyCount": { "message": "%count% links kopiëren" },
+	"areaSelectCopyOne": { "message": "%count% link kopiëren" },
+	"areaSelectOpenCount": { "message": "Open %count% links" },
+	"areaSelectOverrideGlobal": { "message": "Globale instellingen overschrijven" },
+	"areaSelectUseGlobal": { "message": "Globale instellingen gebruiken" }
 }

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% bağlantıyı aç",
+		"message": "Bağlantıları Aç",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Fare düğmesini basılı tutarken, menü öğelerini hızlıca seçmek için tekerleği kaydırın." },
 	"actionReloadFrame": { "message": "Çerçeveyi yeniden yükle" },
 	"actionViewFrameSource": { "message": "Çerçeve kaynağını görüntüle" },
-	"saveImageSubdirLabel": { "message": "Alt dizin" }
+	"saveImageSubdirLabel": { "message": "Alt dizin" },
+	"areaSelectAutoAction": { "message": "Seçimden Sonra Otomatik Çalıştır" },
+	"areaSelectAutoActionDesc": { "message": "Bir seçim tamamlandığında seçilen bağlantıları otomatik olarak aç veya kopyala" },
+	"areaSelectCopyCount": { "message": "%count% bağlantıyı kopyala" },
+	"areaSelectCopyOne": { "message": "%count% bağlantı kopyala" },
+	"areaSelectOpenCount": { "message": "%count% bağlantıyı aç" },
+	"areaSelectOverrideGlobal": { "message": "Genel ayarları geçersiz kıl" },
+	"areaSelectUseGlobal": { "message": "Genel ayarları kullan" }
 }

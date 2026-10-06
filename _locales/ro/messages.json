@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Deschideți %count% linkuri",
+		"message": "Deschideți linkurile",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "În timp ce țineți apăsat butonul mouse-ului, derulați rotița pentru a selecta rapid elementele din meniu." },
 	"actionReloadFrame": { "message": "Reîncarcă cadrul" },
 	"actionViewFrameSource": { "message": "Vezi sursa cadrului" },
-	"saveImageSubdirLabel": { "message": "Subdirector" }
+	"saveImageSubdirLabel": { "message": "Subdirector" },
+	"areaSelectAutoAction": { "message": "Executare automată după selecție" },
+	"areaSelectAutoActionDesc": { "message": "Deschideți sau copiați automat linkurile selectate la finalizarea unei selecții" },
+	"areaSelectCopyCount": { "message": "Copiați %count% linkuri" },
+	"areaSelectCopyOne": { "message": "Copiați %count% link" },
+	"areaSelectOpenCount": { "message": "Deschideți %count% linkuri" },
+	"areaSelectOverrideGlobal": { "message": "Suprascrieți setările globale" },
+	"areaSelectUseGlobal": { "message": "Utilizați setările globale" }
 }

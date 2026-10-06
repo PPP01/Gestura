@@ -139,6 +139,7 @@
 		delay: { delayMs: 500 },
 		sendCustomEvent: { eventType: 'flowmouse:gesture', eventDetail: '{}', gestureInfo: true },
 		sendExtensionMessage: { extensionId: '', message: '{}' },
+		areaSelect: { overrideGlobal: false, textUrl: false, warnThreshold: 15, delay: 0.3, autoAction: 'none' },
 		simulateKey: { keyValue: 'ArrowLeft', modCtrl: false, modShift: false, modAlt: false, modMeta: false },
 		pasteClipboard: {},
 		pasteContent: { content: '' },
@@ -212,6 +213,12 @@
 		copyLinkAndText: { asMarkdown: false },
 		saveImage:       { subdir: '' },
 		sendCustomEvent: { eventType: 'flowmouse:drag', eventDetail: '{}', gestureInfo: true },
+	};
+
+	const AREA_SELECT_AUTO_ACTIONS = {
+		none: 'areaSelectDisabled',
+		open: 'areaSelectOpen',
+		copy: 'areaSelectCopy',
 	};
 
 	const TAB_POSITIONS = {
@@ -290,9 +297,10 @@
 			rightClickHoldingLeft: { action: 'forward' },
 		},
 		areaSelectModifierKey: 'Shift',
-		areaSelectTextUrl: false,
-		areaSelectWarnThreshold: 15,
-		areaSelectDelay: 0.3,
+		areaSelectTextUrl: ACTION_DEFAULTS.areaSelect.textUrl,
+		areaSelectAutoAction: ACTION_DEFAULTS.areaSelect.autoAction,
+		areaSelectWarnThreshold: ACTION_DEFAULTS.areaSelect.warnThreshold,
+		areaSelectDelay: ACTION_DEFAULTS.areaSelect.delay,
 		actionChains: {},
 		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' },
 		menuAppend: { enabled: false, items: [
@@ -349,6 +357,7 @@
 		ACTION_KEYS,
 		LOCAL_ACTIONS,
 		CLEAR_OVERLAY_ACTIONS,
+		AREA_SELECT_AUTO_ACTIONS,
 		ACTION_SHORT_KEYS,
 		ACTION_DEFAULTS,
 

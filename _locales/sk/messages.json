@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Otvoriť %count% odkazov",
+		"message": "Otvoriť odkazy",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Počas držania tlačidla myši posúvajte kolieskom, aby ste rýchlo vybrali položky ponuky." },
 	"actionReloadFrame": { "message": "Znova načítať rámec" },
 	"actionViewFrameSource": { "message": "Zobraziť zdrojový kód rámca" },
-	"saveImageSubdirLabel": { "message": "Podadresár" }
+	"saveImageSubdirLabel": { "message": "Podadresár" },
+	"areaSelectAutoAction": { "message": "Automaticky vykonať po výbere" },
+	"areaSelectAutoActionDesc": { "message": "Po dokončení výberu automaticky otvoriť alebo kopírovať vybrané odkazy" },
+	"areaSelectCopyCount": { "message": "Kopírovať %count% odkazov" },
+	"areaSelectCopyOne": { "message": "Kopírovať %count% odkaz" },
+	"areaSelectOpenCount": { "message": "Otvoriť %count% odkazov" },
+	"areaSelectOverrideGlobal": { "message": "Prepísať globálne nastavenia" },
+	"areaSelectUseGlobal": { "message": "Použiť globálne nastavenia" }
 }

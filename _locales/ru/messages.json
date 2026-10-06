@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Открыть %count% ссылок",
+		"message": "Открыть ссылки",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Удерживая кнопку мыши, прокручивайте колесико для быстрого выбора пунктов меню." },
 	"actionReloadFrame": { "message": "Перезагрузить фрейм" },
 	"actionViewFrameSource": { "message": "Просмотр кода фрейма" },
-	"saveImageSubdirLabel": { "message": "Подкаталог" }
+	"saveImageSubdirLabel": { "message": "Подкаталог" },
+	"areaSelectAutoAction": { "message": "Автоматически выполнять после выделения" },
+	"areaSelectAutoActionDesc": { "message": "Автоматически открывать или копировать выбранные ссылки после завершения выделения" },
+	"areaSelectCopyCount": { "message": "Копировать %count% ссылок" },
+	"areaSelectCopyOne": { "message": "Копировать %count% ссылку" },
+	"areaSelectOpenCount": { "message": "Открыть %count% ссылок" },
+	"areaSelectOverrideGlobal": { "message": "Переопределить глобальные настройки" },
+	"areaSelectUseGlobal": { "message": "Использовать глобальные настройки" }
 }

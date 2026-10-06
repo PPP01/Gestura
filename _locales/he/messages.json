@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "פתח %count% קישורים",
+		"message": "פתח קישורים",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "תוך כדי לחיצה ממושכת על לחצן העכבר, גלול את הגלגלת כדי לבחור במהירות פריטי תפריט." },
 	"actionReloadFrame": { "message": "טען מסגרת מחדש" },
 	"actionViewFrameSource": { "message": "הצג מקור מסגרת" },
-	"saveImageSubdirLabel": { "message": "תת-תיקייה" }
+	"saveImageSubdirLabel": { "message": "תת-תיקייה" },
+	"areaSelectAutoAction": { "message": "ביצוע אוטומטי לאחר בחירה" },
+	"areaSelectAutoActionDesc": { "message": "פתיחה או העתקה אוטומטית של קישורים שנבחרו עם השלמת הבחירה" },
+	"areaSelectCopyCount": { "message": "העתק %count% קישורים" },
+	"areaSelectCopyOne": { "message": "העתק קישור %count%" },
+	"areaSelectOpenCount": { "message": "פתח %count% קישורים" },
+	"areaSelectOverrideGlobal": { "message": "עקוף הגדרות גלובליות" },
+	"areaSelectUseGlobal": { "message": "השתמש בהגדרות גלובליות" }
 }

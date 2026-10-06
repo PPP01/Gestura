@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "باز کردن %count% پیوند",
+		"message": "باز کردن پیوندها",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "در حالی که دکمه ماوس را نگه داشته‌اید، با چرخ ماوس پیمایش کنید تا به سرعت موارد منو را انتخاب کنید." },
 	"actionReloadFrame": { "message": "بارگیری مجدد قاب" },
 	"actionViewFrameSource": { "message": "مشاهده منبع قاب" },
-	"saveImageSubdirLabel": { "message": "زیرپوشه" }
+	"saveImageSubdirLabel": { "message": "زیرپوشه" },
+	"areaSelectAutoAction": { "message": "اجرای خودکار پس از انتخاب" },
+	"areaSelectAutoActionDesc": { "message": "باز کردن یا کپی کردن خودکار پیوندهای انتخاب شده پس از اتمام انتخاب" },
+	"areaSelectCopyCount": { "message": "کپی %count% پیوند" },
+	"areaSelectCopyOne": { "message": "کپی %count% پیوند" },
+	"areaSelectOpenCount": { "message": "باز کردن %count% پیوند" },
+	"areaSelectOverrideGlobal": { "message": "لغو تنظیمات سراسری" },
+	"areaSelectUseGlobal": { "message": "استفاده از تنظیمات سراسری" }
 }

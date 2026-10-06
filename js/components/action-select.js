@@ -2206,6 +2206,85 @@ class ActionSelect extends LitElement {
 				${this.#renderWheelNavToggle()}
 			`;
 		}
+		if (action === 'areaSelect') {
+			const defaults = ACTION_DEFAULTS.areaSelect;
+			const g = settingsStore.current;
+			const override = this._pendingConfig.overrideGlobal ?? defaults.overrideGlobal;
+			const textUrl = this._pendingConfig.textUrl ?? g.areaSelectTextUrl;
+			const warnThreshold = this._pendingConfig.warnThreshold ?? g.areaSelectWarnThreshold;
+			const delay = this._pendingConfig.delay ?? g.areaSelectDelay;
+			const autoAction = this._pendingConfig.autoAction ?? g.areaSelectAutoAction;
+			const autoActionOptions = Object.entries(window.GestureConstants.AREA_SELECT_AUTO_ACTIONS);
+			const help = (key) => html`<span class="help-icon"
+				.tooltip=${tooltip(window.i18n.getMessage(key))}>${unsafeHTML(icon('circleHelp', { size: 14 }))}</span>`;
+			return html`
+				<div class="action-config-row">
+					<select class="action-config-select"
+						.value=${override ? 'override' : 'global'}
+						@change=${(e) => {
+							this._pendingConfig = e.target.value === 'override'
+								? { ...this._pendingConfig, overrideGlobal: true, textUrl, warnThreshold, delay, autoAction }
+								: { ...this._pendingConfig, overrideGlobal: false };
+							this.requestUpdate();
+						}}
+					>
+						<option value="global">${window.i18n.getMessage('areaSelectUseGlobal')}</option>
+						<option value="override">${window.i18n.getMessage('areaSelectOverrideGlobal')}</option>
+					</select>
+				</div>
+				${override ? html`
+					<label class="action-config-checkbox">
+						<input type="checkbox"
+							.checked=${textUrl}
+							@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, textUrl: e.target.checked }; this.requestUpdate(); }}
+						>
+						<span>${window.i18n.getMessage('areaSelectTextUrl')}</span>
+						${help('areaSelectTextUrlDesc')}
+					</label>
+					<div class="action-config-row">
+						<span class="action-config-label">${window.i18n.getMessage('areaSelectAutoAction')} ${help('areaSelectAutoActionDesc')}</span>
+						<select class="action-config-select"
+							.value=${autoAction}
+							@change=${(e) => { this._pendingConfig = { ...this._pendingConfig, autoAction: e.target.value }; this.requestUpdate(); }}
+						>
+							${autoActionOptions.map(([value, key]) => html`
+								<option value=${value} ?selected=${value === autoAction}>${window.i18n.getMessage(key)}</option>
+							`)}
+						</select>
+					</div>
+					<div class="action-config-row">
+						<span class="action-config-label">${window.i18n.getMessage('areaSelectWarnThreshold')} ${help('areaSelectWarnThresholdDesc')}</span>
+						<div class="inline-input-control">
+							<input type="number" class="action-config-input" min="0" max="999" step="1"
+								style="width:70px"
+								.value=${String(warnThreshold)}
+								@change=${(e) => {
+									const v = Math.max(0, Math.min(999, parseInt(e.target.value) || 0));
+									e.target.value = v;
+									this._pendingConfig = { ...this._pendingConfig, warnThreshold: v };
+									this.requestUpdate();
+								}}
+							>
+						</div>
+					</div>
+					<div class="action-config-row">
+						<span class="action-config-label">${window.i18n.getMessage('areaSelectDelay')} ${help('areaSelectDelayDesc')}</span>
+						<div class="inline-input-control">
+							<input type="number" class="action-config-input" min="0" max="60" step="0.1"
+								style="width:70px"
+								.value=${String(delay)}
+								@change=${(e) => {
+									const v = Math.max(0, Math.min(60, Math.round(parseFloat(e.target.value) * 100) / 100 || 0));
+									e.target.value = v;
+									this._pendingConfig = { ...this._pendingConfig, delay: v };
+									this.requestUpdate();
+								}}
+							>
+						</div>
+					</div>
+				` : ''}
+			`;
+		}
 		if (action === 'addToBookmarks') {
 			return this.#renderBookmarkFolderSelect({ allowDefault: true });
 		}

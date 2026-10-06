@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% link megnyitása",
+		"message": "Linkek megnyitása",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Az egérgomb nyomva tartása közben görgessen a görgővel a menüpontok gyors kiválasztásához." },
 	"actionReloadFrame": { "message": "Keret újratöltése" },
 	"actionViewFrameSource": { "message": "Keret forráskódjának megtekintése" },
-	"saveImageSubdirLabel": { "message": "Alkönyvtár" }
+	"saveImageSubdirLabel": { "message": "Alkönyvtár" },
+	"areaSelectAutoAction": { "message": "Automatikus végrehajtás kijelölés után" },
+	"areaSelectAutoActionDesc": { "message": "A kijelölés befejezése után a kijelölt hivatkozások automatikus megnyitása vagy másolása" },
+	"areaSelectCopyCount": { "message": "%count% link másolása" },
+	"areaSelectCopyOne": { "message": "%count% link másolása" },
+	"areaSelectOpenCount": { "message": "%count% link megnyitása" },
+	"areaSelectOverrideGlobal": { "message": "Globális beállítások felülbírálása" },
+	"areaSelectUseGlobal": { "message": "Globális beállítások használata" }
 }

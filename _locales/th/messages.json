@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "เปิด %count% ลิงก์",
+		"message": "เปิดลิงก์",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "ขณะกดปุ่มเมาส์ค้างไว้ ให้เลื่อนลูกกลิ้งเพื่อเลือกรายการเมนูอย่างรวดเร็ว" },
 	"actionReloadFrame": { "message": "โหลดเฟรมซ้ำ" },
 	"actionViewFrameSource": { "message": "ดูซอร์สโค้ดของเฟรม" },
-	"saveImageSubdirLabel": { "message": "ไดเรกทอรีย่อย" }
+	"saveImageSubdirLabel": { "message": "ไดเรกทอรีย่อย" },
+	"areaSelectAutoAction": { "message": "ทำงานอัตโนมัติหลังจากการเลือก" },
+	"areaSelectAutoActionDesc": { "message": "เปิดหรือคัดลอกลิงก์ที่เลือกโดยอัตโนมัติเมื่อทำการเลือกเสร็จสิ้น" },
+	"areaSelectCopyCount": { "message": "คัดลอก %count% ลิงก์" },
+	"areaSelectCopyOne": { "message": "คัดลอก %count% ลิงก์" },
+	"areaSelectOpenCount": { "message": "เปิด %count% ลิงก์" },
+	"areaSelectOverrideGlobal": { "message": "ลบล้างการตั้งค่าส่วนกลาง" },
+	"areaSelectUseGlobal": { "message": "ใช้การตั้งค่าส่วนกลาง" }
 }

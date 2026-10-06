@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "링크 %count%개 열기",
+		"message": "링크 열기",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "마우스 버튼을 누른 상태에서 휠을 스크롤하여 메뉴 항목을 빠르게 선택합니다." },
 	"actionReloadFrame": { "message": "프레임 새로고침" },
 	"actionViewFrameSource": { "message": "프레임 소스 보기" },
-	"saveImageSubdirLabel": { "message": "하위 디렉터리" }
+	"saveImageSubdirLabel": { "message": "하위 디렉터리" },
+	"areaSelectAutoAction": { "message": "선택 후 자동 실행" },
+	"areaSelectAutoActionDesc": { "message": "영역 선택이 완료되면 선택한 링크를 자동으로 열거나 복사합니다" },
+	"areaSelectCopyCount": { "message": "%count%개의 링크 복사" },
+	"areaSelectCopyOne": { "message": "%count%개의 링크 복사" },
+	"areaSelectOpenCount": { "message": "링크 %count%개 열기" },
+	"areaSelectOverrideGlobal": { "message": "전역 설정 재정의" },
+	"areaSelectUseGlobal": { "message": "전역 설정 사용" }
 }

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Åpne %count% lenker",
+		"message": "Åpne lenker",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Hold nede museknappen og rull med hjulet for å raskt velge menyelementer." },
 	"actionReloadFrame": { "message": "Last inn rammen på nytt" },
 	"actionViewFrameSource": { "message": "Vis kildekode for rammen" },
-	"saveImageSubdirLabel": { "message": "Undermappe" }
+	"saveImageSubdirLabel": { "message": "Undermappe" },
+	"areaSelectAutoAction": { "message": "Utfør automatisk etter valg" },
+	"areaSelectAutoActionDesc": { "message": "Åpne eller kopier valgte lenker automatisk når et valg er fullført" },
+	"areaSelectCopyCount": { "message": "Kopier %count% lenker" },
+	"areaSelectCopyOne": { "message": "Kopier %count% lenke" },
+	"areaSelectOpenCount": { "message": "Åpne %count% lenker" },
+	"areaSelectOverrideGlobal": { "message": "Overstyr globale innstillinger" },
+	"areaSelectUseGlobal": { "message": "Bruk globale innstillinger" }
 }

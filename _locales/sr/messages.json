@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Отвори %count% веза",
+		"message": "Отвори везе",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3112,5 +3112,12 @@
 	"ctxMenuWheelNavTooltip": { "message": "Док држите дугме миша, скролујте точкићем да бисте брзо изабрали ставке менија." },
 	"actionReloadFrame": { "message": "Поново учитај оквир" },
 	"actionViewFrameSource": { "message": "Прикажи изворни код оквира" },
-	"saveImageSubdirLabel": { "message": "Поддиректоријум" }
+	"saveImageSubdirLabel": { "message": "Поддиректоријум" },
+	"areaSelectAutoAction": { "message": "Аутоматско извршавање након избора" },
+	"areaSelectAutoActionDesc": { "message": "Аутоматски отвори или копирај изабране везе након завршетка избора" },
+	"areaSelectCopyCount": { "message": "Копирај %count% веза" },
+	"areaSelectCopyOne": { "message": "Копирај %count% везу" },
+	"areaSelectOpenCount": { "message": "Отвори %count% веза" },
+	"areaSelectOverrideGlobal": { "message": "Замени глобална подешавања" },
+	"areaSelectUseGlobal": { "message": "Користи глобална подешавања" }
 }
