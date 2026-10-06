@@ -185,7 +185,7 @@ function asyncMessageHandler(asyncHandler) {
 
 const CONTENT_ACTIONS = new Set([
 	'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
-	'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent',
+	'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent',
 	'simulateKey', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 	'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
 	'customMenu', 'siteMenu',
@@ -510,6 +510,20 @@ async function handleAction(request, sender) {
 				});
 			}
 			return { success: true };
+
+		// Printed from the worker so a gesture inside an iframe prints the page, not the frame.
+		case 'printPage':
+			if (!sender.tab?.id) return { success: false };
+			await chrome.scripting.executeScript({
+				target: { tabId: sender.tab.id, frameIds: [0] },
+				func: () => { window.print(); },
+			});
+			return { success: true };
+
+		// The tab's title and URL, for a gesture that started inside an iframe.
+		case 'getTabInfo':
+			if (!sender.tab) return { success: false };
+			return { success: true, title: sender.tab.title, url: sender.tab.url };
 
 		case 'saveAsMhtml':
 			if (sender.tab?.id) {

@@ -2227,7 +2227,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 	function initGestures() {
 		initGesturesCalled = true;
-		const { DEFAULT_GESTURES, DEFAULT_SETTINGS, ACTION_DEFAULTS, DRAG_ACTION_DEFAULTS, ACTION_KEYS, LOCAL_ACTIONS, TEXT_DRAG_ACTIONS, LINK_DRAG_ACTIONS, IMAGE_DRAG_ACTIONS } = window.GestureConstants;
+		const { DEFAULT_GESTURES, DEFAULT_SETTINGS, ACTION_DEFAULTS, DRAG_ACTION_DEFAULTS, ACTION_KEYS, LOCAL_ACTIONS, CLEAR_OVERLAY_ACTIONS, TEXT_DRAG_ACTIONS, LINK_DRAG_ACTIONS, IMAGE_DRAG_ACTIONS } = window.GestureConstants;
 		const { handleScroll, checkScrollFeasibility, copyText, tryParseAsUrl } = window.FlowMouseUtils;
 		const { msg } = window.ContentI18n;
 
@@ -2572,6 +2572,7 @@ window.ContentContextMenu = ContentContextMenu;
 				const d = request.data;
 				switch (d.type) {
 					case 'hide': visualizer.hide(); break;
+					case 'cleanup': visualizer.cleanup(); break;
 					case 'updateAction': visualizer.updateAction(d.arrows, d.texts); break;
 					case 'updateSuggestedGestures': visualizer.updateSuggestedGestures(d.suggestions, d.currentPattern); break;
 				}
@@ -2685,6 +2686,14 @@ window.ContentContextMenu = ContentContextMenu;
 
 				if (isIframe) {
 					safeSendMessage({ action: 'gestureHudUpdate', data: { type: 'hide' } });
+				}
+			}
+
+			// The HUD of an iframe gesture lives in the top frame; take it down there too.
+			cleanup() {
+				super.cleanup();
+				if (isIframe) {
+					return safeSendMessage({ action: 'gestureHudUpdate', data: { type: 'cleanup' } });
 				}
 			}
 		}
@@ -3693,6 +3702,14 @@ window.ContentContextMenu = ContentContextMenu;
 			);
 		}
 
+		// Title and URL of the tab: inside an iframe document.title and location.href
+		// are the frame's, so ask the worker.
+		async function tabInfo() {
+			if (!isIframe) return { title: document.title, url: location.href };
+			const info = await safeSendMessage({ action: 'getTabInfo' });
+			return info?.success ? info : { title: document.title, url: location.href };
+		}
+
 		async function executeAction(action, config = {}, cursor = {}, startTarget = null, useActiveTab = false) {
 			if (!action || action === 'none') return false;
 			if (!isExtensionContextValid()) return false;
@@ -3701,6 +3718,11 @@ window.ContentContextMenu = ContentContextMenu;
 
 			const defaults = ACTION_DEFAULTS[action] || {};
 			const mergedConfig = { ...defaults, ...config };
+
+			if (CLEAR_OVERLAY_ACTIONS.has(action) || (action === 'actionChain' && SETTINGS.actionChains?.[mergedConfig.chainId]?.steps?.some(step => CLEAR_OVERLAY_ACTIONS.has(step.action)))) {
+				await visualizer.cleanup();
+				recognizer.reset();
+			}
 
 			if (LOCAL_ACTIONS.has(action)) {
 				const scrollConfig = { scrollDistance: mergedConfig.scrollDistance, scrollSmoothness: mergedConfig.scrollSmoothness, scrollDuration: mergedConfig.scrollDuration, scrollAccel: mergedConfig.scrollAccel, scrollAccelWindow: mergedConfig.scrollAccelWindow };
@@ -3720,19 +3742,27 @@ window.ContentContextMenu = ContentContextMenu;
 						handleScroll(action, scrollConfig, false, cursor.startX, cursor.startY);
 						break;
 					case 'stopLoading': window.stop(); break;
-					case 'copyUrl': copyText(location.href); break;
-					case 'copyTitle': copyText(document.title); break;
+					case 'copyUrl': {
+						const { url } = await tabInfo();
+						copyText(url);
+						break;
+					}
+					case 'copyTitle': {
+						const { title } = await tabInfo();
+						copyText(title);
+						break;
+					}
 					case 'copyTitleAndUrl': {
+						const { title, url } = await tabInfo();
 						if (mergedConfig.asMarkdown) {
-							const t = document.title.replace(/([\[\]])/g, '\\$1');
-							const u = location.href.replace(/([()])/g, '\\$1');
+							const t = title.replace(/([\[\]])/g, '\$1');
+							const u = url.replace(/([()])/g, '\$1');
 							copyText(`[${t}](${u})`);
 						} else {
-							copyText(`${document.title}\n${location.href}`);
+							copyText(`${title}\n${url}`);
 						}
 						break;
 					}
-					case 'printPage': window.print(); break;
 					case 'sendCustomEvent': {
 						const eventType = mergedConfig.eventType;
 						if (eventType) {

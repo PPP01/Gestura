@@ -151,9 +151,15 @@
 		menuShowBookmarks: { folderId: { id: '1' }, position: 'right', active: true, incognito: false, sortOrder: 'default', maxItems: 30, scrollToBottom: false, timeDisplay: 'dateAdded', wheelNav: true },
 	};
 
+	// Actions that capture or print the page: the gesture HUD must be gone from
+	// the DOM before they run, or it ends up on the paper and in the MHTML file.
+	const CLEAR_OVERLAY_ACTIONS = new Set([
+		'printPage', 'saveAsMhtml',
+	]);
+
 	const LOCAL_ACTIONS = new Set([
 		'none', 'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
-		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent', 'simulateKey',
+		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent', 'simulateKey',
 		'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 		'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
 		'customMenu', 'siteMenu',
@@ -338,6 +344,7 @@
 		DEFAULT_GESTURES,
 		ACTION_KEYS,
 		LOCAL_ACTIONS,
+		CLEAR_OVERLAY_ACTIONS,
 		ACTION_SHORT_KEYS,
 		ACTION_DEFAULTS,
 

@@ -24,6 +24,10 @@
 - Close Tab with "after closing: left/right" no longer wraps around to the far
   end of the window when the closed tab was the first or last one; the
   neighbour on the other side takes over. From FlowMouse v2.5.
+- Print Page and Save as MHTML no longer take the gesture HUD with them.
+  From FlowMouse v2.5.
+- Print Page, Copy Page Title and Copy Page URL used from inside an iframe act on
+  the tab, not on the frame. From FlowMouse v2.5.
 
 ### v2.9.0 (2026-10-05)
 
