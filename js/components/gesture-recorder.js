@@ -175,27 +175,10 @@ class GestureRecorder extends LitElement {
 				color: rgba(255, 255, 255, 0.38);
 			}
 
+			/* Looks like the cancel button; only its place and its icon differ. */
 			.btn-any {
-				display: inline-flex;
-				align-items: center;
-				gap: 8px;
 				margin-top: 22px;
-				background: transparent;
-				color: rgba(255, 255, 255, 0.5);
-				border: 1px solid rgba(255, 255, 255, 0.15);
-				padding: 8px 14px;
-				font-size: 13px;
-				font-family: inherit;
-				border-radius: 8px;
-				cursor: pointer;
 				pointer-events: auto;
-				transition: all 0.15s ease;
-			}
-
-			.btn-any:hover {
-				color: rgba(255, 255, 255, 0.9);
-				border-color: rgba(255, 255, 255, 0.3);
-				background: rgba(255, 255, 255, 0.06);
 			}
 
 			.btn-any .any-icon {
@@ -446,7 +429,7 @@ class GestureRecorder extends LitElement {
 								${unsafeHTML(window.GestureConstants.arrowsToSvg('↑↓←→'))}
 							</div>
 							${this.#allowAny ? html`
-								<button class="btn-any"
+								<button class="btn-cancel btn-any"
 									@mousedown=${e => e.stopPropagation()}
 									.tooltip=${tooltip(i18n.getMessage('fallbackGestureTip'))}
 									@click=${() => this.#selectAny()}>
@@ -586,17 +569,9 @@ class GestureRecorder extends LitElement {
 
 		const pattern = this.#recognizer.getPattern();
 		if (pattern) {
-			if (this.#bannedPatterns.has(pattern)) {
-				this.#showToast(
-					(window.i18n.getMessage('gestureRecorderBanned') || 'Gesture %pattern% already exists')
-						.replace('%pattern%', window.GestureConstants.arrowsToSvg(pattern))
-				);
+			if (!this.#accept(pattern)) {
 				this.#recognizer?.reset();
 				this._state = 'ready';
-			} else {
-				this._pattern = pattern;
-				this._patternSvg = window.GestureConstants.arrowsToSvg(pattern);
-				this._state = 'result';
 			}
 		} else {
 			this._state = 'ready';
@@ -604,18 +579,24 @@ class GestureRecorder extends LitElement {
 	}
 
 
+	// Takes the pattern as the result unless another gesture already uses it.
+	#accept(pattern) {
+		if (this.#bannedPatterns.has(pattern)) {
+			this.#showToast(
+				(window.i18n.getMessage('gestureRecorderBanned') || 'Gesture %pattern% already exists')
+					.replace('%pattern%', window.GestureConstants.arrowsToSvg(pattern))
+			);
+			return false;
+		}
+		this._pattern = pattern;
+		this._patternSvg = window.GestureConstants.arrowsToSvg(pattern);
+		this._state = 'result';
+		return true;
+	}
+
 	// The fallback entry: not drawn but chosen, it takes every pattern without one of its own.
 	#selectAny() {
-		if (this.#bannedPatterns.has('*')) {
-			this.#showToast(
-				window.i18n.getMessage('gestureRecorderBanned')
-					.replace('%pattern%', window.GestureConstants.arrowsToSvg('*'))
-			);
-			return;
-		}
-		this._pattern = '*';
-		this._patternSvg = window.GestureConstants.arrowsToSvg('*');
-		this._state = 'result';
+		this.#accept(window.GestureBinding.ANY);
 	}
 
 	#confirm() {

@@ -597,7 +597,7 @@ class ContentContextMenu {
 		isRtl: false,
 		customCss: '',
 		menuTheme: 'auto',
-		wheelThreshold: 30,
+		wheelThreshold: window.GestureConstants.DEFAULT_SETTINGS.wheelThreshold,
 	};
 
 	#activeMenuClose = null;
@@ -2382,19 +2382,22 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!pattern) return false;
 			const gestures = getGesturesForDragType(dragType);
 			if (!gestures) return false;
-			return getDragGestureConfigs(gestures, pattern).some(g => g.action && g.action !== 'none');
+			return isActiveDragConfigs(getDragGestureConfigs(gestures, pattern));
 		}
 
 		// The raw pattern if it has drag gestures, else the collapsed one if that
 		// has. Drag configs derive from the pattern alone, so resolving the pattern
 		// once is enough for hints, drop acceptance and execution.
+		const isActiveDragConfigs = (configs) => configs.some(g => g.action && g.action !== 'none');
+		const isActiveMouseBinding = (b) => !!b.action && b.action !== 'none';
+
 		function resolveDragPattern(dragType, pattern) {
 			const gestures = getGesturesForDragType(dragType);
 			if (!gestures || !pattern) return pattern;
 			return window.GestureBinding.resolve(pattern, (p) => {
 				const configs = getDragGestureConfigs(gestures, p);
 				return configs.length ? configs : undefined;
-			}, (configs) => configs.some(g => g.action && g.action !== 'none')).effectivePattern;
+			}, isActiveDragConfigs).effectivePattern;
 		}
 
 		let SETTINGS = {
@@ -2445,7 +2448,7 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		function resolveMouseGesture(pattern) {
-			return window.GestureBinding.resolve(pattern, lookupMouseBinding, (b) => !!b.action && b.action !== 'none');
+			return window.GestureBinding.resolve(pattern, lookupMouseBinding, isActiveMouseBinding);
 		}
 
 		function getBindingName(binding) {
@@ -2496,8 +2499,8 @@ window.ContentContextMenu = ContentContextMenu;
 				: DEFAULT_GESTURES;
 			const patterns = Object.keys(source);
 			const isActive = (p) => {
-				const action = lookupMouseBinding(p)?.action;
-				return !!action && action !== 'none';
+				const binding = lookupMouseBinding(p);
+				return !!binding && isActiveMouseBinding(binding);
 			};
 			// The whole pipeline runs on the base: prefix, candidate length and
 			// the sort key's next direction.
@@ -3622,7 +3625,7 @@ window.ContentContextMenu = ContentContextMenu;
 			}
 		}, { capture: true });
 
-		const wheelTrigger = new window.GesturaWheelAccumulator(DEFAULT_SETTINGS.wheelThreshold);
+		const wheelTrigger = new window.GesturaWheelAccumulator(SETTINGS.wheelThreshold);
 
 		function handleWheelGesture(e) {
 			if (!(e.buttons & 2)) return;

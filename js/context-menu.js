@@ -3,8 +3,6 @@ import { LitElement, html, css, unsafeHTML } from './lib/lit-all.min.js';
 import './wheel-accumulator.js';
 
 const CUSTOM_CSS_CACHE_KEY = 'fm:customCss';
-// Pixels of wheel travel per menu step when the page does not say; a notch of a mouse wheel is 100.
-const WHEEL_STEP_PX = 30;
 
 class FmContextMenu extends LitElement {
 	static shadowRootOptions = { ...LitElement.shadowRootOptions, mode: 'closed' };
@@ -285,7 +283,7 @@ class FmContextMenu extends LitElement {
 	// releasing the right button picks the focused item. -1/0/1 is the direction of
 	// the scroll that opened it.
 	#wheelDir = null;
-	#wheel = new globalThis.GesturaWheelAccumulator(WHEEL_STEP_PX);
+	#wheel = null;
 
 	constructor() {
 		super();
@@ -304,7 +302,8 @@ class FmContextMenu extends LitElement {
 		this.#scrollToBottom = params.get('bottom') === '1';
 		this.#theme = params.get('theme') || 'auto';
 		if (params.has('wheel')) this.#wheelDir = Math.sign(Number(params.get('wheel'))) || 0;
-		if (params.has('wt')) this.#wheel.threshold = Math.max(0, Number(params.get('wt')) || 0);
+		// Wheel travel per step; the page sends the setting along with the wheel direction.
+		this.#wheel = new globalThis.GesturaWheelAccumulator(Math.max(0, Number(params.get('wt')) || 0));
 
 		if (!this.hasAttribute('preview')) {
 			document.documentElement.dir = dir;

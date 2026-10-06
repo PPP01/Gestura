@@ -229,7 +229,7 @@ class DragGestureManager extends LitElement {
 			</div>
 			<div class="drag-add-group">
 				<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addRow}>${unsafeHTML(icon('plus', { strokeWidth: 2 }))}</button>
-				${this.advancedMode && !this.dragGestures.some(g => g.direction === '*') ? html`
+				${this.advancedMode && !this.#hasFallback ? html`
 					<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addFallback}
 						.tooltip=${tooltip(window.i18n.getMessage('fallbackGestureTip'))}>
 						<span class="gesture-icon-wrap">${unsafeHTML(window.GestureConstants.arrowsToSvg('*'))}</span>
@@ -522,7 +522,7 @@ class DragGestureManager extends LitElement {
 		const recorder = this.shadowRoot.getElementById('dragRecorder');
 		if (!recorder) return;
 		const taken = this.dragGestures.map((g, i) => i === index ? null : g.direction).filter(Boolean);
-		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig, bannedPatterns: taken, allowAny: this.advancedMode && !taken.includes('*') });
+		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig, bannedPatterns: taken, allowAny: this.advancedMode && !taken.includes(window.GestureBinding.ANY) });
 		if (result.cancelled || !result.pattern) return;
 		this.#updateRow(index, 'direction', result.pattern);
 	}
@@ -549,12 +549,16 @@ class DragGestureManager extends LitElement {
 		this.#dispatchChange(dragGestures);
 	}
 
+	get #hasFallback() {
+		return this.dragGestures.some(g => g.direction === window.GestureBinding.ANY);
+	}
+
 	// The fallback row: it runs for a drag that no other row of this type matches.
 	#addFallback() {
-		if (this.dragGestures.some(g => g.direction === '*')) return;
+		if (this.#hasFallback) return;
 		const action = this.type === 'text' ? 'search' : 'openTab';
 		const dragGestures = structuredClone(this.dragGestures);
-		dragGestures.push({ direction: '*', action, simple: true });
+		dragGestures.push({ direction: window.GestureBinding.ANY, action, simple: true });
 		this.#dispatchChange(dragGestures);
 	}
 
