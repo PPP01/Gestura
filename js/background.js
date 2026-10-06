@@ -207,6 +207,27 @@ async function createTabAtPosition(sender, position, extraOpts = {}) {
 	return await chrome.tabs.create(createOpts);
 }
 
+// Opens a tab in an incognito window that already exists, so a run of
+// "open in incognito" gestures from a normal window collects in one window
+// instead of piling up new ones. Only 'newWindow' asks for a window of its own.
+async function createIncognitoTab(position, extraOpts = {}) {
+	const windows = await chrome.windows.getAll({ populate: true, windowTypes: ['normal'] });
+	const incognitoWin = windows.find(w => w.incognito);
+	if (position === 'newWindow' || !incognitoWin?.tabs?.length) {
+		const createOpts = { incognito: true };
+		if (extraOpts.url && extraOpts.url !== 'about:blank') createOpts.url = extraOpts.url;
+		const win = await chrome.windows.create(createOpts);
+		return win?.tabs?.[0];
+	}
+	if (position === 'current') position = 'last';
+	const refTab = incognitoWin.tabs.find(t => t.active) || incognitoWin.tabs[0];
+	const newTab = await createTabAtPosition({ tab: refTab }, position, extraOpts);
+	if (extraOpts.active !== false) {
+		await chrome.windows.update(incognitoWin.id, { focused: true });
+	}
+	return newTab;
+}
+
 async function openInNewWindow(url, focused = true, incognito = false) {
 	const createOpts = { focused, incognito };
 	if (url) createOpts.url = url;
@@ -367,7 +388,7 @@ async function handleAction(request, sender) {
 			if (sender.tab && request.incognito && !sender.tab.incognito) {
 				const granted = await requestPermission(['incognito'], sender.tab.windowId);
 				if (granted) {
-					await chrome.windows.create({ incognito: true, url: request.url });
+					await createIncognitoTab(request.position || 'right', { url: request.url, active: request.active !== false });
 				}
 				return { success: true };
 			}
@@ -421,10 +442,8 @@ async function handleAction(request, sender) {
 				if (request.incognito && !sender.tab.incognito) {
 					const granted = await requestPermission(['incognito'], sender.tab.windowId);
 					if (granted) {
-						const newWin = await chrome.windows.create({ incognito: true });
-						if (newWin && newWin.tabs && newWin.tabs.length > 0) {
-							await chrome.search.query({ text: request.query, tabId: newWin.tabs[0].id });
-						}
+						const newTab = await createIncognitoTab(request.position || 'right', { url: 'about:blank', active: request.active !== false });
+						if (newTab) await chrome.search.query({ text: request.query, tabId: newTab.id });
 					}
 					return { success: true };
 				}
@@ -839,7 +858,7 @@ async function handleAction(request, sender) {
 				if (sender.tab && request.incognito && !sender.tab.incognito) {
 					const granted = await requestPermission(['incognito'], sender.tab.windowId);
 					if (granted) {
-						await chrome.windows.create({ incognito: true, url });
+						await createIncognitoTab(request.position || 'last', { url, active: request.active !== false });
 					}
 					return { success: true };
 				}

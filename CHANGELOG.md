@@ -28,6 +28,9 @@
   From FlowMouse v2.5.
 - Print Page, Copy Page Title and Copy Page URL used from inside an iframe act on
   the tab, not on the frame. From FlowMouse v2.5.
+- Opening a link, search or custom URL in incognito from a normal window reuses an
+  incognito window that is already open instead of creating a new one each time.
+  "New window" still opens a window of its own. From FlowMouse v2.5.
 
 ### v2.9.0 (2026-10-05)
 
