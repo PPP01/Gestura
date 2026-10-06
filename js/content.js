@@ -2649,12 +2649,15 @@ window.ContentContextMenu = ContentContextMenu;
 				isRemoteGestureActive = request.active;
 			}
 
-			if (request.action === 'executeLocalAction' && !isIframe) {
+			// A chain step reaches the top frame, or - when the chain started in this
+			// frame and the worker still has the tab - the frame that holds its context.
+			if (request.action === 'executeLocalAction' && (!isIframe || chainContexts.has(request.contextId))) {
 				if (!LOCAL_ACTIONS.has(request.stepAction)) {
 					sendResponse({ success: false });
 					return;
 				}
-				executeAction(request.stepAction, request.stepConfig)
+				const ctx = chainContexts.get(request.contextId);
+				executeAction(request.stepAction, request.stepConfig, ctx?.cursor || {}, ctx?.startTarget || null)
 					.then(() => sendResponse({ success: true }))
 					.catch(() => sendResponse({ success: false }));
 				return true;
@@ -3802,6 +3805,11 @@ window.ContentContextMenu = ContentContextMenu;
 			return info?.success ? info : { title: document.title, url: location.href };
 		}
 
+		// Where a chain started (cursor, element under it), kept for the length of the
+		// chain so its steps - a menu that opens at the cursor, text pasted into the
+		// field the gesture began on - see the same place the first step would.
+		const chainContexts = new Map();
+
 		async function executeAction(action, config = {}, cursor = {}, startTarget = null, useActiveTab = false) {
 			if (!action || action === 'none') return false;
 			if (!isExtensionContextValid()) return false;
@@ -4219,6 +4227,7 @@ window.ContentContextMenu = ContentContextMenu;
 				}
 			} else {
 				const msg_obj = { action };
+				let chainContextId;
 				if (useActiveTab) msg_obj.useActiveTab = true;
 				if (action === 'openCustomUrl') {
 					const rawUrl = mergedConfig.customUrl || '';
@@ -4265,6 +4274,9 @@ window.ContentContextMenu = ContentContextMenu;
 						msg_obj.steps = chain.steps
 							.filter(s => s.action && s.action !== 'none' && s.action !== 'actionChain')
 							.map(s => ({ ...(ACTION_DEFAULTS[s.action] || {}), ...s }));
+						chainContextId = crypto.randomUUID();
+						chainContexts.set(chainContextId, { cursor, startTarget });
+						msg_obj.contextId = chainContextId;
 					}
 				} else if (action === 'areaSelect') {
 					msg_obj.overrideGlobal = !!mergedConfig.overrideGlobal;
@@ -4278,7 +4290,11 @@ window.ContentContextMenu = ContentContextMenu;
 				} else if (action === 'addSiteToMenu') {
 					msg_obj.menuId = mergedConfig.menuId;
 				}
-				return await safeSendMessage(msg_obj);
+				try {
+					return await safeSendMessage(msg_obj);
+				} finally {
+					if (chainContextId) chainContexts.delete(chainContextId);
+				}
 			}
 			return true;
 		}

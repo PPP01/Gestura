@@ -32,6 +32,11 @@
 - The website menu a gesture opens inside an iframe is chosen for the tab's page, not
   the iframe's own URL: on a listing whose description sits in an iframe the
   site's menu now appears instead of the default one.
+- Steps of a Command Chain that run on the page keep the place the gesture
+  started: a menu step opens at the cursor and "paste custom text" goes to the
+  element the gesture began on, also when the gesture started inside an iframe.
+  A step that has moved on to another tab runs there without that context. From
+  FlowMouse v2.5.
 - Close Tab with "after closing: left/right" no longer wraps around to the far
   end of the window when the closed tab was the first or last one; the
   neighbour on the other side takes over. From FlowMouse v2.5.

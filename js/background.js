@@ -1309,11 +1309,15 @@ async function handleAction(request, sender) {
 				if (!activeTab) continue;
 
 				if (CONTENT_ACTIONS.has(step.action)) {
+					// The context belongs to the tab the chain started in; once a step has
+					// moved on to another tab the step runs there without it.
+					const inOrigin = request.contextId && sender.tab && activeTab.id === sender.tab.id;
 					await chrome.tabs.sendMessage(activeTab.id, {
 						action: 'executeLocalAction',
 						stepAction: step.action,
-						stepConfig: step
-					}).catch(() => {});
+						stepConfig: step,
+						contextId: inOrigin ? request.contextId : undefined
+					}, inOrigin && sender.frameId != null ? { frameId: sender.frameId } : undefined).catch(() => {});
 					if (steps.indexOf(step) < steps.length - 1) {
 						await sleep(100);
 					}
