@@ -1033,7 +1033,11 @@ class ContentContextMenu {
 	}
 
 	// Worker messages for the surfaces this frame draws on behalf of a child frame.
-	handleRemote(request) {
+	// Only the worker's own messages count: a content script's chrome.runtime.sendMessage
+	// reaches every extension page too (the options page loads this script), and each of
+	// them would draw a copy of the menu. A message from a content script carries sender.tab.
+	handleRemote(request, sender) {
+		if (sender?.tab) return null;
 		switch (request.action) {
 			case 'ctxMenuDraw': {
 				const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), request.x, request.y, request.menuId, request.options);
@@ -2835,7 +2839,7 @@ window.ContentContextMenu = ContentContextMenu;
 		if (!isIframe) window.addEventListener('message', ContentContextMenu.answerLocate);
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-			const remote = ctxMenu.handleRemote(request);
+			const remote = ctxMenu.handleRemote(request, sender);
 			if (remote) {
 				sendResponse(remote);
 				return;
