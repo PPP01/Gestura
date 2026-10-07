@@ -616,6 +616,8 @@ class ContentContextMenu {
 	generateStyles() {
 		return `
 			.fm-ctx-frame {
+				transform: scale(var(--fm-ui-scale));
+				transform-origin: top left;
 				transition: opacity 0.15s cubic-bezier(.4,0,.2,1);
 				box-shadow: 0 2px 12px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.12);
 				border-radius: 8px;
@@ -742,6 +744,7 @@ class ContentContextMenu {
 		if (wheelDir != null) {
 			url.searchParams.set('wheel', String(Math.sign(wheelDir)));
 			url.searchParams.set('wt', String(this.#settings.wheelThreshold));
+			url.searchParams.set('zoom', String(window.FlowMouseZoom.tabZoom));
 			iframe.classList.add('fm-ctx-frame--wheel');
 			this.#wheel = { ready: false, queue: [], activate: false };
 		}
@@ -764,8 +767,13 @@ class ContentContextMenu {
 
 			if (request.action === 'ctxMenuDimensions') {
 				const { width, height } = request;
-				const vw = document.documentElement.clientWidth;
-				const vh = document.documentElement.clientHeight;
+				// The frame is drawn scaled; the size it reports and the anchor are
+				// in its own units, so the viewport and the cursor are brought into them.
+				const uiScale = window.FlowMouseZoom.uiScale;
+				const vw = document.documentElement.clientWidth / uiScale;
+				const vh = document.documentElement.clientHeight / uiScale;
+				const ax = x / uiScale;
+				const ay = y / uiScale;
 				const pad = 6;
 
 				const maxW = vw - pad * 2;
@@ -777,18 +785,18 @@ class ContentContextMenu {
 					const w0 = Math.min(width, maxW);
 					const h0 = Math.min(height, maxH);
 
-					let left = x;
+					let left = ax;
 					if (left + w0 + pad > vw) {
-						left = (x - w0 >= pad) ? x - w0 - 1 : vw - w0 - pad;
+						left = (ax - w0 >= pad) ? ax - w0 - 1 : vw - w0 - pad;
 					} else {
 						left += 1;
 					}
 					if (left + w0 + pad > vw) left = vw - w0 - pad;
 					if (left < pad) left = pad;
 
-					let top = y;
+					let top = ay;
 					if (top + h0 + pad > vh) {
-						top = (y - h0 >= pad) ? y - h0 : vh - h0 - pad;
+						top = (ay - h0 >= pad) ? ay - h0 : vh - h0 - pad;
 					}
 					if (top + h0 + pad > vh) top = vh - h0 - pad;
 					if (top < pad) top = pad;
@@ -804,8 +812,8 @@ class ContentContextMenu {
 
 				iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
 				iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
-				iframe.style.setProperty('left', Math.round(placedLeft) + 'px', 'important');
-				iframe.style.setProperty('top', Math.round(placedTop) + 'px', 'important');
+				iframe.style.setProperty('left', Math.round(placedLeft * uiScale) + 'px', 'important');
+				iframe.style.setProperty('top', Math.round(placedTop * uiScale) + 'px', 'important');
 				iframe.style.setProperty('opacity', '1', 'important');
 				iframe.style.setProperty('pointer-events', 'auto', 'important');
 				if (this.#wheel) {
@@ -1576,7 +1584,7 @@ window.ContentContextMenu = ContentContextMenu;
 			const width = Math.abs(x - svx);
 			const height = Math.abs(y - svy);
 
-			const clickThreshold = CLICK_THRESHOLD;
+			const clickThreshold = CLICK_THRESHOLD / window.FlowMouseZoom.tabZoom;
 			if (width > clickThreshold || height > clickThreshold) {
 				if (this.#rectEl.style.display !== 'block') {
 					this.#rectEl.style.display = 'block';
@@ -1603,7 +1611,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 			const svx = this.#startX - window.scrollX;
 			const svy = this.#startY - window.scrollY;
-			const clickThreshold = CLICK_THRESHOLD;
+			const clickThreshold = CLICK_THRESHOLD / window.FlowMouseZoom.tabZoom;
 			const isClick = Math.abs(e.clientX - svx) < clickThreshold
 						 && Math.abs(e.clientY - svy) < clickThreshold;
 
@@ -1714,7 +1722,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 		#handleAutoScroll(x, y) {
 			const vh = window.innerHeight;
-			const scrollZone = AUTO_SCROLL_ZONE;
+			const scrollZone = AUTO_SCROLL_ZONE / window.FlowMouseZoom.tabZoom;
 			let scrollDy = 0;
 			if (y < scrollZone) scrollDy = -AUTO_SCROLL_SPEED;
 			else if (y > vh - scrollZone) scrollDy = AUTO_SCROLL_SPEED;
@@ -1722,7 +1730,7 @@ window.ContentContextMenu = ContentContextMenu;
 			if (scrollDy !== 0) {
 				if (!this.#autoScrollRAF) {
 					const doScroll = () => {
-						window.scrollBy(0, scrollDy);
+						window.scrollBy(0, scrollDy / window.FlowMouseZoom.tabZoom);
 						this.#autoScrollRAF = requestAnimationFrame(doScroll);
 					};
 					this.#autoScrollRAF = requestAnimationFrame(doScroll);
@@ -1965,13 +1973,14 @@ window.ContentContextMenu = ContentContextMenu;
 				.fm-as-rect {
 					position: fixed;
 					display: none;
-					border: 2px dashed #4A90D9;
+					border: calc(2px * var(--fm-ui-scale)) dashed #4A90D9;
 					background: rgba(74, 144, 217, 0.15);
 					pointer-events: none;
 					z-index: 2147483647;
 					box-sizing: border-box;
 				}
 				.fm-as-toolbar {
+					zoom: var(--fm-ui-scale);
 					position: fixed;
 					bottom: 50px;
 					left: 0;
@@ -2117,6 +2126,7 @@ window.ContentContextMenu = ContentContextMenu;
 					cursor: default;
 				}
 				.fm-as-modal {
+					zoom: var(--fm-ui-scale);
 					background: rgba(255, 255, 255, 0.95);
 					backdrop-filter: blur(16px);
 					border-radius: 12px;
@@ -3161,8 +3171,8 @@ window.ContentContextMenu = ContentContextMenu;
 
 		eventManager.add(isAreaSelectModifierEnabled, window, 'pointermove', (e) => {
 			if (!areaSelectPending || e.pointerId !== areaSelectPending.pointerId) return;
-			const dx = e.clientX - areaSelectPending.x;
-			const dy = e.clientY - areaSelectPending.y;
+			const dx = (e.clientX - areaSelectPending.x) * window.FlowMouseZoom.tabZoom;
+			const dy = (e.clientY - areaSelectPending.y) * window.FlowMouseZoom.tabZoom;
 			if (dx * dx + dy * dy < 9) return;
 			const pending = areaSelectPending;
 			areaSelectPending = null;
@@ -3670,7 +3680,7 @@ window.ContentContextMenu = ContentContextMenu;
 			// The wheel has to travel the trigger distance before it fires again;
 			// the first event of a scroll fires at once.
 			wheelTrigger.threshold = SETTINGS.wheelThreshold;
-			if (!wheelTrigger.step(e.deltaY, e.deltaMode, e.timeStamp)) return;
+			if (!wheelTrigger.step(e.deltaY, e.deltaMode, e.timeStamp, window.FlowMouseZoom.tabZoom)) return;
 			gestureState.preventContextMenu = true;
 			gestureState.isRightButton = false;
 			recognizer.reset();
