@@ -58,6 +58,17 @@ describe('WheelAccumulator', () => {
 		expect(w.step(10, 0, 10)).toBe(true);
 	});
 
+	it('counts pixels at the tab zoom, lines not', () => {
+		const px = new WheelAccumulator(30);
+		px.step(10, 0, 0);
+		expect(px.step(10, 0, 10, 2)).toBe(false);
+		expect(px.step(10, 0, 20, 2)).toBe(true);
+		const lines = new WheelAccumulator(30);
+		lines.step(1, 1, 0);
+		expect(lines.step(1, 1, 10, 2)).toBe(false);
+		expect(lines.step(1, 1, 20, 2)).toBe(true);
+	});
+
 	it('forgets its state on reset', () => {
 		const w = new WheelAccumulator(30);
 		w.step(10, 0, 0);

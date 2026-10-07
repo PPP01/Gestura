@@ -17,8 +17,9 @@
 			this.threshold = threshold;
 		}
 
-		// deltaMode follows WheelEvent: 0 pixels, 1 lines, 2 pages.
-		step(deltaY, deltaMode, timeStamp) {
+		// deltaMode follows WheelEvent: 0 pixels, 1 lines, 2 pages. A pixel delta is
+		// in zoomed CSS pixels, so it is brought back to screen pixels by the tab zoom.
+		step(deltaY, deltaMode, timeStamp, tabZoom = 1) {
 			const dir = Math.sign(deltaY);
 			const isNewScroll = timeStamp - this.#lastTime > NEW_SCROLL_GAP_MS
 				|| (this.#lastDir !== 0 && dir !== this.#lastDir);
@@ -28,7 +29,7 @@
 				this.#sum = 0;
 				return true;
 			}
-			this.#sum += Math.abs(deltaMode === 1 ? deltaY * LINE_PX : deltaY);
+			this.#sum += Math.abs(deltaMode === 1 ? deltaY * LINE_PX : deltaY * tabZoom);
 			if (this.#sum < this.threshold) return false;
 			this.#sum = 0;
 			return true;

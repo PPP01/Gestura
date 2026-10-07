@@ -117,9 +117,11 @@ class GestureRecognizer {
 			totalDistance: 0,
 		};
 
+		// Distances are in CSS pixels, which the tab zoom stretches; the thresholds are screen pixels.
+		const tabZoom = globalThis.FlowMouseZoom?.tabZoom ?? 1;
 		const totalDeltaX = this.#currentX - this.#startX;
 		const totalDeltaY = this.#currentY - this.#startY;
-		const totalDistance = Math.sqrt(totalDeltaX * totalDeltaX + totalDeltaY * totalDeltaY);
+		const totalDistance = Math.sqrt(totalDeltaX * totalDeltaX + totalDeltaY * totalDeltaY) * tabZoom;
 		result.totalDistance = totalDistance;
 
 		if (!this.#active && totalDistance > this.#distanceThreshold) {
@@ -141,7 +143,7 @@ class GestureRecognizer {
 				for (const p of this.#points) {
 					const deltaX = p.x - this.#anchorX;
 					const deltaY = p.y - this.#anchorY;
-					const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+					const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * tabZoom;
 
 					if (dist > replayThreshold) {
 						const direction = this.#getDirection(deltaX, deltaY);
@@ -193,7 +195,7 @@ class GestureRecognizer {
 
 		const deltaX = this.#currentX - this.#anchorX;
 		const deltaY = this.#currentY - this.#anchorY;
-		const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * tabZoom;
 
 		if (distance > this.#distanceThreshold) {
 			const direction = this.#getDirection(deltaX, deltaY);

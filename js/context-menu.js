@@ -284,6 +284,7 @@ class FmContextMenu extends LitElement {
 	// the scroll that opened it.
 	#wheelDir = null;
 	#wheel = null;
+	#tabZoom = 1;
 
 	constructor() {
 		super();
@@ -304,6 +305,7 @@ class FmContextMenu extends LitElement {
 		if (params.has('wheel')) this.#wheelDir = Math.sign(Number(params.get('wheel'))) || 0;
 		// Wheel travel per step; the page sends the setting along with the wheel direction.
 		this.#wheel = new globalThis.GesturaWheelAccumulator(Math.max(0, Number(params.get('wt')) || 0));
+		this.#tabZoom = Number(params.get('zoom')) || 1;
 
 		if (!this.hasAttribute('preview')) {
 			document.documentElement.dir = dir;
@@ -376,7 +378,7 @@ class FmContextMenu extends LitElement {
 
 	#onWheelDelta(deltaY, deltaMode) {
 		if (!deltaY) return;
-		if (this.#wheel.step(deltaY, deltaMode, performance.now())) this.#moveFocus(Math.sign(deltaY));
+		if (this.#wheel.step(deltaY, deltaMode, performance.now(), this.#tabZoom)) this.#moveFocus(Math.sign(deltaY));
 	}
 
 	#onMouseUp = (e) => {
