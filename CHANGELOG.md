@@ -9,6 +9,13 @@
 
 **New Features:**
 
+- **Custom UI scale (advanced):** scales the gesture HUD, toast, menus and the
+  area-select toolbar and dialog. The setting belongs to the device and is not
+  synchronised.
+- **Tab zoom no longer changes the interface:** with the browser zoomed, the
+  overlays keep their screen size, and gesture distance, the click and
+  auto-scroll zones, the trail width and the wheel trigger distance are counted
+  in screen pixels.
 - **Wheel navigation in menus:** a menu opened by a wheel gesture (scroll up/down
   or wheel click while holding the right button) is now steered with the wheel —
   keep the right button down, scroll to move the highlight, release to pick the
