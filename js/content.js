@@ -734,10 +734,6 @@ class ContextMenuSurface {
 		try { chrome.runtime.onMessage.addListener(this.#onMessage); } catch {}
 	}
 
-	get isWheelNav() {
-		return this.#wheel !== null;
-	}
-
 	// Wheel steps for the menu; `activate` is the right button going up.
 	wheel(steps, activate) {
 		const w = this.#wheel;
@@ -917,28 +913,37 @@ class ContentContextMenu {
 		try { chrome.runtime.onMessage.addListener(onMessage); } catch {}
 		this.#activeMenuClose = closeMenu;
 
-		const drawHere = (at) => {
+		const drawHere = () => {
 			if (closed) return;
-			const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), at.x, at.y, menuId, options);
+			const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), x, y, menuId, options);
 			if (!surface) { closeMenu(); return; }
 			this.#settle(surface);
 		};
 
+		// Only a direct child of the top-level frame hands its menu up; the offset of a
+		// deeper frame would have to be added through every level in between.
 		if (window !== window.top && window.parent === window.top) {
-			this.#locateInTop(x, y).then(async (at) => {
+			this.#drawInTop(x, y, menuId, options).then((proxy) => {
 				if (closed) return;
-				if (at) {
-					let reply = null;
-					try { reply = await chrome.runtime.sendMessage({ action: 'ctxMenuDraw', menuId, x: at.x, y: at.y, options }); } catch {}
-					if (closed) return;
-					if (reply?.drawn) { this.#settle(this.#remoteProxy(menuId)); return; }
-				}
-				drawHere({ x, y });
+				if (proxy) this.#settle(proxy);
+				else drawHere();
 			});
 		} else {
-			drawHere({ x, y });
+			drawHere();
 		}
 		return closeMenu;
+	}
+
+	// Asks the top-level frame to draw the menu; a stand-in for its surface, or null if it cannot.
+	async #drawInTop(x, y, menuId, options) {
+		const at = await this.#locateInTop(x, y);
+		if (!at) return null;
+		try {
+			const reply = await chrome.runtime.sendMessage({ action: 'ctxMenuDraw', menuId, x: at.x, y: at.y, options });
+			return reply?.drawn ? this.#remoteProxy(menuId) : null;
+		} catch {
+			return null;
+		}
 	}
 
 	// The surface is known: hand it the wheel steps that came in meanwhile.
@@ -2799,8 +2804,9 @@ window.ContentContextMenu = ContentContextMenu;
 		if (!isIframe) window.addEventListener('message', ContentContextMenu.answerLocate);
 
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-			if (request.action === 'ctxMenuDraw' || request.action === 'ctxMenuPost' || request.action === 'ctxMenuWheel' || request.action === 'ctxMenuDestroy') {
-				sendResponse(ctxMenu.handleRemote(request));
+			const remote = ctxMenu.handleRemote(request);
+			if (remote) {
+				sendResponse(remote);
 				return;
 			}
 
