@@ -23,6 +23,13 @@ const GLOBAL_MUTE_KEY = 'flowmouse_global_mute_state';
 
 const ctxMenuSessions = new Map();
 
+// Takes a menu down from the frame that drew it for a child frame, if one did.
+function destroyDrawnMenu(menuId, session) {
+	if (session.drawFrameId == null) return;
+	chrome.tabs.sendMessage(session.tabId, { action: 'ctxMenuDestroy', menuId }, { frameId: session.drawFrameId }).catch(() => {});
+	session.drawFrameId = null;
+}
+
 class Bookmarks {
 	static #ROOT_IDS = new Set(['0', 'root________']);
 
@@ -1209,6 +1216,32 @@ async function handleAction(request, sender) {
 			return { items: session.latest ?? null, switcher: session.latestSwitcher ?? null };
 		}
 
+		// A menu that started in a child frame is drawn by the top-level frame (frame 0);
+		// what it reports and what the wheel does go there, the pick goes to the child.
+		case 'ctxMenuDraw': {
+			const session = ctxMenuSessions.get(request.menuId);
+			if (!session || !sender.tab) return { drawn: false };
+			// Set before asking: the menu page reports its size once, as soon as it has
+			// loaded, and that report must already find its way to the frame that draws it.
+			session.drawFrameId = 0;
+			try {
+				const reply = await chrome.tabs.sendMessage(sender.tab.id, {
+					action: 'ctxMenuDraw', menuId: request.menuId, x: request.x, y: request.y, options: request.options,
+				}, { frameId: 0 });
+				if (reply?.drawn) return { drawn: true };
+			} catch { /* no content script up there: the child draws it itself */ }
+			session.drawFrameId = null;
+			return { drawn: false };
+		}
+
+		case 'ctxMenuPost':
+		case 'ctxMenuWheel': {
+			const session = ctxMenuSessions.get(request.menuId);
+			if (!session || session.drawFrameId == null) return;
+			chrome.tabs.sendMessage(session.tabId, request, { frameId: session.drawFrameId }).catch(() => {});
+			return { success: true };
+		}
+
 		case 'ctxMenuDimensions': {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return;
@@ -1217,7 +1250,7 @@ async function handleAction(request, sender) {
 				menuId: request.menuId,
 				width: request.width,
 				height: request.height,
-			}, { frameId: session.frameId }).catch(() => {});
+			}, { frameId: session.drawFrameId ?? session.frameId }).catch(() => {});
 			return { success: true };
 		}
 
@@ -1230,6 +1263,7 @@ async function handleAction(request, sender) {
 				index: request.index,
 				button: request.button || 0,
 			}, { frameId: session.frameId }).catch(() => {});
+			destroyDrawnMenu(request.menuId, session);
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}
@@ -1252,13 +1286,17 @@ async function handleAction(request, sender) {
 				action: 'ctxMenuClose',
 				menuId: request.menuId,
 			}, { frameId: session.frameId }).catch(() => {});
+			destroyDrawnMenu(request.menuId, session);
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}
 
 		case 'ctxMenuCleanup': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (session) session.setItems(null);
+			if (session) {
+				session.setItems(null);
+				destroyDrawnMenu(request.menuId, session);
+			}
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}

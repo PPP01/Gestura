@@ -9,6 +9,12 @@
 
 **New Features:**
 
+- **Menus from iframes are drawn in the page:** a menu opened by a gesture that
+  started in an iframe (e.g. the seller description on an eBay listing) is now
+  drawn in the top-level frame, so it is no longer cut to the iframe's size. A
+  pick still runs in the iframe, wheel navigation works across the frames, and
+  nested iframes or pages without a script in the top frame keep the old
+  behaviour.
 - **Custom UI scale (advanced):** scales the gesture HUD, toast, menus and the
   area-select toolbar and dialog. The setting belongs to the device and is not
   synchronised.

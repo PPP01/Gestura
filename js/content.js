@@ -591,6 +591,184 @@
 })();
 
 
+// Draws one menu frame in the frame it runs in and places it. Either the frame
+// the gesture started in, or the top-level frame on its behalf (then x/y are
+// already in the top frame's coordinates). It owns the frame's wheel queue: the
+// menu page takes no wheel events before it has reported its size.
+class ContextMenuSurface {
+	#host;
+	#iframe;
+	#menuId;
+	#wheel = null;
+	#onMessage;
+
+	static open(settings, generateStyles, x, y, menuId, options) {
+		const host = new ShadowHost({ useDialog: true });
+		const topLayer = (document.fullscreenElement || document.querySelector(':modal')) ? 'modal' : 'popover';
+		if (!host.init(settings.lang, settings.isRtl, {
+			topLayer,
+			builtInCss: generateStyles,
+			customCss: settings.customCss,
+		})) {
+			return null;
+		}
+		return new ContextMenuSurface(host, settings, x, y, menuId, options);
+	}
+
+	constructor(host, settings, x, y, menuId, options) {
+		this.#host = host;
+		this.#menuId = menuId;
+
+		const iframe = host.createElement('iframe');
+		iframe.className = 'fm-ctx-frame';
+		// A COEP-isolated page (crossOriginIsolated) refuses to embed the menu frame
+		// unless it opts out of credentials. context-menu.js pairs this by skipping
+		// its localStorage cache, which a credentialless frame cannot persist.
+		if (window.crossOriginIsolated) iframe.credentialless = true;
+		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
+		// where prefers-color-scheme reflects the real OS setting. Inside the menu
+		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
+		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
+		// iframe-side media query would wrongly report light on a dark OS.
+		let theme = settings.menuTheme || 'auto';
+		if (theme === 'auto') {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		iframe.classList.add(`fm-theme-${theme}`);
+		iframe.style.cssText = `
+			position: fixed;
+			border: 0;
+			opacity: 0;
+			pointer-events: none;
+			overflow: hidden;
+		`;
+
+		host.shadow.appendChild(iframe);
+		this.#iframe = iframe;
+
+		const url = new URL(chrome.runtime.getURL('pages/context-menu.html'));
+		url.searchParams.set('id', menuId);
+		url.searchParams.set('dir', settings.isRtl ? 'rtl' : 'ltr');
+		if (settings.lang) url.searchParams.set('lang', settings.lang);
+		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
+		url.searchParams.set('theme', theme);
+		const wheelDir = options?.wheelDir;
+		if (wheelDir != null) {
+			url.searchParams.set('wheel', String(Math.sign(wheelDir)));
+			url.searchParams.set('wt', String(settings.wheelThreshold));
+			url.searchParams.set('zoom', String(window.FlowMouseZoom.tabZoom));
+			iframe.classList.add('fm-ctx-frame--wheel');
+			this.#wheel = { ready: false, queue: [], activate: false };
+		}
+
+		try {
+			iframe.contentWindow.location = url.href;
+		} catch {
+			iframe.src = url.href;
+		}
+
+		// Top-left anchor, chosen once on the first dimensions report and then
+		// kept fixed for the life of this menu. Re-measures after a menu switch
+		// or dropdown toggle only change width/height (the right/bottom edge),
+		// so the menu never jumps to a new origin while it is open.
+		let placedLeft = null;
+		let placedTop = null;
+
+		this.#onMessage = (request) => {
+			if (request.menuId !== menuId || request.action !== 'ctxMenuDimensions') return;
+			const { width, height } = request;
+			// The frame is drawn scaled; the size it reports and the anchor are
+			// in its own units, so the viewport and the cursor are brought into them.
+			const uiScale = window.FlowMouseZoom.uiScale;
+			const vw = document.documentElement.clientWidth / uiScale;
+			const vh = document.documentElement.clientHeight / uiScale;
+			const ax = x / uiScale;
+			const ay = y / uiScale;
+			const pad = 6;
+
+			const maxW = vw - pad * 2;
+			const maxH = vh - pad * 2;
+
+			if (placedLeft === null) {
+				// First placement: anchor at the cursor, flipping left/up only
+				// as needed to keep the initial size on-screen.
+				const w0 = Math.min(width, maxW);
+				const h0 = Math.min(height, maxH);
+
+				let left = ax;
+				if (left + w0 + pad > vw) {
+					left = (ax - w0 >= pad) ? ax - w0 - 1 : vw - w0 - pad;
+				} else {
+					left += 1;
+				}
+				if (left + w0 + pad > vw) left = vw - w0 - pad;
+				if (left < pad) left = pad;
+
+				let top = ay;
+				if (top + h0 + pad > vh) {
+					top = (ay - h0 >= pad) ? ay - h0 : vh - h0 - pad;
+				}
+				if (top + h0 + pad > vh) top = vh - h0 - pad;
+				if (top < pad) top = pad;
+
+				placedLeft = left;
+				placedTop = top;
+			}
+
+			// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
+			// the space available below/right of the anchor so it stays on-screen.
+			const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
+			const clampedH = Math.min(height, maxH, vh - pad - placedTop);
+
+			iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
+			iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
+			iframe.style.setProperty('left', Math.round(placedLeft * uiScale) + 'px', 'important');
+			iframe.style.setProperty('top', Math.round(placedTop * uiScale) + 'px', 'important');
+			iframe.style.setProperty('opacity', '1', 'important');
+			iframe.style.setProperty('pointer-events', 'auto', 'important');
+			if (this.#wheel) {
+				this.#wheel.ready = true;
+				this.#flushWheel();
+			}
+		};
+		try { chrome.runtime.onMessage.addListener(this.#onMessage); } catch {}
+	}
+
+	get isWheelNav() {
+		return this.#wheel !== null;
+	}
+
+	// Wheel steps for the menu; `activate` is the right button going up.
+	wheel(steps, activate) {
+		const w = this.#wheel;
+		if (!w) return;
+		w.queue.push(...steps);
+		if (activate) w.activate = true;
+		this.#flushWheel();
+	}
+
+	#flushWheel() {
+		const w = this.#wheel;
+		if (!w?.ready || (!w.queue.length && !w.activate)) return;
+		this.post({ __gestura: 'ctxWheel', menuId: this.#menuId, wheel: w.queue, activate: w.activate, zoom: window.FlowMouseZoom.tabZoom });
+		w.queue = [];
+		if (w.activate) this.#wheel = null;
+	}
+
+	// Straight into the menu frame: runtime broadcasts do not reach an embedded
+	// extension-page iframe.
+	post(msg) {
+		try {
+			this.#iframe?.contentWindow?.postMessage(msg, '*');
+		} catch { /* the frame is gone; the menu closes itself */ }
+	}
+
+	destroy() {
+		try { chrome.runtime.onMessage.removeListener(this.#onMessage); } catch {}
+		this.#host.cleanup();
+	}
+}
+
 class ContentContextMenu {
 	#settings = {
 		lang: '',
@@ -603,11 +781,15 @@ class ContentContextMenu {
 	#activeMenuClose = null;
 	#activeMenuId = null;
 	#activeItems = null;
-	#activeIframe = null;
+	// Where the open menu is drawn: a ContextMenuSurface here, or a proxy that
+	// reaches the one in the top-level frame. Null until that is decided.
+	#surface = null;
 	#switchHandler = null;
-	// Set while a wheel gesture drives the open menu. The menu frame is not ready
-	// to take wheel events until it has reported its size, so they queue up here.
+	// Set while a wheel gesture drives the open menu; steps that arrive before
+	// the surface exists wait here.
 	#wheel = null;
+	// Surfaces this frame draws for menus that started in a child frame.
+	#remoteSurfaces = new Map();
 
 	updateSettings(s) {
 		this.#settings = { ...this.#settings, ...s };
@@ -655,12 +837,14 @@ class ContentContextMenu {
 		const menuId = Math.random().toString(36).slice(2) + Date.now().toString(36);
 		this.#activeMenuId = menuId;
 		this.#activeItems = null;
+		this.#surface = null;
+		this.#wheel = options?.wheelDir != null ? { queue: [], activate: false } : null;
 
 		try {
 			chrome.runtime.sendMessage({ action: 'ctxMenuPrepare', menuId });
 		} catch { return () => {}; }
 
-		return this.#createMenuIframe(x, y, menuId, options);
+		return this.#start(x, y, menuId, options);
 	}
 
 	setItems(items, switcher) {
@@ -685,142 +869,36 @@ class ContentContextMenu {
 		// Push straight into the menu iframe for live updates (e.g. lazy favicons).
 		// The background pull handles the initial load; runtime broadcasts don't
 		// reach an embedded extension-page iframe, so postMessage directly.
-		try {
-			const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
-			if (switcher !== undefined) msg.switcher = switcher;
-			this.#activeIframe?.contentWindow?.postMessage(msg, '*');
-		} catch {}
+		const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
+		if (switcher !== undefined) msg.switcher = switcher;
+		this.#surface?.post(msg);
 	}
 
 	setSwitcher(fn) {
 		this.#switchHandler = fn;
 	}
 
-	#createMenuIframe(x, y, menuId, options) {
-		const host = new ShadowHost({ useDialog: true });
-		const topLayer = (document.fullscreenElement || document.querySelector(':modal')) ? 'modal' : 'popover';
-		if (!host.init(this.#settings.lang, this.#settings.isRtl, {
-			topLayer,
-			builtInCss: this.generateStyles(),
-			customCss: this.#settings.customCss,
-		})) {
-			return () => {};
-		}
-
-		const iframe = host.createElement('iframe');
-		iframe.className = 'fm-ctx-frame';
-		// A COEP-isolated page (crossOriginIsolated) refuses to embed the menu frame
-		// unless it opts out of credentials. context-menu.js pairs this by skipping
-		// its localStorage cache, which a credentialless frame cannot persist.
-		if (window.crossOriginIsolated) iframe.credentialless = true;
-		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
-		// where prefers-color-scheme reflects the real OS setting. Inside the menu
-		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
-		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
-		// iframe-side media query would wrongly report light on a dark OS.
-		let theme = this.#settings.menuTheme || 'auto';
-		if (theme === 'auto') {
-			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-		}
-		iframe.classList.add(`fm-theme-${theme}`);
-		iframe.style.cssText = `
-			position: fixed;
-			border: 0;
-			opacity: 0;
-			pointer-events: none;
-			overflow: hidden;
-		`;
-
-		host.shadow.appendChild(iframe);
-		this.#activeIframe = iframe;
-
-		const url = new URL(chrome.runtime.getURL('pages/context-menu.html'));
-		url.searchParams.set('id', menuId);
-		url.searchParams.set('dir', this.#settings.isRtl ? 'rtl' : 'ltr');
-		if (this.#settings.lang) url.searchParams.set('lang', this.#settings.lang);
-		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
-		url.searchParams.set('theme', theme);
-		const wheelDir = options?.wheelDir;
-		if (wheelDir != null) {
-			url.searchParams.set('wheel', String(Math.sign(wheelDir)));
-			url.searchParams.set('wt', String(this.#settings.wheelThreshold));
-			url.searchParams.set('zoom', String(window.FlowMouseZoom.tabZoom));
-			iframe.classList.add('fm-ctx-frame--wheel');
-			this.#wheel = { ready: false, queue: [], activate: false };
-		}
-
-		try {
-			iframe.contentWindow.location = url.href;
-		} catch {
-			iframe.src = url.href;
-		}
-
-		// Top-left anchor, chosen once on the first dimensions report and then
-		// kept fixed for the life of this menu. Re-measures after a menu switch
-		// or dropdown toggle only change width/height (the right/bottom edge),
-		// so the menu never jumps to a new origin while it is open.
-		let placedLeft = null;
-		let placedTop = null;
+	// A menu that starts in a child frame is drawn in the top-level frame, where it
+	// has the whole page to sit in; the child frame keeps the items and what a
+	// pick does. Anything that fails on the way draws it here, the old behaviour.
+	#start(x, y, menuId, options) {
+		let closed = false;
+		const closeMenu = () => {
+			if (closed) return;
+			closed = true;
+			this.#activeMenuClose = null;
+			this.#activeMenuId = null;
+			this.#activeItems = null;
+			this.#surface?.destroy();
+			this.#surface = null;
+			this.#switchHandler = null;
+			this.#wheel = null;
+			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
+			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
+		};
 
 		const onMessage = (request) => {
 			if (request.menuId !== menuId) return;
-
-			if (request.action === 'ctxMenuDimensions') {
-				const { width, height } = request;
-				// The frame is drawn scaled; the size it reports and the anchor are
-				// in its own units, so the viewport and the cursor are brought into them.
-				const uiScale = window.FlowMouseZoom.uiScale;
-				const vw = document.documentElement.clientWidth / uiScale;
-				const vh = document.documentElement.clientHeight / uiScale;
-				const ax = x / uiScale;
-				const ay = y / uiScale;
-				const pad = 6;
-
-				const maxW = vw - pad * 2;
-				const maxH = vh - pad * 2;
-
-				if (placedLeft === null) {
-					// First placement: anchor at the cursor, flipping left/up only
-					// as needed to keep the initial size on-screen.
-					const w0 = Math.min(width, maxW);
-					const h0 = Math.min(height, maxH);
-
-					let left = ax;
-					if (left + w0 + pad > vw) {
-						left = (ax - w0 >= pad) ? ax - w0 - 1 : vw - w0 - pad;
-					} else {
-						left += 1;
-					}
-					if (left + w0 + pad > vw) left = vw - w0 - pad;
-					if (left < pad) left = pad;
-
-					let top = ay;
-					if (top + h0 + pad > vh) {
-						top = (ay - h0 >= pad) ? ay - h0 : vh - h0 - pad;
-					}
-					if (top + h0 + pad > vh) top = vh - h0 - pad;
-					if (top < pad) top = pad;
-
-					placedLeft = left;
-					placedTop = top;
-				}
-
-				// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
-				// the space available below/right of the anchor so it stays on-screen.
-				const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
-				const clampedH = Math.min(height, maxH, vh - pad - placedTop);
-
-				iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
-				iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
-				iframe.style.setProperty('left', Math.round(placedLeft * uiScale) + 'px', 'important');
-				iframe.style.setProperty('top', Math.round(placedTop * uiScale) + 'px', 'important');
-				iframe.style.setProperty('opacity', '1', 'important');
-				iframe.style.setProperty('pointer-events', 'auto', 'important');
-				if (this.#wheel) {
-					this.#wheel.ready = true;
-					this.#flushWheel();
-				}
-			}
 
 			if (request.action === 'ctxMenuSelect') {
 				const item = this.#activeItems?.[request.index];
@@ -836,26 +914,113 @@ class ContentContextMenu {
 				closeMenu();
 			}
 		};
-
 		try { chrome.runtime.onMessage.addListener(onMessage); } catch {}
+		this.#activeMenuClose = closeMenu;
 
-		let closed = false;
-		const closeMenu = () => {
+		const drawHere = (at) => {
 			if (closed) return;
-			closed = true;
-			this.#activeMenuClose = null;
-			this.#activeMenuId = null;
-			this.#activeItems = null;
-			this.#activeIframe = null;
-			this.#switchHandler = null;
-			this.#wheel = null;
-			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
-			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
-			host.cleanup();
+			const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), at.x, at.y, menuId, options);
+			if (!surface) { closeMenu(); return; }
+			this.#settle(surface);
 		};
 
-		this.#activeMenuClose = closeMenu;
+		if (window !== window.top && window.parent === window.top) {
+			this.#locateInTop(x, y).then(async (at) => {
+				if (closed) return;
+				if (at) {
+					let reply = null;
+					try { reply = await chrome.runtime.sendMessage({ action: 'ctxMenuDraw', menuId, x: at.x, y: at.y, options }); } catch {}
+					if (closed) return;
+					if (reply?.drawn) { this.#settle(this.#remoteProxy(menuId)); return; }
+				}
+				drawHere({ x, y });
+			});
+		} else {
+			drawHere({ x, y });
+		}
 		return closeMenu;
+	}
+
+	// The surface is known: hand it the wheel steps that came in meanwhile.
+	#settle(surface) {
+		this.#surface = surface;
+		const w = this.#wheel;
+		if (w && (w.queue.length || w.activate)) {
+			surface.wheel(w.queue, w.activate);
+			w.queue = [];
+			if (w.activate) this.#wheel = null;
+		}
+	}
+
+	// Stands in for a surface drawn by the top-level frame; everything goes through the worker.
+	#remoteProxy(menuId) {
+		return {
+			post: (msg) => { try { chrome.runtime.sendMessage({ action: 'ctxMenuPost', menuId, msg }); } catch {} },
+			wheel: (steps, activate) => { try { chrome.runtime.sendMessage({ action: 'ctxMenuWheel', menuId, steps, activate }); } catch {} },
+			destroy: () => {},
+		};
+	}
+
+	// Where the point (x, y) of this frame lies in the top-level frame. The parent
+	// frame finds the <iframe> element that sent the message by its contentWindow,
+	// which works across origins. Null if nobody answers.
+	#locateInTop(x, y) {
+		return new Promise((resolve) => {
+			const token = Math.random().toString(36).slice(2);
+			const done = (v) => { window.removeEventListener('message', onReply); clearTimeout(timer); resolve(v); };
+			const onReply = (e) => {
+				const d = e.data;
+				if (e.source !== window.parent || !d || d.__gestura !== 'located' || d.token !== token) return;
+				done({ x: d.left + x * d.scaleX, y: d.top + y * d.scaleY });
+			};
+			const timer = setTimeout(() => done(null), 250);
+			window.addEventListener('message', onReply);
+			try { window.parent.postMessage({ __gestura: 'locate', token }, '*'); } catch { done(null); }
+		});
+	}
+
+	// The top-level frame answers a child's question where its <iframe> is.
+	static answerLocate(e) {
+		const d = e.data;
+		if (!d || d.__gestura !== 'locate' || typeof d.token !== 'string' || e.source === window || !e.source) return;
+		let el = null;
+		for (const f of document.querySelectorAll('iframe, frame')) {
+			if (f.contentWindow === e.source) { el = f; break; }
+		}
+		if (!el) return;
+		const r = el.getBoundingClientRect();
+		const cs = getComputedStyle(el);
+		const scaleX = el.offsetWidth ? r.width / el.offsetWidth : 1;
+		const scaleY = el.offsetHeight ? r.height / el.offsetHeight : 1;
+		const inX = el.clientLeft + (parseFloat(cs.paddingLeft) || 0);
+		const inY = el.clientTop + (parseFloat(cs.paddingTop) || 0);
+		try {
+			e.source.postMessage({ __gestura: 'located', token: d.token, left: r.left + inX * scaleX, top: r.top + inY * scaleY, scaleX, scaleY }, '*');
+		} catch {}
+	}
+
+	// Worker messages for the surfaces this frame draws on behalf of a child frame.
+	handleRemote(request) {
+		switch (request.action) {
+			case 'ctxMenuDraw': {
+				const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), request.x, request.y, request.menuId, request.options);
+				if (!surface) return { drawn: false };
+				this.#remoteSurfaces.get(request.menuId)?.destroy();
+				this.#remoteSurfaces.set(request.menuId, surface);
+				return { drawn: true };
+			}
+			case 'ctxMenuPost':
+				this.#remoteSurfaces.get(request.menuId)?.post(request.msg);
+				return {};
+			case 'ctxMenuWheel':
+				this.#remoteSurfaces.get(request.menuId)?.wheel(request.steps || [], !!request.activate);
+				return {};
+			case 'ctxMenuDestroy':
+				this.#remoteSurfaces.get(request.menuId)?.destroy();
+				this.#remoteSurfaces.delete(request.menuId);
+				return {};
+		}
+		return null;
 	}
 
 	get isOpen() {
@@ -872,26 +1037,19 @@ class ContentContextMenu {
 
 	wheelNavigate(deltaY, deltaMode) {
 		if (!this.#wheel) return;
-		this.#wheel.queue.push({ deltaY, deltaMode });
-		this.#flushWheel();
+		if (this.#surface) this.#surface.wheel([{ deltaY, deltaMode }], false);
+		else this.#wheel.queue.push({ deltaY, deltaMode });
 	}
 
 	// The right button went up: the menu picks the item the wheel stopped on.
 	wheelActivate() {
 		if (!this.#wheel) return;
-		this.#wheel.activate = true;
-		this.#flushWheel();
-	}
-
-	#flushWheel() {
-		const w = this.#wheel;
-		if (!w?.ready || (!w.queue.length && !w.activate)) return;
-		try {
-			this.#activeIframe?.contentWindow?.postMessage(
-				{ __gestura: 'ctxWheel', menuId: this.#activeMenuId, wheel: w.queue, activate: w.activate, zoom: window.FlowMouseZoom.tabZoom }, '*');
-		} catch { /* the frame is gone; the menu closes itself */ }
-		w.queue = [];
-		if (w.activate) this.#wheel = null;
+		if (this.#surface) {
+			this.#surface.wheel([], true);
+			this.#wheel = null;
+		} else {
+			this.#wheel.activate = true; // #settle hands it over
+		}
 	}
 
 	close() {
@@ -2637,7 +2795,15 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 		refreshTabZoom();
 
+		// The top-level frame draws the menus of its child frames and tells them where they are.
+		if (!isIframe) window.addEventListener('message', ContentContextMenu.answerLocate);
+
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+			if (request.action === 'ctxMenuDraw' || request.action === 'ctxMenuPost' || request.action === 'ctxMenuWheel' || request.action === 'ctxMenuDestroy') {
+				sendResponse(ctxMenu.handleRemote(request));
+				return;
+			}
+
 			if (request.action === 'tabZoomChanged') {
 				zoomRevision++;
 				window.FlowMouseZoom.update({ tabZoom: request.tabZoom, defaultZoom: request.defaultZoom });
