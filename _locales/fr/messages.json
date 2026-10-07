@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Ouvrir %count% liens",
+		"message": "Ouvrir les liens",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Répétition par pause" },
 	"forkGestureRepeatPauseDesc": { "message": "Restez immobile pendant cette durée, puis continuez dans la même direction pour la répéter, p. ex. ↓ pause ↓. Ne concerne que les gestes liés à une direction répétée. 0 la désactive." },
 	"forkGestureRepeatOffNotice": { "message": "Les deux sont désactivées : les gestes répétés comme ↓↓ ne peuvent être ni tracés ni enregistrés." },
-	"forkTabGestures": { "message": "Gestes" }
+	"forkTabGestures": { "message": "Gestes" },
+	"ctxMenuWheelNav": { "message": "Navigation rapide à la molette" },
+	"ctxMenuWheelNavTooltip": { "message": "Tout en maintenant le bouton de la souris enfoncé, faites défiler la molette pour sélectionner rapidement des éléments du menu." },
+	"actionReloadFrame": { "message": "Recharger le cadre" },
+	"actionViewFrameSource": { "message": "Afficher le code source du cadre" },
+	"saveImageSubdirLabel": { "message": "Sous-dossier" },
+	"areaSelectAutoAction": { "message": "Exécuter automatiquement après la sélection" },
+	"areaSelectAutoActionDesc": { "message": "Ouvrir ou copier automatiquement les liens sélectionnés une fois la sélection terminée" },
+	"areaSelectCopyCount": { "message": "Copier %count% liens" },
+	"areaSelectCopyOne": { "message": "Copier %count% lien" },
+	"areaSelectOpenCount": { "message": "Ouvrir %count% liens" },
+	"areaSelectOverrideGlobal": { "message": "Remplacer les paramètres globaux" },
+	"areaSelectUseGlobal": { "message": "Utiliser les paramètres globaux" },
+	"wheelThreshold": { "message": "Distance de déclenchement de la molette" },
+	"wheelThresholdDesc": { "message": "Le défilement de la molette de la souris doit atteindre cette distance pour déclencher des gestes de la molette de façon répétée" },
+	"gestureRecorderAny": { "message": "Ajouter un geste de repli" },
+	"fallbackGestureTip": { "message": "Se déclenche lorsque le tracé dessiné ne correspond à aucun autre geste" },
+	"userScale": { "message": "Échelle de l'interface personnalisée" },
+	"userScaleDesc": { "message": "Ajuster la taille des éléments de l'interface de Gestura (indices d'action, HUD, etc.)" },
+	"scale": { "message": "Échelle" }
 }

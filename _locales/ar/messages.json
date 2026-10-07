@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "فتح %count% من الروابط",
+		"message": "فتح الروابط",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "التكرار بالتوقف" },
 	"forkGestureRepeatPauseDesc": { "message": "ابقَ ثابتًا لهذه المدة ثم تابع في الاتجاه نفسه لتكراره، مثل ↓ توقف ↓. يهم فقط للإيماءات التي تربطها باتجاه مكرر. القيمة 0 تعطّله." },
 	"forkGestureRepeatOffNotice": { "message": "كلاهما متوقف: لا يمكن رسم الإيماءات المكررة مثل ↓↓ ولا تسجيلها." },
-	"forkTabGestures": { "message": "الإيماءات" }
+	"forkTabGestures": { "message": "الإيماءات" },
+	"ctxMenuWheelNav": { "message": "التنقل السريع بعجلة الماوس" },
+	"ctxMenuWheelNavTooltip": { "message": "أثناء الضغط باستمرار على زر الماوس، قم بالتمرير بعجلة الماوس لتحديد عناصر القائمة بسرعة." },
+	"actionReloadFrame": { "message": "إعادة تحميل الإطار" },
+	"actionViewFrameSource": { "message": "عرض مصدر الإطار" },
+	"saveImageSubdirLabel": { "message": "دليل فرعي" },
+	"areaSelectAutoAction": { "message": "تنفيذ تلقائي بعد التحديد" },
+	"areaSelectAutoActionDesc": { "message": "فتح أو نسخ الروابط المحددة تلقائيًا عند اكتمال التحديد" },
+	"areaSelectCopyCount": { "message": "نسخ %count% روابط" },
+	"areaSelectCopyOne": { "message": "نسخ رابط %count%" },
+	"areaSelectOpenCount": { "message": "فتح %count% من الروابط" },
+	"areaSelectOverrideGlobal": { "message": "تجاوز الإعدادات العامة" },
+	"areaSelectUseGlobal": { "message": "استخدام الإعدادات العامة" },
+	"wheelThreshold": { "message": "مسافة تحفيز العجلة" },
+	"wheelThresholdDesc": { "message": "يجب تمرير عجلة الماوس لهذه المسافة لتشغيل إيماءات العجلة بشكل متكرر" },
+	"gestureRecorderAny": { "message": "إضافة إيماءة للأنماط غير المطابقة" },
+	"fallbackGestureTip": { "message": "يتم التشغيل عندما لا يتطابق المسار المرسوم مع أي إيماءة أخرى" },
+	"userScale": { "message": "مقياس واجهة المستخدم المخصص" },
+	"userScaleDesc": { "message": "تغيير حجم عناصر واجهة Gestura مثل تلميحات الإجراءات وشاشة العرض (HUD)" },
+	"scale": { "message": "مقياس" }
 }

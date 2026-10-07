@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Buka %count% tautan",
+		"message": "Buka Tautan",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Ulangi dengan jeda" },
 	"forkGestureRepeatPauseDesc": { "message": "Tahan diam selama ini, lalu lanjutkan ke arah yang sama untuk mengulanginya, mis. ↓ jeda ↓. Hanya berpengaruh pada gerakan yang Anda kaitkan dengan arah berulang. 0 menonaktifkannya." },
 	"forkGestureRepeatOffNotice": { "message": "Keduanya nonaktif: gerakan berulang seperti ↓↓ tidak dapat digambar maupun direkam." },
-	"forkTabGestures": { "message": "Gerakan" }
+	"forkTabGestures": { "message": "Gerakan" },
+	"ctxMenuWheelNav": { "message": "Navigasi cepat roda mouse" },
+	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan tombol mouse, gulir roda untuk memilih item menu dengan cepat." },
+	"actionReloadFrame": { "message": "Muat ulang bingkai" },
+	"actionViewFrameSource": { "message": "Lihat sumber bingkai" },
+	"saveImageSubdirLabel": { "message": "Subdirektori" },
+	"areaSelectAutoAction": { "message": "Eksekusi Otomatis Setelah Memilih" },
+	"areaSelectAutoActionDesc": { "message": "Buka atau salin tautan yang dipilih secara otomatis setelah pemilihan selesai" },
+	"areaSelectCopyCount": { "message": "Salin %count% tautan" },
+	"areaSelectCopyOne": { "message": "Salin %count% tautan" },
+	"areaSelectOpenCount": { "message": "Buka %count% tautan" },
+	"areaSelectOverrideGlobal": { "message": "Timpa pengaturan global" },
+	"areaSelectUseGlobal": { "message": "Gunakan pengaturan global" },
+	"wheelThreshold": { "message": "Jarak Pemicu Roda" },
+	"wheelThresholdDesc": { "message": "Pengguliran roda mouse harus mencapai jarak ini untuk memicu gestur roda berulang kali" },
+	"gestureRecorderAny": { "message": "Tambahkan gestur untuk pola tak dikenali" },
+	"fallbackGestureTip": { "message": "Terpicu ketika jejak yang digambar tidak cocok dengan gestur lainnya" },
+	"userScale": { "message": "Skala Antarmuka Kustom" },
+	"userScaleDesc": { "message": "Menyesuaikan skala elemen antarmuka Gestura seperti petunjuk operasi dan HUD" },
+	"scale": { "message": "Skala" }
 }

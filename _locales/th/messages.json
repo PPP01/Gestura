@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "เปิด %count% ลิงก์",
+		"message": "เปิดลิงก์",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "ทำซ้ำด้วยการหยุดค้าง" },
 	"forkGestureRepeatPauseDesc": { "message": "หยุดนิ่งตามเวลานี้ แล้วเคลื่อนต่อในทิศทางเดิมเพื่อทำซ้ำ เช่น ↓ หยุด ↓ มีผลเฉพาะท่าทางที่คุณกำหนดให้ทิศทางซ้ำ ใส่ 0 เพื่อปิด" },
 	"forkGestureRepeatOffNotice": { "message": "ปิดทั้งสองอย่าง: ท่าทางซ้ำเช่น ↓↓ จะวาดหรือบันทึกไม่ได้" },
-	"forkTabGestures": { "message": "ท่าทาง" }
+	"forkTabGestures": { "message": "ท่าทาง" },
+	"ctxMenuWheelNav": { "message": "การนำทางอย่างรวดเร็วด้วยลูกกลิ้งเมาส์" },
+	"ctxMenuWheelNavTooltip": { "message": "ขณะกดปุ่มเมาส์ค้างไว้ ให้เลื่อนลูกกลิ้งเพื่อเลือกรายการเมนูอย่างรวดเร็ว" },
+	"actionReloadFrame": { "message": "โหลดเฟรมซ้ำ" },
+	"actionViewFrameSource": { "message": "ดูซอร์สโค้ดของเฟรม" },
+	"saveImageSubdirLabel": { "message": "ไดเรกทอรีย่อย" },
+	"areaSelectAutoAction": { "message": "ทำงานอัตโนมัติหลังจากการเลือก" },
+	"areaSelectAutoActionDesc": { "message": "เปิดหรือคัดลอกลิงก์ที่เลือกโดยอัตโนมัติเมื่อทำการเลือกเสร็จสิ้น" },
+	"areaSelectCopyCount": { "message": "คัดลอก %count% ลิงก์" },
+	"areaSelectCopyOne": { "message": "คัดลอก %count% ลิงก์" },
+	"areaSelectOpenCount": { "message": "เปิด %count% ลิงก์" },
+	"areaSelectOverrideGlobal": { "message": "ลบล้างการตั้งค่าส่วนกลาง" },
+	"areaSelectUseGlobal": { "message": "ใช้การตั้งค่าส่วนกลาง" },
+	"wheelThreshold": { "message": "ระยะกระตุ้นลูกกลิ้ง" },
+	"wheelThresholdDesc": { "message": "การเลื่อนลูกกลิ้งเมาส์จะต้องไปถึงระยะนี้เพื่อทริกเกอร์ท่าทางลูกกลิ้งอย่างต่อเนื่อง" },
+	"gestureRecorderAny": { "message": "เพิ่มท่าทางสำหรับรูปแบบที่ไม่ตรงกัน" },
+	"fallbackGestureTip": { "message": "ทำงานเมื่อเส้นที่ลากไม่ตรงกับท่าทางอื่นใด" },
+	"userScale": { "message": "ขนาด UI แบบกำหนดเอง" },
+	"userScaleDesc": { "message": "ปรับขนาดองค์ประกอบ UI ของ Gestura เช่น คำแนะนำการใช้งานและ HUD" },
+	"scale": { "message": "สเกล" }
 }

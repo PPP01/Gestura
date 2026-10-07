@@ -96,6 +96,8 @@
 		'searchClipboard': 'actionSearchClipboard',
 		'searchLink': 'actionSearchLink',
 		'viewPageSource': 'actionViewPageSource',
+		'viewFrameSource': 'actionViewFrameSource',
+		'reloadFrame': 'actionReloadFrame',
 		'pauseGesture': 'actionPauseGesture',
 		'areaSelect': 'actionAreaSelect',
 		'menuShowTabs': 'actionMenuShowTabs',
@@ -106,7 +108,7 @@
 	};
 
 	const ACTION_DEFAULTS = {
-		closeTab: { keepWindow: false, afterClose: 'default', skipPinned: false },
+		closeTab: { keepWindow: false, afterClose: 'default', skipPinned: false, preserveTab: false },
 		closeOtherTabs: { skipPinned: true, preserveTab: false },
 		closeLeftTabs: { skipPinned: true, preserveTab: false },
 		closeRightTabs: { skipPinned: true, preserveTab: false },
@@ -131,12 +133,13 @@
 		switchFirstTab: { moveTab: false },
 		switchLastTab: { moveTab: false },
 		actionChain: { chainId: '' },
-		customMenu: { ownMenu: null },
-		siteMenu: { mode: 'contextual', menuId: '', fork: null },
+		customMenu: { ownMenu: null, wheelNav: true },
+		siteMenu: { mode: 'contextual', menuId: '', fork: null, wheelNav: true },
 		addSiteToMenu: { menuId: '' },
 		delay: { delayMs: 500 },
 		sendCustomEvent: { eventType: 'flowmouse:gesture', eventDetail: '{}', gestureInfo: true },
 		sendExtensionMessage: { extensionId: '', message: '{}' },
+		areaSelect: { overrideGlobal: false, textUrl: false, warnThreshold: 15, delay: 0.3, autoAction: 'none' },
 		simulateKey: { keyValue: 'ArrowLeft', modCtrl: false, modShift: false, modAlt: false, modMeta: false },
 		pasteClipboard: {},
 		pasteContent: { content: '' },
@@ -146,14 +149,21 @@
 		zoomOut: { zoomMode: 'browser', zoomDelta: 10 },
 		resetZoom: { resetZoomLevel: 0 },
 		viewPageSource: { position: 'right', active: true },
-		menuShowTabs: { sortOrder: 'default', maxItems: 0, scrollToBottom: false, timeDisplay: 'lastAccess' },
-		menuRecentlyClosed: { maxItems: 12, sortOrder: 'default', scrollToBottom: false, timeDisplay: 'closedTime' },
-		menuShowBookmarks: { folderId: { id: '1' }, position: 'right', active: true, incognito: false, sortOrder: 'default', maxItems: 30, scrollToBottom: false, timeDisplay: 'dateAdded' },
+		viewFrameSource: { position: 'right', active: true },
+		menuShowTabs: { sortOrder: 'default', maxItems: 0, scrollToBottom: false, timeDisplay: 'lastAccess', wheelNav: true },
+		menuRecentlyClosed: { maxItems: 12, sortOrder: 'default', scrollToBottom: false, timeDisplay: 'closedTime', wheelNav: true },
+		menuShowBookmarks: { folderId: { id: '1' }, position: 'right', active: true, incognito: false, sortOrder: 'default', maxItems: 30, scrollToBottom: false, timeDisplay: 'dateAdded', wheelNav: true },
 	};
+
+	// Actions that capture or print the page: the gesture HUD must be gone from
+	// the DOM before they run, or it ends up on the paper and in the MHTML file.
+	const CLEAR_OVERLAY_ACTIONS = new Set([
+		'printPage', 'saveAsMhtml',
+	]);
 
 	const LOCAL_ACTIONS = new Set([
 		'none', 'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
-		'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent', 'simulateKey',
+		'stopLoading', 'reloadFrame', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent', 'simulateKey',
 		'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 		'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
 		'customMenu', 'siteMenu',
@@ -201,7 +211,14 @@
 		openTab:         { position: 'right', active: true, incognito: false, preferLink: false },
 		imageSearch:     { engine: 'google-lens', url: '', position: 'right', active: true, incognito: false },
 		copyLinkAndText: { asMarkdown: false },
+		saveImage:       { subdir: '' },
 		sendCustomEvent: { eventType: 'flowmouse:drag', eventDetail: '{}', gestureInfo: true },
+	};
+
+	const AREA_SELECT_AUTO_ACTIONS = {
+		none: 'areaSelectDisabled',
+		open: 'areaSelectOpen',
+		copy: 'areaSelectCopy',
 	};
 
 	const TAB_POSITIONS = {
@@ -227,6 +244,8 @@
 		gestureTriggerButtons: { right: true, middle: false, side1: false, side2: false, penRight: false },
 		enableHUD: true,
 		enableSuggestedGestures: true,
+		enableUserScale: false,
+		userScale: 1,
 		enableTrail: true,
 		showTrailOrigin: true,
 		enableTrailSmooth: true,
@@ -279,10 +298,12 @@
 			leftClickHoldingRight: { action: 'back' },
 			rightClickHoldingLeft: { action: 'forward' },
 		},
+		wheelThreshold: 30,
 		areaSelectModifierKey: 'Shift',
-		areaSelectTextUrl: false,
-		areaSelectWarnThreshold: 15,
-		areaSelectDelay: 0.3,
+		areaSelectTextUrl: ACTION_DEFAULTS.areaSelect.textUrl,
+		areaSelectAutoAction: ACTION_DEFAULTS.areaSelect.autoAction,
+		areaSelectWarnThreshold: ACTION_DEFAULTS.areaSelect.warnThreshold,
+		areaSelectDelay: ACTION_DEFAULTS.areaSelect.delay,
 		actionChains: {},
 		siteMenus: { disabled: [], edited: {}, custom: {}, domains: {}, order: [], flags: {}, defaultMenuId: 'search' },
 		menuAppend: { enabled: false, items: [
@@ -313,6 +334,7 @@
 		'↓': '<svg xmlns="http://www.w3.org/2000/svg" width="0.85em" height="0.85em" fill="currentColor" viewBox="5 3.5 6 9" style="vertical-align:-0.125em; margin:0.05em; display:inline"><path fill-rule="evenodd" d="M 8 4 a 0.5 0.5 0 0 1 0.5 0.5 v 5.793 L 10.646 8.146 a 0.5 0.5 0 0 1 0.708 0.708 l -3 3 a 0.5 0.5 0 0 1 -0.708 0 l -3 -3 a 0.5 0.5 0 0 1 0.708 -0.708 L 7.5 10.293 V 4.5 A 0.5 0.5 0 0 1 8 4"/></svg>',
 		'←': '<svg xmlns="http://www.w3.org/2000/svg" width="0.85em" height="0.85em" fill="currentColor" viewBox="3.5 5 9 6" style="vertical-align:-0.125em; margin:0.05em; display:inline"><path fill-rule="evenodd" d="M 12 8 a 0.5 0.5 0 0 0 -0.5 -0.5 H 5.707 L 7.854 5.354 a 0.5 0.5 0 1 0 -0.708 -0.708 l -3 3 a 0.5 0.5 0 0 0 0 0.708 l 3 3 a 0.5 0.5 0 0 0 0.708 -0.708 L 5.707 8.5 H 11.5 A 0.5 0.5 0 0 0 12 8"/></svg>',
 		'→': '<svg xmlns="http://www.w3.org/2000/svg" width="0.85em" height="0.85em" fill="currentColor" viewBox="3.5 5 9 6" style="vertical-align:-0.125em; margin:0.05em; display:inline"><path fill-rule="evenodd" d="M 4 8 a 0.5 0.5 0 0 1 0.5 -0.5 h 5.793 L 8.146 5.354 a 0.5 0.5 0 1 1 0.708 -0.708 l 3 3 a 0.5 0.5 0 0 1 0 0.708 l -3 3 a 0.5 0.5 0 0 1 -0.708 -0.708 L 10.293 8.5 H 4.5 A 0.5 0.5 0 0 1 4 8"/></svg>',
+		'*': '<svg xmlns="http://www.w3.org/2000/svg" width="1.0em" height="1.0em" viewBox="1 1 23 23" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.2em; margin:0 0.05em; display:inline"><path d="M12 5v14"/><path d="m18.065 8.496-12.125 7"/><path d="m5.94 8.504 12.125 7"/></svg>',
 	};
 
 	const CORNER_SVG = {
@@ -328,16 +350,18 @@
 
 	function arrowsToSvg(text) {
 		if (typeof text !== 'string' || !text) return '';
-		const arrows = text.replace(/[^↑↓←→]/g, '');
+		const arrows = text.replace(/[^↑↓←→*]/g, '');
 		if (!arrows) return '';
 		if (CORNER_SVG[arrows]) return CORNER_SVG[arrows];
-		return arrows.replace(/[↑↓←→]/g, match => ARROW_SVG[match]);
+		return arrows.replace(/[↑↓←→*]/g, match => ARROW_SVG[match]);
 	}
 
 	root.GestureConstants = {
 		DEFAULT_GESTURES,
 		ACTION_KEYS,
 		LOCAL_ACTIONS,
+		CLEAR_OVERLAY_ACTIONS,
+		AREA_SELECT_AUTO_ACTIONS,
 		ACTION_SHORT_KEYS,
 		ACTION_DEFAULTS,
 

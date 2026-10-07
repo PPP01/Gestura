@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Отвори %count% веза",
+		"message": "Отвори везе",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Понављање паузом" },
 	"forkGestureRepeatPauseDesc": { "message": "Држите мирно толико дуго, па наставите у истом смеру да га поновите, нпр. ↓ пауза ↓. Важи само за гестове које везујете за поновљени смер. 0 га искључује." },
 	"forkGestureRepeatOffNotice": { "message": "Оба су искључена: поновљени гестови као што је ↓↓ не могу се ни цртати ни снимити." },
-	"forkTabGestures": { "message": "Гестови" }
+	"forkTabGestures": { "message": "Гестови" },
+	"ctxMenuWheelNav": { "message": "Брза навигација точкићем" },
+	"ctxMenuWheelNavTooltip": { "message": "Док држите дугме миша, скролујте точкићем да бисте брзо изабрали ставке менија." },
+	"actionReloadFrame": { "message": "Поново учитај оквир" },
+	"actionViewFrameSource": { "message": "Прикажи изворни код оквира" },
+	"saveImageSubdirLabel": { "message": "Поддиректоријум" },
+	"areaSelectAutoAction": { "message": "Аутоматско извршавање након избора" },
+	"areaSelectAutoActionDesc": { "message": "Аутоматски отвори или копирај изабране везе након завршетка избора" },
+	"areaSelectCopyCount": { "message": "Копирај %count% веза" },
+	"areaSelectCopyOne": { "message": "Копирај %count% везу" },
+	"areaSelectOpenCount": { "message": "Отвори %count% веза" },
+	"areaSelectOverrideGlobal": { "message": "Замени глобална подешавања" },
+	"areaSelectUseGlobal": { "message": "Користи глобална подешавања" },
+	"wheelThreshold": { "message": "Удаљеност покретања точкића" },
+	"wheelThresholdDesc": { "message": "Померање точкића миша мора да достигне ову удаљеност да би се покрети точкићем више пута покренули" },
+	"gestureRecorderAny": { "message": "Додај гест за непрепознате шаблоне" },
+	"fallbackGestureTip": { "message": "Покреће се када нацртани траг не одговара ниједном другом гесту" },
+	"userScale": { "message": "Прилагођено скалирање интерфејса" },
+	"userScaleDesc": { "message": "Скалирање елемената интерфејса Gestura попут савета за акције и HUD-а" },
+	"scale": { "message": "Размера" }
 }

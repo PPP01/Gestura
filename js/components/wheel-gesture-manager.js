@@ -128,6 +128,7 @@ class WheelGestureManager extends LitElement {
 					style="display: ${isModified ? 'inline-flex' : 'none'}">${unsafeHTML(icon('rotateCcw', { size: 13, strokeWidth: 2.5 }))}</button>
 				<div class="wheel-gesture-action">
 					<action-select
+						context="wheel"
 						.value=${config.action || 'none'}
 						.config=${config}
 						.gestureLabel=${label}

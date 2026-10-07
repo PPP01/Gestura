@@ -454,7 +454,7 @@
 
 	function handleScroll(action, scrollConfig, forceTargetWindow = false, cursorX, cursorY) {
 		const meta = SCROLL_ACTIONS[action];
-		if (!meta) return;
+		if (!meta) return false;
 		const ax = AXES[meta.axis];
 		const target = getScrollTarget(action, forceTargetWindow, cursorX, cursorY);
 		const smoothness = resolveScrollSmoothness(scrollConfig.scrollSmoothness);
@@ -489,8 +489,12 @@
 		}
 
 		cancelEaseScroll();
+
+		// Nothing to scroll (already at the edge): remember no goal either, or the
+		// next gesture in the other direction starts from a position never reached.
+		if (Math.abs(cur - goal) <= 1) return false;
+
 		scrollGoals.set(target, { [meta.axis]: goal });
-		if (cur === goal) return;
 
 		if (smoothness === 'none') {
 			scrollGoals.delete(target);
@@ -507,6 +511,7 @@
 		} else {
 			easeScrollTo(target, meta.axis, goal, unclampedGoal, scrollConfig.scrollDuration ?? 500);
 		}
+		return true;
 	}
 
 
@@ -586,19 +591,213 @@
 })();
 
 
+// Draws one menu frame in the frame it runs in and places it. Either the frame
+// the gesture started in, or the top-level frame on its behalf (then x/y are
+// already in the top frame's coordinates). It owns the frame's wheel queue: the
+// menu page takes no wheel events before it has reported its size.
+class ContextMenuSurface {
+	#host;
+	#iframe;
+	#menuId;
+	#wheel = null;
+	#onMessage;
+	#onKey = null;
+
+	static open(settings, generateStyles, x, y, menuId, options) {
+		const host = new ShadowHost({ useDialog: true });
+		const topLayer = (document.fullscreenElement || document.querySelector(':modal')) ? 'modal' : 'popover';
+		if (!host.init(settings.lang, settings.isRtl, {
+			topLayer,
+			builtInCss: generateStyles,
+			customCss: settings.customCss,
+		})) {
+			return null;
+		}
+		return new ContextMenuSurface(host, settings, x, y, menuId, options);
+	}
+
+	constructor(host, settings, x, y, menuId, options) {
+		this.#host = host;
+		this.#menuId = menuId;
+
+		const iframe = host.createElement('iframe');
+		iframe.className = 'fm-ctx-frame';
+		// A COEP-isolated page (crossOriginIsolated) refuses to embed the menu frame
+		// unless it opts out of credentials. context-menu.js pairs this by skipping
+		// its localStorage cache, which a credentialless frame cannot persist.
+		if (window.crossOriginIsolated) iframe.credentialless = true;
+		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
+		// where prefers-color-scheme reflects the real OS setting. Inside the menu
+		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
+		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
+		// iframe-side media query would wrongly report light on a dark OS.
+		let theme = settings.menuTheme || 'auto';
+		if (theme === 'auto') {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		iframe.classList.add(`fm-theme-${theme}`);
+		iframe.style.cssText = `
+			position: fixed;
+			border: 0;
+			opacity: 0;
+			pointer-events: none;
+			overflow: hidden;
+		`;
+
+		host.shadow.appendChild(iframe);
+		this.#iframe = iframe;
+
+		const url = new URL(chrome.runtime.getURL('pages/context-menu.html'));
+		url.searchParams.set('id', menuId);
+		url.searchParams.set('dir', settings.isRtl ? 'rtl' : 'ltr');
+		if (settings.lang) url.searchParams.set('lang', settings.lang);
+		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
+		url.searchParams.set('theme', theme);
+		const wheelDir = options?.wheelDir;
+		if (wheelDir != null) {
+			url.searchParams.set('wheel', String(Math.sign(wheelDir)));
+			url.searchParams.set('wt', String(settings.wheelThreshold));
+			url.searchParams.set('zoom', String(window.FlowMouseZoom.tabZoom));
+			iframe.classList.add('fm-ctx-frame--wheel');
+			this.#wheel = { ready: false, queue: [], activate: false };
+		}
+
+		try {
+			iframe.contentWindow.location = url.href;
+		} catch {
+			iframe.src = url.href;
+		}
+
+		// Top-left anchor, chosen once on the first dimensions report and then
+		// kept fixed for the life of this menu. Re-measures after a menu switch
+		// or dropdown toggle only change width/height (the right/bottom edge),
+		// so the menu never jumps to a new origin while it is open.
+		let placedLeft = null;
+		let placedTop = null;
+
+		this.#onMessage = (request) => {
+			if (request.menuId !== menuId || request.action !== 'ctxMenuDimensions') return;
+			const { width, height } = request;
+			// The frame is drawn scaled; the size it reports and the anchor are
+			// in its own units, so the viewport and the cursor are brought into them.
+			const uiScale = window.FlowMouseZoom.uiScale;
+			const vw = document.documentElement.clientWidth / uiScale;
+			const vh = document.documentElement.clientHeight / uiScale;
+			const ax = x / uiScale;
+			const ay = y / uiScale;
+			const pad = 6;
+
+			const maxW = vw - pad * 2;
+			const maxH = vh - pad * 2;
+
+			if (placedLeft === null) {
+				// First placement: anchor at the cursor, flipping left/up only
+				// as needed to keep the initial size on-screen.
+				const w0 = Math.min(width, maxW);
+				const h0 = Math.min(height, maxH);
+
+				let left = ax;
+				if (left + w0 + pad > vw) {
+					left = (ax - w0 >= pad) ? ax - w0 - 1 : vw - w0 - pad;
+				} else {
+					left += 1;
+				}
+				if (left + w0 + pad > vw) left = vw - w0 - pad;
+				if (left < pad) left = pad;
+
+				let top = ay;
+				if (top + h0 + pad > vh) {
+					top = (ay - h0 >= pad) ? ay - h0 : vh - h0 - pad;
+				}
+				if (top + h0 + pad > vh) top = vh - h0 - pad;
+				if (top < pad) top = pad;
+
+				placedLeft = left;
+				placedTop = top;
+			}
+
+			// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
+			// the space available below/right of the anchor so it stays on-screen.
+			const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
+			const clampedH = Math.min(height, maxH, vh - pad - placedTop);
+
+			iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
+			iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
+			iframe.style.setProperty('left', Math.round(placedLeft * uiScale) + 'px', 'important');
+			iframe.style.setProperty('top', Math.round(placedTop * uiScale) + 'px', 'important');
+			iframe.style.setProperty('opacity', '1', 'important');
+			iframe.style.setProperty('pointer-events', 'auto', 'important');
+			if (this.#wheel) {
+				this.#wheel.ready = true;
+				this.#flushWheel();
+			}
+		};
+		try { chrome.runtime.onMessage.addListener(this.#onMessage); } catch {}
+	}
+
+	// Wheel steps for the menu; `activate` is the right button going up.
+	wheel(steps, activate) {
+		const w = this.#wheel;
+		if (!w) return;
+		w.queue.push(...steps);
+		if (activate) w.activate = true;
+		this.#flushWheel();
+	}
+
+	#flushWheel() {
+		const w = this.#wheel;
+		if (!w?.ready || (!w.queue.length && !w.activate)) return;
+		this.post({ __gestura: 'ctxWheel', menuId: this.#menuId, wheel: w.queue, activate: w.activate, zoom: window.FlowMouseZoom.tabZoom });
+		w.queue = [];
+		if (w.activate) this.#wheel = null;
+	}
+
+	// Straight into the menu frame: runtime broadcasts do not reach an embedded
+	// extension-page iframe.
+	post(msg) {
+		try {
+			this.#iframe?.contentWindow?.postMessage(msg, '*');
+		} catch { /* the frame is gone; the menu closes itself */ }
+	}
+
+	// Escape closes the menu even when the focus is not in the menu page, which is
+	// where the key lands if the page the gesture started in kept it. The pick and
+	// close messages go to the frame that owns the items, wherever this one is.
+	closeOnEscape() {
+		this.#onKey = (e) => {
+			if (e.key === 'Escape') try { chrome.runtime.sendMessage({ action: 'ctxMenuClose', menuId: this.#menuId }); } catch {}
+		};
+		window.addEventListener('keydown', this.#onKey, true);
+	}
+
+	destroy() {
+		if (this.#onKey) window.removeEventListener('keydown', this.#onKey, true);
+		try { chrome.runtime.onMessage.removeListener(this.#onMessage); } catch {}
+		this.#host.cleanup();
+	}
+}
+
 class ContentContextMenu {
 	#settings = {
 		lang: '',
 		isRtl: false,
 		customCss: '',
 		menuTheme: 'auto',
+		wheelThreshold: window.GestureConstants.DEFAULT_SETTINGS.wheelThreshold,
 	};
 
 	#activeMenuClose = null;
 	#activeMenuId = null;
 	#activeItems = null;
-	#activeIframe = null;
+	// Where the open menu is drawn: a ContextMenuSurface here, or a proxy that
+	// reaches the one in the top-level frame. Null until that is decided.
+	#surface = null;
 	#switchHandler = null;
+	// Set while a wheel gesture drives the open menu; steps that arrive before
+	// the surface exists wait here.
+	#wheel = null;
+	// Surfaces this frame draws for menus that started in a child frame.
+	#remoteSurfaces = new Map();
 
 	updateSettings(s) {
 		this.#settings = { ...this.#settings, ...s };
@@ -607,6 +806,8 @@ class ContentContextMenu {
 	generateStyles() {
 		return `
 			.fm-ctx-frame {
+				transform: scale(var(--fm-ui-scale));
+				transform-origin: top left;
 				transition: opacity 0.15s cubic-bezier(.4,0,.2,1);
 				box-shadow: 0 2px 12px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.12);
 				border-radius: 8px;
@@ -619,6 +820,11 @@ class ContentContextMenu {
 					corner-shape: superellipse(1.4);
 					border-radius: calc(8px * 1.4);
 				}
+			}
+
+			/* Opened by a wheel gesture: show without fading in */
+			.fm-ctx-frame--wheel {
+				transition: none;
 			}
 
 			.fm-ctx-frame.fm-theme-dark {
@@ -639,12 +845,14 @@ class ContentContextMenu {
 		const menuId = Math.random().toString(36).slice(2) + Date.now().toString(36);
 		this.#activeMenuId = menuId;
 		this.#activeItems = null;
+		this.#surface = null;
+		this.#wheel = options?.wheelDir != null ? { queue: [], activate: false } : null;
 
 		try {
 			chrome.runtime.sendMessage({ action: 'ctxMenuPrepare', menuId });
 		} catch { return () => {}; }
 
-		return this.#createMenuIframe(x, y, menuId, options);
+		return this.#start(x, y, menuId, options);
 	}
 
 	setItems(items, switcher) {
@@ -669,125 +877,40 @@ class ContentContextMenu {
 		// Push straight into the menu iframe for live updates (e.g. lazy favicons).
 		// The background pull handles the initial load; runtime broadcasts don't
 		// reach an embedded extension-page iframe, so postMessage directly.
-		try {
-			const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
-			if (switcher !== undefined) msg.switcher = switcher;
-			this.#activeIframe?.contentWindow?.postMessage(msg, '*');
-		} catch {}
+		const msg = { __gestura: 'ctxItems', menuId: this.#activeMenuId, items: serializedItems };
+		if (switcher !== undefined) msg.switcher = switcher;
+		this.#surface?.post(msg);
 	}
 
 	setSwitcher(fn) {
 		this.#switchHandler = fn;
 	}
 
-	#createMenuIframe(x, y, menuId, options) {
-		const host = new ShadowHost({ useDialog: true });
-		const topLayer = (document.fullscreenElement || document.querySelector(':modal')) ? 'modal' : 'popover';
-		if (!host.init(this.#settings.lang, this.#settings.isRtl, {
-			topLayer,
-			builtInCss: this.generateStyles(),
-			customCss: this.#settings.customCss,
-		})) {
-			return () => {};
-		}
+	// A menu that starts in a child frame is drawn in the top-level frame, where it
+	// has the whole page to sit in; the child frame keeps the items and what a
+	// pick does. Anything that fails on the way draws it here, the old behaviour.
+	#start(x, y, menuId, options) {
+		let closed = false;
+		const closeMenu = () => {
+			if (closed) return;
+			closed = true;
+			this.#activeMenuClose = null;
+			this.#activeMenuId = null;
+			this.#activeItems = null;
+			this.#surface?.destroy();
+			this.#surface = null;
+			this.#switchHandler = null;
+			this.#wheel = null;
+			window.removeEventListener('keydown', onKey, true);
+			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
+			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
+		};
 
-		const iframe = host.createElement('iframe');
-		iframe.className = 'fm-ctx-frame';
-		// A COEP-isolated page (crossOriginIsolated) refuses to embed the menu frame
-		// unless it opts out of credentials. context-menu.js pairs this by skipping
-		// its localStorage cache, which a credentialless frame cannot persist.
-		if (window.crossOriginIsolated) iframe.credentialless = true;
-		// Resolve 'auto' to a concrete mode here, in the page's top-level context,
-		// where prefers-color-scheme reflects the real OS setting. Inside the menu
-		// iframe the query is unreliable: Chromium ≥130 makes a nested frame inherit
-		// the embedding page's color-scheme (e.g. GitHub in light mode), so an
-		// iframe-side media query would wrongly report light on a dark OS.
-		let theme = this.#settings.menuTheme || 'auto';
-		if (theme === 'auto') {
-			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-		}
-		iframe.classList.add(`fm-theme-${theme}`);
-		iframe.style.cssText = `
-			position: fixed;
-			border: 0;
-			opacity: 0;
-			pointer-events: none;
-			overflow: hidden;
-		`;
-
-		host.shadow.appendChild(iframe);
-		this.#activeIframe = iframe;
-
-		const url = new URL(chrome.runtime.getURL('pages/context-menu.html'));
-		url.searchParams.set('id', menuId);
-		url.searchParams.set('dir', this.#settings.isRtl ? 'rtl' : 'ltr');
-		if (this.#settings.lang) url.searchParams.set('lang', this.#settings.lang);
-		if (options?.scrollToBottom) url.searchParams.set('bottom', '1');
-		url.searchParams.set('theme', theme);
-
-		try {
-			iframe.contentWindow.location = url.href;
-		} catch {
-			iframe.src = url.href;
-		}
-
-		// Top-left anchor, chosen once on the first dimensions report and then
-		// kept fixed for the life of this menu. Re-measures after a menu switch
-		// or dropdown toggle only change width/height (the right/bottom edge),
-		// so the menu never jumps to a new origin while it is open.
-		let placedLeft = null;
-		let placedTop = null;
+		const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+		window.addEventListener('keydown', onKey, true);
 
 		const onMessage = (request) => {
 			if (request.menuId !== menuId) return;
-
-			if (request.action === 'ctxMenuDimensions') {
-				const { width, height } = request;
-				const vw = document.documentElement.clientWidth;
-				const vh = document.documentElement.clientHeight;
-				const pad = 6;
-
-				const maxW = vw - pad * 2;
-				const maxH = vh - pad * 2;
-
-				if (placedLeft === null) {
-					// First placement: anchor at the cursor, flipping left/up only
-					// as needed to keep the initial size on-screen.
-					const w0 = Math.min(width, maxW);
-					const h0 = Math.min(height, maxH);
-
-					let left = x;
-					if (left + w0 + pad > vw) {
-						left = (x - w0 >= pad) ? x - w0 - 1 : vw - w0 - pad;
-					} else {
-						left += 1;
-					}
-					if (left + w0 + pad > vw) left = vw - w0 - pad;
-					if (left < pad) left = pad;
-
-					let top = y;
-					if (top + h0 + pad > vh) {
-						top = (y - h0 >= pad) ? y - h0 : vh - h0 - pad;
-					}
-					if (top + h0 + pad > vh) top = vh - h0 - pad;
-					if (top < pad) top = pad;
-
-					placedLeft = left;
-					placedTop = top;
-				}
-
-				// Anchor stays fixed; only the size grows/shrinks from it. Clamp to
-				// the space available below/right of the anchor so it stays on-screen.
-				const clampedW = Math.min(width, maxW, vw - pad - placedLeft);
-				const clampedH = Math.min(height, maxH, vh - pad - placedTop);
-
-				iframe.style.setProperty('width', Math.round(clampedW) + 'px', 'important');
-				iframe.style.setProperty('height', Math.round(clampedH) + 'px', 'important');
-				iframe.style.setProperty('left', Math.round(placedLeft) + 'px', 'important');
-				iframe.style.setProperty('top', Math.round(placedTop) + 'px', 'important');
-				iframe.style.setProperty('opacity', '1', 'important');
-				iframe.style.setProperty('pointer-events', 'auto', 'important');
-			}
 
 			if (request.action === 'ctxMenuSelect') {
 				const item = this.#activeItems?.[request.index];
@@ -803,25 +926,135 @@ class ContentContextMenu {
 				closeMenu();
 			}
 		};
-
 		try { chrome.runtime.onMessage.addListener(onMessage); } catch {}
+		this.#activeMenuClose = closeMenu;
 
-		let closed = false;
-		const closeMenu = () => {
+		const drawHere = () => {
 			if (closed) return;
-			closed = true;
-			this.#activeMenuClose = null;
-			this.#activeMenuId = null;
-			this.#activeItems = null;
-			this.#activeIframe = null;
-			this.#switchHandler = null;
-			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
-			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
-			host.cleanup();
+			const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), x, y, menuId, options);
+			if (!surface) { closeMenu(); return; }
+			this.#settle(surface);
 		};
 
-		this.#activeMenuClose = closeMenu;
+		// Only a direct child of the top-level frame hands its menu up; the offset of a
+		// deeper frame would have to be added through every level in between.
+		if (window !== window.top && window.parent === window.top) {
+			this.#drawInTop(x, y, menuId, options).then((proxy) => {
+				if (closed) return;
+				if (proxy) this.#settle(proxy);
+				else drawHere();
+			});
+		} else {
+			drawHere();
+		}
 		return closeMenu;
+	}
+
+	// Asks the top-level frame to draw the menu; a stand-in for its surface, or null if it cannot.
+	async #drawInTop(x, y, menuId, options) {
+		const at = await this.#locateInTop(x, y);
+		if (!at) return null;
+		try {
+			const reply = await chrome.runtime.sendMessage({ action: 'ctxMenuDraw', menuId, x: at.x, y: at.y, options });
+			return reply?.drawn ? this.#remoteProxy(menuId) : null;
+		} catch {
+			return null;
+		}
+	}
+
+	// The surface is known: hand it the wheel steps that came in meanwhile.
+	#settle(surface) {
+		this.#surface = surface;
+		const w = this.#wheel;
+		if (w && (w.queue.length || w.activate)) {
+			surface.wheel(w.queue, w.activate);
+			w.queue = [];
+			if (w.activate) this.#wheel = null;
+		}
+	}
+
+	// Stands in for a surface drawn by the top-level frame; everything goes through the worker.
+	#remoteProxy(menuId) {
+		return {
+			post: (msg) => { try { chrome.runtime.sendMessage({ action: 'ctxMenuPost', menuId, msg }); } catch {} },
+			wheel: (steps, activate) => { try { chrome.runtime.sendMessage({ action: 'ctxMenuWheel', menuId, steps, activate }); } catch {} },
+			destroy: () => {},
+		};
+	}
+
+	// Where the point (x, y) of this frame lies in the top-level frame. The parent
+	// frame finds the <iframe> element that sent the message by its contentWindow,
+	// which works across origins. Null if nobody answers.
+	#locateInTop(x, y) {
+		return new Promise((resolve) => {
+			const token = Math.random().toString(36).slice(2);
+			const done = (v) => { window.removeEventListener('message', onReply); clearTimeout(timer); resolve(v); };
+			const onReply = (e) => {
+				const d = e.data;
+				if (e.source !== window.parent || !d || d.__gestura !== 'located' || d.token !== token) return;
+				done(d.unsupported ? null : { x: d.left + x * d.scaleX, y: d.top + y * d.scaleY });
+			};
+			const timer = setTimeout(() => done(null), 250);
+			window.addEventListener('message', onReply);
+			try { window.parent.postMessage({ __gestura: 'locate', token }, '*'); } catch { done(null); }
+		});
+	}
+
+	// The top-level frame answers a child's question where its <iframe> is.
+	static answerLocate(e) {
+		const d = e.data;
+		if (!d || d.__gestura !== 'locate' || typeof d.token !== 'string' || e.source === window || !e.source) return;
+		let el = null;
+		for (const f of document.querySelectorAll('iframe, frame')) {
+			if (f.contentWindow === e.source) { el = f; break; }
+		}
+		const reply = (v) => { try { e.source.postMessage({ __gestura: 'located', token: d.token, ...v }, '*'); } catch {} };
+		// Not found (inside a shadow root, say), or rotated or skewed by a transform on the
+		// frame or an ancestor: the bounding box would not say where a point of the frame is.
+		if (!el || ContentContextMenu.#isRotated(el)) { reply({ unsupported: true }); return; }
+		const r = el.getBoundingClientRect();
+		const cs = getComputedStyle(el);
+		const scaleX = el.offsetWidth ? r.width / el.offsetWidth : 1;
+		const scaleY = el.offsetHeight ? r.height / el.offsetHeight : 1;
+		const inX = el.clientLeft + (parseFloat(cs.paddingLeft) || 0);
+		const inY = el.clientTop + (parseFloat(cs.paddingTop) || 0);
+		reply({ left: r.left + inX * scaleX, top: r.top + inY * scaleY, scaleX, scaleY });
+	}
+
+	static #isRotated(el) {
+		for (let n = el; n instanceof Element; n = n.parentElement) {
+			const t = getComputedStyle(n).transform;
+			if (!t || t === 'none') continue;
+			const m = new DOMMatrixReadOnly(t);
+			// a pure translation or scale keeps the axes; anything else tilts them
+			if (Math.abs(m.b) > 1e-3 || Math.abs(m.c) > 1e-3 || !m.is2D) return true;
+		}
+		return false;
+	}
+
+	// Worker messages for the surfaces this frame draws on behalf of a child frame.
+	handleRemote(request) {
+		switch (request.action) {
+			case 'ctxMenuDraw': {
+				const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), request.x, request.y, request.menuId, request.options);
+				if (!surface) return { drawn: false };
+				this.#remoteSurfaces.get(request.menuId)?.destroy();
+				surface.closeOnEscape();
+				this.#remoteSurfaces.set(request.menuId, surface);
+				return { drawn: true };
+			}
+			case 'ctxMenuPost':
+				this.#remoteSurfaces.get(request.menuId)?.post(request.msg);
+				return {};
+			case 'ctxMenuWheel':
+				this.#remoteSurfaces.get(request.menuId)?.wheel(request.steps || [], !!request.activate);
+				return {};
+			case 'ctxMenuDestroy':
+				this.#remoteSurfaces.get(request.menuId)?.destroy();
+				this.#remoteSurfaces.delete(request.menuId);
+				return {};
+		}
+		return null;
 	}
 
 	get isOpen() {
@@ -832,11 +1065,34 @@ class ContentContextMenu {
 		return this.#activeMenuId;
 	}
 
+	get isWheelNav() {
+		return this.#wheel !== null;
+	}
+
+	wheelNavigate(deltaY, deltaMode) {
+		if (!this.#wheel) return;
+		if (this.#surface) this.#surface.wheel([{ deltaY, deltaMode }], false);
+		else this.#wheel.queue.push({ deltaY, deltaMode });
+	}
+
+	// The right button went up: the menu picks the item the wheel stopped on.
+	wheelActivate() {
+		if (!this.#wheel) return;
+		if (this.#surface) {
+			this.#surface.wheel([], true);
+			this.#wheel = null;
+		} else {
+			this.#wheel.activate = true; // #settle hands it over
+		}
+	}
+
 	close() {
 		if (this.#activeMenuClose) {
 			this.#activeMenuClose();
 			this.#activeMenuClose = null;
 		}
+		for (const surface of this.#remoteSurfaces.values()) surface.destroy();
+		this.#remoteSurfaces.clear();
 	}
 }
 
@@ -1326,6 +1582,8 @@ window.ContentContextMenu = ContentContextMenu;
 		#firstHitIsFixed = false;
 		#cursorStyle = null;
 		#quickEntry = false;
+		#autoAction = 'none';
+		#autoDone = false;
 
 		get isActive() { return this.#state !== STATES.INACTIVE; }
 
@@ -1335,6 +1593,9 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#isIframe = isIframe;
 			this.#warnThreshold = warnThreshold ?? 15;
 			this.#operationInterval = options?.operationInterval ?? 0;
+			this.#autoAction = options?.autoAction ?? 'none';
+			this.#autoDone = false;
+			this.#quickEntry = !!initialEvent;
 			this.#highlighter = new LinkHighlighter();
 			if (options?.textUrl === false) this.#highlighter.textLinks = false;
 			this.#highlighter.onFirstPreviewHit = (item) => {
@@ -1361,6 +1622,7 @@ window.ContentContextMenu = ContentContextMenu;
 				shadow.appendChild(this.#overlay);
 
 				this.#createToolbar(shadow);
+				this.#createModal(shadow);
 			}
 
 			this.#rectEl = this.#host.createElement('div');
@@ -1396,7 +1658,6 @@ window.ContentContextMenu = ContentContextMenu;
 			document.documentElement.appendChild(this.#cursorStyle);
 
 			if (initialEvent) {
-				this.#quickEntry = true;
 				this.#onPointerDown(initialEvent);
 			}
 		}
@@ -1406,6 +1667,7 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#cancelAutoScroll();
 			this.#hoveredItem = null;
 			this.#quickEntry = false;
+			this.#autoDone = false;
 			if (this.#highlighter) {
 				this.#highlighter.cleanup();
 				this.#highlighter = null;
@@ -1438,9 +1700,10 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		updateFromFrame(frameId, links) {
-			if (this.#isIframe) return;
+			if (this.#isIframe || this.#state === STATES.INACTIVE) return;
 			this.#frameLinks.set(frameId, links);
 			this.#updateToolbarCount();
+			if (this.#state === STATES.WAITING) this.#tryAutoAction();
 		}
 
 
@@ -1515,7 +1778,8 @@ window.ContentContextMenu = ContentContextMenu;
 			const width = Math.abs(x - svx);
 			const height = Math.abs(y - svy);
 
-			if (width > CLICK_THRESHOLD || height > CLICK_THRESHOLD) {
+			const clickThreshold = CLICK_THRESHOLD / window.FlowMouseZoom.tabZoom;
+			if (width > clickThreshold || height > clickThreshold) {
 				if (this.#rectEl.style.display !== 'block') {
 					this.#rectEl.style.display = 'block';
 				}
@@ -1541,8 +1805,9 @@ window.ContentContextMenu = ContentContextMenu;
 
 			const svx = this.#startX - window.scrollX;
 			const svy = this.#startY - window.scrollY;
-			const isClick = Math.abs(e.clientX - svx) < CLICK_THRESHOLD
-						 && Math.abs(e.clientY - svy) < CLICK_THRESHOLD;
+			const clickThreshold = CLICK_THRESHOLD / window.FlowMouseZoom.tabZoom;
+			const isClick = Math.abs(e.clientX - svx) < clickThreshold
+						 && Math.abs(e.clientY - svy) < clickThreshold;
 
 			this.#highlighter.clearPreview();
 			const rect = isClick
@@ -1572,6 +1837,7 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#highlighter.invalidateCache();
 			if (!this.#isIframe) {
 				this.#updateToolbarCount();
+				this.#tryAutoAction();
 			}
 			this.#reportSelection();
 
@@ -1596,6 +1862,8 @@ window.ContentContextMenu = ContentContextMenu;
 			this.#highlighter.clearPreview();
 			this.#currentRect = null;
 			this.#state = STATES.WAITING;
+			if (!this.#isIframe) this.#updateToolbarCount();
+			this.#reportSelection();
 		}
 
 		#onKeyDown(e) {
@@ -1605,10 +1873,12 @@ window.ContentContextMenu = ContentContextMenu;
 				e.stopImmediatePropagation();
 				if (this.#modal && this.#modal.style.display !== 'none') {
 					this.#modal.style.display = 'none';
+					if (this.#autoAction !== 'none') this.#broadcastExit();
 					return;
 				}
 				if (this.#state === STATES.SELECTING) {
 					this.#abandonCurrentRect();
+					if (this.#quickEntry) this.#broadcastExit();
 					return;
 				}
 				this.#broadcastExit();
@@ -1646,14 +1916,15 @@ window.ContentContextMenu = ContentContextMenu;
 
 		#handleAutoScroll(x, y) {
 			const vh = window.innerHeight;
+			const scrollZone = AUTO_SCROLL_ZONE / window.FlowMouseZoom.tabZoom;
 			let scrollDy = 0;
-			if (y < AUTO_SCROLL_ZONE) scrollDy = -AUTO_SCROLL_SPEED;
-			else if (y > vh - AUTO_SCROLL_ZONE) scrollDy = AUTO_SCROLL_SPEED;
+			if (y < scrollZone) scrollDy = -AUTO_SCROLL_SPEED;
+			else if (y > vh - scrollZone) scrollDy = AUTO_SCROLL_SPEED;
 
 			if (scrollDy !== 0) {
 				if (!this.#autoScrollRAF) {
 					const doScroll = () => {
-						window.scrollBy(0, scrollDy);
+						window.scrollBy(0, scrollDy / window.FlowMouseZoom.tabZoom);
 						this.#autoScrollRAF = requestAnimationFrame(doScroll);
 					};
 					this.#autoScrollRAF = requestAnimationFrame(doScroll);
@@ -1673,9 +1944,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 		#broadcastExit() {
 			try {
-				if (chrome.runtime?.sendMessage) {
-					chrome.runtime.sendMessage({ action: 'areaSelectExit' }).catch(() => {});
-				}
+				chrome.runtime.sendMessage({ action: 'areaSelectExit' }).catch(() => {});
 			} catch { }
 		}
 
@@ -1683,24 +1952,26 @@ window.ContentContextMenu = ContentContextMenu;
 			if (!this.#isIframe) return;
 			const links = this.#highlighter ? this.#highlighter.links : [];
 			try {
-				if (chrome.runtime?.sendMessage) {
-					chrome.runtime.sendMessage({
-						action: 'areaSelectUpdate',
-						links,
-					}).catch(() => {});
-				}
+				chrome.runtime.sendMessage({
+					action: 'areaSelectUpdate',
+					links,
+				}).catch(() => {});
 			} catch { }
 		}
 
 
 		#createToolbar(shadow) {
+			const auto = this.#autoAction !== 'none';
 			const toolbar = this.#host.createElement('div');
 			toolbar.className = 'fm-as-toolbar';
+			toolbar.classList.toggle('hide-cancel', auto && this.#quickEntry);
 			this.#host.setHTML(toolbar, `
 				<div class="fm-as-toolbar-hint">
-					<span class="fm-as-icon">${this.#icon('squareDashedMousePointer')}</span>
-					<span>${this.#msg('areaSelectHint')}</span>
+					<span class="fm-as-icon idle">${this.#icon('squareDashedMousePointer')}</span>
+					${auto ? `<span class="fm-as-icon action">${this.#icon(this.#autoAction === 'open' ? 'externalLink' : 'copy')}</span>` : ''}
+					<span data-ref="hintText">${this.#msg('areaSelectHint')}</span>
 				</div>
+				${auto ? '' : `
 				<div class="fm-as-action-group" style="display:none">
 					<button class="fm-as-btn fm-as-btn-primary" disabled data-ref="openBtn">
 						<span class="fm-as-icon">${this.#icon('externalLink')}</span>
@@ -1711,28 +1982,30 @@ window.ContentContextMenu = ContentContextMenu;
 						<span>${this.#msg('areaSelectCopy')}</span>
 					</button>
 				</div>
+				`}
 				<div class="fm-as-divider"></div>
 				<button class="fm-as-btn fm-as-btn-icon" title="${this.#msg('areaSelectCancel')}" data-ref="cancelBtn">${this.#icon('x')}</button>
 			`);
 
 			const ref = (name) => toolbar.querySelector(`[data-ref="${name}"]`);
-			const openBtn = ref('openBtn');
-			const copyBtn = ref('copyBtn');
-			openBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onOpenAll(); });
-			copyBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onCopyLinks(); });
-			ref('cancelBtn').addEventListener('click', (e) => { e.stopPropagation(); this.#broadcastExit(); });
-
-			shadow.appendChild(toolbar);
 			this.#toolbar = {
 				root: toolbar,
 				hintLabel: toolbar.querySelector('.fm-as-toolbar-hint'),
-				actionGroup: toolbar.querySelector('.fm-as-action-group'),
-				openBtn,
-				openLabel: ref('openLabel'),
-				copyBtn,
+				hintText: ref('hintText'),
 			};
+			if (!auto) {
+				const openBtn = ref('openBtn');
+				const copyBtn = ref('copyBtn');
+				openBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onOpenAll(); });
+				copyBtn.addEventListener('click', (e) => { e.stopPropagation(); this.#onCopyLinks(); });
+				this.#toolbar.actionGroup = toolbar.querySelector('.fm-as-action-group');
+				this.#toolbar.openBtn = openBtn;
+				this.#toolbar.openLabel = ref('openLabel');
+				this.#toolbar.copyBtn = copyBtn;
+			}
+			ref('cancelBtn').addEventListener('click', (e) => { e.stopPropagation(); this.#broadcastExit(); });
 
-			this.#createModal(shadow);
+			shadow.appendChild(toolbar);
 		}
 
 		#createModal(shadow) {
@@ -1755,7 +2028,10 @@ window.ContentContextMenu = ContentContextMenu;
 			`);
 
 			const ref = (name) => modal.querySelector(`[data-ref="${name}"]`);
-			ref('cancelBtn').addEventListener('click', () => { modal.style.display = 'none'; });
+			ref('cancelBtn').addEventListener('click', () => {
+				modal.style.display = 'none';
+				if (this.#autoAction !== 'none') this.#broadcastExit();
+			});
 			ref('confirmBtn').addEventListener('click', () => {
 				modal.style.display = 'none';
 				this.#doBatchOpen();
@@ -1769,12 +2045,25 @@ window.ContentContextMenu = ContentContextMenu;
 		#updateToolbarCount(preview = false) {
 			if (!this.#toolbar) return;
 			const count = this.#getDeduplicatedUrls(preview).length;
-			const msgKey = count === 1 ? 'areaSelectOpenOne' : 'areaSelectOpen';
-			this.#toolbar.openLabel.textContent = this.#msg(msgKey).replaceAll('%count%', String(count));
+			if (this.#autoAction !== 'none') {
+				this.#toolbar.root.classList.toggle('auto-action-ready', count > 0);
+				this.#toolbar.hintText.textContent = count === 0
+					? this.#msg('areaSelectHint')
+					: this.#countLabel(this.#autoAction, count);
+				return;
+			}
+			this.#toolbar.openLabel.textContent = this.#countLabel('open', count);
 			this.#toolbar.openBtn.disabled = count === 0;
 			this.#toolbar.copyBtn.disabled = count === 0;
 			if (count === 0) this.#showToolbarHint();
 			else this.#showToolbarActions();
+		}
+
+		#countLabel(kind, count) {
+			const key = kind === 'open'
+				? (count === 1 ? 'areaSelectOpenOne' : 'areaSelectOpenCount')
+				: (count === 1 ? 'areaSelectCopyOne' : 'areaSelectCopyCount');
+			return this.#msg(key).replaceAll('%count%', String(count));
 		}
 
 		#showToolbarActions() {
@@ -1801,6 +2090,14 @@ window.ContentContextMenu = ContentContextMenu;
 			return Array.from(urls);
 		}
 
+		#tryAutoAction() {
+			if (this.#autoDone) return;
+			switch (this.#autoAction) {
+				case 'open': this.#onOpenAll(); return;
+				case 'copy': this.#onCopyLinks(); return;
+			}
+		}
+
 		#onOpenAll() {
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
@@ -1818,14 +2115,13 @@ window.ContentContextMenu = ContentContextMenu;
 		#doBatchOpen() {
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
+			this.#autoDone = true;
 			try {
-				if (chrome.runtime?.sendMessage) {
-					chrome.runtime.sendMessage({
-						action: 'areaSelectBatchOpen',
-						urls,
-						operationInterval: this.#operationInterval,
-					}).catch(() => {});
-				}
+				chrome.runtime.sendMessage({
+					action: 'areaSelectBatchOpen',
+					urls,
+					operationInterval: this.#operationInterval,
+				}).catch(() => {});
 			} catch { }
 			this.#broadcastExit();
 		}
@@ -1833,9 +2129,8 @@ window.ContentContextMenu = ContentContextMenu;
 		#onCopyLinks() {
 			const urls = this.#getDeduplicatedUrls();
 			if (urls.length === 0) return;
-			if (window.FlowMouseUtils?.copyText) {
-				window.FlowMouseUtils.copyText(urls.join('\n'));
-			}
+			this.#autoDone = true;
+			window.FlowMouseUtils.copyText(urls.join('\n'));
 			this.#broadcastExit();
 		}
 
@@ -1872,13 +2167,14 @@ window.ContentContextMenu = ContentContextMenu;
 				.fm-as-rect {
 					position: fixed;
 					display: none;
-					border: 2px dashed #4A90D9;
+					border: calc(2px * var(--fm-ui-scale)) dashed #4A90D9;
 					background: rgba(74, 144, 217, 0.15);
 					pointer-events: none;
 					z-index: 2147483647;
 					box-sizing: border-box;
 				}
 				.fm-as-toolbar {
+					zoom: var(--fm-ui-scale);
 					position: fixed;
 					bottom: 50px;
 					left: 0;
@@ -1922,6 +2218,18 @@ window.ContentContextMenu = ContentContextMenu;
 					line-height: 16px;
 					opacity: .4;
 					user-select: none;
+				}
+				.fm-as-toolbar.auto-action-ready .fm-as-toolbar-hint {
+					opacity: 0.8;
+				}
+				.fm-as-toolbar-hint .action { display: none; }
+				.fm-as-toolbar.auto-action-ready .fm-as-toolbar-hint .idle { display: none; }
+				.fm-as-toolbar.auto-action-ready .fm-as-toolbar-hint .action { display: flex; }
+				.fm-as-toolbar.hide-cancel .fm-as-divider,
+				.fm-as-toolbar.hide-cancel [data-ref="cancelBtn"],
+				.fm-as-toolbar.auto-action-ready .fm-as-divider,
+				.fm-as-toolbar.auto-action-ready [data-ref="cancelBtn"] {
+					display: none;
 				}
 				.fm-as-action-group {
 					display: flex;
@@ -2012,6 +2320,7 @@ window.ContentContextMenu = ContentContextMenu;
 					cursor: default;
 				}
 				.fm-as-modal {
+					zoom: var(--fm-ui-scale);
 					background: rgba(255, 255, 255, 0.95);
 					backdrop-filter: blur(16px);
 					border-radius: 12px;
@@ -2180,7 +2489,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 	function initGestures() {
 		initGesturesCalled = true;
-		const { DEFAULT_GESTURES, DEFAULT_SETTINGS, ACTION_DEFAULTS, DRAG_ACTION_DEFAULTS, ACTION_KEYS, LOCAL_ACTIONS, TEXT_DRAG_ACTIONS, LINK_DRAG_ACTIONS, IMAGE_DRAG_ACTIONS } = window.GestureConstants;
+		const { DEFAULT_GESTURES, DEFAULT_SETTINGS, ACTION_DEFAULTS, DRAG_ACTION_DEFAULTS, ACTION_KEYS, LOCAL_ACTIONS, CLEAR_OVERLAY_ACTIONS, TEXT_DRAG_ACTIONS, LINK_DRAG_ACTIONS, IMAGE_DRAG_ACTIONS } = window.GestureConstants;
 		const { handleScroll, checkScrollFeasibility, copyText, tryParseAsUrl } = window.FlowMouseUtils;
 		const { msg } = window.ContentI18n;
 
@@ -2263,33 +2572,72 @@ window.ContentContextMenu = ContentContextMenu;
 		function isEditableTarget(e) {
 			const node = e.composedPath()[0];
 			const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+			if (!el) return false;
 			const tag = el.tagName;
-			return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
+			// Buttons, checkboxes and the like take no text, so dropping on them is no
+			// reason to hold a gesture back.
+			if (tag === 'INPUT') {
+				return !['button', 'checkbox', 'color', 'radio', 'range', 'image', 'reset', 'submit'].includes(el.type);
+			}
+			return tag === 'TEXTAREA' || el.isContentEditable;
 		}
 
 		function hasDragAction(dragType, pattern) {
 			if (!pattern) return false;
 			const gestures = getGesturesForDragType(dragType);
 			if (!gestures) return false;
-			return getDragGestureConfigs(gestures, pattern).some(g => g.action && g.action !== 'none');
+			return isActiveDragConfigs(getDragGestureConfigs(gestures, pattern));
 		}
 
 		// The raw pattern if it has drag gestures, else the collapsed one if that
 		// has. Drag configs derive from the pattern alone, so resolving the pattern
 		// once is enough for hints, drop acceptance and execution.
+		const isActiveDragConfigs = (configs) => configs.some(g => g.action && g.action !== 'none');
+		const isActiveMouseBinding = (b) => !!b.action && b.action !== 'none';
+
 		function resolveDragPattern(dragType, pattern) {
 			const gestures = getGesturesForDragType(dragType);
 			if (!gestures || !pattern) return pattern;
 			return window.GestureBinding.resolve(pattern, (p) => {
 				const configs = getDragGestureConfigs(gestures, p);
 				return configs.length ? configs : undefined;
-			}).effectivePattern;
+			}, isActiveDragConfigs).effectivePattern;
 		}
 
 		let SETTINGS = {
 			...DEFAULT_SETTINGS,
 			enableDrag: DEFAULT_SETTINGS.enableTextDrag || DEFAULT_SETTINGS.enableImageDrag || DEFAULT_SETTINGS.enableLinkDrag
 		};
+
+		// A gesture can carry its own area-select settings instead of the global ones.
+		function resolveAreaSelectConfig(cfg) {
+			if (cfg?.overrideGlobal) {
+				return {
+					warnThreshold: cfg.warnThreshold,
+					textUrl: cfg.textUrl,
+					delay: cfg.delay,
+					autoAction: cfg.autoAction,
+				};
+			}
+			return {
+				warnThreshold: SETTINGS.areaSelectWarnThreshold,
+				textUrl: SETTINGS.areaSelectTextUrl,
+				delay: SETTINGS.areaSelectDelay,
+				autoAction: SETTINGS.areaSelectAutoAction,
+			};
+		}
+
+		function enterAreaSelect(initialEvent, cfg) {
+			const lang = window.ContentI18n.getHtmlLang();
+			const isRtl = window.ContentI18n.getDir() === 'rtl';
+			const resolved = resolveAreaSelectConfig(cfg);
+			window.FlowMouseAreaSelect?.enter(isIframe, resolved.warnThreshold || 0, lang, isRtl, initialEvent, {
+				textUrl: resolved.textUrl,
+				operationInterval: resolved.delay,
+				autoAction: resolved.autoAction,
+				customCss: SETTINGS.customCss,
+			});
+		}
 
 		// One binding shape for both sources - the stored entry, or a default
 		// wrapped as { action } - so a fallback from ↓↓ to ↓ carries ↓'s
@@ -2304,7 +2652,7 @@ window.ContentContextMenu = ContentContextMenu;
 		}
 
 		function resolveMouseGesture(pattern) {
-			return window.GestureBinding.resolve(pattern, lookupMouseBinding);
+			return window.GestureBinding.resolve(pattern, lookupMouseBinding, isActiveMouseBinding);
 		}
 
 		function getBindingName(binding) {
@@ -2355,14 +2703,15 @@ window.ContentContextMenu = ContentContextMenu;
 				: DEFAULT_GESTURES;
 			const patterns = Object.keys(source);
 			const isActive = (p) => {
-				const action = lookupMouseBinding(p)?.action;
-				return !!action && action !== 'none';
+				const binding = lookupMouseBinding(p);
+				return !!binding && isActiveMouseBinding(binding);
 			};
 			// The whole pipeline runs on the base: prefix, candidate length and
 			// the sort key's next direction.
 			const base = window.GestureBinding.suggestionBase(rawPattern, patterns, isActive);
 			const suggestions = [];
 			for (const pattern of patterns) {
+				if (pattern === window.GestureBinding.ANY) continue;
 				if (!pattern.startsWith(base)) continue;
 				if (pattern.length !== base.length + 1) continue;
 				// Direct lookup, no fallback: suggestions list stored patterns as they are.
@@ -2401,6 +2750,8 @@ window.ContentContextMenu = ContentContextMenu;
 					// reaches open tabs. Deferred together with SettingsStore.reset().
 					SETTINGS = { ...SETTINGS, ...otherSettings };
 				}
+
+				window.FlowMouseZoom.update({ userScale: SETTINGS.enableUserScale ? SETTINGS.userScale : null });
 
 				SETTINGS.wheelGestures = {
 					...structuredClone(DEFAULT_SETTINGS.wheelGestures || {}),
@@ -2454,7 +2805,7 @@ window.ContentContextMenu = ContentContextMenu;
 						lang,
 						isRtl
 					});
-					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss, menuTheme: SETTINGS.customMenuTheme });
+					ctxMenu.updateSettings({ lang, isRtl, customCss: SETTINGS.customCss, menuTheme: SETTINGS.customMenuTheme, wheelThreshold: SETTINGS.wheelThreshold });
 				}
 
 				eventManager.update();
@@ -2467,7 +2818,35 @@ window.ContentContextMenu = ContentContextMenu;
 
 		loadSettings();
 
+		// The tab's zoom, from the worker: at start, and whenever the user zooms.
+		let zoomRevision = 0;
+		async function refreshTabZoom() {
+			const revision = ++zoomRevision;
+			try {
+				const response = await chrome.runtime.sendMessage({ action: 'getTabZoom' });
+				if (revision === zoomRevision && response?.success) {
+					window.FlowMouseZoom.update({ tabZoom: response.tabZoom, defaultZoom: response.defaultZoom });
+				}
+			} catch {}
+		}
+		refreshTabZoom();
+
+		// The top-level frame draws the menus of its child frames and tells them where they are.
+		if (!isIframe) window.addEventListener('message', ContentContextMenu.answerLocate);
+
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+			const remote = ctxMenu.handleRemote(request);
+			if (remote) {
+				sendResponse(remote);
+				return;
+			}
+
+			if (request.action === 'tabZoomChanged') {
+				zoomRevision++;
+				window.FlowMouseZoom.update({ tabZoom: request.tabZoom, defaultZoom: request.defaultZoom });
+				return;
+			}
+
 			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
 				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || blockedNow()) return;
 				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
@@ -2510,12 +2889,15 @@ window.ContentContextMenu = ContentContextMenu;
 				isRemoteGestureActive = request.active;
 			}
 
-			if (request.action === 'executeLocalAction' && !isIframe) {
+			// A chain step reaches the top frame, or - when the chain started in this
+			// frame and the worker still has the tab - the frame that holds its context.
+			if (request.action === 'executeLocalAction' && (!isIframe || chainContexts.has(request.contextId))) {
 				if (!LOCAL_ACTIONS.has(request.stepAction)) {
 					sendResponse({ success: false });
 					return;
 				}
-				executeAction(request.stepAction, request.stepConfig)
+				const ctx = chainContexts.get(request.contextId);
+				executeAction(request.stepAction, request.stepConfig, ctx?.cursor || {}, ctx?.startTarget || null)
 					.then(() => sendResponse({ success: true }))
 					.catch(() => sendResponse({ success: false }));
 				return true;
@@ -2525,6 +2907,7 @@ window.ContentContextMenu = ContentContextMenu;
 				const d = request.data;
 				switch (d.type) {
 					case 'hide': visualizer.hide(); break;
+					case 'cleanup': visualizer.cleanup(); break;
 					case 'updateAction': visualizer.updateAction(d.arrows, d.texts); break;
 					case 'updateSuggestedGestures': visualizer.updateSuggestedGestures(d.suggestions, d.currentPattern); break;
 				}
@@ -2544,13 +2927,7 @@ window.ContentContextMenu = ContentContextMenu;
 				// a relay from another frame or a stale popup could still open it on a
 				// path-blocked document.
 				if (!blockedNow() && window.FlowMouseAreaSelect && !window.FlowMouseAreaSelect.isActive) {
-					const lang = window.ContentI18n.getHtmlLang();
-					const isRtl = window.ContentI18n.getDir() === 'rtl';
-					window.FlowMouseAreaSelect.enter(isIframe, request.warnThreshold, lang, isRtl, undefined, {
-						textUrl: request.textUrl,
-						operationInterval: request.operationInterval,
-						customCss: SETTINGS.customCss,
-					});
+					enterAreaSelect(undefined, request);
 				}
 			}
 
@@ -2638,6 +3015,14 @@ window.ContentContextMenu = ContentContextMenu;
 
 				if (isIframe) {
 					safeSendMessage({ action: 'gestureHudUpdate', data: { type: 'hide' } });
+				}
+			}
+
+			// The HUD of an iframe gesture lives in the top frame; take it down there too.
+			cleanup() {
+				super.cleanup();
+				if (isIframe) {
+					return safeSendMessage({ action: 'gestureHudUpdate', data: { type: 'cleanup' } });
 				}
 			}
 		}
@@ -2876,6 +3261,7 @@ window.ContentContextMenu = ContentContextMenu;
 		});
 
 		eventManager.add(null, window, 'pagehide', () => {
+			ctxMenu.close();
 			if (recognizer.isActive()) {
 				safeSendMessage({ action: 'gestureStateUpdate', active: false });
 				resetState();
@@ -2989,28 +3375,16 @@ window.ContentContextMenu = ContentContextMenu;
 
 		eventManager.add(isAreaSelectModifierEnabled, window, 'pointermove', (e) => {
 			if (!areaSelectPending || e.pointerId !== areaSelectPending.pointerId) return;
-			const dx = e.clientX - areaSelectPending.x;
-			const dy = e.clientY - areaSelectPending.y;
+			const dx = (e.clientX - areaSelectPending.x) * window.FlowMouseZoom.tabZoom;
+			const dy = (e.clientY - areaSelectPending.y) * window.FlowMouseZoom.tabZoom;
 			if (dx * dx + dy * dy < 9) return;
 			const pending = areaSelectPending;
 			areaSelectPending = null;
 			if (window.FlowMouseAreaSelect?.isActive) return;
-			const lang = window.ContentI18n.getHtmlLang();
-			const isRtl = window.ContentI18n.getDir() === 'rtl';
-			const warnThreshold = SETTINGS.areaSelectWarnThreshold || 0;
 			const initialEvent = pending.event.pointerType !== 'pen' ? pending.event : null;
 			window.getSelection()?.removeAllRanges();
-			window.FlowMouseAreaSelect?.enter(isIframe, warnThreshold, lang, isRtl, initialEvent, {
-				textUrl: SETTINGS.areaSelectTextUrl,
-				operationInterval: SETTINGS.areaSelectDelay,
-				customCss: SETTINGS.customCss,
-			});
-			safeSendMessage({
-				action: 'areaSelect',
-				warnThreshold,
-				textUrl: SETTINGS.areaSelectTextUrl,
-				operationInterval: SETTINGS.areaSelectDelay,
-			});
+			enterAreaSelect(initialEvent);
+			safeSendMessage({ action: 'areaSelect' });
 			e.preventDefault();
 			e.stopImmediatePropagation();
 		}, true);
@@ -3429,6 +3803,9 @@ window.ContentContextMenu = ContentContextMenu;
 			if (dropHandledAction) {
 				dropHandledAction = false;
 				e.preventDefault();
+				// The page's own dragend handler would otherwise read a finished
+				// drop and act on it (move the item, upload the file, ...).
+				if (e.dataTransfer) e.dataTransfer.dropEffect = 'none';
 			}
 			resetState();
 		}, { capture: true });
@@ -3441,6 +3818,8 @@ window.ContentContextMenu = ContentContextMenu;
 					if (hasDragAction(gestureState.dragType, pattern)) {
 						dropHandledAction = true;
 						e.preventDefault();
+						// Keep the page's own drop handlers out of a drop the gesture took.
+						e.stopImmediatePropagation();
 						executeDragGesture({ ...gestureState, startX: recognizer.startX, startY: recognizer.startY }, pattern, e.dataTransfer);
 					}
 				}
@@ -3477,12 +3856,21 @@ window.ContentContextMenu = ContentContextMenu;
 				gestureState.isRightButton = false;
 				recognizer.reset();
 				wheelGestureTriggered = true;
-				executeAction(wheelConfig.action, wheelConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY }, gestureState.startTarget);
+				executeAction(wheelConfig.action, wheelConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY, wheelDir: 0 }, gestureState.startTarget);
 			}
 		}, { capture: true });
 
+		const wheelTrigger = new window.GesturaWheelAccumulator(SETTINGS.wheelThreshold);
+
 		function handleWheelGesture(e) {
 			if (!(e.buttons & 2)) return;
+			// A menu the wheel opened is steered by the wheel from here on.
+			if (ctxMenu.isWheelNav) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				if (e.deltaY) ctxMenu.wheelNavigate(e.deltaY, e.deltaMode);
+				return;
+			}
 			if (recognizer.isActive()) return;
 			if (e.deltaY === 0) return;
 
@@ -3493,13 +3881,24 @@ window.ContentContextMenu = ContentContextMenu;
 
 			e.preventDefault();
 			e.stopImmediatePropagation();
+			// The wheel has to travel the trigger distance before it fires again;
+			// the first event of a scroll fires at once.
+			wheelTrigger.threshold = SETTINGS.wheelThreshold;
+			if (!wheelTrigger.step(e.deltaY, e.deltaMode, e.timeStamp, window.FlowMouseZoom.tabZoom)) return;
 			gestureState.preventContextMenu = true;
 			gestureState.isRightButton = false;
 			recognizer.reset();
 			wheelGestureTriggered = true;
 
-			executeAction(action, scrollConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY }, gestureState.startTarget);
+			executeAction(action, scrollConfig, { startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY, wheelDir: Math.sign(e.deltaY) }, gestureState.startTarget);
 		}
+
+		// Letting go of the right button picks the item the wheel stopped on.
+		eventManager.add(isWheelGestureEnabled, window, 'mouseup', (e) => {
+			if (e.button !== 2) return;
+			wheelTrigger.reset();
+			if (ctxMenu.isWheelNav) ctxMenu.wheelActivate();
+		}, { capture: true });
 
 		eventManager.add(isWheelGestureEnabled, window, 'auxclick', (e) => {
 			if (e.button === 1 && wheelGestureTriggered) {
@@ -3624,15 +4023,41 @@ window.ContentContextMenu = ContentContextMenu;
 		function ownMenuCfg(config) {
 			return { mode: 'own', ownMenu: (config || {}).ownMenu || null };
 		}
+		// The page a website menu is chosen for is the tab's, not the frame's: a
+		// gesture inside an iframe (a listing's description, an embedded widget)
+		// would otherwise match the iframe's own URL and miss the menu of the site
+		// the user is looking at. The worker knows the tab URL; an iframe keeps the
+		// last answer so the synchronous callers (the HUD label) have one.
+		let tabUrlCache = null;
+		async function refreshTabUrl() {
+			if (!isIframe) return;
+			const info = await safeSendMessage({ action: 'getTabInfo' });
+			if (info?.success && info.url) tabUrlCache = info.url;
+		}
+		if (isIframe) refreshTabUrl();
+
 		function resolveGestureMenu(cfg) {
 			if (!window.FlowMouseMenuCatalog || !window.FlowMouseMenuModel) return null;
 			return window.FlowMouseMenuModel.resolveMenu(
 				window.FlowMouseMenuCatalog.SITE_MENU_CATALOG,
 				SETTINGS.siteMenus,
 				cfg,
-				{ url: location.href, matchesPatterns: window.FlowMouseSearchUrl.matchesPatterns }
+				{ url: (isIframe && tabUrlCache) || location.href, matchesPatterns: window.FlowMouseSearchUrl.matchesPatterns }
 			);
 		}
+
+		// Title and URL of the tab: inside an iframe document.title and location.href
+		// are the frame's, so ask the worker.
+		async function tabInfo() {
+			if (!isIframe) return { title: document.title, url: location.href };
+			const info = await safeSendMessage({ action: 'getTabInfo' });
+			return info?.success ? info : { title: document.title, url: location.href };
+		}
+
+		// Where a chain started (cursor, element under it), kept for the length of the
+		// chain so its steps - a menu that opens at the cursor, text pasted into the
+		// field the gesture began on - see the same place the first step would.
+		const chainContexts = new Map();
 
 		async function executeAction(action, config = {}, cursor = {}, startTarget = null, useActiveTab = false) {
 			if (!action || action === 'none') return false;
@@ -3642,6 +4067,11 @@ window.ContentContextMenu = ContentContextMenu;
 
 			const defaults = ACTION_DEFAULTS[action] || {};
 			const mergedConfig = { ...defaults, ...config };
+
+			if (CLEAR_OVERLAY_ACTIONS.has(action) || (action === 'actionChain' && SETTINGS.actionChains?.[mergedConfig.chainId]?.steps?.some(step => CLEAR_OVERLAY_ACTIONS.has(step.action)))) {
+				await visualizer.cleanup();
+				recognizer.reset();
+			}
 
 			if (LOCAL_ACTIONS.has(action)) {
 				const scrollConfig = { scrollDistance: mergedConfig.scrollDistance, scrollSmoothness: mergedConfig.scrollSmoothness, scrollDuration: mergedConfig.scrollDuration, scrollAccel: mergedConfig.scrollAccel, scrollAccelWindow: mergedConfig.scrollAccelWindow };
@@ -3661,19 +4091,28 @@ window.ContentContextMenu = ContentContextMenu;
 						handleScroll(action, scrollConfig, false, cursor.startX, cursor.startY);
 						break;
 					case 'stopLoading': window.stop(); break;
-					case 'copyUrl': copyText(location.href); break;
-					case 'copyTitle': copyText(document.title); break;
+					case 'reloadFrame': location.reload(); break;
+					case 'copyUrl': {
+						const { url } = await tabInfo();
+						copyText(url);
+						break;
+					}
+					case 'copyTitle': {
+						const { title } = await tabInfo();
+						copyText(title);
+						break;
+					}
 					case 'copyTitleAndUrl': {
+						const { title, url } = await tabInfo();
 						if (mergedConfig.asMarkdown) {
-							const t = document.title.replace(/([\[\]])/g, '\\$1');
-							const u = location.href.replace(/([()])/g, '\\$1');
+							const t = title.replace(/([\[\]])/g, '\$1');
+							const u = url.replace(/([()])/g, '\$1');
 							copyText(`[${t}](${u})`);
 						} else {
-							copyText(`${document.title}\n${location.href}`);
+							copyText(`${title}\n${url}`);
 						}
 						break;
 					}
-					case 'printPage': window.print(); break;
 					case 'sendCustomEvent': {
 						const eventType = mergedConfig.eventType;
 						if (eventType) {
@@ -3843,7 +4282,7 @@ window.ContentContextMenu = ContentContextMenu;
 							sortOrder: mergedConfig.sortOrder,
 							maxItems: mergedConfig.maxItems,
 						});
-						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
+						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom, wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						const result = await fetchPromise;
 						if (result?.success) {
 							const td = mergedConfig.timeDisplay || 'lastAccess';
@@ -3870,7 +4309,7 @@ window.ContentContextMenu = ContentContextMenu;
 							maxItems: mergedConfig.maxItems,
 							sortOrder: mergedConfig.sortOrder,
 						});
-						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
+						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom, wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						const result = await fetchPromise;
 						if (result?.success) {
 							const td = mergedConfig.timeDisplay || 'closedTime';
@@ -3895,7 +4334,7 @@ window.ContentContextMenu = ContentContextMenu;
 							sortOrder: mergedConfig.sortOrder,
 							maxItems: mergedConfig.maxItems,
 						});
-						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom });
+						ctxMenu.prepare(cursor.endX, cursor.endY, { scrollToBottom: mergedConfig.scrollToBottom, wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						const result = await fetchPromise;
 						if (result?.success) {
 							const position = mergedConfig.position || 'right';
@@ -3960,7 +4399,8 @@ window.ContentContextMenu = ContentContextMenu;
 											itemConfig.position = oc.position;
 											itemConfig.active = oc.active;
 										}
-										executeAction(it.action, itemConfig, cursor, startTarget);
+										// The right button is long up by now: whatever the entry opens is no wheel menu.
+										executeAction(it.action, itemConfig, { ...cursor, wheelDir: undefined }, startTarget);
 									}
 								};
 								if (it.action === 'searchLink') {
@@ -4012,11 +4452,15 @@ window.ContentContextMenu = ContentContextMenu;
 							return { items: buildItems(appended), switcher: buildSwitcher(appended) };
 						};
 
+						// Wait for the tab URL only when there is none yet: an await here
+						// would let a wheel gesture's next event slip in before the menu exists.
+						if (isIframe && !tabUrlCache) await refreshTabUrl();
+						else refreshTabUrl();
 						const initialResolved = resolveGestureMenu(gestureCfg);
 						const initial = buildMenu(initialResolved);
 						if (!initial) break;
 
-						ctxMenu.prepare(cursor.endX, cursor.endY);
+						ctxMenu.prepare(cursor.endX, cursor.endY, { wheelDir: mergedConfig.wheelNav ? cursor.wheelDir : undefined });
 						ctxMenu.setSwitcher((id) => {
 							// Umschalten zeigt immer die Standard-Version des Ziel-Menüs.
 							const resolved = resolveGestureMenu({ mode: 'standard', menuId: id });
@@ -4032,6 +4476,7 @@ window.ContentContextMenu = ContentContextMenu;
 				}
 			} else {
 				const msg_obj = { action };
+				let chainContextId;
 				if (useActiveTab) msg_obj.useActiveTab = true;
 				if (action === 'openCustomUrl') {
 					const rawUrl = mergedConfig.customUrl || '';
@@ -4043,6 +4488,7 @@ window.ContentContextMenu = ContentContextMenu;
 					msg_obj.keepWindow = !!mergedConfig.keepWindow;
 					msg_obj.afterClose = mergedConfig.afterClose || 'default';
 					msg_obj.skipPinned = !!mergedConfig.skipPinned;
+					msg_obj.preserveTab = !!mergedConfig.preserveTab;
 				} else if (action === 'closeOtherTabs' || action === 'closeLeftTabs' || action === 'closeRightTabs') {
 					msg_obj.skipPinned = !!mergedConfig.skipPinned;
 					msg_obj.preserveTab = !!mergedConfig.preserveTab;
@@ -4060,7 +4506,7 @@ window.ContentContextMenu = ContentContextMenu;
 					msg_obj.active = mergedConfig.active !== false;
 				} else if (action === 'newWindow') {
 					msg_obj.focused = mergedConfig.focused !== false;
-				} else if (action === 'viewPageSource') {
+				} else if (action === 'viewPageSource' || action === 'viewFrameSource') {
 					msg_obj.position = mergedConfig.position || 'right';
 					msg_obj.active = mergedConfig.active !== false;
 				} else if (action === 'zoomIn' || action === 'zoomOut') {
@@ -4077,18 +4523,27 @@ window.ContentContextMenu = ContentContextMenu;
 						msg_obj.steps = chain.steps
 							.filter(s => s.action && s.action !== 'none' && s.action !== 'actionChain')
 							.map(s => ({ ...(ACTION_DEFAULTS[s.action] || {}), ...s }));
+						chainContextId = crypto.randomUUID();
+						chainContexts.set(chainContextId, { cursor, startTarget });
+						msg_obj.contextId = chainContextId;
 					}
 				} else if (action === 'areaSelect') {
-					msg_obj.warnThreshold = SETTINGS.areaSelectWarnThreshold;
-					msg_obj.textUrl = SETTINGS.areaSelectTextUrl;
-					msg_obj.operationInterval = SETTINGS.areaSelectDelay;
+					msg_obj.overrideGlobal = !!mergedConfig.overrideGlobal;
+					msg_obj.warnThreshold = mergedConfig.warnThreshold;
+					msg_obj.textUrl = mergedConfig.textUrl;
+					msg_obj.delay = mergedConfig.delay;
+					msg_obj.autoAction = mergedConfig.autoAction;
 				} else if (action === 'sendExtensionMessage') {
 					msg_obj.extensionId = mergedConfig.extensionId || '';
 					msg_obj.message = mergedConfig.message || '{}';
 				} else if (action === 'addSiteToMenu') {
 					msg_obj.menuId = mergedConfig.menuId;
 				}
-				return await safeSendMessage(msg_obj);
+				try {
+					return await safeSendMessage(msg_obj);
+				} finally {
+					if (chainContextId) chainContexts.delete(chainContextId);
+				}
 			}
 			return true;
 		}
@@ -4211,7 +4666,7 @@ window.ContentContextMenu = ContentContextMenu;
 
 				case 'saveImage':
 					if (content.startsWith('data:')) {
-						safeSendMessage({ action: 'saveImage', url: content });
+						safeSendMessage({ action: 'saveImage', url: content, subdir: config.subdir });
 						break;
 					}
 
@@ -4222,7 +4677,8 @@ window.ContentContextMenu = ContentContextMenu;
 							safeSendMessage({
 								action: 'saveImage',
 								url: reader.result,
-								filename: file.name
+								filename: file.name,
+								subdir: config.subdir
 							});
 						};
 						reader.readAsDataURL(file);
@@ -4272,7 +4728,8 @@ window.ContentContextMenu = ContentContextMenu;
 								safeSendMessage({
 									action: 'saveImage',
 									url: content,
-									origin: window.location.origin
+									origin: window.location.origin,
+									subdir: config.subdir
 								});
 							})
 							.catch((err) => {

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Open %count% links",
+		"message": "Links openen",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Herhalen door pauze" },
 	"forkGestureRepeatPauseDesc": { "message": "Houd zo lang stil en ga dan door in dezelfde richting om die te herhalen, bijv. ↓ pauze ↓. Alleen van belang voor gebaren die u aan een herhaalde richting koppelt. 0 schakelt het uit." },
 	"forkGestureRepeatOffNotice": { "message": "Beide zijn uit: herhaalde gebaren zoals ↓↓ kunnen niet worden getekend of opgenomen." },
-	"forkTabGestures": { "message": "Gebaren" }
+	"forkTabGestures": { "message": "Gebaren" },
+	"ctxMenuWheelNav": { "message": "Snelle muiswielnavigatie" },
+	"ctxMenuWheelNavTooltip": { "message": "Terwijl u de muisknop ingedrukt houdt, scrolt u met het wieltje om snel menu-items te selecteren." },
+	"actionReloadFrame": { "message": "Frame opnieuw laden" },
+	"actionViewFrameSource": { "message": "Paginabron van frame weergeven" },
+	"saveImageSubdirLabel": { "message": "Submap" },
+	"areaSelectAutoAction": { "message": "Automatisch uitvoeren na selectie" },
+	"areaSelectAutoActionDesc": { "message": "Geselecteerde links automatisch openen of kopiëren nadat een selectie is voltooid" },
+	"areaSelectCopyCount": { "message": "%count% links kopiëren" },
+	"areaSelectCopyOne": { "message": "%count% link kopiëren" },
+	"areaSelectOpenCount": { "message": "Open %count% links" },
+	"areaSelectOverrideGlobal": { "message": "Globale instellingen overschrijven" },
+	"areaSelectUseGlobal": { "message": "Globale instellingen gebruiken" },
+	"wheelThreshold": { "message": "Activeringsafstand muiswiel" },
+	"wheelThresholdDesc": { "message": "Het scrollen met het muiswiel moet deze afstand bereiken om wielgebaren herhaaldelijk te activeren" },
+	"gestureRecorderAny": { "message": "Fallback-gebaar toevoegen" },
+	"fallbackGestureTip": { "message": "Wordt geactiveerd wanneer het getekende spoor niet overeenkomt met een ander gebaar" },
+	"userScale": { "message": "Aangepaste UI-schaal" },
+	"userScaleDesc": { "message": "Schaal Gestura UI-elementen zoals actiehints en de HUD" },
+	"scale": { "message": "Schaal" }
 }

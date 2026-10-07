@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "باز کردن %count% پیوند",
+		"message": "باز کردن پیوندها",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "تکرار با مکث" },
 	"forkGestureRepeatPauseDesc": { "message": "به این مدت بی‌حرکت بمانید و سپس در همان جهت ادامه دهید تا تکرار شود، مثلاً ↓ مکث ↓. فقط برای ژست‌هایی مهم است که به یک جهت تکراری اختصاص می‌دهید. ۰ آن را خاموش می‌کند." },
 	"forkGestureRepeatOffNotice": { "message": "هر دو خاموش‌اند: ژست‌های تکراری مانند ↓↓ را نه می‌توان کشید و نه ضبط کرد." },
-	"forkTabGestures": { "message": "ژست‌ها" }
+	"forkTabGestures": { "message": "ژست‌ها" },
+	"ctxMenuWheelNav": { "message": "ناوبری سریع با چرخ ماوس" },
+	"ctxMenuWheelNavTooltip": { "message": "در حالی که دکمه ماوس را نگه داشته‌اید، با چرخ ماوس پیمایش کنید تا به سرعت موارد منو را انتخاب کنید." },
+	"actionReloadFrame": { "message": "بارگیری مجدد قاب" },
+	"actionViewFrameSource": { "message": "مشاهده منبع قاب" },
+	"saveImageSubdirLabel": { "message": "زیرپوشه" },
+	"areaSelectAutoAction": { "message": "اجرای خودکار پس از انتخاب" },
+	"areaSelectAutoActionDesc": { "message": "باز کردن یا کپی کردن خودکار پیوندهای انتخاب شده پس از اتمام انتخاب" },
+	"areaSelectCopyCount": { "message": "کپی %count% پیوند" },
+	"areaSelectCopyOne": { "message": "کپی %count% پیوند" },
+	"areaSelectOpenCount": { "message": "باز کردن %count% پیوند" },
+	"areaSelectOverrideGlobal": { "message": "لغو تنظیمات سراسری" },
+	"areaSelectUseGlobal": { "message": "استفاده از تنظیمات سراسری" },
+	"wheelThreshold": { "message": "فاصله راه‌اندازی چرخ" },
+	"wheelThresholdDesc": { "message": "پیمایش چرخ ماوس باید به این فاصله برسد تا حرکات چرخ به طور مکرر اجرا شوند" },
+	"gestureRecorderAny": { "message": "افزودن ژست برای الگوهای نامنطبق" },
+	"fallbackGestureTip": { "message": "زمانی که مسیر رسم شده با هیچ ژست دیگری مطابقت نداشته باشد، فعال می‌شود" },
+	"userScale": { "message": "مقیاس سفارشی رابط کاربری" },
+	"userScaleDesc": { "message": "تغییر مقیاس عناصر رابط کاربری Gestura مانند راهنمای عملکرد و HUD" },
+	"scale": { "message": "مقیاس" }
 }

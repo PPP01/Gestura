@@ -13,11 +13,13 @@
 (function (root) {
 	'use strict';
 
-	// The seven keys the storage-move design (§7) keeps out of the sync payload.
+	// The nine keys the storage-move design (§7) keeps out of the sync payload
+	// (a UI scale belongs to the screen, not to the person).
 	// Listed here so the partition test can prove nothing falls between the maps.
 	const DEVICE_LOCAL = [
 		'theme', 'language', 'macLinuxHintDismissed', 'edgeGestureConflict',
 		'navCollapsed', 'engineManagerLocalOnly', 'sectionAdvanced',
+		'enableUserScale', 'userScale',
 	];
 
 	// Kinds (spec §4):
@@ -81,8 +83,10 @@
 		wheelGestures: 'record',
 		enableSpecialGestures: 'scalar',
 		specialGestures: 'record',
+		wheelThreshold: 'scalar',
 		areaSelectModifierKey: 'scalar',
 		areaSelectTextUrl: 'scalar',
+		areaSelectAutoAction: 'scalar',
 		areaSelectWarnThreshold: 'scalar',
 		areaSelectDelay: 'scalar',
 		actionChains: { kind: 'record', both: true, idPrefix: 'chain_' },

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Открыть %count% ссылок",
+		"message": "Открыть ссылки",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Повтор паузой" },
 	"forkGestureRepeatPauseDesc": { "message": "Задержитесь на это время, затем продолжите движение в том же направлении, чтобы повторить его, например ↓ пауза ↓. Действует только для жестов, привязанных к повторяющемуся направлению. 0 отключает." },
 	"forkGestureRepeatOffNotice": { "message": "Оба выключены: повторяющиеся жесты вроде ↓↓ нельзя ни нарисовать, ни записать." },
-	"forkTabGestures": { "message": "Жесты" }
+	"forkTabGestures": { "message": "Жесты" },
+	"ctxMenuWheelNav": { "message": "Быстрая навигация колесиком" },
+	"ctxMenuWheelNavTooltip": { "message": "Удерживая кнопку мыши, прокручивайте колесико для быстрого выбора пунктов меню." },
+	"actionReloadFrame": { "message": "Перезагрузить фрейм" },
+	"actionViewFrameSource": { "message": "Просмотр кода фрейма" },
+	"saveImageSubdirLabel": { "message": "Подкаталог" },
+	"areaSelectAutoAction": { "message": "Автоматически выполнять после выделения" },
+	"areaSelectAutoActionDesc": { "message": "Автоматически открывать или копировать выбранные ссылки после завершения выделения" },
+	"areaSelectCopyCount": { "message": "Копировать %count% ссылок" },
+	"areaSelectCopyOne": { "message": "Копировать %count% ссылку" },
+	"areaSelectOpenCount": { "message": "Открыть %count% ссылок" },
+	"areaSelectOverrideGlobal": { "message": "Переопределить глобальные настройки" },
+	"areaSelectUseGlobal": { "message": "Использовать глобальные настройки" },
+	"wheelThreshold": { "message": "Дистанция срабатывания колесика" },
+	"wheelThresholdDesc": { "message": "Прокрутка колесиком мыши должна достичь этой дистанции для многократного срабатывания жестов колесиком" },
+	"gestureRecorderAny": { "message": "Добавить жест для несовпадающих шаблонов" },
+	"fallbackGestureTip": { "message": "Срабатывает, когда нарисованный след не совпадает ни с одним другим жестом" },
+	"userScale": { "message": "Пользовательский масштаб интерфейса" },
+	"userScaleDesc": { "message": "Изменение масштаба элементов интерфейса Gestura (подсказок действий, HUD и т.д.)" },
+	"scale": { "message": "Масштаб" }
 }

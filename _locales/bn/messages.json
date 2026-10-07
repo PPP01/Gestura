@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count%টি লিঙ্ক খুলুন",
+		"message": "লিঙ্কগুলি খুলুন",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "বিরতিতে পুনরাবৃত্তি" },
 	"forkGestureRepeatPauseDesc": { "message": "এতক্ষণ স্থির থাকুন, তারপর একই দিকে চালিয়ে যান — পুনরাবৃত্তি হবে, যেমন ↓ বিরতি ↓। শুধু তখনই কাজে লাগে যখন আপনি পুনরাবৃত্ত দিকে জেসচার বাঁধেন। ০ দিলে বন্ধ হয়।" },
 	"forkGestureRepeatOffNotice": { "message": "দুটোই বন্ধ: ↓↓-এর মতো পুনরাবৃত্ত জেসচার আঁকা বা রেকর্ড করা কোনোটাই যাবে না।" },
-	"forkTabGestures": { "message": "জেসচার" }
+	"forkTabGestures": { "message": "জেসচার" },
+	"ctxMenuWheelNav": { "message": "দ্রুত হুইল নেভিগেশন" },
+	"ctxMenuWheelNavTooltip": { "message": "মাউসের বোতাম চেপে ধরে থাকা অবস্থায়, মেনু আইটেমগুলি দ্রুত নির্বাচন করতে হুইল স্ক্রোল করুন।" },
+	"actionReloadFrame": { "message": "ফ্রেমটি পুনরায় লোড করুন" },
+	"actionViewFrameSource": { "message": "ফ্রেমের উৎস দেখুন" },
+	"saveImageSubdirLabel": { "message": "সাবডিরেক্টরি" },
+	"areaSelectAutoAction": { "message": "নির্বাচনের পর স্বয়ংক্রিয়ভাবে চালান" },
+	"areaSelectAutoActionDesc": { "message": "নির্বাচন সম্পন্ন হলে স্বয়ংক্রিয়ভাবে নির্বাচিত লিঙ্কগুলি খুলুন বা কপি করুন" },
+	"areaSelectCopyCount": { "message": "%count%টি লিঙ্ক কপি করুন" },
+	"areaSelectCopyOne": { "message": "%count%টি লিঙ্ক কপি করুন" },
+	"areaSelectOpenCount": { "message": "%count%টি লিঙ্ক খুলুন" },
+	"areaSelectOverrideGlobal": { "message": "গ্লোবাল সেটিংস ওভাররাইড করুন" },
+	"areaSelectUseGlobal": { "message": "গ্লোবাল সেটিংস ব্যবহার করুন" },
+	"wheelThreshold": { "message": "হুইল ট্রিগার দূরত্ব" },
+	"wheelThresholdDesc": { "message": "হুইল জেসচার বারবার ট্রিগার করতে মাউস হুইল স্ক্রোলিং অবশ্যই এই দূরত্বে পৌঁছাতে হবে" },
+	"gestureRecorderAny": { "message": "অমিল থাকা প্যাটার্নের জন্য জেসচার যোগ করুন" },
+	"fallbackGestureTip": { "message": "আঁকা ট্রেইল অন্য কোনও জেসচারের সাথে না মিললে ট্রিগার হয়" },
+	"userScale": { "message": "কাস্টম ইউআই স্কেল" },
+	"userScaleDesc": { "message": "অ্যাকশন ইঙ্গিত এবং HUD এর মত Gestura UI উপাদানগুলোর স্কেল পরিবর্তন করুন" },
+	"scale": { "message": "স্কেল" }
 }

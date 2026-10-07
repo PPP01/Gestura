@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Otwórz %count% linków",
+		"message": "Otwórz linki",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Powtórzenie przez pauzę" },
 	"forkGestureRepeatPauseDesc": { "message": "Przytrzymaj kursor tak długo, a potem kontynuuj w tym samym kierunku, aby go powtórzyć, np. ↓ pauza ↓. Ma znaczenie tylko dla gestów przypisanych do powtórzonego kierunku. 0 wyłącza." },
 	"forkGestureRepeatOffNotice": { "message": "Oba są wyłączone: powtórzonych gestów, takich jak ↓↓, nie można ani narysować, ani nagrać." },
-	"forkTabGestures": { "message": "Gesty" }
+	"forkTabGestures": { "message": "Gesty" },
+	"ctxMenuWheelNav": { "message": "Szybka nawigacja kółkiem" },
+	"ctxMenuWheelNavTooltip": { "message": "Przytrzymując przycisk myszy, przewiń kółkiem, aby szybko wybrać pozycje menu." },
+	"actionReloadFrame": { "message": "Ponownie załaduj ramkę" },
+	"actionViewFrameSource": { "message": "Wyświetl źródło ramki" },
+	"saveImageSubdirLabel": { "message": "Podkatalog" },
+	"areaSelectAutoAction": { "message": "Automatyczne wykonanie po zaznaczeniu" },
+	"areaSelectAutoActionDesc": { "message": "Automatycznie otwieraj lub kopiuj wybrane linki po zakończeniu zaznaczania" },
+	"areaSelectCopyCount": { "message": "Kopiuj %count% linków" },
+	"areaSelectCopyOne": { "message": "Kopiuj %count% link" },
+	"areaSelectOpenCount": { "message": "Otwórz %count% linków" },
+	"areaSelectOverrideGlobal": { "message": "Zastąp ustawienia globalne" },
+	"areaSelectUseGlobal": { "message": "Użyj ustawień globalnych" },
+	"wheelThreshold": { "message": "Dystans wyzwalania kółka" },
+	"wheelThresholdDesc": { "message": "Przewijanie kółkiem myszy musi osiągnąć ten dystans, aby wielokrotnie wyzwalać gesty kółkiem" },
+	"gestureRecorderAny": { "message": "Dodaj gest wieloznaczny" },
+	"fallbackGestureTip": { "message": "Uruchamia się, gdy narysowany ślad nie pasuje do żadnego innego gestu" },
+	"userScale": { "message": "Niestandardowa skala interfejsu" },
+	"userScaleDesc": { "message": "Skaluj elementy interfejsu Gestura, takie jak podpowiedzi akcji i HUD" },
+	"scale": { "message": "Skala" }
 }

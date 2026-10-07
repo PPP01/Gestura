@@ -180,6 +180,12 @@ class DragGestureManager extends LitElement {
 				margin-top: 8px;
 				margin-inline: auto;
 			}
+			.drag-add-group {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 8px;
+			}
 			.configure-btn svg {
 				transform: translateY(1px);
 			}
@@ -221,7 +227,16 @@ class DragGestureManager extends LitElement {
 			<div class="drag-rows-container">
 				${dragGestures.map((cfg, index) => this.#renderRow(cfg, index, dragGestures.length))}
 			</div>
-			<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addRow}>${unsafeHTML(icon('plus', { strokeWidth: 2 }))}</button>
+			<div class="drag-add-group">
+				<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addRow}>${unsafeHTML(icon('plus', { strokeWidth: 2 }))}</button>
+				${this.advancedMode && !this.#hasFallback ? html`
+					<button type="button" class="btn btn-dashed drag-add-btn btn-lg" @click=${this.#addFallback}
+						.tooltip=${tooltip(window.i18n.getMessage('fallbackGestureTip'))}>
+						<span class="gesture-icon-wrap">${unsafeHTML(window.GestureConstants.arrowsToSvg('*'))}</span>
+						<span>${window.i18n.getMessage('gestureRecorderAny')}</span>
+					</button>
+				` : ''}
+			</div>
 			<gesture-recorder id="dragRecorder" data-gesture-ignore></gesture-recorder>
 			<event-config-dialog id="eventConfigDialog"></event-config-dialog>
 		`;
@@ -249,6 +264,7 @@ class DragGestureManager extends LitElement {
 			(this.type === 'image' && action === 'imageSearch' && engine === 'custom');
 		const showPreferLink = this.type === 'image' && action === 'openTab';
 		const showCustomEvent = action === 'sendCustomEvent';
+		const showSubdir = this.type === 'image' && action === 'saveImage';
 
 		const showSecondary = showPos || this.advancedMode;
 
@@ -304,6 +320,13 @@ class DragGestureManager extends LitElement {
 											@change=${(e) => this.#updateRow(index, 'preferLink', e.target.checked)}>
 										<span>${window.i18n.getMessage('preferLink')}</span>
 									</label>
+								` : ''}
+
+								${showSubdir ? html`
+									<input type="text" class="url-input" maxlength="100"
+										placeholder=${window.i18n.getMessage('saveImageSubdirLabel')}
+										.value=${cfg.subdir ?? defaults.subdir ?? ''}
+										@input=${(e) => this.#updateRow(index, 'subdir', e.target.value)}>
 								` : ''}
 
 								${this.type === 'link' && action === 'copyLinkAndText' ? html`
@@ -498,7 +521,8 @@ class DragGestureManager extends LitElement {
 	async #changeDirection(index) {
 		const recorder = this.shadowRoot.getElementById('dragRecorder');
 		if (!recorder) return;
-		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig });
+		const taken = this.dragGestures.map((g, i) => i === index ? null : g.direction).filter(Boolean);
+		const result = await recorder.open({ button: 'left', recognizerConfig: this.recognizerConfig, bannedPatterns: taken, allowAny: this.advancedMode && !taken.includes(window.GestureBinding.ANY) });
 		if (result.cancelled || !result.pattern) return;
 		this.#updateRow(index, 'direction', result.pattern);
 	}
@@ -522,6 +546,19 @@ class DragGestureManager extends LitElement {
 		const action = this.type === 'text' ? 'search' : 'openTab';
 		const dragGestures = structuredClone(this.dragGestures);
 		dragGestures.push({ direction, action, simple: true });
+		this.#dispatchChange(dragGestures);
+	}
+
+	get #hasFallback() {
+		return this.dragGestures.some(g => g.direction === window.GestureBinding.ANY);
+	}
+
+	// The fallback row: it runs for a drag that no other row of this type matches.
+	#addFallback() {
+		if (this.#hasFallback) return;
+		const action = this.type === 'text' ? 'search' : 'openTab';
+		const dragGestures = structuredClone(this.dragGestures);
+		dragGestures.push({ direction: window.GestureBinding.ANY, action, simple: true });
 		this.#dispatchChange(dragGestures);
 	}
 

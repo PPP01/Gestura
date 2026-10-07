@@ -2207,7 +2207,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% Links öffnen",
+		"message": "Links öffnen",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3259,5 +3259,24 @@
 	"trailColorEnd": { "message": "Zielfarbe" },
 	"enableTrailGradient": { "message": "Farbverlauf" },
 	"showTrailArrow": { "message": "Pfeilspitze" },
-	"enableTrailGlow": { "message": "Leuchten" }
+	"enableTrailGlow": { "message": "Leuchten" },
+	"ctxMenuWheelNav": { "message": "Schnelle Mausrad-Navigation" },
+	"ctxMenuWheelNavTooltip": { "message": "Halten Sie die Maustaste gedrückt und scrollen Sie mit dem Rad, um schnell Menüpunkte auszuwählen." },
+	"actionReloadFrame": { "message": "Frame neu laden" },
+	"actionViewFrameSource": { "message": "Frame-Quelltext anzeigen" },
+	"saveImageSubdirLabel": { "message": "Unterverzeichnis" },
+	"areaSelectAutoAction": { "message": "Nach Auswahl automatisch ausführen" },
+	"areaSelectAutoActionDesc": { "message": "Ausgewählte Links nach Abschluss der Auswahl automatisch öffnen oder kopieren" },
+	"areaSelectCopyCount": { "message": "%count% Links kopieren" },
+	"areaSelectCopyOne": { "message": "%count% Link kopieren" },
+	"areaSelectOpenCount": { "message": "%count% Links öffnen" },
+	"areaSelectOverrideGlobal": { "message": "Globale Einstellungen überschreiben" },
+	"areaSelectUseGlobal": { "message": "Globale Einstellungen verwenden" },
+	"wheelThreshold": { "message": "Auslösedistanz des Mausrads" },
+	"wheelThresholdDesc": { "message": "Das Scrollen des Mausrads muss diese Distanz erreichen, um Radgesten wiederholt auszulösen" },
+	"gestureRecorderAny": { "message": "Auffang-Geste hinzufügen" },
+	"fallbackGestureTip": { "message": "Wird ausgelöst, wenn die gezeichnete Spur mit keiner anderen Geste übereinstimmt" },
+	"userScale": { "message": "Benutzerdefinierte UI-Skalierung" },
+	"userScaleDesc": { "message": "Größe von Gestura-UI-Elementen wie Aktionshinweisen und HUD anpassen" },
+	"scale": { "message": "Skalierung" }
 }

@@ -1,5 +1,6 @@
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles } from './shared-styles.js';
+import { tooltip } from '../tooltip.js';
 
 class GestureRecorder extends LitElement {
 	static properties = {
@@ -174,6 +175,24 @@ class GestureRecorder extends LitElement {
 				color: rgba(255, 255, 255, 0.38);
 			}
 
+			/* Looks like the cancel button; only its place and its icon differ. */
+			.btn-any {
+				margin-top: 22px;
+				pointer-events: auto;
+			}
+
+			.btn-any .any-icon {
+				font-size: 16px;
+				line-height: 1;
+				color: rgba(255, 255, 255);
+				opacity: .5;
+				transition: opacity 0.15s ease;
+			}
+
+			.btn-any:hover .any-icon {
+				opacity: .9;
+			}
+
 			kbd {
 				display: inline-block;
 				padding: 1px 6px;
@@ -317,6 +336,7 @@ class GestureRecorder extends LitElement {
 	#resolvePromise = null;
 	#button = 2;
 	#bannedPatterns = new Set();
+	#allowAny = false;
 	#toastTimer = null;
 
 	constructor() {
@@ -333,9 +353,10 @@ class GestureRecorder extends LitElement {
 		this._onKeyDown = this.#onKeyDown.bind(this);
 	}
 
-	async open({ button = 'right', bannedPatterns = [], recognizerConfig = {} } = {}) {
+	async open({ button = 'right', bannedPatterns = [], recognizerConfig = {}, allowAny = false } = {}) {
 		this.#button = button === 'left' ? 0 : 2;
 		this.#bannedPatterns = new Set(bannedPatterns);
+		this.#allowAny = allowAny;
 		this._state = 'ready';
 		this._pattern = '';
 		this._patternSvg = '';
@@ -407,6 +428,15 @@ class GestureRecorder extends LitElement {
 							<div class="direction-hints">
 								${unsafeHTML(window.GestureConstants.arrowsToSvg('↑↓←→'))}
 							</div>
+							${this.#allowAny ? html`
+								<button class="btn-cancel btn-any"
+									@mousedown=${e => e.stopPropagation()}
+									.tooltip=${tooltip(i18n.getMessage('fallbackGestureTip'))}
+									@click=${() => this.#selectAny()}>
+									<span class="any-icon">${unsafeHTML(window.GestureConstants.arrowsToSvg('*'))}</span>
+									${i18n.getMessage('gestureRecorderAny')}
+								</button>
+							` : ''}
 						</div>
 					` : ''}
 					${this._state === 'result' ? html`
@@ -539,23 +569,35 @@ class GestureRecorder extends LitElement {
 
 		const pattern = this.#recognizer.getPattern();
 		if (pattern) {
-			if (this.#bannedPatterns.has(pattern)) {
-				this.#showToast(
-					(window.i18n.getMessage('gestureRecorderBanned') || 'Gesture %pattern% already exists')
-						.replace('%pattern%', window.GestureConstants.arrowsToSvg(pattern))
-				);
+			if (!this.#accept(pattern)) {
 				this.#recognizer?.reset();
 				this._state = 'ready';
-			} else {
-				this._pattern = pattern;
-				this._patternSvg = window.GestureConstants.arrowsToSvg(pattern);
-				this._state = 'result';
 			}
 		} else {
 			this._state = 'ready';
 		}
 	}
 
+
+	// Takes the pattern as the result unless another gesture already uses it.
+	#accept(pattern) {
+		if (this.#bannedPatterns.has(pattern)) {
+			this.#showToast(
+				(window.i18n.getMessage('gestureRecorderBanned') || 'Gesture %pattern% already exists')
+					.replace('%pattern%', window.GestureConstants.arrowsToSvg(pattern))
+			);
+			return false;
+		}
+		this._pattern = pattern;
+		this._patternSvg = window.GestureConstants.arrowsToSvg(pattern);
+		this._state = 'result';
+		return true;
+	}
+
+	// The fallback entry: not drawn but chosen, it takes every pattern without one of its own.
+	#selectAny() {
+		this.#accept(window.GestureBinding.ANY);
+	}
 
 	#confirm() {
 		const pattern = this._pattern;

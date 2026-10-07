@@ -1,3 +1,39 @@
+class ZoomManager {
+	#events = new EventTarget();
+	#tabZoom = 1;
+	#defaultZoom = 1;
+	#userScale = null;
+
+	addEventListener(...args) { this.#events.addEventListener(...args); }
+
+	removeEventListener(...args) { this.#events.removeEventListener(...args); }
+
+	get tabZoom() { return this.#tabZoom; }
+
+	get uiScale() { return (this.#userScale ?? this.#defaultZoom) / this.#tabZoom; }
+
+	update(values = {}) {
+		const isValid = v => Number.isFinite(v) && v > 0;
+		const clamp = v => Math.min(3, Math.max(0.5, v));
+		const previousTabZoom = this.tabZoom;
+		const previousUiScale = this.uiScale;
+		if (isValid(values.tabZoom)) this.#tabZoom = values.tabZoom;
+		if (isValid(values.defaultZoom)) this.#defaultZoom = clamp(values.defaultZoom);
+		if (values.userScale !== undefined) {
+			this.#userScale = isValid(values.userScale) ? clamp(values.userScale) : null;
+		}
+		if (this.tabZoom !== previousTabZoom) {
+			this.#events.dispatchEvent(new CustomEvent('tabzoomchange', { detail: this.tabZoom }));
+		}
+		if (this.uiScale !== previousUiScale) {
+			this.#events.dispatchEvent(new CustomEvent('uiscalechange', { detail: this.uiScale }));
+		}
+	}
+}
+
+window.FlowMouseZoom = new ZoomManager();
+
+
 class ShadowHost {
 	#useDialog;
 	#container = null;
@@ -5,6 +41,10 @@ class ShadowHost {
 	#dialog = null;
 	#foreignObject = null;
 	#baseStyle = null;
+	#zoomStyle = null;
+	#updateUiScale = () => {
+		this.#zoomStyle.textContent = `:host { --fm-ui-scale: ${window.FlowMouseZoom.uiScale}; }`;
+	};
 	#builtInCssStyle = null;
 	#builtInCss = '';
 	#customCssStyle = null;
@@ -72,6 +112,11 @@ class ShadowHost {
 		this.setLang(lang, isRtl);
 
 		this.#shadow = this.#container.attachShadow({ mode: 'closed' });
+
+		this.#zoomStyle = this.createElement('style');
+		this.#updateUiScale();
+		this.#shadow.appendChild(this.#zoomStyle);
+		window.FlowMouseZoom.addEventListener('uiscalechange', this.#updateUiScale);
 
 		if (this.#useDialog) {
 			this.#dialog = this.createElement('dialog');
@@ -165,6 +210,7 @@ class ShadowHost {
 	}
 
 	cleanup() {
+		window.FlowMouseZoom.removeEventListener('uiscalechange', this.#updateUiScale);
 		if (this.#dialog?.open) this.#dialog.close();
 		if (this.#container?.hidePopover && this.#container?.matches(':popover-open')) this.#container.hidePopover();
 		if (this.#foreignObject && this.#foreignObject.parentNode) {
@@ -177,6 +223,7 @@ class ShadowHost {
 		this.#dialog = null;
 		this.#foreignObject = null;
 		this.#baseStyle = null;
+		this.#zoomStyle = null;
 		this.#builtInCssStyle = null;
 		this.#customCssStyle = null;
 	}
@@ -564,6 +611,7 @@ class GestureOverlay {
 				--fm-hud-shadow: ${shadow};
 			}
 			.fm-gesture-hud {
+				zoom: var(--fm-ui-scale);
 				position: absolute;
 				inset: 0;
 				margin: auto;
@@ -604,7 +652,7 @@ class GestureOverlay {
 				align-items: center;
 				gap: 12px;
 				text-align: start;
-				max-width: 80vw;
+				max-width: calc(80vw / var(--fm-ui-scale));
 			}
 			.fm-gesture-hud-arrows {
 				line-height: 32px;
@@ -623,6 +671,7 @@ class GestureOverlay {
 				overflow-wrap: anywhere;
 			}
 			.fm-gesture-suggest-hud {
+				zoom: var(--fm-ui-scale);
 				position: absolute;
 				inset: auto 0 25px 0;
 				margin-inline: auto;
@@ -715,7 +764,7 @@ class GestureOverlay {
 		this.trail = [];
 
 		this.filter.minCutoff = this.settings.minCutoff;
-		this.filter.beta = this.settings.beta;
+		this.filter.beta = this.settings.beta * window.FlowMouseZoom.tabZoom;
 		this.filter.dcutoff = this.settings.dcutoff;
 
 		this.filter.reset();
@@ -839,7 +888,7 @@ class GestureOverlay {
 		const dx = last.rawX - last.x;
 		const dy = last.rawY - last.y;
 
-		const threshold = this.settings.stabilizationCatchUpThreshold;
+		const threshold = this.settings.stabilizationCatchUpThreshold / window.FlowMouseZoom.tabZoom;
 		if (dx * dx + dy * dy < threshold * threshold) return;
 
 		this.addPoint(last.rawX, last.rawY);
@@ -1039,7 +1088,8 @@ class GestureOverlay {
 
 		if (this.trail.length < 1) return;
 
-		const width = this.settings.trailWidth;
+		// The canvas is zoomed with the page; the trail keeps its screen width.
+		const width = this.settings.trailWidth / window.FlowMouseZoom.tabZoom;
 		const color = this.settings.trailColor;
 
 		ctx.save();
@@ -1172,6 +1222,7 @@ class ToastOverlay {
 				--fm-toast-blur: ${blur}px;
 			}
 			.fm-toast {
+				zoom: var(--fm-ui-scale);
 				position: fixed;
 				bottom: 18%;
 				left: 50%;
@@ -1182,7 +1233,7 @@ class ToastOverlay {
 				border-radius: 10px;
 				font-size: 13.5px;
 				line-height: 1.5;
-				max-width: min(420px, 80vw);
+				max-width: min(420px, calc(80vw / var(--fm-ui-scale)));
 				text-align: center;
 				white-space: pre-line;
 				word-break: break-word;

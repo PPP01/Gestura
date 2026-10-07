@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Buka %count% pautan",
+		"message": "Buka Pautan",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Ulang dengan jeda" },
 	"forkGestureRepeatPauseDesc": { "message": "Tahan diam selama ini, kemudian teruskan ke arah yang sama untuk mengulanginya, cth. ↓ jeda ↓. Hanya penting untuk gerak isyarat yang anda ikat pada arah berulang. 0 mematikannya." },
 	"forkGestureRepeatOffNotice": { "message": "Kedua-duanya mati: gerak isyarat berulang seperti ↓↓ tidak boleh dilukis mahupun dirakam." },
-	"forkTabGestures": { "message": "Gerak isyarat" }
+	"forkTabGestures": { "message": "Gerak isyarat" },
+	"ctxMenuWheelNav": { "message": "Navigasi pantas roda tetikus" },
+	"ctxMenuWheelNavTooltip": { "message": "Sambil menahan butang tetikus, tatal roda untuk memilih item menu dengan pantas." },
+	"actionReloadFrame": { "message": "Muat semula bingkai" },
+	"actionViewFrameSource": { "message": "Lihat sumber bingkai" },
+	"saveImageSubdirLabel": { "message": "Subdirektori" },
+	"areaSelectAutoAction": { "message": "Laksana Secara Automatik Selepas Pemilihan" },
+	"areaSelectAutoActionDesc": { "message": "Buka atau salin pautan yang dipilih secara automatik setelah pemilihan selesai" },
+	"areaSelectCopyCount": { "message": "Salin %count% pautan" },
+	"areaSelectCopyOne": { "message": "Salin %count% pautan" },
+	"areaSelectOpenCount": { "message": "Buka %count% pautan" },
+	"areaSelectOverrideGlobal": { "message": "Ganti tetapan global" },
+	"areaSelectUseGlobal": { "message": "Gunakan tetapan global" },
+	"wheelThreshold": { "message": "Jarak Pencetus Roda" },
+	"wheelThresholdDesc": { "message": "Penatalan roda tetikus mesti mencapai jarak ini untuk mencetuskan gerak isyarat roda secara berulang" },
+	"gestureRecorderAny": { "message": "Tambah gerak isyarat untuk corak tidak dikenali" },
+	"fallbackGestureTip": { "message": "Dicetuskan apabila jejak yang dilukis tidak sepadan dengan mana-mana gerak isyarat lain" },
+	"userScale": { "message": "Skala UI Tersuai" },
+	"userScaleDesc": { "message": "Skala elemen UI Gestura seperti petunjuk tindakan dan HUD" },
+	"scale": { "message": "Skala" }
 }

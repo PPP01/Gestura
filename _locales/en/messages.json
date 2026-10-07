@@ -2259,7 +2259,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Open %count% links",
+		"message": "Open Links",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3321,5 +3321,24 @@
 	"trailColorEnd": { "message": "End colour" },
 	"enableTrailGradient": { "message": "Colour gradient" },
 	"showTrailArrow": { "message": "Arrowhead" },
-	"enableTrailGlow": { "message": "Glow" }
+	"enableTrailGlow": { "message": "Glow" },
+	"ctxMenuWheelNav": { "message": "Quick wheel navigation" },
+	"ctxMenuWheelNavTooltip": { "message": "While holding the mouse button, scroll the wheel to quickly select menu items." },
+	"actionReloadFrame": { "message": "Reload Frame" },
+	"actionViewFrameSource": { "message": "View Frame Source" },
+	"saveImageSubdirLabel": { "message": "Subdirectory" },
+	"areaSelectAutoAction": { "message": "Auto Execute After Selection" },
+	"areaSelectAutoActionDesc": { "message": "Automatically open or copy selected links when a selection is completed" },
+	"areaSelectCopyCount": { "message": "Copy %count% links" },
+	"areaSelectCopyOne": { "message": "Copy %count% link" },
+	"areaSelectOpenCount": { "message": "Open %count% links" },
+	"areaSelectOverrideGlobal": { "message": "Override global settings" },
+	"areaSelectUseGlobal": { "message": "Use global settings" },
+	"wheelThreshold": { "message": "Wheel Trigger Distance" },
+	"wheelThresholdDesc": { "message": "Mouse wheel scrolling must reach this distance to repeatedly trigger wheel gestures" },
+	"gestureRecorderAny": { "message": "Add Fallback Gesture" },
+	"fallbackGestureTip": { "message": "Triggers when the drawn trail doesn't match any other gesture" },
+	"userScale": { "message": "Custom UI Scale" },
+	"userScaleDesc": { "message": "Scale Gestura UI elements like action hints and the HUD" },
+	"scale": { "message": "Scale" }
 }

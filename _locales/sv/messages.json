@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Öppna %count% länkar",
+		"message": "Öppna länkar",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Upprepa med paus" },
 	"forkGestureRepeatPauseDesc": { "message": "Håll stilla så här länge och fortsätt sedan i samma riktning för att upprepa den, t.ex. ↓ paus ↓. Spelar bara roll för gester som du binder till en upprepad riktning. 0 stänger av det." },
 	"forkGestureRepeatOffNotice": { "message": "Båda är avstängda: upprepade gester som ↓↓ kan varken ritas eller spelas in." },
-	"forkTabGestures": { "message": "Gester" }
+	"forkTabGestures": { "message": "Gester" },
+	"ctxMenuWheelNav": { "message": "Snabb hjulnavigering" },
+	"ctxMenuWheelNavTooltip": { "message": "Håll ner musknappen och rulla hjulet för att snabbt välja menyalternativ." },
+	"actionReloadFrame": { "message": "Ladda om ram" },
+	"actionViewFrameSource": { "message": "Visa ramens källkod" },
+	"saveImageSubdirLabel": { "message": "Underkatalog" },
+	"areaSelectAutoAction": { "message": "Utför automatiskt efter val" },
+	"areaSelectAutoActionDesc": { "message": "Öppna eller kopiera automatiskt valda länkar när ett val är slutfört" },
+	"areaSelectCopyCount": { "message": "Kopiera %count% länkar" },
+	"areaSelectCopyOne": { "message": "Kopiera %count% länk" },
+	"areaSelectOpenCount": { "message": "Öppna %count% länkar" },
+	"areaSelectOverrideGlobal": { "message": "Åsidosätt globala inställningar" },
+	"areaSelectUseGlobal": { "message": "Använd globala inställningar" },
+	"wheelThreshold": { "message": "Utlösningsavstånd för mushjul" },
+	"wheelThresholdDesc": { "message": "Mushjulets rullning måste nå detta avstånd för att upprepade gånger utlösa hjulgester" },
+	"gestureRecorderAny": { "message": "Lägg till wildcard-gest" },
+	"fallbackGestureTip": { "message": "Utlöses när det ritade spåret inte matchar någon annan gest" },
+	"userScale": { "message": "Anpassad gränssnittsskala" },
+	"userScaleDesc": { "message": "Justera storleken på Gestura-gränssnittselement som åtgärdstips och HUD" },
+	"scale": { "message": "Skala" }
 }

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Åpne %count% lenker",
+		"message": "Åpne lenker",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Gjenta med pause" },
 	"forkGestureRepeatPauseDesc": { "message": "Hold musen i ro så lenge, og fortsett deretter i samme retning for å gjenta den, f.eks. ↓ pause ↓. Har bare betydning for bevegelser du binder til en gjentatt retning. 0 slår det av." },
 	"forkGestureRepeatOffNotice": { "message": "Begge er av: gjentatte bevegelser som ↓↓ kan verken tegnes eller tas opp." },
-	"forkTabGestures": { "message": "Bevegelser" }
+	"forkTabGestures": { "message": "Bevegelser" },
+	"ctxMenuWheelNav": { "message": "Rask musehjulnavigering" },
+	"ctxMenuWheelNavTooltip": { "message": "Hold nede museknappen og rull med hjulet for å raskt velge menyelementer." },
+	"actionReloadFrame": { "message": "Last inn rammen på nytt" },
+	"actionViewFrameSource": { "message": "Vis kildekode for rammen" },
+	"saveImageSubdirLabel": { "message": "Undermappe" },
+	"areaSelectAutoAction": { "message": "Utfør automatisk etter valg" },
+	"areaSelectAutoActionDesc": { "message": "Åpne eller kopier valgte lenker automatisk når et valg er fullført" },
+	"areaSelectCopyCount": { "message": "Kopier %count% lenker" },
+	"areaSelectCopyOne": { "message": "Kopier %count% lenke" },
+	"areaSelectOpenCount": { "message": "Åpne %count% lenker" },
+	"areaSelectOverrideGlobal": { "message": "Overstyr globale innstillinger" },
+	"areaSelectUseGlobal": { "message": "Bruk globale innstillinger" },
+	"wheelThreshold": { "message": "Utløseravstand for hjul" },
+	"wheelThresholdDesc": { "message": "Rullingen med musehjulet må nå denne avstanden for å utløse hjulbevegelser gjentatte ganger" },
+	"gestureRecorderAny": { "message": "Legg til wildcard-bevegelse" },
+	"fallbackGestureTip": { "message": "Utløses når det tegnede sporet ikke samsvarer med noen annen bevegelse" },
+	"userScale": { "message": "Tilpasset UI-skalering" },
+	"userScaleDesc": { "message": "Skaler Gestura-brugergrensesnittelementer som handlingshint og HUD" },
+	"scale": { "message": "Skalering" }
 }

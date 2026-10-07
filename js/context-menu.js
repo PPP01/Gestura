@@ -1,5 +1,6 @@
 import './lib/lit-config.js';
 import { LitElement, html, css, unsafeHTML } from './lib/lit-all.min.js';
+import './wheel-accumulator.js';
 
 const CUSTOM_CSS_CACHE_KEY = 'fm:customCss';
 
@@ -64,8 +65,18 @@ class FmContextMenu extends LitElement {
 		}
 
 		.fm-ctx-item:hover,
-		.fm-ctx-item:focus-visible {
+		.fm-ctx-item:focus-visible,
+		:host(.fm-ctx-menu--wheel) .fm-ctx-item:focus {
 			background: rgba(0, 0, 0, 0.08);
+		}
+
+		/* Opened by a wheel gesture the pointer rests where the gesture ended and
+		   the wheel moves the focus: hover must not light up a second item. */
+		:host(.fm-ctx-menu--wheel) .fm-ctx-item:focus {
+			outline: none;
+		}
+		:host(.fm-ctx-menu--wheel) .fm-ctx-item:hover:not(:focus) {
+			background: transparent;
 		}
 
 		.fm-ctx-icon {
@@ -215,8 +226,12 @@ class FmContextMenu extends LitElement {
 			background: rgba(120, 160, 255, 0.24);
 		}
 		:host([data-theme="dark"]) .fm-ctx-item:hover,
-		:host([data-theme="dark"]) .fm-ctx-item:focus-visible {
+		:host([data-theme="dark"]) .fm-ctx-item:focus-visible,
+		:host(.fm-ctx-menu--wheel[data-theme="dark"]) .fm-ctx-item:focus {
 			background: rgba(255, 255, 255, 0.1);
+		}
+		:host(.fm-ctx-menu--wheel[data-theme="dark"]) .fm-ctx-item:hover:not(:focus) {
+			background: transparent;
 		}
 		:host([data-theme="dark"]) .fm-ctx-sep {
 			background: rgba(255, 255, 255, 0.1);
@@ -246,8 +261,12 @@ class FmContextMenu extends LitElement {
 				background: rgba(120, 160, 255, 0.24);
 			}
 			:host([data-theme="auto"]) .fm-ctx-item:hover,
-			:host([data-theme="auto"]) .fm-ctx-item:focus-visible {
+			:host([data-theme="auto"]) .fm-ctx-item:focus-visible,
+			:host(.fm-ctx-menu--wheel[data-theme="auto"]) .fm-ctx-item:focus {
 				background: rgba(255, 255, 255, 0.1);
+			}
+			:host(.fm-ctx-menu--wheel[data-theme="auto"]) .fm-ctx-item:hover:not(:focus) {
+				background: transparent;
 			}
 			:host([data-theme="auto"]) .fm-ctx-sep {
 				background: rgba(255, 255, 255, 0.1);
@@ -260,6 +279,12 @@ class FmContextMenu extends LitElement {
 	#dimensionsSent = false;
 	#scrollToBottom = false;
 	#theme = 'auto';
+	// Set when a wheel gesture opened the menu: the wheel then moves the focus and
+	// releasing the right button picks the focused item. -1/0/1 is the direction of
+	// the scroll that opened it.
+	#wheelDir = null;
+	#wheel = null;
+	#tabZoom = 1;
 
 	constructor() {
 		super();
@@ -277,6 +302,10 @@ class FmContextMenu extends LitElement {
 		const lang = params.get('lang') || '';
 		this.#scrollToBottom = params.get('bottom') === '1';
 		this.#theme = params.get('theme') || 'auto';
+		if (params.has('wheel')) this.#wheelDir = Math.sign(Number(params.get('wheel'))) || 0;
+		// Wheel travel per step; the page sends the setting along with the wheel direction.
+		this.#wheel = new globalThis.GesturaWheelAccumulator(Math.max(0, Number(params.get('wt')) || 0));
+		this.#tabZoom = Number(params.get('zoom')) || 1;
 
 		if (!this.hasAttribute('preview')) {
 			document.documentElement.dir = dir;
@@ -306,6 +335,11 @@ class FmContextMenu extends LitElement {
 		window.addEventListener('contextmenu', this.#preventDefault, true);
 		window.addEventListener('keydown', this.#onKeyDown, true);
 		window.addEventListener('message', this.#onWindowMessage);
+		if (this.#wheelDir !== null) {
+			this.classList.add('fm-ctx-menu--wheel');
+			window.addEventListener('wheel', this.#onWheel, { capture: true, passive: false });
+			window.addEventListener('mouseup', this.#onMouseUp, true);
+		}
 		this.#fetchItems();
 		this.#loadCustomCss();
 	}
@@ -328,7 +362,55 @@ class FmContextMenu extends LitElement {
 			this._items = d.items;
 			if ('switcher' in d) this._switcher = d.switcher ?? null;
 		}
+		// The page's own wheel events never reach this frame while the pointer
+		// is outside it, so the content script hands them over.
+		if (d && d.__gestura === 'ctxWheel' && d.menuId === this.#menuId && this.#wheelDir !== null) {
+			// The page may have learned its zoom after it built the frame's URL.
+			if (d.zoom > 0) this.#tabZoom = d.zoom;
+			for (const w of d.wheel || []) this.#onWheelDelta(w.deltaY, w.deltaMode);
+			if (d.activate) this.#activateFocused();
+		}
 	};
+
+	#onWheel = (e) => {
+		if (!(e.buttons & 2) || !e.deltaY) return;
+		e.preventDefault();
+		this.#onWheelDelta(e.deltaY, e.deltaMode);
+	};
+
+	#onWheelDelta(deltaY, deltaMode) {
+		if (!deltaY) return;
+		if (this.#wheel.step(deltaY, deltaMode, performance.now(), this.#tabZoom)) this.#moveFocus(Math.sign(deltaY));
+	}
+
+	#onMouseUp = (e) => {
+		if (e.button !== 2) return;
+		e.stopPropagation();
+		this.#activateFocused();
+	};
+
+	// The first item to carry focus: the one the scroll direction leads to from
+	// the active item, or the first one when nothing is marked active.
+	#focusWheelStart() {
+		const items = this.#getMenuItems();
+		if (!items.length) return;
+		const active = items.findIndex(li => li.classList.contains('fm-ctx-item--active'));
+		const index = active === -1 ? 0 : (active + this.#wheelDir + items.length) % items.length;
+		items[index].focus();
+	}
+
+	#moveFocus(delta) {
+		const items = this.#getMenuItems();
+		if (!items.length) return;
+		const cur = items.indexOf(this.renderRoot.activeElement);
+		const next = cur === -1 ? (delta > 0 ? 0 : items.length - 1) : (((cur + delta) % items.length) + items.length) % items.length;
+		items[next].focus();
+	}
+
+	#activateFocused() {
+		const index = this.renderRoot.activeElement?.dataset.index;
+		if (index != null) this.#selectItem(Number(index));
+	}
 
 	async #loadCustomCss() {
 		try {
@@ -370,6 +452,8 @@ class FmContextMenu extends LitElement {
 		window.removeEventListener('contextmenu', this.#preventDefault, true);
 		window.removeEventListener('keydown', this.#onKeyDown, true);
 		window.removeEventListener('message', this.#onWindowMessage);
+		window.removeEventListener('wheel', this.#onWheel, { capture: true, passive: false });
+		window.removeEventListener('mouseup', this.#onMouseUp, true);
 	}
 
 	#preventDefault = (e) => e.preventDefault();
@@ -437,6 +521,7 @@ class FmContextMenu extends LitElement {
 					requestAnimationFrame(() => { document.documentElement.scrollTop = document.documentElement.scrollHeight; });
 				}
 				window.focus();
+				if (this.#wheelDir !== null) this.#focusWheelStart();
 				window.addEventListener('blur', this.#close);
 			}
 		};
@@ -478,10 +563,7 @@ class FmContextMenu extends LitElement {
 
 		if (delta) {
 			e.preventDefault();
-			const active = this.renderRoot.activeElement;
-			const cur = items.indexOf(active);
-			const next = cur === -1 ? (delta > 0 ? 0 : items.length - 1) : (cur + delta + items.length) % items.length;
-			items[next].focus();
+			this.#moveFocus(delta);
 			return;
 		}
 

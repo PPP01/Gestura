@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Abrir %count% links",
+		"message": "Abrir links",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Repetir com pausa" },
 	"forkGestureRepeatPauseDesc": { "message": "Fique parado por este tempo e depois continue na mesma direção para repeti-la, p. ex. ↓ pausa ↓. Só vale para gestos que você associa a uma direção repetida. 0 desativa." },
 	"forkGestureRepeatOffNotice": { "message": "Ambos estão desativados: gestos repetidos como ↓↓ não podem ser desenhados nem gravados." },
-	"forkTabGestures": { "message": "Gestos" }
+	"forkTabGestures": { "message": "Gestos" },
+	"ctxMenuWheelNav": { "message": "Navegação rápida com a roda do mouse" },
+	"ctxMenuWheelNavTooltip": { "message": "Enquanto mantém o botão do mouse pressionado, role a roda para selecionar rapidamente os itens do menu." },
+	"actionReloadFrame": { "message": "Recarregar frame" },
+	"actionViewFrameSource": { "message": "Exibir código-fonte do frame" },
+	"saveImageSubdirLabel": { "message": "Subdiretório" },
+	"areaSelectAutoAction": { "message": "Executar automaticamente após seleção" },
+	"areaSelectAutoActionDesc": { "message": "Abrir ou copiar automaticamente os links selecionados ao concluir a seleção" },
+	"areaSelectCopyCount": { "message": "Copiar %count% links" },
+	"areaSelectCopyOne": { "message": "Copiar %count% link" },
+	"areaSelectOpenCount": { "message": "Abrir %count% links" },
+	"areaSelectOverrideGlobal": { "message": "Substituir configurações globais" },
+	"areaSelectUseGlobal": { "message": "Usar configurações globais" },
+	"wheelThreshold": { "message": "Distância de ativação da roda" },
+	"wheelThresholdDesc": { "message": "A rolagem da roda do mouse deve atingir essa distância para acionar gestos da roda repetidamente" },
+	"gestureRecorderAny": { "message": "Adicionar gesto coringa" },
+	"fallbackGestureTip": { "message": "Dispara quando o traço desenhado não corresponde a nenhum outro gesto" },
+	"userScale": { "message": "Escala de interface personalizada" },
+	"userScaleDesc": { "message": "Ajustar o tamanho dos elementos da interface do Gestura, como dicas de ação e o HUD" },
+	"scale": { "message": "Escala" }
 }

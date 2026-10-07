@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Відкрити %count% посилань",
+		"message": "Відкрити посилання",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Повтор паузою" },
 	"forkGestureRepeatPauseDesc": { "message": "Утримуйте мишу нерухомо протягом цього часу, потім продовжте в тому самому напрямку, щоб повторити його, наприклад ↓ пауза ↓. Має значення лише для жестів, які ви призначаєте на повторюваний напрямок. 0 вимикає." },
 	"forkGestureRepeatOffNotice": { "message": "Обидва вимкнено: повторювані жести, як-от ↓↓, неможливо ні намалювати, ні записати." },
-	"forkTabGestures": { "message": "Жести" }
+	"forkTabGestures": { "message": "Жести" },
+	"ctxMenuWheelNav": { "message": "Швидка навігація коліщатком" },
+	"ctxMenuWheelNavTooltip": { "message": "Утримуючи кнопку миші, прокрутіть коліщатко для швидкого вибору пунктів меню." },
+	"actionReloadFrame": { "message": "Перезавантажити фрейм" },
+	"actionViewFrameSource": { "message": "Переглянути код фрейму" },
+	"saveImageSubdirLabel": { "message": "Підкаталог" },
+	"areaSelectAutoAction": { "message": "Автоматично виконувати після виділення" },
+	"areaSelectAutoActionDesc": { "message": "Автоматично відкривати або копіювати вибрані посилання після завершення виділення" },
+	"areaSelectCopyCount": { "message": "Копіювати %count% посилань" },
+	"areaSelectCopyOne": { "message": "Копіювати %count% посилання" },
+	"areaSelectOpenCount": { "message": "Відкрити %count% посилань" },
+	"areaSelectOverrideGlobal": { "message": "Перевизначити глобальні налаштування" },
+	"areaSelectUseGlobal": { "message": "Використовувати глобальні налаштування" },
+	"wheelThreshold": { "message": "Дистанція спрацьовування коліщатка" },
+	"wheelThresholdDesc": { "message": "Прокручування коліщатком миші має досягти цієї дистанції для багаторазового спрацьовування жестів коліщатком" },
+	"gestureRecorderAny": { "message": "Додати жест для нерозпізнаних шаблонів" },
+	"fallbackGestureTip": { "message": "Спрацьовує, коли намальований слід не збігається з жодним іншим жестом" },
+	"userScale": { "message": "Користувацький масштаб інтерфейсу" },
+	"userScaleDesc": { "message": "Масштабування елементів інтерфейсу Gestura, таких як підказки дій та HUD" },
+	"scale": { "message": "Масштаб" }
 }

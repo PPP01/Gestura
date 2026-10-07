@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% link megnyitása",
+		"message": "Linkek megnyitása",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Ismétlés szünettel" },
 	"forkGestureRepeatPauseDesc": { "message": "Tartsd ennyi ideig mozdulatlanul, majd folytasd ugyanabban az irányban az ismétléshez, pl. ↓ szünet ↓. Csak azoknál a gesztusoknál számít, amelyeket ismételt irányhoz rendelsz. A 0 kikapcsolja." },
 	"forkGestureRepeatOffNotice": { "message": "Mindkettő ki van kapcsolva: az ismételt gesztusok, például a ↓↓, nem rajzolhatók és nem rögzíthetők." },
-	"forkTabGestures": { "message": "Gesztusok" }
+	"forkTabGestures": { "message": "Gesztusok" },
+	"ctxMenuWheelNav": { "message": "Gyors navigáció görgővel" },
+	"ctxMenuWheelNavTooltip": { "message": "Az egérgomb nyomva tartása közben görgessen a görgővel a menüpontok gyors kiválasztásához." },
+	"actionReloadFrame": { "message": "Keret újratöltése" },
+	"actionViewFrameSource": { "message": "Keret forráskódjának megtekintése" },
+	"saveImageSubdirLabel": { "message": "Alkönyvtár" },
+	"areaSelectAutoAction": { "message": "Automatikus végrehajtás kijelölés után" },
+	"areaSelectAutoActionDesc": { "message": "A kijelölés befejezése után a kijelölt hivatkozások automatikus megnyitása vagy másolása" },
+	"areaSelectCopyCount": { "message": "%count% link másolása" },
+	"areaSelectCopyOne": { "message": "%count% link másolása" },
+	"areaSelectOpenCount": { "message": "%count% link megnyitása" },
+	"areaSelectOverrideGlobal": { "message": "Globális beállítások felülbírálása" },
+	"areaSelectUseGlobal": { "message": "Globális beállítások használata" },
+	"wheelThreshold": { "message": "Görgő aktiválási távolsága" },
+	"wheelThresholdDesc": { "message": "Az egérgörgő görgetésének el kell érnie ezt a távolságot a görgő gesztusainak ismételt aktiválásához" },
+	"gestureRecorderAny": { "message": "Helyettesítő gesztus hozzáadása" },
+	"fallbackGestureTip": { "message": "Akkor indul el, ha a rajzolt nyomvonal nem egyezik más gesztussal" },
+	"userScale": { "message": "Egyéni UI méretezés" },
+	"userScaleDesc": { "message": "A Gestura felhasználói felület elemeinek, például a műveleti tippek és a HUD méretezése" },
+	"scale": { "message": "Méretezés" }
 }

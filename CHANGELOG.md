@@ -7,6 +7,78 @@
 
 ### Unreleased
 
+**New Features:**
+
+- **Menus from iframes are drawn in the page:** a menu opened by a gesture that
+  started in an iframe (e.g. the seller description on an eBay listing) is now
+  drawn in the top-level frame, so it is no longer cut to the iframe's size. A
+  pick still runs in the iframe, wheel navigation works across the frames, and
+  nested iframes or pages without a script in the top frame keep the old
+  behaviour.
+- **Custom UI scale (advanced):** scales the gesture HUD, toast, menus and the
+  area-select toolbar and dialog. The setting belongs to the device and is not
+  synchronised.
+- **Tab zoom no longer changes the interface:** with the browser zoomed, the
+  overlays keep their screen size, and gesture distance, the click and
+  auto-scroll zones, the trail width and the wheel trigger distance are counted
+  in screen pixels.
+- **Wheel navigation in menus:** a menu opened by a wheel gesture (scroll up/down
+  or wheel click while holding the right button) is now steered with the wheel —
+  keep the right button down, scroll to move the highlight, release to pick the
+  item. Applies to the tabs, recently closed, bookmarks, own and website menus;
+  switch it off per gesture with "Quick wheel navigation". Ported from
+  FlowMouse v2.5.
+- **Wheel Trigger Distance** (advanced, Wheel gestures): how far the wheel has to
+  travel before a wheel gesture or a wheel-driven menu fires again. The first
+  event of a scroll still fires at once; a notch of a mouse wheel is one step,
+  a trackpad swipe a few instead of dozens. Default 30 px, 0 fires on every
+  event. From FlowMouse v2.5.
+- **Fallback gesture for drags** (advanced): a drag row for "any direction" that runs
+  when no other row of that drag type matches. The recorder offers it as "Add
+  Fallback Gesture". A pattern that has a row of its own, even one set to "none",
+  never falls through to it. The stored `*` entry works for mouse gestures too,
+  but the gesture list does not offer it there yet. From FlowMouse v2.5.
+- **Close Tab can keep the tab:** "Preserve tabs (unload page content)" for the
+  Close Tab gesture, as the batch close gestures already have. The focus moves
+  on to the neighbouring tab. From FlowMouse v2.4.1.
+- **Reload Frame** and **View Frame Source** gestures: act on the iframe the
+  gesture started in instead of the whole tab. From FlowMouse v2.5.
+- **Save Image drag:** an optional subdirectory below the download folder. From
+  FlowMouse v2.4.
+- **Area Select auto action:** open or copy the selected links as soon as the
+  selection is done, without pressing a button. Set globally, or per Area Select
+  gesture ("Override global settings"). Pressing Esc after a selection now
+  updates the link count on the toolbar correctly. From FlowMouse v2.4.
+
+**Fixes:**
+
+- The website menu a gesture opens inside an iframe is chosen for the tab's page, not
+  the iframe's own URL: on a listing whose description sits in an iframe the
+  site's menu now appears instead of the default one.
+- Steps of a Command Chain that run on the page keep the place the gesture
+  started: a menu step opens at the cursor and "paste custom text" goes to the
+  element the gesture began on, also when the gesture started inside an iframe.
+  A step that has moved on to another tab runs there without that context. From
+  FlowMouse v2.5.
+- Close Tab with "after closing: left/right" no longer wraps around to the far
+  end of the window when the closed tab was the first or last one; the
+  neighbour on the other side takes over. From FlowMouse v2.5.
+- Print Page and Save as MHTML no longer take the gesture HUD with them.
+  From FlowMouse v2.5.
+- Print Page, Copy Page Title and Copy Page URL used from inside an iframe act on
+  the tab, not on the frame. From FlowMouse v2.5.
+- Opening a link, search or custom URL in incognito from a normal window reuses an
+  incognito window that is already open instead of creating a new one each time.
+  "New window" still opens a window of its own. From FlowMouse v2.5.
+- A scroll gesture that cannot scroll (already at the edge) no longer leaves a
+  phantom target behind, so the next scroll the other way starts from where the
+  page really is. From FlowMouse v2.5.
+- "Suppress gesture over input fields" now only counts fields that take text;
+  dropping on a checkbox, button or colour picker no longer suppresses a drag
+  gesture. From FlowMouse v2.5.
+- A drop that a drag gesture took is no longer also handled by the page's own
+  drag-and-drop code. From FlowMouse v2.5.
+
 ### v2.9.0 (2026-10-05)
 
 **New Features:**

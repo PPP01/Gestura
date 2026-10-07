@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% 個のリンクを開く",
+		"message": "リンクを開く",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "一時停止で繰り返す" },
 	"forkGestureRepeatPauseDesc": { "message": "この時間だけ静止してから同じ方向に動かすと、その方向を繰り返します（例：↓ 停止 ↓）。繰り返しの方向にジェスチャーを割り当てている場合にのみ有効です。0 でオフになります。" },
 	"forkGestureRepeatOffNotice": { "message": "どちらもオフです。↓↓ のような繰り返しジェスチャーは、描くことも記録することもできません。" },
-	"forkTabGestures": { "message": "ジェスチャー" }
+	"forkTabGestures": { "message": "ジェスチャー" },
+	"ctxMenuWheelNav": { "message": "ホイールのクイックナビゲーション" },
+	"ctxMenuWheelNavTooltip": { "message": "マウスボタンを押したままホイールをスクロールすると、メニュー項目をすばやく選択できます。" },
+	"actionReloadFrame": { "message": "フレームを再読み込み" },
+	"actionViewFrameSource": { "message": "フレームのソースを表示" },
+	"saveImageSubdirLabel": { "message": "サブディレクトリ" },
+	"areaSelectAutoAction": { "message": "選択後に自動実行" },
+	"areaSelectAutoActionDesc": { "message": "範囲選択が完了した後、選択したリンクを自動的に開くかコピーします" },
+	"areaSelectCopyCount": { "message": "%count% 個のリンクをコピー" },
+	"areaSelectCopyOne": { "message": "%count% 個のリンクをコピー" },
+	"areaSelectOpenCount": { "message": "%count% 個のリンクを開く" },
+	"areaSelectOverrideGlobal": { "message": "グローバル設定を上書きする" },
+	"areaSelectUseGlobal": { "message": "グローバル設定を使用する" },
+	"wheelThreshold": { "message": "ホイールトリガー距離" },
+	"wheelThresholdDesc": { "message": "ホイールジェスチャーを繰り返しトリガーするには、マウスホイールのスクロールがこの距離に達する必要があります" },
+	"gestureRecorderAny": { "message": "フォールバックジェスチャーを追加" },
+	"fallbackGestureTip": { "message": "描かれた軌跡が他のどのジェスチャーにも一致しない場合にトリガーされます" },
+	"userScale": { "message": "カスタム UI スケール" },
+	"userScaleDesc": { "message": "操作ヒントや HUD など、Gestura 自身の UI 要素を拡大・縮小します" },
+	"scale": { "message": "スケール" }
 }

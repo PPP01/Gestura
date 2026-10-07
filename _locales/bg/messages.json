@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Отваряне на %count% връзки",
+		"message": "Отваряне на връзки",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Повторение чрез пауза" },
 	"forkGestureRepeatPauseDesc": { "message": "Задръжте неподвижно толкова дълго, после продължете в същата посока, за да я повторите, напр. ↓ пауза ↓. Има значение само за жестове, които свързвате с повторена посока. 0 го изключва." },
 	"forkGestureRepeatOffNotice": { "message": "И двете са изключени: повторени жестове като ↓↓ не могат нито да се чертаят, нито да се записват." },
-	"forkTabGestures": { "message": "Жестове" }
+	"forkTabGestures": { "message": "Жестове" },
+	"ctxMenuWheelNav": { "message": "Бърза навигация с колелцето" },
+	"ctxMenuWheelNavTooltip": { "message": "Докато задържате бутона на мишката, превъртете колелцето, за да изберете бързо елементи от менюто." },
+	"actionReloadFrame": { "message": "Презареждане на рамката" },
+	"actionViewFrameSource": { "message": "Преглед на изходния код на рамката" },
+	"saveImageSubdirLabel": { "message": "Поддиректория" },
+	"areaSelectAutoAction": { "message": "Автоматично изпълнение след избор" },
+	"areaSelectAutoActionDesc": { "message": "Автоматично отваряне или копиране на избраните връзки след завършване на избора" },
+	"areaSelectCopyCount": { "message": "Копиране на %count% връзки" },
+	"areaSelectCopyOne": { "message": "Копиране на %count% връзка" },
+	"areaSelectOpenCount": { "message": "Отваряне на %count% връзки" },
+	"areaSelectOverrideGlobal": { "message": "Замести глобални настройки" },
+	"areaSelectUseGlobal": { "message": "Използвай глобални настройки" },
+	"wheelThreshold": { "message": "Разстояние за задействане на колелцето" },
+	"wheelThresholdDesc": { "message": "Превъртането на колелцето на мишката трябва да достигне това разстояние, за да задейства многократно жестовете с колелцето" },
+	"gestureRecorderAny": { "message": "Добави жест за неразпознати шаблони" },
+	"fallbackGestureTip": { "message": "Задейства се, когато начертаната следа не съвпада с никой друг жест" },
+	"userScale": { "message": "Персонализиран мащаб на интерфейса" },
+	"userScaleDesc": { "message": "Мащабиране на елементите на интерфейса на Gestura, като подсказки за действие и HUD" },
+	"scale": { "message": "Мащаб" }
 }

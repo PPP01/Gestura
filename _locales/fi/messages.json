@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Avaa %count% linkkiä",
+		"message": "Avaa linkit",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Toisto tauolla" },
 	"forkGestureRepeatPauseDesc": { "message": "Pysy paikallasi näin kauan ja jatka sitten samaan suuntaan toistaaksesi sen, esim. ↓ tauko ↓. Vaikuttaa vain eleisiin, jotka sidot toistettuun suuntaan. 0 poistaa käytöstä." },
 	"forkGestureRepeatOffNotice": { "message": "Molemmat ovat pois käytöstä: toistettuja eleitä, kuten ↓↓, ei voi piirtää eikä tallentaa." },
-	"forkTabGestures": { "message": "Eleet" }
+	"forkTabGestures": { "message": "Eleet" },
+	"ctxMenuWheelNav": { "message": "Nopea rullanavigointi" },
+	"ctxMenuWheelNavTooltip": { "message": "Pidä hiiren painiketta painettuna ja vieritä rullaa valitaksesi valikon kohteita nopeasti." },
+	"actionReloadFrame": { "message": "Lataa kehys uudelleen" },
+	"actionViewFrameSource": { "message": "Näytä kehyksen lähdekoodi" },
+	"saveImageSubdirLabel": { "message": "Alikansio" },
+	"areaSelectAutoAction": { "message": "Suorita automaattisesti valinnan jälkeen" },
+	"areaSelectAutoActionDesc": { "message": "Avaa tai kopioi valitut linkit automaattisesti, kun valinta on valmis" },
+	"areaSelectCopyCount": { "message": "Kopioi %count% linkkiä" },
+	"areaSelectCopyOne": { "message": "Kopioi %count% linkki" },
+	"areaSelectOpenCount": { "message": "Avaa %count% linkkiä" },
+	"areaSelectOverrideGlobal": { "message": "Ohita yleiset asetukset" },
+	"areaSelectUseGlobal": { "message": "Käytä yleisiä asetuksia" },
+	"wheelThreshold": { "message": "Rullan laukaisuetäisyys" },
+	"wheelThresholdDesc": { "message": "Hiiren rullan vierityksen on saavutettava tämä etäisyys laukaistakseen rullan eleitä toistuvasti" },
+	"gestureRecorderAny": { "message": "Lisää jokeriele" },
+	"fallbackGestureTip": { "message": "Käynnistyy, kun piirretty jälki ei vastaa mitään muuta elettä" },
+	"userScale": { "message": "Mukautettu käyttöliittymän skaalaus" },
+	"userScaleDesc": { "message": "Skaalaa Gestura-käyttöliittymäelementtejä, kuten toimintovihjeitä ja HUD:ia" },
+	"scale": { "message": "Skaalaus" }
 }

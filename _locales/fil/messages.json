@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Buksan ang %count% (na) link",
+		"message": "Buksan ang mga Link",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Ulitin sa paghinto" },
 	"forkGestureRepeatPauseDesc": { "message": "Tumigil nang ganito katagal, saka magpatuloy sa parehong direksyon para ulitin ito, hal. ↓ hinto ↓. May epekto lang sa mga galaw na itinakda mo sa inuulit na direksyon. Ino-off ito ng 0." },
 	"forkGestureRepeatOffNotice": { "message": "Parehong naka-off: hindi maiguhit o marekord ang mga inuulit na galaw gaya ng ↓↓." },
-	"forkTabGestures": { "message": "Mga galaw" }
+	"forkTabGestures": { "message": "Mga galaw" },
+	"ctxMenuWheelNav": { "message": "Mabilis na nabigasyon ng wheel" },
+	"ctxMenuWheelNavTooltip": { "message": "Habang nakapindot ang mouse button, i-scroll ang wheel para mabilis na pumili ng mga item sa menu." },
+	"actionReloadFrame": { "message": "I-reload ang frame" },
+	"actionViewFrameSource": { "message": "Tingnan ang source ng frame" },
+	"saveImageSubdirLabel": { "message": "Subdirectory" },
+	"areaSelectAutoAction": { "message": "Awtomatikong Isagawa Pagkapili" },
+	"areaSelectAutoActionDesc": { "message": "Awtomatikong buksan o kopyahin ang mga piling link kapag tapos na ang pagpili" },
+	"areaSelectCopyCount": { "message": "Kopyahin ang %count% na link" },
+	"areaSelectCopyOne": { "message": "Kopyahin ang %count% link" },
+	"areaSelectOpenCount": { "message": "Buksan ang %count% (na) link" },
+	"areaSelectOverrideGlobal": { "message": "I-override ang pangkalahatang mga setting" },
+	"areaSelectUseGlobal": { "message": "Gamitin ang pangkalahatang mga setting" },
+	"wheelThreshold": { "message": "Distansya ng Pag-trigger ng Wheel" },
+	"wheelThresholdDesc": { "message": "Ang pag-scroll ng mouse wheel ay dapat umabot sa distansyang ito upang paulit-ulit na ma-trigger ang mga wheel gesture" },
+	"gestureRecorderAny": { "message": "Magdagdag ng wildcard na galaw" },
+	"fallbackGestureTip": { "message": "Nagsisimula kapag ang iginuhit na bakas ay hindi tumutugma sa anumang iba pang galaw" },
+	"userScale": { "message": "Custom na Scale ng UI" },
+	"userScaleDesc": { "message": "I-scale ang mga elemento ng UI ng Gestura tulad ng mga pahiwatig ng aksyon at HUD" },
+	"scale": { "message": "Scale" }
 }

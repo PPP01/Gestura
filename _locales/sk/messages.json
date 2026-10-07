@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Otvoriť %count% odkazov",
+		"message": "Otvoriť odkazy",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Opakovanie pauzou" },
 	"forkGestureRepeatPauseDesc": { "message": "Zostaňte takto dlho nehybní a potom pokračujte v rovnakom smere, aby sa zopakoval, napr. ↓ pauza ↓. Týka sa iba gest, ktoré priradíte k opakovanému smeru. 0 to vypne." },
 	"forkGestureRepeatOffNotice": { "message": "Obe sú vypnuté: opakované gestá ako ↓↓ nemožno ani nakresliť, ani zaznamenať." },
-	"forkTabGestures": { "message": "Gestá" }
+	"forkTabGestures": { "message": "Gestá" },
+	"ctxMenuWheelNav": { "message": "Rýchla navigácia kolieskom" },
+	"ctxMenuWheelNavTooltip": { "message": "Počas držania tlačidla myši posúvajte kolieskom, aby ste rýchlo vybrali položky ponuky." },
+	"actionReloadFrame": { "message": "Znova načítať rámec" },
+	"actionViewFrameSource": { "message": "Zobraziť zdrojový kód rámca" },
+	"saveImageSubdirLabel": { "message": "Podadresár" },
+	"areaSelectAutoAction": { "message": "Automaticky vykonať po výbere" },
+	"areaSelectAutoActionDesc": { "message": "Po dokončení výberu automaticky otvoriť alebo kopírovať vybrané odkazy" },
+	"areaSelectCopyCount": { "message": "Kopírovať %count% odkazov" },
+	"areaSelectCopyOne": { "message": "Kopírovať %count% odkaz" },
+	"areaSelectOpenCount": { "message": "Otvoriť %count% odkazov" },
+	"areaSelectOverrideGlobal": { "message": "Prepísať globálne nastavenia" },
+	"areaSelectUseGlobal": { "message": "Použiť globálne nastavenia" },
+	"wheelThreshold": { "message": "Vzdialenosť na spustenie kolieskom" },
+	"wheelThresholdDesc": { "message": "Posúvanie kolieskom myši musí dosiahnuť túto vzdialenosť, aby sa opakovane spúšťali gestá kolieskom" },
+	"gestureRecorderAny": { "message": "Pridať zástupné gesto" },
+	"fallbackGestureTip": { "message": "Spustí sa, keď sa nakreslená stopa nezhoduje so žiadnym iným gestom" },
+	"userScale": { "message": "Vlastná mierka rozhrania" },
+	"userScaleDesc": { "message": "Zmena mierky prvkov rozhrania Gestura, ako sú nápovedy akcií a HUD" },
+	"scale": { "message": "Mierka" }
 }

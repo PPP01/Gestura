@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "%count% bağlantıyı aç",
+		"message": "Bağlantıları Aç",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Duraklayarak tekrar" },
 	"forkGestureRepeatPauseDesc": { "message": "Bu süre kadar hareketsiz kal, sonra aynı yönde devam ederek tekrarla, örn. ↓ duraklama ↓. Yalnızca tekrarlanan bir yöne bağladığın jestlerde önemlidir. 0 kapatır." },
 	"forkGestureRepeatOffNotice": { "message": "İkisi de kapalı: ↓↓ gibi tekrarlanan jestler ne çizilebilir ne de kaydedilebilir." },
-	"forkTabGestures": { "message": "Jestler" }
+	"forkTabGestures": { "message": "Jestler" },
+	"ctxMenuWheelNav": { "message": "Hızlı tekerlek navigasyonu" },
+	"ctxMenuWheelNavTooltip": { "message": "Fare düğmesini basılı tutarken, menü öğelerini hızlıca seçmek için tekerleği kaydırın." },
+	"actionReloadFrame": { "message": "Çerçeveyi yeniden yükle" },
+	"actionViewFrameSource": { "message": "Çerçeve kaynağını görüntüle" },
+	"saveImageSubdirLabel": { "message": "Alt dizin" },
+	"areaSelectAutoAction": { "message": "Seçimden Sonra Otomatik Çalıştır" },
+	"areaSelectAutoActionDesc": { "message": "Bir seçim tamamlandığında seçilen bağlantıları otomatik olarak aç veya kopyala" },
+	"areaSelectCopyCount": { "message": "%count% bağlantıyı kopyala" },
+	"areaSelectCopyOne": { "message": "%count% bağlantı kopyala" },
+	"areaSelectOpenCount": { "message": "%count% bağlantıyı aç" },
+	"areaSelectOverrideGlobal": { "message": "Genel ayarları geçersiz kıl" },
+	"areaSelectUseGlobal": { "message": "Genel ayarları kullan" },
+	"wheelThreshold": { "message": "Tekerlek Tetikleme Mesafesi" },
+	"wheelThresholdDesc": { "message": "Tekerlek hareketlerinin art arda tetiklenebilmesi için fare tekerleği kaydırmasının bu mesafeye ulaşması gerekir" },
+	"gestureRecorderAny": { "message": "Eşleşmeyen desenler için hareket ekle" },
+	"fallbackGestureTip": { "message": "Çizilen iz başka hiçbir hareketle eşleşmediğinde tetiklenir" },
+	"userScale": { "message": "Özel Arayüz Ölçeği" },
+	"userScaleDesc": { "message": "İşlem ipuçları ve HUD gibi Gestura arayüz öğelerini ölçeklendirin" },
+	"scale": { "message": "Ölçek" }
 }

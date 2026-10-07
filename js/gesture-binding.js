@@ -4,8 +4,14 @@
 // no entry of its own falls back to the pattern with every repeat collapsed
 // (↓↓→ → ↓→), so nothing changes for anyone who never binds one. An entry whose
 // action is 'none' is an entry: it blocks the fallback.
+//
+// The last resort is the "any" entry, stored under '*': it takes every pattern
+// that has no entry of its own, directly or collapsed. An entry for '*' that does
+// nothing is as good as none, so it is only used when it is active.
 (function (root) {
 	'use strict';
+
+	const ANY = '*';
 
 	function collapse(pattern) {
 		return String(pattern || '').replace(/(.)\1+/g, '$1');
@@ -14,7 +20,9 @@
 	// lookup(pattern) returns the binding for a pattern, or undefined/null when
 	// the pattern has no entry. What a binding is belongs to the caller: a
 	// mouse-gesture entry, or a list of drag-gesture configs.
-	function resolve(rawPattern, lookup) {
+	// isActive(binding) says whether the '*' entry does anything; without it any
+	// entry counts.
+	function resolve(rawPattern, lookup, isActive) {
 		const raw = typeof rawPattern === 'string' ? rawPattern : '';
 		const direct = raw ? lookup(raw) : undefined;
 		if (direct != null) return { rawPattern: raw, effectivePattern: raw, binding: direct };
@@ -22,6 +30,10 @@
 		if (collapsed !== raw) {
 			const fallback = lookup(collapsed);
 			if (fallback != null) return { rawPattern: raw, effectivePattern: collapsed, binding: fallback };
+		}
+		if (raw && raw !== ANY) {
+			const any = lookup(ANY);
+			if (any != null && (!isActive || isActive(any))) return { rawPattern: raw, effectivePattern: ANY, binding: any };
 		}
 		return { rawPattern: raw, effectivePattern: raw, binding: undefined };
 	}
@@ -37,7 +49,7 @@
 		return collapse(raw);
 	}
 
-	const api = { collapse, resolve, suggestionBase };
+	const api = { ANY, collapse, resolve, suggestionBase };
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GestureBinding = api;
 })(typeof self !== 'undefined' ? self : globalThis);

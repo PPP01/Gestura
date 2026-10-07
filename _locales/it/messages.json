@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Apri %count% link",
+		"message": "Apri link",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Ripeti con pausa" },
 	"forkGestureRepeatPauseDesc": { "message": "Resta fermo per questo tempo, poi continua nella stessa direzione per ripeterla, ad es. ↓ pausa ↓. Conta solo per i gesti associati a una direzione ripetuta. 0 lo disattiva." },
 	"forkGestureRepeatOffNotice": { "message": "Entrambi sono disattivati: i gesti ripetuti come ↓↓ non possono essere né disegnati né registrati." },
-	"forkTabGestures": { "message": "Gesti" }
+	"forkTabGestures": { "message": "Gesti" },
+	"ctxMenuWheelNav": { "message": "Navigazione rapida con la rotellina" },
+	"ctxMenuWheelNavTooltip": { "message": "Mentre tieni premuto il pulsante del mouse, scorri la rotellina per selezionare rapidamente le voci di menu." },
+	"actionReloadFrame": { "message": "Ricarica frame" },
+	"actionViewFrameSource": { "message": "Visualizza sorgente frame" },
+	"saveImageSubdirLabel": { "message": "Sottocartella" },
+	"areaSelectAutoAction": { "message": "Esegui automaticamente dopo la selezione" },
+	"areaSelectAutoActionDesc": { "message": "Apri o copia automaticamente i link selezionati al completamento della selezione" },
+	"areaSelectCopyCount": { "message": "Copia %count% link" },
+	"areaSelectCopyOne": { "message": "Copia %count% link" },
+	"areaSelectOpenCount": { "message": "Apri %count% link" },
+	"areaSelectOverrideGlobal": { "message": "Sostituisci impostazioni globali" },
+	"areaSelectUseGlobal": { "message": "Usa impostazioni globali" },
+	"wheelThreshold": { "message": "Distanza di attivazione della rotellina" },
+	"wheelThresholdDesc": { "message": "Lo scorrimento della rotellina del mouse deve raggiungere questa distanza per attivare ripetutamente i gesti della rotellina" },
+	"gestureRecorderAny": { "message": "Aggiungi gesto jolly" },
+	"fallbackGestureTip": { "message": "Si attiva quando la scia tracciata non corrisponde a nessun altro gesto" },
+	"userScale": { "message": "Scala dell'interfaccia personalizzata" },
+	"userScaleDesc": { "message": "Regola le dimensioni degli elementi dell'interfaccia di Gestura, come i suggerimenti per le azioni e l'HUD" },
+	"scale": { "message": "Scala" }
 }

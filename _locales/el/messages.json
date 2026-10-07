@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Άνοιγμα %count% συνδέσμων",
+		"message": "Άνοιγμα συνδέσμων",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Επανάληψη με παύση" },
 	"forkGestureRepeatPauseDesc": { "message": "Μείνετε ακίνητοι τόσο, και μετά συνεχίστε προς την ίδια κατεύθυνση για να την επαναλάβετε, π.χ. ↓ παύση ↓. Έχει σημασία μόνο για χειρονομίες που αντιστοιχίζετε σε επαναλαμβανόμενη κατεύθυνση. Το 0 την απενεργοποιεί." },
 	"forkGestureRepeatOffNotice": { "message": "Και τα δύο είναι απενεργοποιημένα: επαναλαμβανόμενες χειρονομίες όπως ↓↓ δεν μπορούν ούτε να σχεδιαστούν ούτε να καταγραφούν." },
-	"forkTabGestures": { "message": "Χειρονομίες" }
+	"forkTabGestures": { "message": "Χειρονομίες" },
+	"ctxMenuWheelNav": { "message": "Γρήγορη πλοήγηση με τη ροδέλα" },
+	"ctxMenuWheelNavTooltip": { "message": "Κρατώντας πατημένο το κουμπί του ποντικιού, κάντε κύλιση με τη ροδέλα για να επιλέξετε γρήγορα στοιχεία μενού." },
+	"actionReloadFrame": { "message": "Επαναφόρτωση πλαισίου" },
+	"actionViewFrameSource": { "message": "Προβολή κώδικα πλαισίου" },
+	"saveImageSubdirLabel": { "message": "Υποκατάλογος" },
+	"areaSelectAutoAction": { "message": "Αυτόματη εκτέλεση μετά την επιλογή" },
+	"areaSelectAutoActionDesc": { "message": "Αυτόματο άνοιγμα ή αντιγραφή επιλεγμένων συνδέσμων μετά την ολοκλήρωση της επιλογής" },
+	"areaSelectCopyCount": { "message": "Αντιγραφή %count% συνδέσμων" },
+	"areaSelectCopyOne": { "message": "Αντιγραφή %count% συνδέσμου" },
+	"areaSelectOpenCount": { "message": "Άνοιγμα %count% συνδέσμων" },
+	"areaSelectOverrideGlobal": { "message": "Παράκαμψη καθολικών ρυθμίσεων" },
+	"areaSelectUseGlobal": { "message": "Χρήση καθολικών ρυθμίσεων" },
+	"wheelThreshold": { "message": "Απόσταση ενεργοποίησης ροδέλας" },
+	"wheelThresholdDesc": { "message": "Η κύλιση της ροδέλας του ποντικιού πρέπει να φτάσει σε αυτήν την απόσταση για να ενεργοποιούνται επανειλημμένα οι χειρονομίες ροδέλας" },
+	"gestureRecorderAny": { "message": "Προσθήκη χειρονομίας μπαλαντέρ" },
+	"fallbackGestureTip": { "message": "Ενεργοποιείται όταν το σχεδιασμένο ίχνος δεν ταιριάζει με καμία άλλη χειρονομία" },
+	"userScale": { "message": "Προσαρμοσμένη κλίμακα διεπαφής" },
+	"userScaleDesc": { "message": "Κλιμάκωση στοιχείων διεπαφής χρήστη του Gestura, όπως υποδείξεις ενεργειών και HUD" },
+	"scale": { "message": "Κλίμακα" }
 }

@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "פתח %count% קישורים",
+		"message": "פתח קישורים",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "חזרה באמצעות השהיה" },
 	"forkGestureRepeatPauseDesc": { "message": "השאר את העכבר דומם כל כך הרבה זמן ואז המשך באותו כיוון כדי לחזור עליו, למשל ↓ השהיה ↓. משפיע רק על מחוות שהקצית להן כיוון חוזר. 0 מכבה את זה." },
 	"forkGestureRepeatOffNotice": { "message": "שניהם כבויים: מחוות חוזרות כמו ↓↓ אי אפשר לצייר ולא להקליט." },
-	"forkTabGestures": { "message": "מחוות" }
+	"forkTabGestures": { "message": "מחוות" },
+	"ctxMenuWheelNav": { "message": "ניווט מהיר בגלגלת" },
+	"ctxMenuWheelNavTooltip": { "message": "תוך כדי לחיצה ממושכת על לחצן העכבר, גלול את הגלגלת כדי לבחור במהירות פריטי תפריט." },
+	"actionReloadFrame": { "message": "טען מסגרת מחדש" },
+	"actionViewFrameSource": { "message": "הצג מקור מסגרת" },
+	"saveImageSubdirLabel": { "message": "תת-תיקייה" },
+	"areaSelectAutoAction": { "message": "ביצוע אוטומטי לאחר בחירה" },
+	"areaSelectAutoActionDesc": { "message": "פתיחה או העתקה אוטומטית של קישורים שנבחרו עם השלמת הבחירה" },
+	"areaSelectCopyCount": { "message": "העתק %count% קישורים" },
+	"areaSelectCopyOne": { "message": "העתק קישור %count%" },
+	"areaSelectOpenCount": { "message": "פתח %count% קישורים" },
+	"areaSelectOverrideGlobal": { "message": "עקוף הגדרות גלובליות" },
+	"areaSelectUseGlobal": { "message": "השתמש בהגדרות גלובליות" },
+	"wheelThreshold": { "message": "מרחק הפעלת גלגלת" },
+	"wheelThresholdDesc": { "message": "גלילת גלגלת העכבר חייבת להגיע למרחק זה כדי להפעיל מחוות גלגלת שוב ושוב" },
+	"gestureRecorderAny": { "message": "הוסף מחוות תו כללי" },
+	"fallbackGestureTip": { "message": "מופעל כאשר השובל המצויר אינו תואם לאף מחווה אחרת" },
+	"userScale": { "message": "קנה מידה מותאם אישית של ממשק המשתמש" },
+	"userScaleDesc": { "message": "שינוי קנה המידה של רכיבי ממשק המשתמש של Gestura כגון רמזי פעולה ו-HUD" },
+	"scale": { "message": "קנה מידה" }
 }

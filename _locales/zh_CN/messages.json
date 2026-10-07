@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "打开 %count% 个链接",
+		"message": "打开链接",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "停顿重复" },
 	"forkGestureRepeatPauseDesc": { "message": "静止这么久后，继续向同一方向划动即可重复该方向，例如 ↓ 停顿 ↓。仅对绑定到重复方向的手势有效。0 表示关闭。" },
 	"forkGestureRepeatOffNotice": { "message": "两者均已关闭：既无法绘制也无法录制 ↓↓ 之类的重复手势。" },
-	"forkTabGestures": { "message": "手势" }
+	"forkTabGestures": { "message": "手势" },
+	"ctxMenuWheelNav": { "message": "滚轮快速导航" },
+	"ctxMenuWheelNavTooltip": { "message": "按住鼠标按键时，滚动滚轮快速选择菜单中的项目。" },
+	"actionReloadFrame": { "message": "重新加载框架" },
+	"actionViewFrameSource": { "message": "查看框架源代码" },
+	"saveImageSubdirLabel": { "message": "子目录" },
+	"areaSelectAutoAction": { "message": "框选后自动执行" },
+	"areaSelectAutoActionDesc": { "message": "框选完成后，自动打开或复制选中的链接" },
+	"areaSelectCopyCount": { "message": "复制 %count% 个链接" },
+	"areaSelectCopyOne": { "message": "复制 %count% 个链接" },
+	"areaSelectOpenCount": { "message": "打开 %count% 个链接" },
+	"areaSelectOverrideGlobal": { "message": "覆盖全局设置" },
+	"areaSelectUseGlobal": { "message": "使用全局设置" },
+	"wheelThreshold": { "message": "滚轮触发距离" },
+	"wheelThresholdDesc": { "message": "鼠标滚轮滚动达到此距离后才会连续触发滚轮手势" },
+	"gestureRecorderAny": { "message": "添加兜底手势" },
+	"fallbackGestureTip": { "message": "当绘制的轨迹未匹配到其他手势时触发" },
+	"userScale": { "message": "自定义界面缩放" },
+	"userScaleDesc": { "message": "缩放 Gestura 自身的操作提示、HUD 等界面元素" },
+	"scale": { "message": "缩放比例" }
 }

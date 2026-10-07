@@ -35,6 +35,20 @@ const GLOBAL_MUTE_KEY = 'flowmouse_global_mute_state';
 
 const ctxMenuSessions = new Map();
 
+// A menu whose session is gone (the worker restarted while it was open) may still be
+// on screen in the top-level frame; nothing else will take it down.
+function takeDownOrphan(menuId, sender) {
+	if (sender.tab?.id == null) return;
+	chrome.tabs.sendMessage(sender.tab.id, { action: 'ctxMenuDestroy', menuId }, { frameId: 0 }).catch(() => {});
+}
+
+// Takes a menu down from the frame that drew it for a child frame, if one did.
+function destroyDrawnMenu(menuId, session) {
+	if (session.drawFrameId == null) return;
+	chrome.tabs.sendMessage(session.tabId, { action: 'ctxMenuDestroy', menuId }, { frameId: session.drawFrameId }).catch(() => {});
+	session.drawFrameId = null;
+}
+
 class Bookmarks {
 	static #ROOT_IDS = new Set(['0', 'root________']);
 
@@ -197,7 +211,7 @@ function asyncMessageHandler(asyncHandler) {
 
 const CONTENT_ACTIONS = new Set([
 	'scrollUp', 'scrollDown', 'scrollLeft', 'scrollRight', 'scrollToTop', 'scrollToBottom', 'scrollToLeftEdge', 'scrollToRightEdge',
-	'stopLoading', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'printPage', 'sendCustomEvent',
+	'stopLoading', 'reloadFrame', 'copyUrl', 'copyTitle', 'copyTitleAndUrl', 'sendCustomEvent',
 	'simulateKey', 'pasteClipboard', 'pasteContent', 'searchClipboard', 'searchLink',
 	'menuShowTabs', 'menuRecentlyClosed', 'menuShowBookmarks',
 	'customMenu', 'siteMenu',
@@ -217,6 +231,27 @@ async function createTabAtPosition(sender, position, extraOpts = {}) {
 		default: createOpts.index = tabs.length; break;
 	}
 	return await chrome.tabs.create(createOpts);
+}
+
+// Opens a tab in an incognito window that already exists, so a run of
+// "open in incognito" gestures from a normal window collects in one window
+// instead of piling up new ones. Only 'newWindow' asks for a window of its own.
+async function createIncognitoTab(position, extraOpts = {}) {
+	const windows = await chrome.windows.getAll({ populate: true, windowTypes: ['normal'] });
+	const incognitoWin = windows.find(w => w.incognito);
+	if (position === 'newWindow' || !incognitoWin?.tabs?.length) {
+		const createOpts = { incognito: true };
+		if (extraOpts.url && extraOpts.url !== 'about:blank') createOpts.url = extraOpts.url;
+		const win = await chrome.windows.create(createOpts);
+		return win?.tabs?.[0];
+	}
+	if (position === 'current') position = 'last';
+	const refTab = incognitoWin.tabs.find(t => t.active) || incognitoWin.tabs[0];
+	const newTab = await createTabAtPosition({ tab: refTab }, position, extraOpts);
+	if (extraOpts.active !== false) {
+		await chrome.windows.update(incognitoWin.id, { focused: true });
+	}
+	return newTab;
 }
 
 async function openInNewWindow(url, focused = true, incognito = false) {
@@ -309,25 +344,38 @@ async function handleAction(request, sender) {
 				}
 				const tabs = await chrome.tabs.query({ windowId: sender.tab.windowId });
 				const currentPos = tabs.findIndex(t => t.id === sender.tab.id);
-				const afterClose = request.afterClose || 'default';
+				let afterClose = request.afterClose || 'default';
 
-				if (request.keepWindow && tabs.length === 1) {
+				// A discarded tab stays in the strip, so the focus has to move on
+				// by itself: to the right, or to the left from the last tab.
+				if (request.preserveTab && afterClose === 'default') {
+					afterClose = currentPos === tabs.length - 1 ? 'left' : 'right';
+				}
+
+				if (!request.preserveTab && request.keepWindow && tabs.length === 1) {
 					await chrome.tabs.create({ active: true, windowId: sender.tab.windowId });
 				}
 
 				if (afterClose !== 'default' && tabs.length > 1 && currentPos !== -1) {
+					// At the end of the strip the neighbour on the other side takes
+					// over; wrapping around to the far end would jump across the window.
 					let targetPos;
 					if (afterClose === 'left') {
-						targetPos = currentPos > 0 ? currentPos - 1 : tabs.length - 1;
+						targetPos = currentPos > 0 ? currentPos - 1 : currentPos + 1;
 					} else if (afterClose === 'right') {
-						targetPos = currentPos < tabs.length - 1 ? currentPos + 1 : 0;
+						targetPos = currentPos < tabs.length - 1 ? currentPos + 1 : currentPos - 1;
 					}
 					if (targetPos !== undefined) {
 						await chrome.tabs.update(tabs[targetPos].id, { active: true });
 					}
 				}
 
-				await chrome.tabs.remove(sender.tab.id);
+				if (request.preserveTab) {
+					if (tabs.length <= 1 || sender.tab.discarded) return { success: false };
+					await chrome.tabs.discard(sender.tab.id);
+				} else {
+					await chrome.tabs.remove(sender.tab.id);
+				}
 			}
 			return { success: true };
 		}
@@ -366,7 +414,7 @@ async function handleAction(request, sender) {
 			if (sender.tab && request.incognito && !sender.tab.incognito) {
 				const granted = await requestPermission(['incognito'], sender.tab.windowId);
 				if (granted) {
-					await chrome.windows.create({ incognito: true, url: request.url });
+					await createIncognitoTab(request.position || 'right', { url: request.url, active: request.active !== false });
 				}
 				return { success: true };
 			}
@@ -420,10 +468,8 @@ async function handleAction(request, sender) {
 				if (request.incognito && !sender.tab.incognito) {
 					const granted = await requestPermission(['incognito'], sender.tab.windowId);
 					if (granted) {
-						const newWin = await chrome.windows.create({ incognito: true });
-						if (newWin && newWin.tabs && newWin.tabs.length > 0) {
-							await chrome.search.query({ text: request.query, tabId: newWin.tabs[0].id });
-						}
+						const newTab = await createIncognitoTab(request.position || 'right', { url: 'about:blank', active: request.active !== false });
+						if (newTab) await chrome.search.query({ text: request.query, tabId: newTab.id });
 					}
 					return { success: true };
 				}
@@ -455,11 +501,14 @@ async function handleAction(request, sender) {
 				requestPermission(['downloads', 'pageCapture'], sender.tab?.windowId ?? null).then(async (granted) => {
 					if (!granted) return;
 
+					const subdir = sanitizeSubdir(request.subdir);
+
 					if (request.url.startsWith('data:')) {
 						{
+							const filename = request.filename || (subdir ? getFilename(null, request.url.match(/^data:([^;,]+)/)?.[1]) : null);
 							await chrome.downloads.download({
 								url: request.url,
-								filename: request.filename || null,
+								filename: joinDownloadPath(subdir, filename),
 								saveAs: false
 							});
 						}
@@ -495,7 +544,7 @@ async function handleAction(request, sender) {
 								const filename = getFilename(imageUrl, resource.type);
 								await chrome.downloads.download({
 									url: resource.dataUrl,
-									filename: filename,
+									filename: joinDownloadPath(subdir, filename),
 									saveAs: false
 								});
 							} else {
@@ -509,6 +558,24 @@ async function handleAction(request, sender) {
 				});
 			}
 			return { success: true };
+
+		// Printed from the worker so a gesture inside an iframe prints the page, not the frame.
+		case 'printPage':
+			if (!sender.tab?.id) return { success: false };
+			await chrome.scripting.executeScript({
+				target: { tabId: sender.tab.id, frameIds: [0] },
+				func: () => { window.print(); },
+			});
+			return { success: true };
+
+		case 'getTabZoom':
+			if (!sender.tab) return { success: false };
+			return { success: true, ...(await getZoomInfo(sender.tab.id)) };
+
+		// The tab's title and URL, for a gesture that started inside an iframe.
+		case 'getTabInfo':
+			if (!sender.tab) return { success: false };
+			return { success: true, title: sender.tab.title, url: sender.tab.url };
 
 		case 'saveAsMhtml':
 			if (sender.tab?.id) {
@@ -824,7 +891,7 @@ async function handleAction(request, sender) {
 				if (sender.tab && request.incognito && !sender.tab.incognito) {
 					const granted = await requestPermission(['incognito'], sender.tab.windowId);
 					if (granted) {
-						await chrome.windows.create({ incognito: true, url });
+						await createIncognitoTab(request.position || 'last', { url, active: request.active !== false });
 					}
 					return { success: true };
 				}
@@ -872,9 +939,12 @@ async function handleAction(request, sender) {
 			}
 			return { success: true };
 
-		case 'viewPageSource': {
-			if (sender.tab?.url) {
-				const url = 'view-source:' + sender.tab.url;
+		// The frame's own document for the gesture's frame, the tab's for the page.
+		case 'viewPageSource':
+		case 'viewFrameSource': {
+			const srcUrl = request.action === 'viewFrameSource' ? (sender.url || sender.tab?.url) : sender.tab?.url;
+			if (srcUrl) {
+				const url = 'view-source:' + srcUrl;
 				const pos = request.position || 'right';
 				if (pos === 'newWindow') {
 					await openInNewWindow(url, request.active !== false, sender.tab?.incognito);
@@ -970,9 +1040,11 @@ async function handleAction(request, sender) {
 			if (sender.tab?.id) {
 				await chrome.tabs.sendMessage(sender.tab.id, {
 					action: 'areaSelectEnter',
+					overrideGlobal: request.overrideGlobal,
 					warnThreshold: request.warnThreshold,
 					textUrl: request.textUrl,
-					operationInterval: request.operationInterval,
+					delay: request.delay,
+					autoAction: request.autoAction,
 				}).catch(() => {});
 			}
 			return { success: true };
@@ -1163,6 +1235,37 @@ async function handleAction(request, sender) {
 			return { items: session.latest ?? null, switcher: session.latestSwitcher ?? null };
 		}
 
+		// A menu that started in a child frame is drawn by the top-level frame (frame 0);
+		// what it reports and what the wheel does go there, the pick goes to the child.
+		case 'ctxMenuDraw': {
+			const session = ctxMenuSessions.get(request.menuId);
+			if (!session || session.tabId !== sender.tab?.id || session.frameId !== (sender.frameId ?? 0)) return { drawn: false };
+			// Set before asking: the menu page reports its size once, as soon as it has
+			// loaded, and that report must already find its way to the frame that draws it.
+			session.drawFrameId = 0;
+			try {
+				const reply = await chrome.tabs.sendMessage(sender.tab.id, {
+					action: 'ctxMenuDraw', menuId: request.menuId, x: request.x, y: request.y, options: request.options,
+				}, { frameId: 0 });
+				if (reply?.drawn) {
+					// The origin may have closed the menu while the top frame was drawing it.
+					if (ctxMenuSessions.get(request.menuId) === session) return { drawn: true };
+					chrome.tabs.sendMessage(session.tabId, { action: 'ctxMenuDestroy', menuId: request.menuId }, { frameId: 0 }).catch(() => {});
+					return { drawn: false };
+				}
+			} catch { /* no content script up there: the child draws it itself */ }
+			session.drawFrameId = null;
+			return { drawn: false };
+		}
+
+		case 'ctxMenuPost':
+		case 'ctxMenuWheel': {
+			const session = ctxMenuSessions.get(request.menuId);
+			if (!session || session.drawFrameId == null) return;
+			chrome.tabs.sendMessage(session.tabId, request, { frameId: session.drawFrameId }).catch(() => {});
+			return { success: true };
+		}
+
 		case 'ctxMenuDimensions': {
 			const session = ctxMenuSessions.get(request.menuId);
 			if (!session) return;
@@ -1171,19 +1274,20 @@ async function handleAction(request, sender) {
 				menuId: request.menuId,
 				width: request.width,
 				height: request.height,
-			}, { frameId: session.frameId }).catch(() => {});
+			}, { frameId: session.drawFrameId ?? session.frameId }).catch(() => {});
 			return { success: true };
 		}
 
 		case 'ctxMenuSelect': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session) return;
+			if (!session) return takeDownOrphan(request.menuId, sender);
 			chrome.tabs.sendMessage(session.tabId, {
 				action: 'ctxMenuSelect',
 				menuId: request.menuId,
 				index: request.index,
 				button: request.button || 0,
 			}, { frameId: session.frameId }).catch(() => {});
+			destroyDrawnMenu(request.menuId, session);
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}
@@ -1201,18 +1305,19 @@ async function handleAction(request, sender) {
 
 		case 'ctxMenuClose': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session) return;
+			if (!session) return takeDownOrphan(request.menuId, sender);
 			chrome.tabs.sendMessage(session.tabId, {
 				action: 'ctxMenuClose',
 				menuId: request.menuId,
 			}, { frameId: session.frameId }).catch(() => {});
+			destroyDrawnMenu(request.menuId, session);
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}
 
 		case 'ctxMenuCleanup': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (session) session.setItems(null);
+			if (session) destroyDrawnMenu(request.menuId, session);
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}
@@ -1267,11 +1372,15 @@ async function handleAction(request, sender) {
 				if (!activeTab) continue;
 
 				if (CONTENT_ACTIONS.has(step.action)) {
+					// The context belongs to the tab the chain started in; once a step has
+					// moved on to another tab the step runs there without it.
+					const inOrigin = request.contextId && sender.tab && activeTab.id === sender.tab.id;
 					await chrome.tabs.sendMessage(activeTab.id, {
 						action: 'executeLocalAction',
 						stepAction: step.action,
-						stepConfig: step
-					}).catch(() => {});
+						stepConfig: step,
+						contextId: inOrigin ? request.contextId : undefined
+					}, inOrigin && sender.frameId != null ? { frameId: sender.frameId } : undefined).catch(() => {});
 					if (steps.indexOf(step) < steps.length - 1) {
 						await sleep(100);
 					}
@@ -1537,6 +1646,23 @@ chrome.runtime.onMessage.addListener(asyncMessageHandler(async (request, sender)
 
 	return await handleAction(request, sender);
 }));
+
+async function getZoomInfo(tabId) {
+	const [tabZoom, zoomSettings] = await Promise.all([
+		chrome.tabs.getZoom(tabId),
+		chrome.tabs.getZoomSettings(tabId).catch(() => null),
+	]);
+	return { tabZoom, defaultZoom: zoomSettings?.defaultZoomFactor };
+}
+
+chrome.tabs.onZoomChange.addListener(async ({ tabId, newZoomFactor }) => {
+	const zoomSettings = await chrome.tabs.getZoomSettings(tabId).catch(() => null);
+	chrome.tabs.sendMessage(tabId, {
+		action: 'tabZoomChanged',
+		tabZoom: newZoomFactor,
+		defaultZoom: zoomSettings?.defaultZoomFactor,
+	}).catch(() => {});
+});
 
 chrome.runtime.onInstalled.addListener((details) => {
 	function compareVersions(a, b) {
@@ -2338,6 +2464,46 @@ GesturaSettingsStorage.onChanged((changes) => {
 		});
 	}
 });
+
+// A relative folder below the browser's download folder: no absolute paths, no
+// ".." and no characters the file system refuses. What is left may be empty.
+function sanitizeSubdir(raw) {
+	if (!raw || typeof raw !== 'string') return '';
+	let s = raw.trim()
+		.replace(/\\/g, '/')
+		.replace(/\/+/g, '/');
+	s = s.replace(/^\/|\/$/g, '');
+	const segments = s.split('/').filter(seg => {
+		if (!seg || seg === '.' || seg === '..') return false;
+		if (/[<>:"|?*\x00-\x1f]/.test(seg)) return false;
+		return true;
+	});
+	return segments.join('/');
+}
+
+function sanitizeFilename(raw) {
+	if (!raw || typeof raw !== 'string') return '';
+	const illegalRe = /[\/?<>\\:*|"]/g;
+	const controlRe = /[\x00-\x1f\x80-\x9f]/g;
+	const reservedRe = /^\.+$/;
+	const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
+	let name = raw
+		.replace(illegalRe, '_')
+		.replace(controlRe, '_')
+		.replace(reservedRe, '_')
+		.replace(windowsReservedRe, '_');
+	let end = name.length;
+	while (end > 0 && (name[end - 1] === '.' || name[end - 1] === ' ')) end--;
+	name = name.slice(0, end);
+	if (name.length > 255) name = name.slice(0, 255);
+	return name;
+}
+
+function joinDownloadPath(subdir, filename) {
+	const name = sanitizeFilename(filename);
+	if (subdir) return subdir + '/' + (name || 'image.png');
+	return name || null;
+}
 
 function getFilename(url, mimeType) {
 	let filename = null;

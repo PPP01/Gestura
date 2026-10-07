@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Otvori %count% poveznica",
+		"message": "Otvori poveznice",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Ponavljanje pauzom" },
 	"forkGestureRepeatPauseDesc": { "message": "Zadržite miš toliko dugo mirno, a zatim nastavite u istom smjeru da ga ponovite, npr. ↓ pauza ↓. Bitno samo za geste koje vežete na ponovljeni smjer. 0 isključuje." },
 	"forkGestureRepeatOffNotice": { "message": "Oba su isključena: ponovljene geste poput ↓↓ ne mogu se ni crtati ni snimiti." },
-	"forkTabGestures": { "message": "Geste" }
+	"forkTabGestures": { "message": "Geste" },
+	"ctxMenuWheelNav": { "message": "Brza navigacija kotačićem" },
+	"ctxMenuWheelNavTooltip": { "message": "Dok držite tipku miša, pomičite kotačić za brzi odabir stavki izbornika." },
+	"actionReloadFrame": { "message": "Ponovno učitaj okvir" },
+	"actionViewFrameSource": { "message": "Prikaži izvorni kod okvira" },
+	"saveImageSubdirLabel": { "message": "Podmapa" },
+	"areaSelectAutoAction": { "message": "Automatski izvrši nakon odabira" },
+	"areaSelectAutoActionDesc": { "message": "Automatski otvori ili kopiraj odabrane veze po završetku odabira" },
+	"areaSelectCopyCount": { "message": "Kopiraj %count% poveznica" },
+	"areaSelectCopyOne": { "message": "Kopiraj %count% poveznicu" },
+	"areaSelectOpenCount": { "message": "Otvori %count% poveznica" },
+	"areaSelectOverrideGlobal": { "message": "Prepiši globalne postavke" },
+	"areaSelectUseGlobal": { "message": "Koristi globalne postavke" },
+	"wheelThreshold": { "message": "Udaljenost okidanja kotačića" },
+	"wheelThresholdDesc": { "message": "Pomicanje kotačića miša mora dosegnuti ovu udaljenost da bi se više puta pokrenule geste kotačićem" },
+	"gestureRecorderAny": { "message": "Dodaj gestu za neprepoznate uzorke" },
+	"fallbackGestureTip": { "message": "Pokreće se kada nacrtani trag ne odgovara nijednoj drugoj gesti" },
+	"userScale": { "message": "Prilagođeno skaliranje sučelja" },
+	"userScaleDesc": { "message": "Skaliranje elemenata sučelja Gestura-a poput savjeta za akciju i HUD-a" },
+	"scale": { "message": "Mjerilo" }
 }

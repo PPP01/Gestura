@@ -2021,7 +2021,7 @@
 		"description": "Hint text shown in the area select overlay"
 	},
 	"areaSelectOpen": {
-		"message": "Åbn %count% links",
+		"message": "Åbn links",
 		"description": "Button text in the area select toolbar to batch open selected links"
 	},
 	"areaSelectOpenOne": {
@@ -3107,5 +3107,24 @@
 	"forkGestureRepeatPause": { "message": "Gentag med pause" },
 	"forkGestureRepeatPauseDesc": { "message": "Hold musen stille så længe, og fortsæt derefter i samme retning for at gentage den, f.eks. ↓ pause ↓. Har kun betydning for bevægelser, du binder til en gentaget retning. 0 slår det fra." },
 	"forkGestureRepeatOffNotice": { "message": "Begge er slået fra: Gentagne bevægelser som ↓↓ kan hverken tegnes eller optages." },
-	"forkTabGestures": { "message": "Bevægelser" }
+	"forkTabGestures": { "message": "Bevægelser" },
+	"ctxMenuWheelNav": { "message": "Hurtig hjulnavigation" },
+	"ctxMenuWheelNavTooltip": { "message": "Hold museknappen nede og rul på hjulet for hurtigt at vælge menupunkter." },
+	"actionReloadFrame": { "message": "Genindlæs ramme" },
+	"actionViewFrameSource": { "message": "Vis kildekode for ramme" },
+	"saveImageSubdirLabel": { "message": "Undermappe" },
+	"areaSelectAutoAction": { "message": "Udfør automatisk efter valg" },
+	"areaSelectAutoActionDesc": { "message": "Åbn eller kopiér automatisk valgte links, når et valg er fuldført" },
+	"areaSelectCopyCount": { "message": "Kopiér %count% links" },
+	"areaSelectCopyOne": { "message": "Kopiér %count% link" },
+	"areaSelectOpenCount": { "message": "Åbn %count% links" },
+	"areaSelectOverrideGlobal": { "message": "Tilsidesæt globale indstillinger" },
+	"areaSelectUseGlobal": { "message": "Brug globale indstillinger" },
+	"wheelThreshold": { "message": "Hjuludløserafstand" },
+	"wheelThresholdDesc": { "message": "Rulning med musehjulet skal nå denne afstand for gentagne gange at udløse hjulbevægelser" },
+	"gestureRecorderAny": { "message": "Tilføj wildcard-bevægelse" },
+	"fallbackGestureTip": { "message": "Udløses, når det tegnede spor ikke matcher nogen anden bevægelse" },
+	"userScale": { "message": "Brugerdefineret UI-skala" },
+	"userScaleDesc": { "message": "Skaler Gestura-brugergrænsefladeelementer som handlingshint og HUD" },
+	"scale": { "message": "Skala" }
 }
