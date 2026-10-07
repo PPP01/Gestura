@@ -601,6 +601,7 @@ class ContextMenuSurface {
 	#menuId;
 	#wheel = null;
 	#onMessage;
+	#onKey = null;
 
 	static open(settings, generateStyles, x, y, menuId, options) {
 		const host = new ShadowHost({ useDialog: true });
@@ -759,7 +760,18 @@ class ContextMenuSurface {
 		} catch { /* the frame is gone; the menu closes itself */ }
 	}
 
+	// Escape closes the menu even when the focus is not in the menu page, which is
+	// where the key lands if the page the gesture started in kept it. The pick and
+	// close messages go to the frame that owns the items, wherever this one is.
+	closeOnEscape() {
+		this.#onKey = (e) => {
+			if (e.key === 'Escape') try { chrome.runtime.sendMessage({ action: 'ctxMenuClose', menuId: this.#menuId }); } catch {}
+		};
+		window.addEventListener('keydown', this.#onKey, true);
+	}
+
 	destroy() {
+		if (this.#onKey) window.removeEventListener('keydown', this.#onKey, true);
 		try { chrome.runtime.onMessage.removeListener(this.#onMessage); } catch {}
 		this.#host.cleanup();
 	}
@@ -889,9 +901,13 @@ class ContentContextMenu {
 			this.#surface = null;
 			this.#switchHandler = null;
 			this.#wheel = null;
+			window.removeEventListener('keydown', onKey, true);
 			try { chrome.runtime.onMessage.removeListener(onMessage); } catch {}
 			try { chrome.runtime.sendMessage({ action: 'ctxMenuCleanup', menuId }); } catch {}
 		};
+
+		const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+		window.addEventListener('keydown', onKey, true);
 
 		const onMessage = (request) => {
 			if (request.menuId !== menuId) return;
@@ -976,7 +992,7 @@ class ContentContextMenu {
 			const onReply = (e) => {
 				const d = e.data;
 				if (e.source !== window.parent || !d || d.__gestura !== 'located' || d.token !== token) return;
-				done({ x: d.left + x * d.scaleX, y: d.top + y * d.scaleY });
+				done(d.unsupported ? null : { x: d.left + x * d.scaleX, y: d.top + y * d.scaleY });
 			};
 			const timer = setTimeout(() => done(null), 250);
 			window.addEventListener('message', onReply);
@@ -992,16 +1008,28 @@ class ContentContextMenu {
 		for (const f of document.querySelectorAll('iframe, frame')) {
 			if (f.contentWindow === e.source) { el = f; break; }
 		}
-		if (!el) return;
+		const reply = (v) => { try { e.source.postMessage({ __gestura: 'located', token: d.token, ...v }, '*'); } catch {} };
+		// Not found (inside a shadow root, say), or rotated or skewed by a transform on the
+		// frame or an ancestor: the bounding box would not say where a point of the frame is.
+		if (!el || ContentContextMenu.#isRotated(el)) { reply({ unsupported: true }); return; }
 		const r = el.getBoundingClientRect();
 		const cs = getComputedStyle(el);
 		const scaleX = el.offsetWidth ? r.width / el.offsetWidth : 1;
 		const scaleY = el.offsetHeight ? r.height / el.offsetHeight : 1;
 		const inX = el.clientLeft + (parseFloat(cs.paddingLeft) || 0);
 		const inY = el.clientTop + (parseFloat(cs.paddingTop) || 0);
-		try {
-			e.source.postMessage({ __gestura: 'located', token: d.token, left: r.left + inX * scaleX, top: r.top + inY * scaleY, scaleX, scaleY }, '*');
-		} catch {}
+		reply({ left: r.left + inX * scaleX, top: r.top + inY * scaleY, scaleX, scaleY });
+	}
+
+	static #isRotated(el) {
+		for (let n = el; n instanceof Element; n = n.parentElement) {
+			const t = getComputedStyle(n).transform;
+			if (!t || t === 'none') continue;
+			const m = new DOMMatrixReadOnly(t);
+			// a pure translation or scale keeps the axes; anything else tilts them
+			if (Math.abs(m.b) > 1e-3 || Math.abs(m.c) > 1e-3 || !m.is2D) return true;
+		}
+		return false;
 	}
 
 	// Worker messages for the surfaces this frame draws on behalf of a child frame.
@@ -1011,6 +1039,7 @@ class ContentContextMenu {
 				const surface = ContextMenuSurface.open(this.#settings, this.generateStyles(), request.x, request.y, request.menuId, request.options);
 				if (!surface) return { drawn: false };
 				this.#remoteSurfaces.get(request.menuId)?.destroy();
+				surface.closeOnEscape();
 				this.#remoteSurfaces.set(request.menuId, surface);
 				return { drawn: true };
 			}
@@ -1062,6 +1091,8 @@ class ContentContextMenu {
 			this.#activeMenuClose();
 			this.#activeMenuClose = null;
 		}
+		for (const surface of this.#remoteSurfaces.values()) surface.destroy();
+		this.#remoteSurfaces.clear();
 	}
 }
 
@@ -3230,6 +3261,7 @@ window.ContentContextMenu = ContentContextMenu;
 		});
 
 		eventManager.add(null, window, 'pagehide', () => {
+			ctxMenu.close();
 			if (recognizer.isActive()) {
 				safeSendMessage({ action: 'gestureStateUpdate', active: false });
 				resetState();

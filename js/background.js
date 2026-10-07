@@ -23,6 +23,13 @@ const GLOBAL_MUTE_KEY = 'flowmouse_global_mute_state';
 
 const ctxMenuSessions = new Map();
 
+// A menu whose session is gone (the worker restarted while it was open) may still be
+// on screen in the top-level frame; nothing else will take it down.
+function takeDownOrphan(menuId, sender) {
+	if (sender.tab?.id == null) return;
+	chrome.tabs.sendMessage(sender.tab.id, { action: 'ctxMenuDestroy', menuId }, { frameId: 0 }).catch(() => {});
+}
+
 // Takes a menu down from the frame that drew it for a child frame, if one did.
 function destroyDrawnMenu(menuId, session) {
 	if (session.drawFrameId == null) return;
@@ -1220,7 +1227,7 @@ async function handleAction(request, sender) {
 		// what it reports and what the wheel does go there, the pick goes to the child.
 		case 'ctxMenuDraw': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session || !sender.tab) return { drawn: false };
+			if (!session || session.tabId !== sender.tab?.id || session.frameId !== (sender.frameId ?? 0)) return { drawn: false };
 			// Set before asking: the menu page reports its size once, as soon as it has
 			// loaded, and that report must already find its way to the frame that draws it.
 			session.drawFrameId = 0;
@@ -1228,7 +1235,12 @@ async function handleAction(request, sender) {
 				const reply = await chrome.tabs.sendMessage(sender.tab.id, {
 					action: 'ctxMenuDraw', menuId: request.menuId, x: request.x, y: request.y, options: request.options,
 				}, { frameId: 0 });
-				if (reply?.drawn) return { drawn: true };
+				if (reply?.drawn) {
+					// The origin may have closed the menu while the top frame was drawing it.
+					if (ctxMenuSessions.get(request.menuId) === session) return { drawn: true };
+					chrome.tabs.sendMessage(session.tabId, { action: 'ctxMenuDestroy', menuId: request.menuId }, { frameId: 0 }).catch(() => {});
+					return { drawn: false };
+				}
 			} catch { /* no content script up there: the child draws it itself */ }
 			session.drawFrameId = null;
 			return { drawn: false };
@@ -1256,7 +1268,7 @@ async function handleAction(request, sender) {
 
 		case 'ctxMenuSelect': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session) return;
+			if (!session) return takeDownOrphan(request.menuId, sender);
 			chrome.tabs.sendMessage(session.tabId, {
 				action: 'ctxMenuSelect',
 				menuId: request.menuId,
@@ -1281,7 +1293,7 @@ async function handleAction(request, sender) {
 
 		case 'ctxMenuClose': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (!session) return;
+			if (!session) return takeDownOrphan(request.menuId, sender);
 			chrome.tabs.sendMessage(session.tabId, {
 				action: 'ctxMenuClose',
 				menuId: request.menuId,
@@ -1293,10 +1305,7 @@ async function handleAction(request, sender) {
 
 		case 'ctxMenuCleanup': {
 			const session = ctxMenuSessions.get(request.menuId);
-			if (session) {
-				session.setItems(null);
-				destroyDrawnMenu(request.menuId, session);
-			}
+			if (session) destroyDrawnMenu(request.menuId, session);
 			ctxMenuSessions.delete(request.menuId);
 			return { success: true };
 		}
