@@ -244,6 +244,8 @@
 		gestureTriggerButtons: { right: true, middle: false, side1: false, side2: false, penRight: false },
 		enableHUD: true,
 		enableSuggestedGestures: true,
+		enableUserScale: false,
+		userScale: 1,
 		enableTrail: true,
 		showTrailOrigin: true,
 		enableTrailSmooth: true,

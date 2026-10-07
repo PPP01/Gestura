@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Utlösningsavstånd för mushjul" },
 	"wheelThresholdDesc": { "message": "Mushjulets rullning måste nå detta avstånd för att upprepade gånger utlösa hjulgester" },
 	"gestureRecorderAny": { "message": "Lägg till wildcard-gest" },
-	"fallbackGestureTip": { "message": "Utlöses när det ritade spåret inte matchar någon annan gest" }
+	"fallbackGestureTip": { "message": "Utlöses när det ritade spåret inte matchar någon annan gest" },
+	"userScale": { "message": "Anpassad gränssnittsskala" },
+	"userScaleDesc": { "message": "Justera storleken på FlowMouse-gränssnittselement som åtgärdstips och HUD" },
+	"scale": { "message": "Skala" }
 }

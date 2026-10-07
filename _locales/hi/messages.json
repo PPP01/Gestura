@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "व्हील ट्रिगर दूरी" },
 	"wheelThresholdDesc": { "message": "व्हील जेस्चर को बार-बार ट्रिगर करने के लिए माउस व्हील स्क्रॉलिंग को इस दूरी तक पहुंचना होगा" },
 	"gestureRecorderAny": { "message": "बेमेल पैटर्न के लिए जेस्चर जोड़ें" },
-	"fallbackGestureTip": { "message": "खींचा गया ट्रेल किसी अन्य जेस्चर से मेल न खाने पर ट्रिगर होता है" }
+	"fallbackGestureTip": { "message": "खींचा गया ट्रेल किसी अन्य जेस्चर से मेल न खाने पर ट्रिगर होता है" },
+	"userScale": { "message": "कस्टम UI स्केल" },
+	"userScaleDesc": { "message": "एक्शन संकेत और HUD जैसे FlowMouse UI तत्वों का स्केल बदलें" },
+	"scale": { "message": "स्केल" }
 }

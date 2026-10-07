@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Tekerlek Tetikleme Mesafesi" },
 	"wheelThresholdDesc": { "message": "Tekerlek hareketlerinin art arda tetiklenebilmesi için fare tekerleği kaydırmasının bu mesafeye ulaşması gerekir" },
 	"gestureRecorderAny": { "message": "Eşleşmeyen desenler için hareket ekle" },
-	"fallbackGestureTip": { "message": "Çizilen iz başka hiçbir hareketle eşleşmediğinde tetiklenir" }
+	"fallbackGestureTip": { "message": "Çizilen iz başka hiçbir hareketle eşleşmediğinde tetiklenir" },
+	"userScale": { "message": "Özel Arayüz Ölçeği" },
+	"userScaleDesc": { "message": "İşlem ipuçları ve HUD gibi FlowMouse arayüz öğelerini ölçeklendirin" },
+	"scale": { "message": "Ölçek" }
 }

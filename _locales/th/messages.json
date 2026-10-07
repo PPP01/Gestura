@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "ระยะกระตุ้นลูกกลิ้ง" },
 	"wheelThresholdDesc": { "message": "การเลื่อนลูกกลิ้งเมาส์จะต้องไปถึงระยะนี้เพื่อทริกเกอร์ท่าทางลูกกลิ้งอย่างต่อเนื่อง" },
 	"gestureRecorderAny": { "message": "เพิ่มท่าทางสำหรับรูปแบบที่ไม่ตรงกัน" },
-	"fallbackGestureTip": { "message": "ทำงานเมื่อเส้นที่ลากไม่ตรงกับท่าทางอื่นใด" }
+	"fallbackGestureTip": { "message": "ทำงานเมื่อเส้นที่ลากไม่ตรงกับท่าทางอื่นใด" },
+	"userScale": { "message": "ขนาด UI แบบกำหนดเอง" },
+	"userScaleDesc": { "message": "ปรับขนาดองค์ประกอบ UI ของ FlowMouse เช่น คำแนะนำการใช้งานและ HUD" },
+	"scale": { "message": "สเกล" }
 }

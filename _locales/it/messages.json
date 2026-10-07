@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Distanza di attivazione della rotellina" },
 	"wheelThresholdDesc": { "message": "Lo scorrimento della rotellina del mouse deve raggiungere questa distanza per attivare ripetutamente i gesti della rotellina" },
 	"gestureRecorderAny": { "message": "Aggiungi gesto jolly" },
-	"fallbackGestureTip": { "message": "Si attiva quando la scia tracciata non corrisponde a nessun altro gesto" }
+	"fallbackGestureTip": { "message": "Si attiva quando la scia tracciata non corrisponde a nessun altro gesto" },
+	"userScale": { "message": "Scala dell'interfaccia personalizzata" },
+	"userScaleDesc": { "message": "Regola le dimensioni degli elementi dell'interfaccia di FlowMouse, come i suggerimenti per le azioni e l'HUD" },
+	"scale": { "message": "Scala" }
 }

@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Khoảng cách kích hoạt con lăn" },
 	"wheelThresholdDesc": { "message": "Thao tác cuộn con lăn chuột phải đạt đến khoảng cách này để liên tục kích hoạt cử chỉ con lăn" },
 	"gestureRecorderAny": { "message": "Thêm cử chỉ cho mẫu không khớp" },
-	"fallbackGestureTip": { "message": "Kích hoạt khi vệt được vẽ không khớp với bất kỳ cử chỉ nào khác" }
+	"fallbackGestureTip": { "message": "Kích hoạt khi vệt được vẽ không khớp với bất kỳ cử chỉ nào khác" },
+	"userScale": { "message": "Tỷ lệ giao diện tùy chỉnh" },
+	"userScaleDesc": { "message": "Thay đổi kích thước các phần tử giao diện FlowMouse như gợi ý hành động và HUD" },
+	"scale": { "message": "Tỷ lệ" }
 }

@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "فاصله راه‌اندازی چرخ" },
 	"wheelThresholdDesc": { "message": "پیمایش چرخ ماوس باید به این فاصله برسد تا حرکات چرخ به طور مکرر اجرا شوند" },
 	"gestureRecorderAny": { "message": "افزودن ژست برای الگوهای نامنطبق" },
-	"fallbackGestureTip": { "message": "زمانی که مسیر رسم شده با هیچ ژست دیگری مطابقت نداشته باشد، فعال می‌شود" }
+	"fallbackGestureTip": { "message": "زمانی که مسیر رسم شده با هیچ ژست دیگری مطابقت نداشته باشد، فعال می‌شود" },
+	"userScale": { "message": "مقیاس سفارشی رابط کاربری" },
+	"userScaleDesc": { "message": "تغییر مقیاس عناصر رابط کاربری FlowMouse مانند راهنمای عملکرد و HUD" },
+	"scale": { "message": "مقیاس" }
 }

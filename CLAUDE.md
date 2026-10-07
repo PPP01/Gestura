@@ -146,7 +146,7 @@ Optional, **off by default**, and the largest single addition to the fork. Two s
 | [js/eu-local.js](js/eu-local.js), [js/eu-sync-local.js](js/eu-sync-local.js) | the two switches and consents in `chrome.storage.local` — never synced, exported or imported |
 | [js/eu-updates.js](js/eu-updates.js) | the once-a-day update check and its per-origin cache |
 | [js/eu-sync-code.js](js/eu-sync-code.js), [js/eu-sync-crypto.js](js/eu-sync-crypto.js) | the secret code, HKDF, AES-GCM envelopes, gzip |
-| [js/eu-settings-schema.js](js/eu-settings-schema.js) | `validate` / `buildExport`; `forSync` keeps the seven `DEVICE_LOCAL` keys home |
+| [js/eu-settings-schema.js](js/eu-settings-schema.js) | `validate` / `buildExport`; `forSync` keeps the nine `DEVICE_LOCAL` keys home |
 | [js/eu-sync.js](js/eu-sync.js) | the four endpoints, the `412` write token |
 | [js/eu-sync-base.js](js/eu-sync-base.js) | `euSyncBase`: the payload each state last agreed on, gzipped |
 | [js/settings-merge.js](js/settings-merge.js) | `MERGE_MAP`, the three-way merge, `apply`, `commitOrder` |

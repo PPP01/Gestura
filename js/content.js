@@ -2547,6 +2547,8 @@ window.ContentContextMenu = ContentContextMenu;
 					SETTINGS = { ...SETTINGS, ...otherSettings };
 				}
 
+				window.FlowMouseZoom.update({ userScale: SETTINGS.enableUserScale ? SETTINGS.userScale : null });
+
 				SETTINGS.wheelGestures = {
 					...structuredClone(DEFAULT_SETTINGS.wheelGestures || {}),
 					...(SETTINGS.wheelGestures || {}),
@@ -2612,7 +2614,26 @@ window.ContentContextMenu = ContentContextMenu;
 
 		loadSettings();
 
+		// The tab's zoom, from the worker: at start, and whenever the user zooms.
+		let zoomRevision = 0;
+		async function refreshTabZoom() {
+			const revision = ++zoomRevision;
+			try {
+				const response = await chrome.runtime.sendMessage({ action: 'getTabZoom' });
+				if (revision === zoomRevision && response?.success) {
+					window.FlowMouseZoom.update({ tabZoom: response.tabZoom, defaultZoom: response.defaultZoom });
+				}
+			} catch {}
+		}
+		refreshTabZoom();
+
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+			if (request.action === 'tabZoomChanged') {
+				zoomRevision++;
+				window.FlowMouseZoom.update({ tabZoom: request.tabZoom, defaultZoom: request.defaultZoom });
+				return;
+			}
+
 			if (request.action === 'openSiteMenuOverlay' && !isIframe) {
 				if (!isExtensionContextValid() || SETTINGS.enableSiteMenus === false || blockedNow()) return;
 				const p = lastCtxMenuPoint || { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };

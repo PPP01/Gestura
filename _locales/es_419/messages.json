@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Distancia de activación de la rueda" },
 	"wheelThresholdDesc": { "message": "El desplazamiento de la rueda del mouse debe alcanzar esta distancia para activar gestos de la rueda repetidamente" },
 	"gestureRecorderAny": { "message": "Agregar gesto comodín" },
-	"fallbackGestureTip": { "message": "Se activa cuando el trazo dibujado no coincide con ningún otro gesto" }
+	"fallbackGestureTip": { "message": "Se activa cuando el trazo dibujado no coincide con ningún otro gesto" },
+	"userScale": { "message": "Escala de interfaz personalizada" },
+	"userScaleDesc": { "message": "Ajustar el tamaño de los elementos de la interfaz de FlowMouse, como las pistas de acción y el HUD" },
+	"scale": { "message": "Escala" }
 }

@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Distansya ng Pag-trigger ng Wheel" },
 	"wheelThresholdDesc": { "message": "Ang pag-scroll ng mouse wheel ay dapat umabot sa distansyang ito upang paulit-ulit na ma-trigger ang mga wheel gesture" },
 	"gestureRecorderAny": { "message": "Magdagdag ng wildcard na galaw" },
-	"fallbackGestureTip": { "message": "Nagsisimula kapag ang iginuhit na bakas ay hindi tumutugma sa anumang iba pang galaw" }
+	"fallbackGestureTip": { "message": "Nagsisimula kapag ang iginuhit na bakas ay hindi tumutugma sa anumang iba pang galaw" },
+	"userScale": { "message": "Custom na Scale ng UI" },
+	"userScaleDesc": { "message": "I-scale ang mga elemento ng UI ng FlowMouse tulad ng mga pahiwatig ng aksyon at HUD" },
+	"scale": { "message": "Scale" }
 }

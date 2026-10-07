@@ -542,6 +542,10 @@ async function handleAction(request, sender) {
 			});
 			return { success: true };
 
+		case 'getTabZoom':
+			if (!sender.tab) return { success: false };
+			return { success: true, ...(await getZoomInfo(sender.tab.id)) };
+
 		// The tab's title and URL, for a gesture that started inside an iframe.
 		case 'getTabInfo':
 			if (!sender.tab) return { success: false };
@@ -1583,6 +1587,23 @@ chrome.runtime.onMessage.addListener(asyncMessageHandler(async (request, sender)
 
 	return await handleAction(request, sender);
 }));
+
+async function getZoomInfo(tabId) {
+	const [tabZoom, zoomSettings] = await Promise.all([
+		chrome.tabs.getZoom(tabId),
+		chrome.tabs.getZoomSettings(tabId).catch(() => null),
+	]);
+	return { tabZoom, defaultZoom: zoomSettings?.defaultZoomFactor };
+}
+
+chrome.tabs.onZoomChange.addListener(async ({ tabId, newZoomFactor }) => {
+	const zoomSettings = await chrome.tabs.getZoomSettings(tabId).catch(() => null);
+	chrome.tabs.sendMessage(tabId, {
+		action: 'tabZoomChanged',
+		tabZoom: newZoomFactor,
+		defaultZoom: zoomSettings?.defaultZoomFactor,
+	}).catch(() => {});
+});
 
 chrome.runtime.onInstalled.addListener((details) => {
 	function compareVersions(a, b) {

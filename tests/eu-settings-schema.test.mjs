@@ -321,9 +321,9 @@ describe('the upload hash', () => {
 });
 
 describe('device-local keys', () => {
-	const SEVEN = ['theme', 'language', 'macLinuxHintDismissed', 'edgeGestureConflict', 'navCollapsed', 'engineManagerLocalOnly', 'sectionAdvanced'];
+	const SEVEN = ['theme', 'language', 'macLinuxHintDismissed', 'edgeGestureConflict', 'navCollapsed', 'engineManagerLocalOnly', 'sectionAdvanced', 'enableUserScale', 'userScale'];
 
-	it('names exactly the seven', () => {
+	it('names exactly the nine', () => {
 		expect([...S.DEVICE_LOCAL].sort()).toEqual([...SEVEN].sort());
 	});
 
@@ -353,7 +353,7 @@ describe('device-local keys', () => {
 		expect(res.settings.navCollapsed).toBe(true);
 	});
 
-	// Adopting a sync state keeps THIS device's seven. validate() seeds its result
+	// Adopting a sync state keeps THIS device's own keys. validate() seeds its result
 	// from the defaults, and the adopt path writes that result whole - so without
 	// this a downloaded state that carries no theme would write 'auto' over 'dark'.
 	it('validate for sync fills them from the supplied local copy, not the defaults', () => {

@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "مسافة تحفيز العجلة" },
 	"wheelThresholdDesc": { "message": "يجب تمرير عجلة الماوس لهذه المسافة لتشغيل إيماءات العجلة بشكل متكرر" },
 	"gestureRecorderAny": { "message": "إضافة إيماءة للأنماط غير المطابقة" },
-	"fallbackGestureTip": { "message": "يتم التشغيل عندما لا يتطابق المسار المرسوم مع أي إيماءة أخرى" }
+	"fallbackGestureTip": { "message": "يتم التشغيل عندما لا يتطابق المسار المرسوم مع أي إيماءة أخرى" },
+	"userScale": { "message": "مقياس واجهة المستخدم المخصص" },
+	"userScaleDesc": { "message": "تغيير حجم عناصر واجهة FlowMouse مثل تلميحات الإجراءات وشاشة العرض (HUD)" },
+	"scale": { "message": "مقياس" }
 }

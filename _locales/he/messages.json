@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "מרחק הפעלת גלגלת" },
 	"wheelThresholdDesc": { "message": "גלילת גלגלת העכבר חייבת להגיע למרחק זה כדי להפעיל מחוות גלגלת שוב ושוב" },
 	"gestureRecorderAny": { "message": "הוסף מחוות תו כללי" },
-	"fallbackGestureTip": { "message": "מופעל כאשר השובל המצויר אינו תואם לאף מחווה אחרת" }
+	"fallbackGestureTip": { "message": "מופעל כאשר השובל המצויר אינו תואם לאף מחווה אחרת" },
+	"userScale": { "message": "קנה מידה מותאם אישית של ממשק המשתמש" },
+	"userScaleDesc": { "message": "שינוי קנה המידה של רכיבי ממשק המשתמש של FlowMouse כגון רמזי פעולה ו-HUD" },
+	"scale": { "message": "קנה מידה" }
 }

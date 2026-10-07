@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "Hjuludløserafstand" },
 	"wheelThresholdDesc": { "message": "Rulning med musehjulet skal nå denne afstand for gentagne gange at udløse hjulbevægelser" },
 	"gestureRecorderAny": { "message": "Tilføj wildcard-bevægelse" },
-	"fallbackGestureTip": { "message": "Udløses, når det tegnede spor ikke matcher nogen anden bevægelse" }
+	"fallbackGestureTip": { "message": "Udløses, når det tegnede spor ikke matcher nogen anden bevægelse" },
+	"userScale": { "message": "Brugerdefineret UI-skala" },
+	"userScaleDesc": { "message": "Skaler FlowMouse-brugergrænsefladeelementer som handlingshint og HUD" },
+	"scale": { "message": "Skala" }
 }

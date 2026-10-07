@@ -3275,5 +3275,8 @@
 	"wheelThreshold": { "message": "Auslösedistanz des Mausrads" },
 	"wheelThresholdDesc": { "message": "Das Scrollen des Mausrads muss diese Distanz erreichen, um Radgesten wiederholt auszulösen" },
 	"gestureRecorderAny": { "message": "Auffang-Geste hinzufügen" },
-	"fallbackGestureTip": { "message": "Wird ausgelöst, wenn die gezeichnete Spur mit keiner anderen Geste übereinstimmt" }
+	"fallbackGestureTip": { "message": "Wird ausgelöst, wenn die gezeichnete Spur mit keiner anderen Geste übereinstimmt" },
+	"userScale": { "message": "Benutzerdefinierte UI-Skalierung" },
+	"userScaleDesc": { "message": "Größe von FlowMouse-UI-Elementen wie Aktionshinweisen und HUD anpassen" },
+	"scale": { "message": "Skalierung" }
 }

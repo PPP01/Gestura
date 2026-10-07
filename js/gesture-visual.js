@@ -1,3 +1,39 @@
+class ZoomManager {
+	#events = new EventTarget();
+	#tabZoom = 1;
+	#defaultZoom = 1;
+	#userScale = null;
+
+	addEventListener(...args) { this.#events.addEventListener(...args); }
+
+	removeEventListener(...args) { this.#events.removeEventListener(...args); }
+
+	get tabZoom() { return this.#tabZoom; }
+
+	get uiScale() { return (this.#userScale ?? this.#defaultZoom) / this.#tabZoom; }
+
+	update(values = {}) {
+		const isValid = v => Number.isFinite(v) && v > 0;
+		const clamp = v => Math.min(3, Math.max(0.5, v));
+		const previousTabZoom = this.tabZoom;
+		const previousUiScale = this.uiScale;
+		if (isValid(values.tabZoom)) this.#tabZoom = values.tabZoom;
+		if (isValid(values.defaultZoom)) this.#defaultZoom = clamp(values.defaultZoom);
+		if (values.userScale !== undefined) {
+			this.#userScale = isValid(values.userScale) ? clamp(values.userScale) : null;
+		}
+		if (this.tabZoom !== previousTabZoom) {
+			this.#events.dispatchEvent(new CustomEvent('tabzoomchange', { detail: this.tabZoom }));
+		}
+		if (this.uiScale !== previousUiScale) {
+			this.#events.dispatchEvent(new CustomEvent('uiscalechange', { detail: this.uiScale }));
+		}
+	}
+}
+
+window.FlowMouseZoom = new ZoomManager();
+
+
 class ShadowHost {
 	#useDialog;
 	#container = null;
@@ -5,6 +41,10 @@ class ShadowHost {
 	#dialog = null;
 	#foreignObject = null;
 	#baseStyle = null;
+	#zoomStyle = null;
+	#updateUiScale = () => {
+		this.#zoomStyle.textContent = `:host { --fm-ui-scale: ${window.FlowMouseZoom.uiScale}; }`;
+	};
 	#builtInCssStyle = null;
 	#builtInCss = '';
 	#customCssStyle = null;
@@ -72,6 +112,11 @@ class ShadowHost {
 		this.setLang(lang, isRtl);
 
 		this.#shadow = this.#container.attachShadow({ mode: 'closed' });
+
+		this.#zoomStyle = this.createElement('style');
+		this.#updateUiScale();
+		this.#shadow.appendChild(this.#zoomStyle);
+		window.FlowMouseZoom.addEventListener('uiscalechange', this.#updateUiScale);
 
 		if (this.#useDialog) {
 			this.#dialog = this.createElement('dialog');
@@ -165,6 +210,7 @@ class ShadowHost {
 	}
 
 	cleanup() {
+		window.FlowMouseZoom.removeEventListener('uiscalechange', this.#updateUiScale);
 		if (this.#dialog?.open) this.#dialog.close();
 		if (this.#container?.hidePopover && this.#container?.matches(':popover-open')) this.#container.hidePopover();
 		if (this.#foreignObject && this.#foreignObject.parentNode) {
@@ -177,6 +223,7 @@ class ShadowHost {
 		this.#dialog = null;
 		this.#foreignObject = null;
 		this.#baseStyle = null;
+		this.#zoomStyle = null;
 		this.#builtInCssStyle = null;
 		this.#customCssStyle = null;
 	}

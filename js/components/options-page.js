@@ -618,6 +618,31 @@ class OptionsPage extends LitElement {
 							</div>
 						</div>
 
+						<div class="setting-row advanced-setting">
+							<div class="setting-label">
+								<span class="setting-title">${i18n.getMessage('userScale')}${this.#renderInlineReset(['enableUserScale', 'userScale'])}</span>
+								<span class="setting-desc">${i18n.getMessage('userScaleDesc')}</span>
+							</div>
+							<label class="toggle">
+								<input type="checkbox" id="enableUserScale" .checked=${this._settings.enableUserScale} @change=${e => this.#updateSetting('enableUserScale', e.target.checked)}>
+								<span class="slider"></span>
+							</label>
+						</div>
+						<div class="sub-settings advanced-setting ${this._settings.enableUserScale ? 'show' : ''}" style="padding-block: 12px;">
+							<div class="inline-settings">
+								<div class="inline-setting-item">
+									<span>${i18n.getMessage('scale')}</span>
+									<div class="slider-control">
+										<input type="range" id="userScale" min="50" max="300" step="5"
+											.value=${String(Math.round(this._settings.userScale * 100))}
+											@change=${e => this.#updateSetting('userScale', Math.round(Number(e.target.value)) / 100)}
+											@input=${e => this.#debounceSetting('userScale', Math.round(Number(e.target.value)) / 100)}>
+										<span style="min-width: 35px;">${Math.round(this._settings.userScale * 100)}%</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<div class="setting-row ${this._settings.customCss ? '' : 'advanced-setting'}">
 							<div class="setting-label">
 								<span class="setting-title">${i18n.getMessage('customCss')}${this.#renderInlineReset('customCss', { confirm: true })}</span>

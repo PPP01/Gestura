@@ -48,6 +48,7 @@
 	const DEVICE_LOCAL = new Set([
 		'theme', 'language', 'macLinuxHintDismissed', 'edgeGestureConflict',
 		'navCollapsed', 'engineManagerLocalOnly', 'sectionAdvanced',
+		'enableUserScale', 'userScale',
 	]);
 
 	const defaults = () => root.GestureConstants.DEFAULT_SETTINGS;
@@ -214,7 +215,7 @@
 		const forSync = !!(opts && opts.forSync);
 		const allowed = new Set(allowedKeys({ forSync }));
 		const settings = structuredClone(defaults());
-		// The seven from the local copy, when a sync state is applied. A device that
+		// The device-local keys from the local copy, when a sync state is applied. A device that
 		// never chose stays on the defaults; one that did keeps its choice. Only a
 		// local value of the right shape is taken - storage can hold anything.
 		if (forSync) {

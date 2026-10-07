@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "滾輪觸發距離" },
 	"wheelThresholdDesc": { "message": "滑鼠滾輪捲動達到此距離後才會連續觸發滾輪手勢" },
 	"gestureRecorderAny": { "message": "新增萬用手勢" },
-	"fallbackGestureTip": { "message": "當繪製的軌跡未匹配到其他手勢時觸發" }
+	"fallbackGestureTip": { "message": "當繪製的軌跡未匹配到其他手勢時觸發" },
+	"userScale": { "message": "自訂介面縮放" },
+	"userScaleDesc": { "message": "縮放 FlowMouse 自身的操作提示、HUD 等介面元素" },
+	"scale": { "message": "縮放比例" }
 }

@@ -3123,5 +3123,8 @@
 	"wheelThreshold": { "message": "ホイールトリガー距離" },
 	"wheelThresholdDesc": { "message": "ホイールジェスチャーを繰り返しトリガーするには、マウスホイールのスクロールがこの距離に達する必要があります" },
 	"gestureRecorderAny": { "message": "フォールバックジェスチャーを追加" },
-	"fallbackGestureTip": { "message": "描かれた軌跡が他のどのジェスチャーにも一致しない場合にトリガーされます" }
+	"fallbackGestureTip": { "message": "描かれた軌跡が他のどのジェスチャーにも一致しない場合にトリガーされます" },
+	"userScale": { "message": "カスタム UI スケール" },
+	"userScaleDesc": { "message": "操作ヒントや HUD など、FlowMouse 自身の UI 要素を拡大・縮小します" },
+	"scale": { "message": "スケール" }
 }
