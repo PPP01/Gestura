@@ -365,6 +365,8 @@ class FmContextMenu extends LitElement {
 		// The page's own wheel events never reach this frame while the pointer
 		// is outside it, so the content script hands them over.
 		if (d && d.__gestura === 'ctxWheel' && d.menuId === this.#menuId && this.#wheelDir !== null) {
+			// The page may have learned its zoom after it built the frame's URL.
+			if (d.zoom > 0) this.#tabZoom = d.zoom;
 			for (const w of d.wheel || []) this.#onWheelDelta(w.deltaY, w.deltaMode);
 			if (d.activate) this.#activateFocused();
 		}

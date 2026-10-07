@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Magdagdag ng wildcard na galaw" },
 	"fallbackGestureTip": { "message": "Nagsisimula kapag ang iginuhit na bakas ay hindi tumutugma sa anumang iba pang galaw" },
 	"userScale": { "message": "Custom na Scale ng UI" },
-	"userScaleDesc": { "message": "I-scale ang mga elemento ng UI ng FlowMouse tulad ng mga pahiwatig ng aksyon at HUD" },
+	"userScaleDesc": { "message": "I-scale ang mga elemento ng UI ng Gestura tulad ng mga pahiwatig ng aksyon at HUD" },
 	"scale": { "message": "Scale" }
 }

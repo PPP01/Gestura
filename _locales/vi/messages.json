@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Thêm cử chỉ cho mẫu không khớp" },
 	"fallbackGestureTip": { "message": "Kích hoạt khi vệt được vẽ không khớp với bất kỳ cử chỉ nào khác" },
 	"userScale": { "message": "Tỷ lệ giao diện tùy chỉnh" },
-	"userScaleDesc": { "message": "Thay đổi kích thước các phần tử giao diện FlowMouse như gợi ý hành động và HUD" },
+	"userScaleDesc": { "message": "Thay đổi kích thước các phần tử giao diện Gestura như gợi ý hành động và HUD" },
 	"scale": { "message": "Tỷ lệ" }
 }

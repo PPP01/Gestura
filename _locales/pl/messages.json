@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Dodaj gest wieloznaczny" },
 	"fallbackGestureTip": { "message": "Uruchamia się, gdy narysowany ślad nie pasuje do żadnego innego gestu" },
 	"userScale": { "message": "Niestandardowa skala interfejsu" },
-	"userScaleDesc": { "message": "Skaluj elementy interfejsu FlowMouse, takie jak podpowiedzi akcji i HUD" },
+	"userScaleDesc": { "message": "Skaluj elementy interfejsu Gestura, takie jak podpowiedzi akcji i HUD" },
 	"scale": { "message": "Skala" }
 }

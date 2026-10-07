@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Додај гест за непрепознате шаблоне" },
 	"fallbackGestureTip": { "message": "Покреће се када нацртани траг не одговара ниједном другом гесту" },
 	"userScale": { "message": "Прилагођено скалирање интерфејса" },
-	"userScaleDesc": { "message": "Скалирање елемената интерфејса FlowMouse попут савета за акције и HUD-а" },
+	"userScaleDesc": { "message": "Скалирање елемената интерфејса Gestura попут савета за акције и HUD-а" },
 	"scale": { "message": "Размера" }
 }

@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Tilføj wildcard-bevægelse" },
 	"fallbackGestureTip": { "message": "Udløses, når det tegnede spor ikke matcher nogen anden bevægelse" },
 	"userScale": { "message": "Brugerdefineret UI-skala" },
-	"userScaleDesc": { "message": "Skaler FlowMouse-brugergrænsefladeelementer som handlingshint og HUD" },
+	"userScaleDesc": { "message": "Skaler Gestura-brugergrænsefladeelementer som handlingshint og HUD" },
 	"scale": { "message": "Skala" }
 }

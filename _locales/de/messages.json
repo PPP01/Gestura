@@ -3277,6 +3277,6 @@
 	"gestureRecorderAny": { "message": "Auffang-Geste hinzufügen" },
 	"fallbackGestureTip": { "message": "Wird ausgelöst, wenn die gezeichnete Spur mit keiner anderen Geste übereinstimmt" },
 	"userScale": { "message": "Benutzerdefinierte UI-Skalierung" },
-	"userScaleDesc": { "message": "Größe von FlowMouse-UI-Elementen wie Aktionshinweisen und HUD anpassen" },
+	"userScaleDesc": { "message": "Größe von Gestura-UI-Elementen wie Aktionshinweisen und HUD anpassen" },
 	"scale": { "message": "Skalierung" }
 }

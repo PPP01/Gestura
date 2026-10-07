@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Adaugă un gest pentru modele nerecunoscute" },
 	"fallbackGestureTip": { "message": "Se declanșează când urma desenată nu se potrivește cu niciun alt gest" },
 	"userScale": { "message": "Scară personalizată a interfeței" },
-	"userScaleDesc": { "message": "Scalează elementele interfeței FlowMouse, cum ar fi indiciile de acțiune și HUD-ul" },
+	"userScaleDesc": { "message": "Scalează elementele interfeței Gestura, cum ar fi indiciile de acțiune și HUD-ul" },
 	"scale": { "message": "Scară" }
 }

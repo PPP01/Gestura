@@ -888,7 +888,7 @@ class ContentContextMenu {
 		if (!w?.ready || (!w.queue.length && !w.activate)) return;
 		try {
 			this.#activeIframe?.contentWindow?.postMessage(
-				{ __gestura: 'ctxWheel', menuId: this.#activeMenuId, wheel: w.queue, activate: w.activate }, '*');
+				{ __gestura: 'ctxWheel', menuId: this.#activeMenuId, wheel: w.queue, activate: w.activate, zoom: window.FlowMouseZoom.tabZoom }, '*');
 		} catch { /* the frame is gone; the menu closes itself */ }
 		w.queue = [];
 		if (w.activate) this.#wheel = null;

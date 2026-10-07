@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Tambah gerak isyarat untuk corak tidak dikenali" },
 	"fallbackGestureTip": { "message": "Dicetuskan apabila jejak yang dilukis tidak sepadan dengan mana-mana gerak isyarat lain" },
 	"userScale": { "message": "Skala UI Tersuai" },
-	"userScaleDesc": { "message": "Skala elemen UI FlowMouse seperti petunjuk tindakan dan HUD" },
+	"userScaleDesc": { "message": "Skala elemen UI Gestura seperti petunjuk tindakan dan HUD" },
 	"scale": { "message": "Skala" }
 }

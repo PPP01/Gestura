@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Lisää jokeriele" },
 	"fallbackGestureTip": { "message": "Käynnistyy, kun piirretty jälki ei vastaa mitään muuta elettä" },
 	"userScale": { "message": "Mukautettu käyttöliittymän skaalaus" },
-	"userScaleDesc": { "message": "Skaalaa FlowMouse-käyttöliittymäelementtejä, kuten toimintovihjeitä ja HUD:ia" },
+	"userScaleDesc": { "message": "Skaalaa Gestura-käyttöliittymäelementtejä, kuten toimintovihjeitä ja HUD:ia" },
 	"scale": { "message": "Skaalaus" }
 }

@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "إضافة إيماءة للأنماط غير المطابقة" },
 	"fallbackGestureTip": { "message": "يتم التشغيل عندما لا يتطابق المسار المرسوم مع أي إيماءة أخرى" },
 	"userScale": { "message": "مقياس واجهة المستخدم المخصص" },
-	"userScaleDesc": { "message": "تغيير حجم عناصر واجهة FlowMouse مثل تلميحات الإجراءات وشاشة العرض (HUD)" },
+	"userScaleDesc": { "message": "تغيير حجم عناصر واجهة Gestura مثل تلميحات الإجراءات وشاشة العرض (HUD)" },
 	"scale": { "message": "مقياس" }
 }

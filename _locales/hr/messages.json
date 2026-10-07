@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Dodaj gestu za neprepoznate uzorke" },
 	"fallbackGestureTip": { "message": "Pokreće se kada nacrtani trag ne odgovara nijednoj drugoj gesti" },
 	"userScale": { "message": "Prilagođeno skaliranje sučelja" },
-	"userScaleDesc": { "message": "Skaliranje elemenata sučelja FlowMouse-a poput savjeta za akciju i HUD-a" },
+	"userScaleDesc": { "message": "Skaliranje elemenata sučelja Gestura-a poput savjeta za akciju i HUD-a" },
 	"scale": { "message": "Mjerilo" }
 }

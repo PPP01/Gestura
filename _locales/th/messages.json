@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "เพิ่มท่าทางสำหรับรูปแบบที่ไม่ตรงกัน" },
 	"fallbackGestureTip": { "message": "ทำงานเมื่อเส้นที่ลากไม่ตรงกับท่าทางอื่นใด" },
 	"userScale": { "message": "ขนาด UI แบบกำหนดเอง" },
-	"userScaleDesc": { "message": "ปรับขนาดองค์ประกอบ UI ของ FlowMouse เช่น คำแนะนำการใช้งานและ HUD" },
+	"userScaleDesc": { "message": "ปรับขนาดองค์ประกอบ UI ของ Gestura เช่น คำแนะนำการใช้งานและ HUD" },
 	"scale": { "message": "สเกล" }
 }

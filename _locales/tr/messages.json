@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Eşleşmeyen desenler için hareket ekle" },
 	"fallbackGestureTip": { "message": "Çizilen iz başka hiçbir hareketle eşleşmediğinde tetiklenir" },
 	"userScale": { "message": "Özel Arayüz Ölçeği" },
-	"userScaleDesc": { "message": "İşlem ipuçları ve HUD gibi FlowMouse arayüz öğelerini ölçeklendirin" },
+	"userScaleDesc": { "message": "İşlem ipuçları ve HUD gibi Gestura arayüz öğelerini ölçeklendirin" },
 	"scale": { "message": "Ölçek" }
 }

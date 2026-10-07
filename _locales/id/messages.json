@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Tambahkan gestur untuk pola tak dikenali" },
 	"fallbackGestureTip": { "message": "Terpicu ketika jejak yang digambar tidak cocok dengan gestur lainnya" },
 	"userScale": { "message": "Skala Antarmuka Kustom" },
-	"userScaleDesc": { "message": "Menyesuaikan skala elemen antarmuka FlowMouse seperti petunjuk operasi dan HUD" },
+	"userScaleDesc": { "message": "Menyesuaikan skala elemen antarmuka Gestura seperti petunjuk operasi dan HUD" },
 	"scale": { "message": "Skala" }
 }

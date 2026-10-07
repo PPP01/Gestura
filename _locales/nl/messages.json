@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Fallback-gebaar toevoegen" },
 	"fallbackGestureTip": { "message": "Wordt geactiveerd wanneer het getekende spoor niet overeenkomt met een ander gebaar" },
 	"userScale": { "message": "Aangepaste UI-schaal" },
-	"userScaleDesc": { "message": "Schaal FlowMouse UI-elementen zoals actiehints en de HUD" },
+	"userScaleDesc": { "message": "Schaal Gestura UI-elementen zoals actiehints en de HUD" },
 	"scale": { "message": "Schaal" }
 }

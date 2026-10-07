@@ -3339,6 +3339,6 @@
 	"gestureRecorderAny": { "message": "Add Fallback Gesture" },
 	"fallbackGestureTip": { "message": "Triggers when the drawn trail doesn't match any other gesture" },
 	"userScale": { "message": "Custom UI Scale" },
-	"userScaleDesc": { "message": "Scale FlowMouse UI elements like action hints and the HUD" },
+	"userScaleDesc": { "message": "Scale Gestura UI elements like action hints and the HUD" },
 	"scale": { "message": "Scale" }
 }

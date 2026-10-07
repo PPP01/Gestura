@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Ajouter un geste de repli" },
 	"fallbackGestureTip": { "message": "Se déclenche lorsque le tracé dessiné ne correspond à aucun autre geste" },
 	"userScale": { "message": "Échelle de l'interface personnalisée" },
-	"userScaleDesc": { "message": "Ajuster la taille des éléments de l'interface de FlowMouse (indices d'action, HUD, etc.)" },
+	"userScaleDesc": { "message": "Ajuster la taille des éléments de l'interface de Gestura (indices d'action, HUD, etc.)" },
 	"scale": { "message": "Échelle" }
 }

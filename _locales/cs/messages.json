@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Přidat zástupné gesto" },
 	"fallbackGestureTip": { "message": "Spustí se, když se nakreslená stopa neshoduje s žádným jiným gestem" },
 	"userScale": { "message": "Vlastní měřítko rozhraní" },
-	"userScaleDesc": { "message": "Změnit měřítko prvků rozhraní FlowMouse, jako jsou nápovědy akcí a HUD" },
+	"userScaleDesc": { "message": "Změnit měřítko prvků rozhraní Gestura, jako jsou nápovědy akcí a HUD" },
 	"scale": { "message": "Měřítko" }
 }

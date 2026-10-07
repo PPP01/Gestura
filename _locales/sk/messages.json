@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Pridať zástupné gesto" },
 	"fallbackGestureTip": { "message": "Spustí sa, keď sa nakreslená stopa nezhoduje so žiadnym iným gestom" },
 	"userScale": { "message": "Vlastná mierka rozhrania" },
-	"userScaleDesc": { "message": "Zmena mierky prvkov rozhrania FlowMouse, ako sú nápovedy akcií a HUD" },
+	"userScaleDesc": { "message": "Zmena mierky prvkov rozhrania Gestura, ako sú nápovedy akcií a HUD" },
 	"scale": { "message": "Mierka" }
 }

@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "添加兜底手势" },
 	"fallbackGestureTip": { "message": "当绘制的轨迹未匹配到其他手势时触发" },
 	"userScale": { "message": "自定义界面缩放" },
-	"userScaleDesc": { "message": "缩放 FlowMouse 自身的操作提示、HUD 等界面元素" },
+	"userScaleDesc": { "message": "缩放 Gestura 自身的操作提示、HUD 等界面元素" },
 	"scale": { "message": "缩放比例" }
 }

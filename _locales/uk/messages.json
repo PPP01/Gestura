@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Додати жест для нерозпізнаних шаблонів" },
 	"fallbackGestureTip": { "message": "Спрацьовує, коли намальований слід не збігається з жодним іншим жестом" },
 	"userScale": { "message": "Користувацький масштаб інтерфейсу" },
-	"userScaleDesc": { "message": "Масштабування елементів інтерфейсу FlowMouse, таких як підказки дій та HUD" },
+	"userScaleDesc": { "message": "Масштабування елементів інтерфейсу Gestura, таких як підказки дій та HUD" },
 	"scale": { "message": "Масштаб" }
 }

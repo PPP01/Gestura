@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Aggiungi gesto jolly" },
 	"fallbackGestureTip": { "message": "Si attiva quando la scia tracciata non corrisponde a nessun altro gesto" },
 	"userScale": { "message": "Scala dell'interfaccia personalizzata" },
-	"userScaleDesc": { "message": "Regola le dimensioni degli elementi dell'interfaccia di FlowMouse, come i suggerimenti per le azioni e l'HUD" },
+	"userScaleDesc": { "message": "Regola le dimensioni degli elementi dell'interfaccia di Gestura, come i suggerimenti per le azioni e l'HUD" },
 	"scale": { "message": "Scala" }
 }

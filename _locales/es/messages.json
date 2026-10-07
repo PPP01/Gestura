@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Añadir gesto comodín" },
 	"fallbackGestureTip": { "message": "Se activa cuando el trazo dibujado no coincide con ningún otro gesto" },
 	"userScale": { "message": "Escala de interfaz personalizada" },
-	"userScaleDesc": { "message": "Ajustar el tamaño de los elementos de la interfaz de FlowMouse, como las pistas de acción y el HUD" },
+	"userScaleDesc": { "message": "Ajustar el tamaño de los elementos de la interfaz de Gestura, como las pistas de acción y el HUD" },
 	"scale": { "message": "Escala" }
 }

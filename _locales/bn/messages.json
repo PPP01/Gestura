@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "অমিল থাকা প্যাটার্নের জন্য জেসচার যোগ করুন" },
 	"fallbackGestureTip": { "message": "আঁকা ট্রেইল অন্য কোনও জেসচারের সাথে না মিললে ট্রিগার হয়" },
 	"userScale": { "message": "কাস্টম ইউআই স্কেল" },
-	"userScaleDesc": { "message": "অ্যাকশন ইঙ্গিত এবং HUD এর মত FlowMouse UI উপাদানগুলোর স্কেল পরিবর্তন করুন" },
+	"userScaleDesc": { "message": "অ্যাকশন ইঙ্গিত এবং HUD এর মত Gestura UI উপাদানগুলোর স্কেল পরিবর্তন করুন" },
 	"scale": { "message": "স্কেল" }
 }

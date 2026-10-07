@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Helyettesítő gesztus hozzáadása" },
 	"fallbackGestureTip": { "message": "Akkor indul el, ha a rajzolt nyomvonal nem egyezik más gesztussal" },
 	"userScale": { "message": "Egyéni UI méretezés" },
-	"userScaleDesc": { "message": "A FlowMouse felhasználói felület elemeinek, például a műveleti tippek és a HUD méretezése" },
+	"userScaleDesc": { "message": "A Gestura felhasználói felület elemeinek, például a műveleti tippek és a HUD méretezése" },
 	"scale": { "message": "Méretezés" }
 }

@@ -3125,6 +3125,6 @@
 	"gestureRecorderAny": { "message": "Adicionar gesto coringa" },
 	"fallbackGestureTip": { "message": "Dispara quando o traço desenhado não corresponde a nenhum outro gesto" },
 	"userScale": { "message": "Escala de interface personalizada" },
-	"userScaleDesc": { "message": "Ajustar o tamanho dos elementos da interface do FlowMouse, como dicas de ação e o HUD" },
+	"userScaleDesc": { "message": "Ajustar o tamanho dos elementos da interface do Gestura, como dicas de ação e o HUD" },
 	"scale": { "message": "Escala" }
 }
