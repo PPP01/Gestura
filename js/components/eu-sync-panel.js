@@ -417,6 +417,21 @@ class EuSyncPanel extends LitElement {
 		return fresh;
 	}
 
+	// The `stale` text promises that the list has been refreshed, and #freshen
+	// ran before the request - so this only matters when the state was replaced in
+	// the gap between the two. Then the list on screen is out of date again, and
+	// the promise has to be kept here. If re-listing fails, its own error replaces
+	// the message: it is the more useful one.
+	async #refreshAfterStale() {
+		if (this._errorCode !== 'stale') return;
+		const { _error: error, _errorCode: code } = this;
+		const list = await this.#run(() => window.GesturaSync.list());
+		if (!list) return;
+		await this.#absorbList(list);
+		this._error = error;
+		this._errorCode = code;
+	}
+
 	// For the actions that WRITE (overwrite, delete): where reading can simply take
 	// the fresh data, these must not silently act on something other than what the
 	// user was looking at. True, with the reason on screen, when the state moved.
@@ -535,7 +550,7 @@ class EuSyncPanel extends LitElement {
 			stateId: state.stateId,
 			expectPayloadHash,
 		}));
-		if (!payload) return;
+		if (!payload) { await this.#refreshAfterStale(); return; }
 		const result = window.GesturaSettingsSchema.validate(payload, { forSync: true, local: settingsStore.current });
 		if (!result.ok) {
 			this._error = settingsErrorMessage(window.i18n, result.error);
@@ -625,7 +640,7 @@ class EuSyncPanel extends LitElement {
 			return;
 		}
 		const payload = await this.#run(() => window.GesturaSync.download({ stateId: state.stateId, expectPayloadHash: expect }));
-		if (!payload) return;
+		if (!payload) { await this.#refreshAfterStale(); return; }
 
 		const local0 = settingsStore.current;
 		const remote = S.validate(payload, { forSync: true, local: local0 });
@@ -866,7 +881,7 @@ class EuSyncPanel extends LitElement {
 					<div class="meta">
 						${state.updatedAt ? i18n.getMessage('euSyncUploadedAt').replace('{date}', this.#formatDate(state.updatedAt)) : ''}
 						${state.broken ? html`<span class="sync-hint"> — ${i18n.getMessage('euSyncStateBroken')}</span>` : ''}
-						${!local ? html`<span> — ${i18n.getMessage('euSyncNeverUploadedHere')}</span>` : ''}
+						${!(local && local.lastUploadDate) ? html`<span> — ${i18n.getMessage('euSyncNeverUploadedHere')}</span>` : ''}
 					</div>
 					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
 				</div>
