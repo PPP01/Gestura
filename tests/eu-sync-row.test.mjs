@@ -49,6 +49,14 @@ describe('the active state', () => {
 	});
 });
 
+describe('renaming', () => {
+	it('is offered on any readable state, active or not', () => {
+		expect(model().offers.rename).toBe(true);
+		expect(model({ activeState: ID }).offers.rename).toBe(true);
+		expect(model({ state: { ...state(), broken: true } }).offers.rename).toBe(false);
+	});
+});
+
 describe('where the state came from', () => {
 	it('says it was never uploaded from here until an upload date is on record', () => {
 		expect(model({ local: undefined }).neverUploadedHere).toBe(true);

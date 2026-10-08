@@ -32,7 +32,10 @@ const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSy
 	'settingsPreviewFullJson',
 	'settingsPreviewChangeHere',
 	'settingsPreviewChangeThere',
-	'settingsPreviewMergeCombines'];
+	'settingsPreviewMergeCombines',
+	'euSyncRename',
+	'euSyncRenamePrompt',
+	'euSyncRenameUnavailable'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

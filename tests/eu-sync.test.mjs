@@ -394,3 +394,64 @@ describe('a body that never finishes arriving', () => {
 			.rejects.toMatchObject({ code: 'network' });
 	});
 });
+
+describe('features the service announces', () => {
+	it('come with the list, strings only', async () => {
+		const out = await S.listStates({
+			secret: await secretBytes(), origin: 'https://gestura.eu',
+			fetchImpl: fetchOk({ states: [], features: ['sync-meta', 42, null] }),
+		});
+		expect(out.features).toEqual(['sync-meta']);
+	});
+
+	it('are none when the service does not say', async () => {
+		const out = await S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu', fetchImpl: fetchOk({ states: [] }) });
+		expect(out.features).toEqual([]);
+	});
+});
+
+describe('renaming a state', () => {
+	const meta = { name: 'Work', createdAt: 'c0', updatedAt: 'u0', extVersion: '2.8.0', payloadHash: 'P-HASH' };
+	const rename = async (over = {}) => S.renameState({
+		secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID, meta, name: 'Office',
+		fetchImpl: fetchOk({ stateId: ID, updatedAt: 'u0', size: 10 }), ...over,
+	});
+
+	it('sends a new meta blob and the payload hash as the token, to sync/meta', async () => {
+		await rename();
+		expect(calls[0].url).toBe('https://gestura.eu/api/v1/sync/meta');
+		expect(calls[0].init.method).toBe('POST');
+		const { body } = calls[0];
+		expect(Object.keys(body).sort()).toEqual(['apiLevel', 'basePayloadHash', 'locator', 'meta', 'stateId']);
+		expect(body.basePayloadHash).toBe('P-HASH');
+		expect(body).not.toHaveProperty('payload');
+	});
+
+	// Only the name changes. The hash must stay, or the next download would find
+	// the meta no longer describing the payload; the dates belong to the content.
+	it('keeps everything in the meta but the name', async () => {
+		await rename();
+		const key = await X.deriveKey(await secretBytes());
+		expect(await X.decryptBlob(key, ID, 'meta', calls[0].body.meta)).toEqual({ ...meta, name: 'Office' });
+	});
+
+	it('refuses a meta without a payload hash before asking anyone', async () => {
+		await expect(rename({ meta: { ...meta, payloadHash: '' } })).rejects.toMatchObject({ code: 'decrypt' });
+		expect(calls).toHaveLength(0);
+	});
+
+	it('refuses a name that would push the meta over its limit, without a request', async () => {
+		await expect(rename({ name: incompressible(9 * 1024) })).rejects.toMatchObject({ code: 'too-large' });
+		expect(calls).toHaveLength(0);
+	});
+
+	it('reports a moved payload as a conflict, with the date', async () => {
+		await expect(rename({ fetchImpl: fetchStatus(412, { error: 'conflict', updatedAt: '2026-10-08T10:00:00Z' }) }))
+			.rejects.toMatchObject({ code: 'conflict', updatedAt: '2026-10-08T10:00:00Z' });
+	});
+
+	it('goes through the gate', async () => {
+		await L.write({ enabled: false });
+		await expect(S.rename({ stateId: ID, meta, name: 'Office' })).rejects.toMatchObject({ code: 'disabled' });
+	});
+});

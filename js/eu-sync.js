@@ -1,4 +1,4 @@
-// The four sync endpoints, and the gate around them.
+// The sync endpoints, and the gate around them.
 //
 // The gate is why this is a file rather than four fetch calls in the panel:
 // every operation re-reads the live state immediately before it acts and again
@@ -14,7 +14,7 @@
 
 	const EU = root.FlowMouseEuIntegration;
 	const BASE = '/api/v1/sync';
-	const PATHS = { list: BASE + '/list', state: BASE + '/state', get: BASE + '/get', del: BASE + '/delete' };
+	const PATHS = { list: BASE + '/list', state: BASE + '/state', get: BASE + '/get', del: BASE + '/delete', meta: BASE + '/meta' };
 
 	// Mirrors docs/gestura-eu-api.md. Checked client-side too, so an oversized
 	// state is refused with the number rather than with a 413.
@@ -127,7 +127,31 @@
 				broken: meta === null,
 			});
 		}
+		// What the service can do beyond the four endpoints, e.g. 'sync-meta' for
+		// renaming. Carried on the array so every caller of the list keeps working;
+		// only strings count, and an answer without the field announces nothing.
+		out.features = Array.isArray(answer.features) ? answer.features.filter(f => typeof f === 'string') : [];
 		return out;
+	}
+
+	// Replaces the meta blob only - the name lives in it, encrypted, so the server
+	// cannot rename anything itself. `meta` is the decrypted meta the client is
+	// looking at; everything in it but the name goes back unchanged, above all the
+	// payloadHash, which must keep describing the payload that stays. The same hash
+	// is the write token: a rename lands only on the payload it was built on.
+	// Offered only when the list announced 'sync-meta' (docs/gestura-eu-api.md).
+	async function renameState(opts) {
+		const { secret, origin, stateId, meta, name, fetchImpl } = opts;
+		const X = root.GesturaSyncCrypto;
+		const basePayloadHash = meta && meta.payloadHash;
+		if (typeof basePayloadHash !== 'string' || !basePayloadHash) throw syncError('decrypt');
+		const key = await X.deriveKey(secret);
+		const blob = await X.encryptBlob(key, stateId, 'meta', { ...meta, name });
+		if (blob.length > LIMITS.metaMaxBytes) throw syncError('too-large');
+		return request({
+			origin, path: PATHS.meta, method: 'POST', fetchImpl,
+			body: { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret), stateId, meta: blob, basePayloadHash },
+		});
 	}
 
 	// `basePayloadHash` names the state this upload is built on: the payloadHash
@@ -227,11 +251,12 @@
 	const upload = (opts) => gated(ctx => uploadState({ ...opts, ...ctx }));
 	const download = (opts) => gated(ctx => downloadState({ ...opts, ...ctx }));
 	const remove = (stateId) => gated(ctx => deleteStates({ ...ctx, stateId }));
+	const rename = (opts) => gated(ctx => renameState({ ...opts, ...ctx }));
 
 	const api = {
 		PATHS, LIMITS, syncError, request,
-		listStates, uploadState, downloadState, deleteStates,
-		list, upload, download, remove,
+		listStates, uploadState, downloadState, deleteStates, renameState,
+		list, upload, download, remove, rename,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSync = api;

@@ -62,6 +62,7 @@ class EuSyncPanel extends LitElement {
 		_bases: { state: true },
 		_merge: { state: true },
 		_notice: { state: true },
+		_features: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -129,6 +130,7 @@ class EuSyncPanel extends LitElement {
 		this._bases = {};        // stateId -> { hash, date }, from GesturaSyncBase.list()
 		this._merge = null;      // { state, merged, choices, attempt, expect } while the dialog is open
 		this._notice = '';       // one informational line (in sync, moved again)
+		this._features = new Set(); // what the service announced in its last list
 		this._errorCode = '';
 		// Not reactive: what willUpdate() compares against to see the switch-on
 		// and the code change as EDGES, rather than re-deciding on every render.
@@ -400,6 +402,7 @@ class EuSyncPanel extends LitElement {
 	// marker: a state that is gone cannot be the one this browser is working with.
 	async #absorbList(list) {
 		this._states = list;
+		this._features = new Set(list.features || []);
 		const ids = list.map(s => s.stateId);
 		this._bases = await window.GesturaSyncBase.prune(ids);
 		// Read after the await, not before: the marker may have been set while the
@@ -425,13 +428,13 @@ class EuSyncPanel extends LitElement {
 		return fresh;
 	}
 
-	// The `stale` text promises that the list has been refreshed, and #freshen
-	// ran before the request - so this only matters when the state was replaced in
-	// the gap between the two. Then the list on screen is out of date again, and
-	// the promise has to be kept here. If re-listing fails, its own error replaces
-	// the message: it is the more useful one.
-	async #refreshAfterStale() {
-		if (this._errorCode !== 'stale') return;
+	// After a refusal that means "the state moved" (`stale` on a download, a 412 on
+	// a rename) the list on screen is out of date again; #freshen ran before the
+	// request, so this is the gap between the two. Re-list, and keep the message -
+	// the `stale` text even promises the refresh. If re-listing fails, its own
+	// error replaces the message: it is the more useful one.
+	async #relistKeepingError(code) {
+		if (this._errorCode !== code) return;
 		const { _error: error, _errorCode: code } = this;
 		if (!await this.#relist()) return;
 		this._error = error;
@@ -555,7 +558,7 @@ class EuSyncPanel extends LitElement {
 			stateId: state.stateId,
 			expectPayloadHash,
 		}));
-		if (!payload) { await this.#refreshAfterStale(); return; }
+		if (!payload) { await this.#relistKeepingError('stale'); return; }
 		const result = window.GesturaSettingsSchema.validate(payload, { forSync: true, local: settingsStore.current });
 		if (!result.ok) {
 			this._error = settingsErrorMessage(window.i18n, result.error);
@@ -647,7 +650,7 @@ class EuSyncPanel extends LitElement {
 			return;
 		}
 		const payload = await this.#run(() => window.GesturaSync.download({ stateId: state.stateId, expectPayloadHash: expect }));
-		if (!payload) { await this.#refreshAfterStale(); return; }
+		if (!payload) { await this.#relistKeepingError('stale'); return; }
 
 		const local0 = settingsStore.current;
 		const remote = S.validate(payload, { forSync: true, local: local0 });
@@ -829,6 +832,26 @@ class EuSyncPanel extends LitElement {
 		});
 	}
 
+	// Only the name changes, so only the meta blob goes up (POST sync/meta): no
+	// preview, nothing about the settings moves. Like delete, it looks again first
+	// and stops if the state moved; the hash in the fresh meta is the write token.
+	// The base stays as it is - the payload it names is untouched.
+	async #renameState(shown) {
+		const i18n = window.i18n;
+		const current = this.#nameOf(shown);
+		const input = prompt(i18n.getMessage('euSyncRenamePrompt').replace('{name}', current), current);
+		const name = (input || '').trim();
+		if (!name || name === current) return;
+		const state = await this.#freshen(shown.stateId);
+		if (!state || this.#movedSince(shown.meta && shown.meta.payloadHash, state)) return;
+		const done = await this.#run(() => window.GesturaSync.rename({ stateId: state.stateId, meta: state.meta, name }));
+		if (!done) { await this.#relistKeepingError('conflict'); return; }
+		if (this.#state.states[state.stateId]) await window.GesturaSyncLocal.setState(state.stateId, { name });
+		// The contract asks for a re-read after a rename: a concurrent PUT with the
+		// old name can replace it, and only the list says which name stands.
+		await this.#relist();
+	}
+
 	async #deleteState(shown) {
 		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(shown)))) return;
 		// Delete carries no token (the contract keeps it unconditional), so the only
@@ -870,10 +893,12 @@ class EuSyncPanel extends LitElement {
 	// One row action as an icon button. The text lives in `title` AND `aria-label`
 	// - the icon alone says nothing to a screen reader, and `title` is what a
 	// mouse user gets on hover. The existing strings serve, so no new text.
-	#actionButton(style, iconName, messageKey, disabled, run) {
-		const label = window.i18n.getMessage(messageKey);
+	// `why`, when given, is the reason the button cannot be used; it joins the label
+	// so a disabled button still says what it is and why it does nothing.
+	#actionButton(style, iconName, messageKey, disabled, run, why = '') {
+		const label = why ? `${window.i18n.getMessage(messageKey)} \u2013 ${why}` : window.i18n.getMessage(messageKey);
 		return html`
-			<button type="button" class="btn ${style} btn-icon-only" ?disabled=${disabled}
+			<button type="button" class="btn ${style} btn-icon-only" ?disabled=${disabled || !!why}
 				title=${label} aria-label=${label}
 				@click=${() => this.#exclusive(run)}>${unsafeHTML(icons[iconName])}</button>`;
 	}
@@ -905,6 +930,9 @@ class EuSyncPanel extends LitElement {
 						() => this.#downloadState(state)) : ''}
 					${offers.upload ? this.#actionButton('btn-secondary', 'upload', 'euSyncUpload', this._busy || state.broken,
 						() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })) : ''}
+					${offers.rename ? this.#actionButton('btn-secondary', 'squarePen', 'euSyncRename', this._busy,
+						() => this.#renameState(state),
+						this._features.has('sync-meta') ? '' : window.i18n.getMessage('euSyncRenameUnavailable')) : ''}
 					${this.#actionButton('btn-danger', 'trash2', 'euSyncDelete', this._busy,
 						() => this.#deleteState(state))}
 				</div>
