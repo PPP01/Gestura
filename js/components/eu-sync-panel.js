@@ -138,6 +138,7 @@ class EuSyncPanel extends LitElement {
 		.code-line > .lock svg { width: 16px; height: 16px; }
 		.code-text { flex: 1; min-width: 0; padding: 6px 8px; font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 13px; letter-spacing: .06em; word-break: break-all; user-select: none; }
 		.code-text.shown { user-select: all; }
+		.code-foot.end { justify-content: flex-end; }
 		.code-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; font-size: 13px; color: var(--text-secondary); }
 
 		/* The list. */
@@ -1493,6 +1494,8 @@ class EuSyncPanel extends LitElement {
 		const apply = () => { if (this._codeValid) this.#exclusive(() => this.#useCode()); };
 		const locked = !this._switchUnlocked && !(this._states && this._states.length === 0);
 		const count = this.#countLine('euSyncCodeSwitchLocked');
+		// Cancel closes the field and, where there are states, locks the card again.
+		const cancel = () => { this.#closePair(); this._switchUnlocked = false; };
 		return html`
 			<div class="sync-card">
 				<div class="card-title">${i18n.getMessage('euSyncCodeSwitchTitle')}</div>
@@ -1502,7 +1505,7 @@ class EuSyncPanel extends LitElement {
 						${unsafeHTML(icons.triangleAlert)}
 						<span class="msg-text">${count || i18n.getMessage('euSyncCodeSwitchLockedUnknown')}</span>
 						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
-							@click=${() => { this._switchUnlocked = true; }}>${i18n.getMessage('euSyncCodeSwitchUnlock')}</button>
+							@click=${() => { this._switchUnlocked = true; this.#openPair(); }}>${i18n.getMessage('euSyncCodeSwitchUnlock')}</button>
 					</div>` : this._pairOpen ? html`
 					<div class="pair-box">
 						<div class="pair-desc">${i18n.getMessage('euSyncSecretPairDesc')}</div>
@@ -1515,13 +1518,17 @@ class EuSyncPanel extends LitElement {
 								@input=${e => this.#onCodeInput(e.target.value)}
 								@keydown=${e => {
 									if (e.key === 'Enter') apply();
-									if (e.key === 'Escape') { e.stopPropagation(); this.#closePair(); }
+									if (e.key === 'Escape') { e.stopPropagation(); cancel(); }
 								}}>
 							<button class="btn btn-primary" ?disabled=${this._busy || !this._codeValid}
 								@click=${apply}>${i18n.getMessage('euSyncSecretPairApply')}</button>
-							<button class="btn btn-secondary" @click=${() => this.#closePair()}>${i18n.getMessage('euSyncConsentCancel')}</button>
+							<button class="btn btn-secondary" @click=${cancel}>${i18n.getMessage('euSyncConsentCancel')}</button>
 						</div>
 						${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
+						<div class="code-foot end">
+							<button type="button" class="text-btn" ?disabled=${this._busy}
+								@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
+						</div>
 					</div>` : html`
 					<div class="code-foot">
 						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
