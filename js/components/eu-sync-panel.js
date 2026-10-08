@@ -4,6 +4,7 @@ import { icons } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
 import { formatMergeSummary } from './sync-merge-dialog.js';
+import { rowModel } from './eu-sync-row.js';
 
 // The second switch. It sits below the first and is not there at all while the
 // first is not effectively enabled - not greyed out, not disabled, but absent:
@@ -282,7 +283,7 @@ class EuSyncPanel extends LitElement {
 	// exist under this code. The list on screen belongs to the old code too;
 	// willUpdate() sees the secret change and drops it before asking anew.
 	async #adoptSecret(secret) {
-		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(secret), states: {}, activeState: '' });
+		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(secret), states: {} });
 	}
 
 	async #useCode() {
@@ -335,7 +336,7 @@ class EuSyncPanel extends LitElement {
 	}
 
 	// Every server access goes through here: an error lands in a line, never in a
-	// dialog, and `_busy` locks the buttons while it runs. A failed fetch leaves
+	// dialog, and `_pending` counts the requests in flight (see #syncBusy). A failed fetch leaves
 	// the last list that was read standing - it is still the best information
 	// there is.
 	async #run(fn) {
@@ -380,9 +381,15 @@ class EuSyncPanel extends LitElement {
 		// Re-reading is one of the two answers to a conflict, so it clears it: what
 		// the list shows afterwards is the state as it now stands.
 		this._conflict = null;
+		await this.#relist();
+	}
+
+	// Ask for the list and take it as the one on screen. Null, with the reason on
+	// screen, when the request failed.
+	async #relist() {
 		const list = await this.#run(() => window.GesturaSync.list());
-		if (!list) return;
-		await this.#absorbList(list);
+		if (list) await this.#absorbList(list);
+		return list;
 	}
 
 	// A list that was read successfully is the truth about what the server has.
@@ -406,9 +413,8 @@ class EuSyncPanel extends LitElement {
 	// one on screen, and answers with the state as it stands now - or null, with
 	// the reason already on screen (the request failed, or the state is gone).
 	async #freshen(stateId) {
-		const list = await this.#run(() => window.GesturaSync.list());
+		const list = await this.#relist();
 		if (!list) return null;
-		await this.#absorbList(list);
 		const fresh = list.find(s => s.stateId === stateId);
 		if (!fresh) {
 			this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
@@ -425,9 +431,7 @@ class EuSyncPanel extends LitElement {
 	async #refreshAfterStale() {
 		if (this._errorCode !== 'stale') return;
 		const { _error: error, _errorCode: code } = this;
-		const list = await this.#run(() => window.GesturaSync.list());
-		if (!list) return;
-		await this.#absorbList(list);
+		if (!await this.#relist()) return;
 		this._error = error;
 		this._errorCode = code;
 	}
@@ -435,8 +439,7 @@ class EuSyncPanel extends LitElement {
 	// For the actions that WRITE (overwrite, delete): where reading can simply take
 	// the fresh data, these must not silently act on something other than what the
 	// user was looking at. True, with the reason on screen, when the state moved.
-	#movedSince(shown, fresh) {
-		const was = shown.meta && shown.meta.payloadHash;
+	#movedSince(was, fresh) {
 		const now = fresh.meta && fresh.meta.payloadHash;
 		if (was === now) return false;
 		this._error = window.i18n.getMessage('euSyncErrorChangedMeanwhile').replace('{date}', this.#formatDate(fresh.updatedAt));
@@ -480,7 +483,7 @@ class EuSyncPanel extends LitElement {
 		if (stateId && basePayloadHash) {
 			const fresh = await this.#freshen(stateId);
 			if (!fresh) return;
-			if (this.#movedSince({ meta: { payloadHash: basePayloadHash } }, fresh)) return;
+			if (this.#movedSince(basePayloadHash, fresh)) return;
 			createdAt = (fresh.meta && fresh.meta.createdAt) || createdAt;
 		}
 		const r = this.#validatedExport();
@@ -806,14 +809,8 @@ class EuSyncPanel extends LitElement {
 					this._conflict = { stateId: state.stateId, name, createdAt: state.meta && state.meta.createdAt, basePayloadHash: null };
 					return;
 				}
-				const list = await this.#run(() => window.GesturaSync.list());
-				if (!list) return;
-				await this.#absorbList(list);
-				const fresh = list.find(x => x.stateId === state.stateId);
-				if (!fresh) {
-					this._error = i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
-					return;
-				}
+				const fresh = await this.#freshen(state.stateId);
+				if (!fresh) return;
 				this._notice = i18n.getMessage('euSyncMergeMovedAgain');
 				await this.#syncState(fresh, attempt + 1, choices);
 			}),
@@ -821,19 +818,20 @@ class EuSyncPanel extends LitElement {
 	}
 
 	async #deleteState(shown) {
-		const state = await this.#freshen(shown.stateId);
-		if (!state || this.#movedSince(shown, state)) return;
-		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(state)))) return;
+		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(shown)))) return;
 		// Delete carries no token (the contract keeps it unconditional), so the only
-		// protection is looking again as close to the request as possible: the
-		// dialog may have stood open while another browser replaced the state.
-		const again = await this.#freshen(state.stateId);
-		if (!again || this.#movedSince(state, again)) return;
-		const done = await this.#run(() => window.GesturaSync.remove(state.stateId));
+		// protection is looking again as close to the request as possible - after
+		// the dialog, which may have stood open while another browser replaced the
+		// state, and not before it as well: that would only buy a fresher name.
+		const now = await this.#freshen(shown.stateId);
+		if (!now || this.#movedSince(shown.meta && shown.meta.payloadHash, now)) return;
+		const done = await this.#run(() => window.GesturaSync.remove(shown.stateId));
 		if (!done) return;
-		await window.GesturaSyncLocal.removeState(state.stateId);
-		await window.GesturaSyncBase.remove(state.stateId);
-		await this.#refreshStates();
+		await window.GesturaSyncLocal.removeState(shown.stateId);
+		// The list is known to be the one just read, minus this state; asking the
+		// server for it again would be a third round trip for nothing.
+		this._states = this._states.filter(s => s.stateId !== shown.stateId);
+		this._bases = await window.GesturaSyncBase.remove(shown.stateId);
 	}
 
 	async #deleteAll() {
@@ -841,7 +839,7 @@ class EuSyncPanel extends LitElement {
 		// No stateId: this deletes everything under this locator.
 		const done = await this.#run(() => window.GesturaSync.remove());
 		if (!done) return;
-		await window.GesturaSyncLocal.write({ states: {}, activeState: '' });
+		await window.GesturaSyncLocal.write({ states: {} });
 		await window.GesturaSyncBase.clear();
 		this._bases = {};
 		this._states = [];
@@ -859,21 +857,13 @@ class EuSyncPanel extends LitElement {
 
 	#renderStateRow(state) {
 		const i18n = window.i18n;
-		const local = this.#state.states[state.stateId];
-		const active = this.#state.activeState === state.stateId;
-		// The hint belongs to the ACTIVE state only. Every other state differs from
-		// the current settings by definition - another one was adopted or uploaded
-		// since - and saying so on each of them reads as "you changed something".
-		const changed = !!(active && local && local.lastUploadHash && this._currentHash && local.lastUploadHash !== this._currentHash);
-		// Merging means taking over what the state gained since this browser last
-		// agreed with it. While the server still holds the payload the base names
-		// there is nothing to take; local changes go up with Upload, not Merge.
-		const base = this._bases[state.stateId];
-		// What the row offers. For the active state this browser already holds what
-		// it agreed on: Download would only throw local work away, Upload is the one
-		// way to push local changes (hence only with the hint), and Merge only pays
-		// off once the server has moved. Delete is always there.
-		const serverMoved = !!(base && state.meta && state.meta.payloadHash && state.meta.payloadHash !== base.hash);
+		const { active, changed, neverUploadedHere, offers } = rowModel({
+			state,
+			local: this.#state.states[state.stateId],
+			activeState: this.#state.activeState,
+			base: this._bases[state.stateId],
+			currentHash: this._currentHash,
+		});
 		return html`
 			<div class="sync-state-row">
 				<div class="grow">
@@ -881,18 +871,18 @@ class EuSyncPanel extends LitElement {
 					<div class="meta">
 						${state.updatedAt ? i18n.getMessage('euSyncUploadedAt').replace('{date}', this.#formatDate(state.updatedAt)) : ''}
 						${state.broken ? html`<span class="sync-hint"> — ${i18n.getMessage('euSyncStateBroken')}</span>` : ''}
-						${!(local && local.lastUploadDate) ? html`<span> — ${i18n.getMessage('euSyncNeverUploadedHere')}</span>` : ''}
+						${neverUploadedHere ? html`<span> — ${i18n.getMessage('euSyncNeverUploadedHere')}</span>` : ''}
 					</div>
 					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
 				</div>
 				<div class="row-actions">
-					${serverMoved ? html`
+					${offers.merge ? html`
 						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
 							@click=${() => this.#exclusive(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
-					${active ? '' : html`
+					${offers.download ? html`
 						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#exclusive(() => this.#downloadState(state))}>${i18n.getMessage('euSyncDownload')}</button>`}
-					${!active || changed ? html`
+							@click=${() => this.#exclusive(() => this.#downloadState(state))}>${i18n.getMessage('euSyncDownload')}</button>` : ''}
+					${offers.upload ? html`
 						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
 							@click=${() => this.#exclusive(() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt }))}>${i18n.getMessage('euSyncUpload')}</button>` : ''}
 					<button class="btn btn-danger" ?disabled=${this._busy}
@@ -1035,7 +1025,7 @@ class EuSyncPanel extends LitElement {
 						${this._copied ? i18n.getMessage('euSyncSecretCopied') : i18n.getMessage('euSyncSecretCopy')}
 					</button>
 					<button class="btn btn-secondary" @click=${this.#saveCode}>${i18n.getMessage('euSyncSecretSave')}</button>
-					<button class="btn btn-secondary" @click=${this.#newCode}>${i18n.getMessage('euSyncSecretNew')}</button>
+					<button class="btn btn-secondary" @click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
 				</div>
 				<div class="setting-label" style="margin-top:14px">
 					<span>${i18n.getMessage('euSyncSecretPair')}</span>
@@ -1045,8 +1035,8 @@ class EuSyncPanel extends LitElement {
 					<input type="text" class="input-lg ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
 						.value=${this._codeDraft}
 						@input=${e => { this._codeDraft = e.target.value; this._codeError = ''; }}
-						@keydown=${e => { if (e.key === 'Enter') this.#useCode(); }}>
-					<button class="btn btn-secondary" @click=${this.#useCode}>${i18n.getMessage('euSyncSecretPairApply')}</button>
+						@keydown=${e => { if (e.key === 'Enter') this.#exclusive(() => this.#useCode()); }}>
+					<button class="btn btn-secondary" @click=${() => this.#exclusive(() => this.#useCode())}>${i18n.getMessage('euSyncSecretPairApply')}</button>
 				</div>
 				${this._codeError ? html`<div class="error">${this._codeError}</div>` : ''}
 				${origin !== window.FlowMouseEuIntegration.PRODUCTION_ORIGIN ? html`

@@ -35,9 +35,10 @@
 			};
 		}
 		// The state this browser last uploaded to, adopted or merged with: the one
-		// whose "settings changed since" hint means something. Only an id that is
-		// still a state id survives.
-		const active = (typeof src.activeState === 'string' && root.GesturaSyncCrypto.STATE_ID_RE.test(src.activeState))
+		// whose "settings changed since" hint means something. It is always one of
+		// the states recorded above, so removing a state, or all of them, cannot
+		// leave a marker pointing at nothing - no caller has to remember to clear it.
+		const active = (typeof src.activeState === 'string' && Object.hasOwn(states, src.activeState))
 			? src.activeState : '';
 		return {
 			euSync: {
@@ -142,10 +143,9 @@
 	}
 
 	async function removeState(stateId) {
-		const cur = (await read()).euSync;
-		const states = { ...cur.states };
+		const states = { ...(await read()).euSync.states };
 		delete states[stateId];
-		return write(cur.activeState === stateId ? { states, activeState: '' } : { states });
+		return write({ states });
 	}
 
 	function onChange(fn) {

@@ -102,9 +102,16 @@ describe('the active state', () => {
 		expect((await L.read()).euSync.activeState).toBe('');
 	});
 
-	it('is dropped by normalisation when it is not a state id', () => {
-		expect(L.normalizeSync({ euSync: { activeState: 'nope' } }).euSync.activeState).toBe('');
-		expect(L.normalizeSync({ euSync: { activeState: ID } }).euSync.activeState).toBe(ID);
+	it('is dropped by normalisation unless it is one of the recorded states', () => {
+		expect(L.normalizeSync({ euSync: { activeState: 'nope', states: { nope: {} } } }).euSync.activeState).toBe('');
+		expect(L.normalizeSync({ euSync: { activeState: ID } }).euSync.activeState).toBe('');
+		expect(L.normalizeSync({ euSync: { activeState: ID, states: { [ID]: {} } } }).euSync.activeState).toBe(ID);
+	});
+
+	it('goes when every state is cleared in one write, as deleting all or pairing a new code does', async () => {
+		await L.setState(ID, { name: 'Work' }, { activate: true });
+		await L.write({ states: {} });
+		expect((await L.read()).euSync.activeState).toBe('');
 	});
 });
 
