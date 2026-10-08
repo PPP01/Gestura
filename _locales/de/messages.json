@@ -3220,6 +3220,8 @@
 	"euSyncSecretLoad": { "message": "Bestehenden Code laden" },
 	"euSyncSecretUseConfirmTitle": { "message": "Anderen Code verwenden?" },
 	"euSyncSecretLoaded": { "message": "Code geladen — die darunter gesicherten Stände siehst du jetzt hier." },
+	"euSyncCodeSwitchTitle": { "message": "Code wechseln" },
+	"euSyncCodeSwitchWarning": { "message": "Achtung: Ein Wechsel des Codes kann zum Verlust der Stände unter dem aktuellen Code führen (derzeit {n}). Erreichbar bleiben sie nur mit dem aktuellen Code — sichere ihn vorher." },
 	"euSyncSecretPair": { "message": "Vorhandenen Code verwenden" },
 	"euSyncSecretPairDesc": { "message": "Füge hier den Code aus deinem anderen Browser ein, um dessen Stände zu sehen." },
 	"euSyncSecretPairApply": { "message": "Diesen Code verwenden" },

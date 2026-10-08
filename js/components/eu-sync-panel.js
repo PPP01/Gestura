@@ -68,6 +68,7 @@ class EuSyncPanel extends LitElement {
 		_codeVisible: { state: true },
 		_ask: { state: true },
 		_pairOpen: { state: true },
+		_codeValid: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, tabStyles, css`
@@ -87,6 +88,9 @@ class EuSyncPanel extends LitElement {
 		.sync-on svg { width: 16px; height: 16px; color: var(--success-color); }
 		.pair-box { display: flex; flex-direction: column; gap: 8px; }
 		.pair-desc { font-size: 13px; color: var(--text-secondary); }
+		.msg.warn { padding: 4px 12px; background: color-mix(in srgb, var(--warning-color) 10%, var(--card-bg)); border: 1px solid color-mix(in srgb, var(--warning-color) 35%, transparent); }
+		.msg.warn > svg { width: 18px; height: 18px; margin-top: 7px; color: var(--warning-color); }
+		.msg.warn .msg-text { font-size: 13px; }
 		.delete-all-row { margin: -8px 0 16px; }
 		.sync-card { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 20px; padding: 20px; border-radius: 14px; border: 1px solid var(--border-color); background: var(--card-bg); line-height: 1.45; }
 		.sync-card.states { gap: 16px; }
@@ -233,6 +237,7 @@ class EuSyncPanel extends LitElement {
 		this._codeVisible = false;  // never stored: every visit starts masked
 		this._ask = null;           // the open #ask() dialog, see there
 		this._pairOpen = false;     // the "load existing code" field is shown
+		this._codeValid = false;    // what is in that field parses as a code
 		// Not reactive: set by #useCode, read by #absorbList - the code just loaded
 		// and how many states the old one had, so the first list under the new code
 		// can say "found them" and switch to them.
@@ -491,7 +496,26 @@ class EuSyncPanel extends LitElement {
 	}
 
 	#openPair() { this._pairOpen = true; }
-	#closePair() { this._pairOpen = false; this._codeDraft = ''; this._codeError = ''; }
+	#closePair() { this._pairOpen = false; this._codeDraft = ''; this._codeError = ''; this._codeValid = false; }
+
+	// The button only goes live for a code that parses - prefix, alphabet,
+	// length and checksum. A wrong character or a wrong prefix is said at once;
+	// a typo the checksum catches only once the code is complete, because before
+	// that every code is incomplete. "Too short" is never said while typing: the
+	// grey button says it. parse() is async, so an answer for a draft that has
+	// changed since is dropped.
+	async #onCodeInput(value) {
+		this._codeDraft = value;
+		this._codeValid = false;
+		this._codeError = '';
+		const parsed = await window.GesturaSyncCode.parse(value);
+		if (this._codeDraft !== value) return;
+		this._codeValid = !!parsed.secret;
+		const early = parsed.error === 'charset' || (parsed.error === 'prefix' && value.trim().length >= 3);
+		if (early || parsed.error === 'padding' || parsed.error === 'checksum') {
+			this._codeError = window.i18n.getMessage(EuSyncPanel.CODE_ERRORS[parsed.error]);
+		}
+	}
 
 	async #newCode() {
 		const i18n = window.i18n;
@@ -1400,31 +1424,6 @@ class EuSyncPanel extends LitElement {
 					<button type="button" class="icon-btn" title=${i18n.getMessage('euSyncSecretSave')} aria-label=${i18n.getMessage('euSyncSecretSave')}
 						@click=${this.#saveCode}>${unsafeHTML(icons.fileDown)}</button>
 				</div>
-				${this._pairOpen ? html`
-					<div class="pair-box">
-						<div class="pair-desc">${i18n.getMessage('euSyncSecretPairDesc')}</div>
-						<div class="field-row">
-							<input type="text" class="field mono pair-field ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
-								aria-label=${i18n.getMessage('euSyncSecretPair')}
-								aria-invalid=${this._codeError ? 'true' : 'false'}
-								.value=${this._codeDraft}
-								@input=${e => { this._codeDraft = e.target.value; this._codeError = ''; }}
-								@keydown=${e => {
-									if (e.key === 'Enter') this.#exclusive(() => this.#useCode());
-									if (e.key === 'Escape') { e.stopPropagation(); this.#closePair(); }
-								}}>
-							<button class="btn btn-primary" ?disabled=${this._busy || !this._codeDraft.trim()}
-								@click=${() => this.#exclusive(() => this.#useCode())}>${i18n.getMessage('euSyncSecretPairApply')}</button>
-							<button class="btn btn-secondary" @click=${() => this.#closePair()}>${i18n.getMessage('euSyncConsentCancel')}</button>
-						</div>
-						${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
-					</div>` : html`
-					<div class="code-foot">
-						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
-							@click=${() => this.#openPair()}>${i18n.getMessage('euSyncSecretLoad')}</button>
-						<button type="button" class="text-btn" ?disabled=${this._busy}
-							@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
-					</div>`}
 				${origin !== window.FlowMouseEuIntegration.PRODUCTION_ORIGIN ? html`
 					<div class="notice">${i18n.getMessage('euSyncDevOriginNotice').replace('{origin}', origin)}</div>` : ''}
 			</div>`;
@@ -1441,12 +1440,53 @@ class EuSyncPanel extends LitElement {
 				<span><strong>${i18n.getMessage('euSyncConsentGranted')}</strong> \u00b7 ${i18n.getMessage('euSyncConsentDate').replace('{date}', this.#consentDate())}</span>
 			</div>
 			${this._error ? html`<div class="sync-card-gap">${this.#renderError()}</div>` : ''}
-			${this.#state.secret ? this.#renderSecret() : ''}
+			${this.#state.secret ? html`${this.#renderSecret()}${this.#renderCodeSwitch()}` : ''}
 			${states.length ? html`
 				<div class="delete-all-row">
 					<button type="button" class="ghost-btn danger" ?disabled=${this._busy}
 						@click=${() => this.#exclusive(() => this.#deleteAll())}>${unsafeHTML(icons.trash2)}${i18n.getMessage('euSyncDeleteAll')}</button>
 				</div>` : ''}`;
+	}
+
+	// Loading another code or making a new one, in a card of its own: under the
+	// code they read as buttons for the code shown above them. With states under
+	// the current code, the open field says first what switching costs.
+	#renderCodeSwitch() {
+		const i18n = window.i18n;
+		const had = this._states ? this._states.length : 0;
+		const apply = () => { if (this._codeValid) this.#exclusive(() => this.#useCode()); };
+		return html`
+			<div class="sync-card">
+				<div class="card-title">${i18n.getMessage('euSyncCodeSwitchTitle')}</div>
+				${this._pairOpen ? html`
+					<div class="pair-box">
+						<div class="pair-desc">${i18n.getMessage('euSyncSecretPairDesc')}</div>
+						${had ? html`
+							<div class="msg warn" role="note">${unsafeHTML(icons.triangleAlert)}<span class="msg-text">${i18n.getMessage('euSyncCodeSwitchWarning').replace('{n}', String(had))}</span></div>` : ''}
+						<div class="field-row">
+							<input type="text" class="field mono pair-field ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
+								aria-label=${i18n.getMessage('euSyncSecretPair')}
+								aria-invalid=${this._codeError ? 'true' : 'false'}
+								spellcheck="false" autocomplete="off"
+								.value=${this._codeDraft}
+								@input=${e => this.#onCodeInput(e.target.value)}
+								@keydown=${e => {
+									if (e.key === 'Enter') apply();
+									if (e.key === 'Escape') { e.stopPropagation(); this.#closePair(); }
+								}}>
+							<button class="btn btn-primary" ?disabled=${this._busy || !this._codeValid}
+								@click=${apply}>${i18n.getMessage('euSyncSecretPairApply')}</button>
+							<button class="btn btn-secondary" @click=${() => this.#closePair()}>${i18n.getMessage('euSyncConsentCancel')}</button>
+						</div>
+						${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
+					</div>` : html`
+					<div class="code-foot">
+						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+							@click=${() => this.#openPair()}>${i18n.getMessage('euSyncSecretLoad')}</button>
+						<button type="button" class="text-btn" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
+					</div>`}
+			</div>`;
 	}
 
 	#renderTabs() {

@@ -3282,6 +3282,8 @@
 	"euSyncSecretLoad": { "message": "Load existing code" },
 	"euSyncSecretUseConfirmTitle": { "message": "Use a different code?" },
 	"euSyncSecretLoaded": { "message": "Code loaded — the states saved under it are now shown here." },
+	"euSyncCodeSwitchTitle": { "message": "Change code" },
+	"euSyncCodeSwitchWarning": { "message": "Careful: changing the code can cost you the states saved under the current one (currently {n}). They stay reachable only with the current code — save it first." },
 	"euSyncSecretPair": { "message": "Use an existing code" },
 	"euSyncSecretPairDesc": { "message": "Paste the code from your other browser here to see its states." },
 	"euSyncSecretPairApply": { "message": "Use this code" },
