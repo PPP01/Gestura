@@ -36,6 +36,8 @@ const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSy
 	'euSyncRename',
 	'euSyncRenamePrompt',
 	'euSyncRenameUnavailable'];
+// Changed wording in all 39 locales, not caught by a test: euSyncSecretNewConfirm
+// (en/de now say the old states stay reachable with the old code; 37 still say they are lost).
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)
