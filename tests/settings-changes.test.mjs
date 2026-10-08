@@ -95,6 +95,14 @@ describe('describeChanges', () => {
 			]);
 		});
 
+		it('lists the elements of a set of numbers or booleans too', () => {
+			const res = run({ levels: [1, 2] }, { levels: [2, 3] });
+			expect(area(res, 'settings')).toEqual([
+				{ kind: 'removed', name: 'levels: 1' },
+				{ kind: 'added', name: 'levels: 3' },
+			]);
+		});
+
 		it('looks into a container of fixed children', () => {
 			const res = run({ gestureTriggerButtons: { right: true, middle: false } }, { gestureTriggerButtons: { right: true, middle: true } });
 			expect(area(res, 'settings')).toEqual([{ kind: 'changed', name: 'gestureTriggerButtons.middle', from: 'false', to: 'true' }]);

@@ -465,7 +465,10 @@ class EuSyncPanel extends LitElement {
 	async #onPreviewConfirm() {
 		const preview = this._preview;
 		this._preview = null;
-		if (preview) await preview.commit();
+		// The click that opened the preview has long returned, and with it #exclusive:
+		// what follows the confirmation (the request, then the base and the record)
+		// is a flow of its own and gets the same one-at-a-time guard and error line.
+		if (preview) await this.#exclusive(() => preview.commit());
 	}
 
 	// Uploading and overwriting are the same path with different ids - the preview
@@ -722,7 +725,7 @@ class EuSyncPanel extends LitElement {
 		e.currentTarget.open = false;
 		const ctx = this._merge;
 		this._merge = null;
-		if (ctx) this.#guarded(() => this.#commitMerge({ ...ctx, choices: e.detail.choices }));
+		if (ctx) this.#exclusive(() => this.#commitMerge({ ...ctx, choices: e.detail.choices }));
 	}
 
 	// Cancelling ends the round: the "changed again" line was about a merge that

@@ -4,8 +4,10 @@ import { canonicalText } from './text-diff.js';
 // "gesture ↓→ was changed", "menu Wikipedia was added". Pure - the names come
 // from the caller (`labels`), because they live in i18n and the registries.
 //
-// Works on whatever the preview shows: sync-shaped export objects, so the
-// device-local keys are not there to begin with. The export envelope is skipped.
+// Works on whatever the preview shows: the sync-shaped exports of the sync panel
+// (no device-local keys), and for a file import the full exports - there the
+// device-local settings are written too, and rightly appear. The export envelope
+// is skipped.
 //
 // Result: [{ area, items: [{ kind: 'added'|'removed'|'changed', name, from?, to? }] }],
 // areas in the fixed order below, empty ones left out.
@@ -70,8 +72,12 @@ function flatItems(path, before, after, labels) {
 	if (isSet(before ?? []) && isSet(after ?? []) && (Array.isArray(before) || Array.isArray(after))) {
 		const b = new Set(before || []);
 		const a = new Set(after || []);
-		return [...new Set([...b, ...a])].map(String).sort()
+		// Compared as they are, named as text: turning them into strings first
+		// would make 1 and '1' the same element on one side and different on the
+		// other, and a set of numbers would never show a change.
+		return [...new Set([...b, ...a])]
 			.filter(e => b.has(e) !== a.has(e))
+			.sort((x, y) => String(x).localeCompare(String(y)))
 			.map(e => ({ kind: a.has(e) ? 'added' : 'removed', name: `${labels.option(path)}: ${e}` }));
 	}
 	const primitive = (v) => v === undefined || v === null || typeof v !== 'object';
