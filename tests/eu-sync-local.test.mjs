@@ -75,11 +75,6 @@ describe('normalizeSync', () => {
 	});
 });
 
-const DAY_1 = '2026-09-03T10:00:00.000Z';
-const DAY_2 = '2026-09-04T10:00:00.000Z';
-const tier1On = (date) => integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date } });
-const tier2On = (date) => sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date } });
-
 describe('the active state', () => {
 	it('is the state this browser last uploaded to, adopted or merged', async () => {
 		await L.setState(ID, { name: 'Work' }, { activate: true });
@@ -115,43 +110,36 @@ describe('the active state', () => {
 	});
 });
 
-describe('the tier-2 invariant', () => {
-	it('holds when both tiers are current', () => {
-		expect(L.syncEnabled(integration(), sync())).toBe(true);
+describe('the sync switch', () => {
+	it('holds with its own current consent', () => {
+		expect(L.syncEnabled(sync())).toBe(true);
 	});
 
-	// The whole point of two tiers: tier 2 can never authorise anything on its own.
 	it.each([
-		['tier 1 is off', integration({ enabled: false }), sync()],
-		['tier 1 has a stale consent', integration({ consent: { version: 0, date: 'x' } }), sync()],
-		['tier 1 has no consent', integration({ consent: null }), sync()],
-		['tier 2 is off', integration(), sync({ enabled: false })],
-		['tier 2 has a stale consent', integration(), sync({ consent: { version: 0, date: 'x' } })],
-		['tier 2 has no consent', integration(), sync({ consent: null })],
-		// Tier 2 was agreed to on top of a PARTICULAR tier-1 consent. When tier 1
-		// is consented again later - its version was bumped and the user accepted
-		// the new text - the old tier-2 consent must not come back to life with
-		// it: nobody agreed to sync a second time. The storage listener that
-		// clears tier 2 on withdrawal never fires here, because a version bump
-		// writes nothing.
-		['tier 1 was consented again after tier 2', tier1On(DAY_2), tier2On(DAY_1)],
-	])('fails when %s', (_label, local, s) => {
-		expect(L.syncEnabled(local, s)).toBe(false);
+		['it is off', sync({ enabled: false })],
+		['its consent is of an older version', sync({ consent: { version: 0, date: 'x' } })],
+		['it has no consent', sync({ consent: null })],
+	])('fails when %s', (_label, s) => {
+		expect(L.syncEnabled(s)).toBe(false);
 	});
 
-	it('holds when tier 2 was consented after tier 1', () => {
-		expect(L.syncEnabled(tier1On(DAY_1), tier2On(DAY_2))).toBe(true);
+	// Sync is its own feature with its own consent. It does not need the
+	// integration: no page hands anything over, no update check runs for it.
+	// Coupling the two switched sync off, without a word, whenever the
+	// integration was turned off.
+	it('does not depend on the integration at all', () => {
+		expect(L.syncEnabled(sync())).toBe(true);
+		expect(L.syncEnabled.length).toBe(1);
 	});
 
 	// The panel shows a reconfirm row for exactly the consents syncEnabled()
 	// refuses - so the same function has to say which those are.
 	it.each([
-		['no consent', integration(), sync({ consent: null }), false],
-		['a current consent', integration(), sync(), false],
-		['a consent of an older version', integration(), sync({ consent: { version: 0, date: 'x' } }), true],
-		['a consent tier 1 outranks', tier1On(DAY_2), tier2On(DAY_1), true],
-	])('calls %s stale: %s', (_label, local, s, stale) => {
-		expect(L.syncConsentStale(local, s)).toBe(stale);
+		['no consent', sync({ consent: null }), false],
+		['a current consent', sync(), false],
+		['a consent of an older version', sync({ consent: { version: 0, date: 'x' } }), true],
+	])('calls %s stale: %s', (_label, s, stale) => {
+		expect(L.syncConsentStale(s)).toBe(stale);
 	});
 });
 
@@ -164,6 +152,14 @@ describe('syncOrigin', () => {
 	// not push states into production, and the panel says so.
 	it('is the developer origin when one is configured', () => {
 		expect(L.syncOrigin(integration({ devOrigin: 'http://localhost:8199' }))).toBe('http://localhost:8199');
+	});
+
+	// The developer origin names which gestura.eu instance this browser talks
+	// to; it is not a permission. Sync follows it whether the integration is on
+	// or off - switching the integration must not move sync to another server.
+	it('follows the developer origin whether the integration is on or off', () => {
+		const off = integration({ enabled: false, consent: null, devOrigin: 'http://localhost:8199' });
+		expect(L.syncOrigin(off)).toBe('http://localhost:8199');
 	});
 
 	it('ignores an invalid developer origin', () => {
@@ -192,23 +188,17 @@ describe('storage', () => {
 	});
 });
 
-describe('when tier 1 goes away', () => {
-	// A tier-2 consent that springs back to life the moment tier 1 is re-enabled
-	// would be an authorisation nobody gave twice. The secret and the states stay -
-	// they are local data and re-pairing should not cost the user their states.
-	it('clears the tier-2 switch and consent but keeps the secret', async () => {
+describe('when the integration goes away', () => {
+	// Turning the integration off must not touch sync: different feature,
+	// different consent. It used to clear the sync switch and consent at once.
+	it('leaves the sync switch, consent and secret as they are', async () => {
 		await L.write(sync().euSync);
 		tier1 = integration({ enabled: false, consent: null });
 		for (const fn of tier1Listeners) await fn(tier1);
 		const after = (await L.read()).euSync;
-		expect(after.enabled).toBe(false);
-		expect(after.consent).toBe(null);
+		expect(after.enabled).toBe(true);
+		expect(after.consent).not.toBe(null);
 		expect(after.secret).toMatch(/^GS1-/);
-	});
-
-	it('leaves everything alone while tier 1 is fine', async () => {
-		await L.write(sync().euSync);
-		for (const fn of tier1Listeners) await fn(integration());
-		expect((await L.read()).euSync.enabled).toBe(true);
+		expect(L.syncEnabled({ euSync: after })).toBe(true);
 	});
 });

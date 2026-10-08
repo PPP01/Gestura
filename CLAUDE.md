@@ -136,9 +136,9 @@ Website menus come from a built-in catalog ([js/menu-catalog.js](js/menu-catalog
 
 In both cases **stored settings hold deltas, not full copies** — a menu the user never edited is not in storage at all. Read the resolver before changing anything about stored shapes.
 
-### The gestura.eu subsystem — two tiers, one gate
+### The gestura.eu subsystem — two independent switches
 
-Optional, **off by default**, and the largest single addition to the fork. Two switches, layered: *integration* (tier 1) lets gestura.eu pages hand entries over and lets the update check run; *sync* (tier 2) saves settings to the service as encrypted states. **Tier 2 can never authorise anything on its own** — `GesturaSyncLocal.syncEnabled(tier1, tier2)` is the single gate, and it also refuses a tier-2 consent that predates the current tier-1 consent, so re-consenting to tier 1 never silently revives tier 2. Every network path is wrapped in `gated()`, which re-reads the live state *after* the call as well as before.
+Optional, **off by default**, and the largest single addition to the fork. Two switches, each with its own consent and **independent of each other**: *integration* lets gestura.eu pages hand entries over and lets the update check run; *sync* saves settings to the service as encrypted states. Sync does not need the integration, and turning the integration off leaves sync alone (until 2026-10 sync rode on the integration and was switched off with it, without a warning — do not reintroduce that). Sync's gate is `GesturaSyncLocal.syncEnabled(sync)`: its own switch and a consent of the current version, nothing else. The integration's state is read for sync only to pick the server — its developer origin names *which* gestura.eu to talk to and is not a permission. Every sync network path is wrapped in `gated()`, which re-reads the live state *after* the call as well as before.
 
 | file | owns |
 |---|---|

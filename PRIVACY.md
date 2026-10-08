@@ -15,9 +15,10 @@ server at all — gestura.eu, which is run by Gestura's author.
 The **gestura.eu integration** (below), when you enable it,
 answers questions from gestura.eu about entries you imported from there and asks
 that index — at most once a day, when you open the settings — whether newer
-versions of those entries exist. Underneath it sits a second switch, *Sync*,
-also off by default: with it on, your own settings can be saved to gestura.eu on
-an explicit click — encrypted in your browser, under a key that is never sent to gestura.eu.
+versions of those entries exist. The second switch, *Sync*, is independent of it
+and also off by default: with it on, your own settings can be saved to gestura.eu
+on an explicit click — encrypted in your browser, under a key that is never sent
+to gestura.eu.
 
 ## What data Gestura processes and where it stays
 
@@ -81,8 +82,9 @@ stored update notices are deleted, and entries you imported stay on your device.
 
 ## Sync between browsers (optional, off by default, a second switch)
 
-Sync is a separate switch underneath the integration, with its own consent. It
-is off until you turn it on, and it cannot be on while the integration is off.
+Sync is a switch of its own, with its own consent. It is off until you turn it
+on, and it does not depend on the gestura.eu integration: you can use either one
+without the other, and turning the integration off leaves sync as it is.
 
 When it is on, and only when you click **Upload**:
 

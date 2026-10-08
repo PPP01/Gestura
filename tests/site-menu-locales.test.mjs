@@ -16,7 +16,7 @@ const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf
 // a missing key. Translating them means deleting them from this list - the two
 // tests below are what keep that from being forgotten before a release.
 // Empty since all 175 pending keys were translated into the 37 other locales.
-const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 'euSyncErrorDismiss', 'euSyncActive',
+const PENDING_TRANSLATION = ['euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 'euSyncErrorDismiss', 'euSyncActive',
 	'settingsPreviewAreaGestures',
 	'settingsPreviewAreaMenus',
 	'settingsPreviewAreaEngines',
@@ -40,6 +40,8 @@ const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSy
 // euSyncConsentPoint1..5 (+Label), reworded 2026-10-08 in en/de - the other 37 still
 // carry the old consent text, which says the same in substance (no new commitment,
 // so CURRENT_SYNC_CONSENT was not raised); translate before the release.
+// Changed wording in all 39 locales, not caught by a test: euIntegrationIntro
+// (sync is no longer 'being built' there and is independent of the integration).
 // Changed wording in all 39 locales, not caught by a test: euSyncSecretNewConfirm
 // (en/de now say the old states stay reachable while the old code exists anywhere; 37 still say they are lost).
 

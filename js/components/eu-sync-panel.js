@@ -6,10 +6,10 @@ import { settingsErrorMessage } from './settings-preview-dialog.js';
 import { formatMergeSummary } from './sync-merge-dialog.js';
 import { rowModel } from './eu-sync-row.js';
 
-// The second switch. It sits below the first and is not there at all while the
-// first is not effectively enabled - not greyed out, not disabled, but absent:
-// a visible switch that cannot do anything is precisely what the design ruled
-// out for R1 and R2.
+// The sync switch and everything behind it. Sync is a feature of its own, with
+// its own consent; it does not need the gestura.eu integration above it, and
+// turning that off leaves sync alone. The integration's state is still read -
+// for the server to talk to (its developer origin), never as a permission.
 //
 // The state lives in chrome.storage.local (GesturaSyncLocal), not in the
 // SettingsStore: consent is per browser, and the secret must never reach the
@@ -147,10 +147,9 @@ class EuSyncPanel extends LitElement {
 
 	connectedCallback() {
 		super.connectedCallback();
-		// Two subscriptions, because two states decide what is visible here. Without
-		// the first, the panel would stay on screen when the user withdraws the
-		// integration in the panel above it - sitting over a switch that is no
-		// longer allowed to do anything.
+		// Two subscriptions: sync's own state decides everything shown here; the
+		// integration's only supplies the developer origin, which the code row
+		// names when sync is not talking to production.
 		window.GesturaEuLocal.read().then(local => { this._local = local; });
 		window.GesturaSyncLocal.read().then(sync => { this._sync = sync; });
 		this._offLocal = window.GesturaEuLocal.onChange(local => { this._local = local; });
@@ -174,17 +173,16 @@ class EuSyncPanel extends LitElement {
 		this.#lockScroll(false);
 	}
 
-	get #tier1() { return this._local ? window.FlowMouseEuIntegration.effectiveEnabled(this._local) : false; }
 	get #state() { return this._sync ? this._sync.euSync : null; }
 	get #effective() {
-		return !!(this._local && this._sync && window.GesturaSyncLocal.syncEnabled(this._local, this._sync));
+		return !!(this._sync && window.GesturaSyncLocal.syncEnabled(this._sync));
 	}
-	// The switch is on but its consent no longer counts - a new sync text, or
-	// tier 1 consented again since (see GesturaSyncLocal.syncConsentStale). Shows
-	// the reconfirm row instead of a switch that silently reads "off".
+	// The switch is on but its consent no longer counts - the sync text changed
+	// (see GesturaSyncLocal.syncConsentStale). Shows the reconfirm row instead of
+	// a switch that silently reads "off".
 	get #stale() {
 		const s = this.#state;
-		return !!(s && s.enabled && window.GesturaSyncLocal.syncConsentStale(this._local, this._sync));
+		return !!(s && s.enabled && window.GesturaSyncLocal.syncConsentStale(this._sync));
 	}
 
 	#lockScroll(on) { document.documentElement.style.overflow = on ? 'hidden' : ''; }
@@ -1130,9 +1128,6 @@ class EuSyncPanel extends LitElement {
 	render() {
 		const i18n = window.i18n;
 		if (!this._sync) return html``;
-		// No switch while the integration is not effectively enabled. The panel has
-		// its own section now, so an empty box would read as broken: say why instead.
-		if (!this.#tier1) return html`<div class="info">${i18n.getMessage('euSyncNeedsIntegration')}</div>`;
 		return html`
 			<div class="setting-row">
 				<div class="setting-label">

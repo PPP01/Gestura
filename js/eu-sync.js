@@ -229,21 +229,23 @@
 	// The gate. Read the live state, act, read it again - and throw 'disabled'
 	// rather than return, so no caller can mistake a discarded answer for an
 	// empty one.
+	//
+	// Only sync's own switch decides; the integration's state is read for the
+	// server to talk to (its developer origin), never as a permission.
 	async function gated(fn) {
 		const L = root.GesturaSyncLocal;
-		const local = await root.GesturaEuLocal.read();
 		const sync = await L.read();
-		if (!L.syncEnabled(local, sync)) throw syncError('disabled');
+		if (!L.syncEnabled(sync)) throw syncError('disabled');
 		const parsed = await root.GesturaSyncCode.parse(sync.euSync.secret);
 		if (!parsed.secret) throw syncError('no-secret');
 
 		const result = await fn({
 			secret: parsed.secret,
-			origin: L.syncOrigin(local),
+			origin: L.syncOrigin(await root.GesturaEuLocal.read()),
 			fetchImpl: (url, init) => fetch(url, init),
 		});
 
-		if (!L.syncEnabled(await root.GesturaEuLocal.read(), await L.read())) throw syncError('disabled');
+		if (!L.syncEnabled(await L.read())) throw syncError('disabled');
 		return result;
 	}
 

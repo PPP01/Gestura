@@ -634,8 +634,9 @@ whitespace, `undefined` properties dropped, `null` kept, arrays in order
 A stored consent below the current version disables the integration until the
 user confirms again.
 
-The **Sync** switch has a consent of its own, and tier 1 must be enabled with a
-current consent for tier 2 to authorize anything:
+The **Sync** switch has a consent of its own and is independent of the
+integration: it neither needs the integration to be on nor is it switched off
+with it. Only its own consent version decides:
 
 | Sync version | Scope |
 |---|---|

@@ -288,9 +288,16 @@ describe('the gate', () => {
 		await expect(S.list()).rejects.toMatchObject({ code: 'disabled' });
 	});
 
-	it('refuses to act while tier 1 is off', async () => {
-		tier1 = integration({ enabled: false });
-		await expect(S.list()).rejects.toMatchObject({ code: 'disabled' });
+	// Sync does not need the integration; turning that off must not stop it.
+	it('acts while the integration is off', async () => {
+		tier1 = integration({ enabled: false, consent: null });
+		const original = globalThis.fetch;
+		globalThis.fetch = fetchOk({ states: [] });
+		try {
+			await expect(S.list()).resolves.toHaveLength(0);
+		} finally {
+			globalThis.fetch = original;
+		}
 	});
 
 	it('refuses to act without a usable secret', async () => {

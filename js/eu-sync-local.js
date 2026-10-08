@@ -1,18 +1,19 @@
-// The only reader/writer of the sync state in chrome.storage.local: the tier-2
+// The only reader/writer of the sync state in chrome.storage.local: the sync
 // switch, its own consent, the secret, and this browser's map of the states it
 // has uploaded to.
 //
 // Shaped like js/eu-local.js - live cache, fed by storage.onChanged - for the
 // same reason: every gated path must be able to ask "may I, right now" and get
-// today's answer. It is a separate key and a separate file because tier 2 has a
-// separate lifetime: revoking tier 1 must not touch the secret, and no content
-// script or service worker ever loads this file.
+// today's answer. It is a separate key and a separate file because sync is a
+// feature of its own: it does not depend on the gestura.eu integration
+// (js/eu-local.js), turning that off leaves sync alone, and no content script or
+// service worker ever loads this file.
 (function (root) {
 	'use strict';
 
 	const EU = root.FlowMouseEuIntegration;
 	const KEY = 'euSync';
-	// Tier 2's own consent, independent of the integration's. R3 = 1.
+	// Sync's own consent, independent of the integration's. R3 = 1.
 	const CURRENT_SYNC_CONSENT = 1;
 
 	const DEFAULTS = { enabled: false, consent: null, secret: '', states: {}, activeState: '' };
@@ -51,41 +52,34 @@
 		};
 	}
 
-	// A tier-2 consent that is on record but no longer counts. Two ways: its
-	// version is not the current one (the text changed), or tier 1 was consented
-	// AGAIN after it. The second case is the tier-1 version bump: the user
-	// accepts the new integration text, and the sync consent they gave on top
-	// of the OLD one would otherwise come back to life with it - nobody agreed
-	// to sync a second time. The storage listener below cannot catch this,
-	// because a version bump writes nothing. Dates are the ISO strings both
-	// panels store, so they compare as text; a consent without a date (older
-	// storage) is given the benefit of the doubt.
-	function consentStale(s, local) {
-		if (s.consent === null) return false;
-		if (s.consent.version !== CURRENT_SYNC_CONSENT) return true;
-		const tier1 = EU.normalizeLocal(local).euIntegration.consent;
-		return !!(tier1 && tier1.date && s.consent.date && s.consent.date < tier1.date);
+	// A consent that is on record but no longer counts: its version is not the
+	// current one, because the text changed. Sync used to ride on the
+	// integration's consent as well and went stale whenever that was given
+	// again; it is a feature of its own now, and only its own text decides.
+	function consentStale(s) {
+		return s.consent !== null && s.consent.version !== CURRENT_SYNC_CONSENT;
 	}
 
-	function syncConsentStale(local, sync) {
-		return consentStale(normalizeSync(sync).euSync, local);
+	function syncConsentStale(sync) {
+		return consentStale(normalizeSync(sync).euSync);
 	}
 
-	// The composed invariant from the design: tier 2 rides on tier 1 and can
-	// never authorise anything by itself. Both halves are checked against their
-	// own current consent version, so either one going stale stops sync.
-	function syncEnabled(local, sync) {
+	// The gate: the switch is on and carries a current consent. Nothing else -
+	// in particular not the integration, which sync does not need. Coupling the
+	// two switched sync off, without a word, whenever the integration was
+	// turned off.
+	function syncEnabled(sync) {
 		const s = normalizeSync(sync).euSync;
-		return EU.effectiveEnabled(local)
-			&& s.enabled === true
-			&& s.consent !== null
-			&& !consentStale(s, local);
+		return s.enabled === true && s.consent !== null && !consentStale(s);
 	}
 
 	// Sync talks to exactly one server, unlike the update check which asks every
 	// origin an entry came from. There is one secret and one blob store; a state
 	// that lived on two servers would need a UI explaining which one it is on.
-	// allowedOrigins() answers [production] or [production, dev].
+	// allowedOrigins() answers [production] or [production, dev]. The developer
+	// origin names WHICH gestura.eu this browser talks to - it is not a
+	// permission, so it applies whether the integration is on or off; switching
+	// the integration must never move sync to another server.
 	function syncOrigin(local) {
 		const origins = EU.allowedOrigins(local);
 		return origins.length > 1 ? origins[1] : origins[0];
@@ -158,21 +152,6 @@
 			if (area !== 'local' || !changes[KEY]) return;
 			absorb({ [KEY]: changes[KEY].newValue });
 			for (const fn of listeners) { try { fn(cache); } catch { /* one listener must not break the others */ } }
-		});
-	}
-
-	// Withdrawing the website integration takes the sync consent with it. Sync is
-	// already dead by composition at that moment - this is about what happens
-	// NEXT time: a tier-2 consent left standing would silently authorise uploads
-	// again the moment tier 1 is switched back on, and nobody agreed to that
-	// twice. The secret and the states stay: they are local data, and re-pairing
-	// should not cost the user the states they already have.
-	if (root.GesturaEuLocal && root.GesturaEuLocal.onChange) {
-		root.GesturaEuLocal.onChange(async (local) => {
-			if (EU.effectiveEnabled(local)) return;
-			const cur = (await read()).euSync;
-			if (!cur.enabled && cur.consent === null) return;
-			await write({ enabled: false, consent: null });
 		});
 	}
 
