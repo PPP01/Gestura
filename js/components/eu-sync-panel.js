@@ -91,6 +91,8 @@ class EuSyncPanel extends LitElement {
 		.granted-icon svg { width: 18px; height: 18px; }
 		.reconfirm { color: var(--warning-color); }
 		.row-actions { display: flex; gap: 8px; flex: none; }
+		/* Icon buttons: the glyph is small, the target is not. */
+		.row-actions .btn-icon-only { min-width: 32px; min-height: 32px; }
 		.modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; }
 		.modal-panel { width: min(620px, 92vw); max-height: 88vh; display: flex; flex-direction: column; background: var(--card-bg); border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-color); }
 		.modal-panel:focus { outline: none; }
@@ -855,6 +857,17 @@ class EuSyncPanel extends LitElement {
 		}
 	}
 
+	// One row action as an icon button. The text lives in `title` AND `aria-label`
+	// - the icon alone says nothing to a screen reader, and `title` is what a
+	// mouse user gets on hover. The existing strings serve, so no new text.
+	#actionButton(style, iconName, messageKey, disabled, run) {
+		const label = window.i18n.getMessage(messageKey);
+		return html`
+			<button type="button" class="btn ${style} btn-icon-only" ?disabled=${disabled}
+				title=${label} aria-label=${label}
+				@click=${() => this.#exclusive(run)}>${unsafeHTML(icons[iconName])}</button>`;
+	}
+
 	#renderStateRow(state) {
 		const i18n = window.i18n;
 		const { active, changed, neverUploadedHere, offers } = rowModel({
@@ -876,17 +889,14 @@ class EuSyncPanel extends LitElement {
 					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
 				</div>
 				<div class="row-actions">
-					${offers.merge ? html`
-						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#exclusive(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
-					${offers.download ? html`
-						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#exclusive(() => this.#downloadState(state))}>${i18n.getMessage('euSyncDownload')}</button>` : ''}
-					${offers.upload ? html`
-						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#exclusive(() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt }))}>${i18n.getMessage('euSyncUpload')}</button>` : ''}
-					<button class="btn btn-danger" ?disabled=${this._busy}
-						@click=${() => this.#exclusive(() => this.#deleteState(state))}>${i18n.getMessage('euSyncDelete')}</button>
+					${offers.merge ? this.#actionButton('btn-primary', 'refreshCw', 'euSyncMerge', this._busy || state.broken,
+						() => this.#syncState(state)) : ''}
+					${offers.download ? this.#actionButton('btn-secondary', 'download', 'euSyncDownload', this._busy || state.broken,
+						() => this.#downloadState(state)) : ''}
+					${offers.upload ? this.#actionButton('btn-secondary', 'upload', 'euSyncUpload', this._busy || state.broken,
+						() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })) : ''}
+					${this.#actionButton('btn-danger', 'trash2', 'euSyncDelete', this._busy,
+						() => this.#deleteState(state))}
 				</div>
 			</div>`;
 	}
