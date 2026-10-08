@@ -31,7 +31,8 @@ const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSy
 	'settingsPreviewTechnical',
 	'settingsPreviewFullJson',
 	'settingsPreviewChangeHere',
-	'settingsPreviewChangeThere'];
+	'settingsPreviewChangeThere',
+	'settingsPreviewMergeCombines'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

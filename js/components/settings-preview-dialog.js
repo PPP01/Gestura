@@ -14,8 +14,10 @@ import { makeChangeLabels } from './settings-change-labels.js';
 // The dialog decides nothing. It shows what the validator worked out and
 // reports consent or cancellation - the writing is the caller's job.
 
-const TITLES = { export: 'settingsPreviewExportTitle', import: 'settingsPreviewImportTitle', upload: 'settingsPreviewUploadTitle' };
-const CONFIRMS = { export: 'settingsPreviewConfirmExport', import: 'settingsPreviewConfirmImport', upload: 'settingsPreviewConfirmUpload' };
+const TITLES = { export: 'settingsPreviewExportTitle', import: 'settingsPreviewImportTitle', upload: 'settingsPreviewUploadTitle', merge: 'settingsPreviewImportTitle' };
+// A merge confirms with the word of the action that started it, not with
+// "Write settings": the button names what happens, and here that is the merge.
+const CONFIRMS = { export: 'settingsPreviewConfirmExport', import: 'settingsPreviewConfirmImport', upload: 'settingsPreviewConfirmUpload', merge: 'euSyncMerge' };
 
 // Error code -> sentence. Exported, because the sync panel reports validation
 // errors too and both should speak the same language.
@@ -271,6 +273,7 @@ class SettingsPreviewDialog extends LitElement {
 						<div class="notes">
 							${this.note ? html`<p>${this.note}</p>` : ''}
 							${this.mode === 'import' ? html`<p class="warn">${i18n.getMessage('settingsPreviewReplaces')}</p>` : ''}
+							${this.mode === 'merge' ? html`<p>${i18n.getMessage('settingsPreviewMergeCombines')}</p>` : ''}
 							${this.legacy ? html`<p>${i18n.getMessage('settingsPreviewLegacy')}</p>` : ''}
 							${this.dropped && this.dropped.length ? html`
 								<p class="warn">${i18n.getMessage('settingsPreviewDropped').replace('{keys}', this.dropped.join(', '))}</p>` : ''}

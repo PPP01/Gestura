@@ -749,12 +749,12 @@ class EuSyncPanel extends LitElement {
 			this._error = settingsErrorMessage(i18n, r.error);
 			return;
 		}
-		const summaryLine = formatMergeSummary(i18n, merged.summary);
+		const summaryLine = formatMergeSummary(i18n, merged.summary, name);
 		// On a retry the user sees this preview a second time; the reason belongs
 		// in the dialog they are looking at, not in a panel line behind it.
 		const note = attempt > 1 ? `${i18n.getMessage('euSyncMergeMovedAgain')} ${summaryLine}` : summaryLine;
 		this.#openPreview({
-			mode: 'import',
+			mode: 'merge',
 			json: r.json,
 			dropped: r.dropped,
 			retyped: r.retyped,
@@ -765,7 +765,7 @@ class EuSyncPanel extends LitElement {
 			// settings before, against the result). What the user is about to send
 			// comes first.
 			compare: [
-				{ label: i18n.getMessage('settingsPreviewChangeThere'), before: remoteObj, after: r.exportObj },
+				{ label: i18n.getMessage('settingsPreviewChangeThere').replace('{name}', name), before: remoteObj, after: r.exportObj },
 				{ label: i18n.getMessage('settingsPreviewChangeHere'), before: localObj, after: r.exportObj },
 			],
 			commit: () => this.#guarded(async () => {

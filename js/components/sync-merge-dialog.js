@@ -17,11 +17,12 @@ import { commonStyles, optionStyles } from './shared-styles.js';
 // preview's note - and the token list of euSyncMergeSummary is spelled out
 // here alone, so a placeholder cannot be added in one and forgotten in the
 // other.
-export function formatMergeSummary(i18n, summary) {
+export function formatMergeSummary(i18n, summary, stateName) {
 	const s = summary || {};
 	return i18n.getMessage('euSyncMergeSummary')
-		.replace('{taken}', String(s.taken || 0))
 		.replace('{uploaded}', String(s.uploaded || 0))
+		.replace('{taken}', String(s.taken || 0))
+		.replace('{name}', stateName || '')
 		.replace('{deleted}', String(s.deleted || 0));
 }
 
@@ -166,7 +167,7 @@ class SyncMergeDialog extends LitElement {
 	render() {
 		if (!this.open) return html``;
 		const i18n = window.i18n;
-		const summary = formatMergeSummary(i18n, this.summary);
+		const summary = formatMergeSummary(i18n, this.summary, this.stateName);
 		return html`
 			<div class="modal-overlay" @click=${(e) => { if (e.target === e.currentTarget) this.#cancel(); }}>
 				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true">
