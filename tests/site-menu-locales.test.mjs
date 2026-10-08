@@ -36,6 +36,10 @@ const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSy
 	'euSyncRename',
 	'euSyncRenamePrompt',
 	'euSyncRenameUnavailable'];
+// Changed wording in all 39 locales, not caught by a test: euSyncConsentLead and
+// euSyncConsentPoint1..5 (+Label), reworded 2026-10-08 in en/de - the other 37 still
+// carry the old consent text, which says the same in substance (no new commitment,
+// so CURRENT_SYNC_CONSENT was not raised); translate before the release.
 // Changed wording in all 39 locales, not caught by a test: euSyncSecretNewConfirm
 // (en/de now say the old states stay reachable while the old code exists anywhere; 37 still say they are lost).
 

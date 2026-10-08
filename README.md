@@ -164,7 +164,7 @@ Gestura is an open source extension. The code is hosted on GitHub and open to re
 - Gestura **does not collect** any browsing history, bookmarks, or usage habits.
 - Gestura **does not contain** any analytics or advertising code.
 - Gestura **contacts no server at all** in its default configuration. The two gestura.eu switches are off until you turn them on, each behind its own consent.
-- Gestura **uploads nothing you did not click**. With gestura.eu sync switched on, the settings you choose to save travel as ciphertext only — encrypted in your browser under a key derived from a code that never leaves it.
+- Gestura **uploads nothing you did not click**. With gestura.eu sync switched on, the settings you choose to save travel as ciphertext only — encrypted in your browser under a key derived from a code that is never sent to gestura.eu.
 
 Gestura settings are stored locally via the browser's storage API. Browser sync is a switch in the settings' data section. Left on — the default — the browser encrypts and syncs them across your signed-in devices, entirely under its own privacy and sync settings. Turned off, they stay in this device's local storage and never leave it; the copy already in the browser's sync area is left in place, not deleted.
 

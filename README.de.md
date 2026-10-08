@@ -170,7 +170,7 @@ Einsicht und Beiträge offen.
 - Gestura **erfasst keinen** Browserverlauf, keine Lesezeichen und keine Nutzungsgewohnheiten.
 - Gestura **enthält keinen** Analyse- oder Werbe-Code.
 - Gestura **spricht in der Standardkonfiguration mit keinem Server.** Die beiden gestura.eu-Schalter sind aus, bis du sie einschaltest — jeder hinter seiner eigenen Zustimmung.
-- Gestura **lädt nichts hoch, das du nicht angeklickt hast.** Ist der gestura.eu-Abgleich eingeschaltet, reisen die Einstellungen, die du sicherst, ausschließlich als Geheimtext — verschlüsselt in deinem Browser, unter einem Schlüssel aus einem Code, der ihn nie verlässt.
+- Gestura **lädt nichts hoch, das du nicht angeklickt hast.** Ist der gestura.eu-Abgleich eingeschaltet, reisen die Einstellungen, die du sicherst, ausschließlich als Geheimtext — verschlüsselt in deinem Browser, unter einem Schlüssel aus einem Code, der nie an gestura.eu gesendet wird.
 
 Gesturas Einstellungen werden lokal über die Storage-API des Browsers gespeichert. Die Browser-Synchronisierung ist ein Schalter im Datenbereich der Einstellungen. Bleibt er an — Standard —, verschlüsselt und synchronisiert der Browser sie zwischen deinen angemeldeten Geräten, vollständig nach dessen eigenen Datenschutz- und Sync-Einstellungen. Aus, bleiben sie im lokalen Speicher dieses Geräts und verlassen es nicht; die Kopie, die schon im Sync-Bereich des Browsers liegt, bleibt dort und wird nicht gelöscht.
 

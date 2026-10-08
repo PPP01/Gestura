@@ -17,7 +17,7 @@ answers questions from gestura.eu about entries you imported from there and asks
 that index — at most once a day, when you open the settings — whether newer
 versions of those entries exist. Underneath it sits a second switch, *Sync*,
 also off by default: with it on, your own settings can be saved to gestura.eu on
-an explicit click — encrypted in your browser, under a key that never leaves it.
+an explicit click — encrypted in your browser, under a key that is never sent to gestura.eu.
 
 ## What data Gestura processes and where it stays
 
@@ -99,8 +99,8 @@ When it is on, and only when you click **Upload**:
   locator your browser derives from the code, not under the locator itself, so
   access to the server's database does not amount to the right to list or
   delete them.
-- Before every upload Gestura shows you the complete content, exactly as it will
-  be transferred.
+- Before anything is uploaded or written to your browser, Gestura shows you the
+  complete content in plain text - and, for changes, exactly what changes.
 - The code is the only key. Anyone who has it can read, replace and delete your
   states, so keep it as you would a password. If you lose it, the states saved
   under it can no longer be reached — not even to delete them; gestura.eu
