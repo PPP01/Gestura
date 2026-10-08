@@ -433,8 +433,8 @@ class EuSyncPanel extends LitElement {
 	// request, so this is the gap between the two. Re-list, and keep the message -
 	// the `stale` text even promises the refresh. If re-listing fails, its own
 	// error replaces the message: it is the more useful one.
-	async #relistKeepingError(code) {
-		if (this._errorCode !== code) return;
+	async #relistKeepingError(expected) {
+		if (this._errorCode !== expected) return;
 		const { _error: error, _errorCode: code } = this;
 		if (!await this.#relist()) return;
 		this._error = error;
