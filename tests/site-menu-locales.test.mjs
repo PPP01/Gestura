@@ -16,7 +16,22 @@ const en = JSON.parse(readFileSync(join(localesDir, 'en', 'messages.json'), 'utf
 // a missing key. Translating them means deleting them from this list - the two
 // tests below are what keep that from being forgotten before a release.
 // Empty since all 175 pending keys were translated into the 37 other locales.
-const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 'euSyncErrorDismiss', 'euSyncActive'];
+const PENDING_TRANSLATION = ['euSyncNeedsIntegration', 'euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 'euSyncErrorDismiss', 'euSyncActive',
+	'settingsPreviewAreaGestures',
+	'settingsPreviewAreaMenus',
+	'settingsPreviewAreaEngines',
+	'settingsPreviewAreaSettings',
+	'settingsPreviewChangeAdded',
+	'settingsPreviewChangeRemoved',
+	'settingsPreviewChangeChanged',
+	'settingsPreviewChangeValue',
+	'settingsPreviewChangeMore',
+	'settingsPreviewChangeLess',
+	'settingsPreviewChangeNone',
+	'settingsPreviewTechnical',
+	'settingsPreviewFullJson',
+	'settingsPreviewChangeHere',
+	'settingsPreviewChangeThere'];
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)

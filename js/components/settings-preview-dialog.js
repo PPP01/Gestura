@@ -1,6 +1,9 @@
 import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
 import { commonStyles, optionStyles } from './shared-styles.js';
 import { icons } from '../icons.js';
+import { canonicalText, unifiedDiff } from './text-diff.js';
+import { describeChanges } from './settings-changes.js';
+import { makeChangeLabels } from './settings-change-labels.js';
 
 // "You see in full, beforehand, what is transferred" - Issue #1, as a
 // component. Three callers, one shape: export (before the file is written),
@@ -43,6 +46,21 @@ class SettingsPreviewDialog extends LitElement {
 		retyped: { type: Array },
 		legacy: { type: Boolean },
 		note: { type: String },
+		// What this write changes, as one or more { label, before, after }: the
+		// settings as they are, and as they will be. Given, the dialog leads with a
+		// summary and puts the exact diff and the complete JSON behind toggles;
+		// without it (export, upload: nothing is replaced) the JSON is shown as it was.
+		compare: { type: Array },
+		_expanded: { state: true },
+	};
+
+	// Lines shown per area before "+n more".
+	static AREA_LIMIT = 8;
+	static AREA_KEYS = {
+		gestures: 'settingsPreviewAreaGestures',
+		menus: 'settingsPreviewAreaMenus',
+		engines: 'settingsPreviewAreaEngines',
+		settings: 'settingsPreviewAreaSettings',
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -71,6 +89,37 @@ class SettingsPreviewDialog extends LitElement {
 		.size { font-size: 12px; color: var(--text-secondary); margin: 0 0 8px; }
 		/* Complete means complete: no excerpt, no summary. Only the height is
 		   capped, and what does not fit is scrolled. */
+		/* The summary: one line per change, with a sign as well as a colour so the
+		   difference does not rest on colour alone. */
+		.changes h4 { margin: 14px 0 6px; font-size: 14px; font-weight: 600; }
+		.changes h4:first-child { margin-top: 0; }
+		.changes h5 { margin: 10px 0 4px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
+		.changes ul { margin: 0; padding: 0; list-style: none; }
+		.changes li { display: flex; gap: 8px; padding: 2px 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+		.changes li .sign { flex: none; width: 1em; text-align: center; font-weight: 700; }
+		.changes li.added { color: var(--success-color); }
+		.changes li.removed { color: var(--danger-color); }
+		.changes .more { margin: 2px 0 0; padding: 0; border: 0; background: none; color: var(--accent-color); font-size: 12.5px; cursor: pointer; }
+		.changes .more:hover { text-decoration: underline; }
+		.changes .none { margin: 0; font-size: 13px; color: var(--text-secondary); }
+		details.tech, details.full { margin-top: 14px; }
+		details > summary { cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 0; }
+		details > summary:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; border-radius: 4px; }
+		/* Every line of the diff is a block of its own, so a full-row tint can sit
+		   behind it; the file headers are coloured but get no tint, they name the
+		   files and are not a change. */
+		pre.diff {
+			margin: 6px 0 0; padding: 10px 12px; max-height: 40vh; overflow: auto;
+			background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px;
+			font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+			font-size: 12px; line-height: 1.5; white-space: pre; tab-size: 2;
+		}
+		pre.diff span { display: block; margin: 0 -12px; padding: 0 12px; }
+		pre.diff .add { color: var(--success-color); background: color-mix(in srgb, var(--success-color) 12%, transparent); }
+		pre.diff .del { color: var(--danger-color); background: color-mix(in srgb, var(--danger-color) 12%, transparent); }
+		pre.diff .at { color: var(--text-secondary); background: color-mix(in srgb, var(--border-color) 45%, transparent); }
+		pre.diff .hdr-add { color: var(--success-color); }
+		pre.diff .hdr-del { color: var(--danger-color); }
 		pre.preview-json {
 			margin: 0; padding: 12px; max-height: 46vh; overflow: auto;
 			background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px;
@@ -88,6 +137,9 @@ class SettingsPreviewDialog extends LitElement {
 		this.retyped = [];
 		this.legacy = false;
 		this.note = '';
+		this.compare = [];
+		this._expanded = new Set();
+		this._view = null;
 		this._onKeydown = (e) => {
 			if (e.key === 'Escape' && this.open) { e.stopPropagation(); this.#cancel(); }
 		};
@@ -129,6 +181,80 @@ class SettingsPreviewDialog extends LitElement {
 		}
 	}
 
+	// The summary and the diff are worked out once per set of inputs, not on every
+	// render: a toggle re-renders, and the diff of a large settings file is not free.
+	willUpdate(changed) {
+		if (!changed.has('compare') && !changed.has('open')) return;
+		if (!this.open || !this.compare || !this.compare.length) { this._view = null; return; }
+		const labels = makeChangeLabels();
+		this._expanded = new Set();
+		this._view = this.compare.map(c => ({
+			label: c.label || '',
+			areas: describeChanges(c.before, c.after, labels),
+			diff: unifiedDiff(canonicalText(c.before), canonicalText(c.after)),
+		}));
+	}
+
+	#itemText(item) {
+		const i18n = window.i18n;
+		if (item.kind === 'changed' && item.from !== undefined) {
+			return i18n.getMessage('settingsPreviewChangeValue').replace('{name}', item.name).replace('{from}', item.from).replace('{to}', item.to);
+		}
+		const key = { added: 'settingsPreviewChangeAdded', removed: 'settingsPreviewChangeRemoved', changed: 'settingsPreviewChangeChanged' }[item.kind];
+		return i18n.getMessage(key).replace('{name}', item.name);
+	}
+
+	#renderArea(sectionIndex, { area, items }) {
+		const i18n = window.i18n;
+		const id = `${sectionIndex}:${area}`;
+		const open = this._expanded.has(id);
+		const limit = SettingsPreviewDialog.AREA_LIMIT;
+		const visible = open ? items : items.slice(0, limit);
+		const SIGNS = { added: '+', removed: '\u2212', changed: '~' };
+		return html`
+			<h5>${i18n.getMessage(SettingsPreviewDialog.AREA_KEYS[area])}</h5>
+			<ul>${visible.map(item => html`
+				<li class=${item.kind}><span class="sign" aria-hidden="true">${SIGNS[item.kind]}</span><span>${this.#itemText(item)}</span></li>`)}
+			</ul>
+			${items.length > limit ? html`
+				<button type="button" class="more" aria-expanded=${open ? 'true' : 'false'}
+					@click=${() => { const next = new Set(this._expanded); if (open) next.delete(id); else next.add(id); this._expanded = next; }}>
+					${open ? i18n.getMessage('settingsPreviewChangeLess') : i18n.getMessage('settingsPreviewChangeMore').replace('{n}', String(items.length - limit))}
+				</button>` : ''}`;
+	}
+
+	// The diff as spans, one per line, so the CSS can tint whole rows. Built as
+	// templates, not markup strings: the lines are settings values.
+	#renderDiff(text) {
+		const cls = (line) => (line.startsWith('+++') ? 'hdr-add' : line.startsWith('---') ? 'hdr-del'
+			: line.startsWith('+') ? 'add' : line.startsWith('-') ? 'del' : line.startsWith('@@') ? 'at' : '');
+		return html`<pre class="diff">${text.split('\n').map(line => html`<span class=${cls(line)}>${line}</span>`)}</pre>`;
+	}
+
+	#renderChanges(bytes) {
+		const i18n = window.i18n;
+		const sections = this._view;
+		const any = sections.some(s => s.areas.length);
+		return html`
+			<div class="changes">
+				${any ? sections.map((s, i) => s.areas.length ? html`
+					${s.label ? html`<h4>${s.label}</h4>` : ''}
+					${s.areas.map(a => this.#renderArea(i, a))}` : '')
+					: html`<p class="none">${i18n.getMessage('settingsPreviewChangeNone')}</p>`}
+			</div>
+			${any ? html`
+				<details class="tech">
+					<summary>${i18n.getMessage('settingsPreviewTechnical')}</summary>
+					${sections.map(s => s.diff ? html`
+						${s.label ? html`<h4>${s.label}</h4>` : ''}${this.#renderDiff(s.diff)}` : '')}
+				</details>` : ''}
+			<details class="full">
+				<summary>${i18n.getMessage('settingsPreviewFullJson')}</summary>
+				<p class="size">${i18n.getMessage('settingsPreviewSize').replace('{bytes}', String(bytes))}</p>
+				<pre class="preview-json">${this.json}</pre>
+			</details>`;
+	}
+
 	render() {
 		if (!this.open) return html``;
 		const i18n = window.i18n;
@@ -151,8 +277,9 @@ class SettingsPreviewDialog extends LitElement {
 							${this.retyped && this.retyped.length ? html`
 								<p class="warn">${i18n.getMessage('settingsPreviewRetyped').replace('{keys}', this.retyped.join(', '))}</p>` : ''}
 						</div>
-						<p class="size">${i18n.getMessage('settingsPreviewSize').replace('{bytes}', String(bytes))}</p>
-						<pre class="preview-json">${this.json}</pre>
+						${this._view ? this.#renderChanges(bytes) : html`
+							<p class="size">${i18n.getMessage('settingsPreviewSize').replace('{bytes}', String(bytes))}</p>
+							<pre class="preview-json">${this.json}</pre>`}
 					</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary" @click=${this.#cancel}>${i18n.getMessage('settingsPreviewCancel')}</button>

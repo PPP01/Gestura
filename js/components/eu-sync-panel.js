@@ -561,12 +561,14 @@ class EuSyncPanel extends LitElement {
 			this._error = settingsErrorMessage(window.i18n, result.error);
 			return;
 		}
+		const current = this.#validatedExport({ json: false });
 		this.#openPreview({
 			mode: 'import',
 			json: result.json,
 			dropped: result.dropped,
 			retyped: result.retyped,
 			legacy: result.legacy,
+			compare: current.ok ? [{ label: '', before: current.exportObj, after: result.exportObj }] : [],
 			// The adopt path saves, runs afterSave, reloads. The base is written in
 			// afterSave - after the save succeeded, so a base never names settings
 			// this browser does not hold - under the hash the payload was checked
@@ -699,7 +701,7 @@ class EuSyncPanel extends LitElement {
 		const kept = {};
 		for (const c of merged.conflicts) if (choices[c.key]) kept[c.key] = choices[c.key];
 		const open = merged.conflicts.some(c => !kept[c.key]);
-		const ctx = { state, merged, choices: kept, attempt, expect };
+		const ctx = { state, merged, choices: kept, attempt, expect, localObj: local.exportObj, remoteObj: remote.exportObj };
 		if (open) {
 			this._merge = ctx;
 			return;
@@ -733,7 +735,7 @@ class EuSyncPanel extends LitElement {
 	async #commitMerge(ctx) {
 		const i18n = window.i18n;
 		const S = window.GesturaSettingsSchema;
-		const { state, merged, choices, attempt, expect } = ctx;
+		const { state, merged, choices, attempt, expect, localObj, remoteObj } = ctx;
 		const name = this.#nameOf(state);
 		const final = window.GesturaSettingsMerge.apply(merged.result, merged.conflicts, choices, { stateName: name });
 		// As text, so validate() applies MAX_BYTES - the 1 MiB local ceiling - to
@@ -758,6 +760,14 @@ class EuSyncPanel extends LitElement {
 			retyped: r.retyped,
 			legacy: false,
 			note,
+			// Two accounts of one merge: what goes up to the state from here (the state
+			// before, against the result) and what this browser takes over (its own
+			// settings before, against the result). What the user is about to send
+			// comes first.
+			compare: [
+				{ label: i18n.getMessage('settingsPreviewChangeThere'), before: remoteObj, after: r.exportObj },
+				{ label: i18n.getMessage('settingsPreviewChangeHere'), before: localObj, after: r.exportObj },
+			],
 			commit: () => this.#guarded(async () => {
 				// upload -> local write -> base, and never another order (spec §3
 				// step 7b-7d). The sequence itself lives in settings-merge.js, where
@@ -966,6 +976,7 @@ class EuSyncPanel extends LitElement {
 				.retyped=${this._preview ? this._preview.retyped : []}
 				?legacy=${!!(this._preview && this._preview.legacy)}
 				.note=${this._preview ? (this._preview.note || '') : ''}
+				.compare=${this._preview ? (this._preview.compare || []) : []}
 				@preview-confirm=${this.#onPreviewConfirm}
 				@preview-cancel=${() => { this._preview = null; this._notice = ''; }}></settings-preview-dialog>
 			<sync-merge-dialog

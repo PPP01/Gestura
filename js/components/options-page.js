@@ -1342,6 +1342,7 @@ class OptionsPage extends LitElement {
 				.dropped=${this._preview ? this._preview.dropped : []}
 				.retyped=${this._preview ? this._preview.retyped : []}
 				?legacy=${!!(this._preview && this._preview.legacy)}
+				.compare=${this._preview ? (this._preview.compare || []) : []}
 				@preview-confirm=${this.#onPreviewConfirm}
 				@preview-cancel=${this.#onPreviewCancel}></settings-preview-dialog>
 
@@ -1937,12 +1938,14 @@ class OptionsPage extends LitElement {
 			this.#showStatus(settingsErrorMessage(window.i18n, result.error), 'error');
 			return;
 		}
+		const current = window.GesturaSettingsSchema.validatedExport(this._store.current, window.i18n.version, { json: false });
 		this.#openPreview({
 			mode: 'import',
 			json: result.json,
 			dropped: result.dropped,
 			retyped: result.retyped,
 			legacy: result.legacy,
+			compare: current.ok ? [{ label: '', before: current.exportObj, after: result.exportObj }] : [],
 			commit: () => this.#applySettings({ settings: result.settings }),
 		});
 	}
