@@ -49,6 +49,7 @@ class EuSyncPanel extends LitElement {
 		_local: { state: true },
 		_sync: { state: true },
 		_consentOpen: { state: true },
+		_offOpen: { state: true },
 		_codeDraft: { state: true },
 		_codeError: { state: true },
 		_copied: { state: true },
@@ -105,6 +106,10 @@ class EuSyncPanel extends LitElement {
 		.modal-body li { margin: 10px 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
 		.modal-body li strong { color: var(--text-primary); font-weight: 600; }
 		.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border-color); }
+		/* The destructive choice sits apart from the safe ones, on the far side. */
+		.off-footer { flex-wrap: wrap; }
+		.off-footer .off-spacer { flex: 1 1 auto; }
+		.off-delete-note { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
 	`];
 
 	constructor() {
@@ -112,6 +117,7 @@ class EuSyncPanel extends LitElement {
 		this._local = null;
 		this._sync = null;
 		this._consentOpen = false;
+		this._offOpen = false;     // the "turn sync off?" dialog
 		this._codeDraft = '';
 		this._codeError = '';
 		this._copied = false;
@@ -142,6 +148,7 @@ class EuSyncPanel extends LitElement {
 		this._offSync = null;
 		this._onKeydown = (e) => {
 			if (e.key === 'Escape' && this._consentOpen) { e.stopPropagation(); this.#decline(); }
+			if (e.key === 'Escape' && this._offOpen) { e.stopPropagation(); this.#closeOff(); }
 		};
 	}
 
@@ -198,7 +205,39 @@ class EuSyncPanel extends LitElement {
 			this.#open();
 			return;
 		}
-		this.#revoke();
+		// Not off yet: the dialog asks first. Reset so the switch does not show
+		// "off" for a decision that has not been made.
+		e.target.checked = true;
+		this.#openOff();
+	}
+
+	// Turning sync off asks first, and says what it means: nothing is deleted,
+	// the code stays, the states stay. Deleting everything is offered there as a
+	// separate, explicit choice - never as a side effect of the switch.
+	#openOff() { this._offOpen = true; this.#lockScroll(true); }
+	#closeOff() { this._offOpen = false; this.#lockScroll(false); }
+
+	async #offKeep() {
+		this.#closeOff();
+		await this.#revoke();
+	}
+
+	// Server first, then this browser, then the switch - in that order, because
+	// the server can only be reached while sync is still on (gated() refuses
+	// otherwise). If the server refuses or cannot be reached, nothing here is
+	// touched and sync stays on, with the reason in the banner: half a deletion
+	// - the code gone here, the states still there - would leave states nobody
+	// can reach any more but the retention period.
+	async #offDeleteAll() {
+		this.#closeOff();
+		const done = await this.#run(() => window.GesturaSync.remove());
+		if (!done) return;
+		await window.GesturaSyncBase.clear();
+		this._bases = {};
+		this._states = [];
+		try {
+			await window.GesturaSyncLocal.write({ enabled: false, consent: null, secret: '', states: {} });
+		} catch { /* the states are gone either way; the switch can be turned off again */ }
 	}
 
 	// Generates the secret along with the first switch-on: sync enabled without a
@@ -1030,6 +1069,34 @@ class EuSyncPanel extends LitElement {
 		}
 	}
 
+	// Deleting everything needs the server, so it is offered only while sync can
+	// reach it; with a stale consent the dialog offers turning off alone.
+	#renderOffDialog() {
+		const i18n = window.i18n;
+		const canDelete = this.#effective;
+		return html`
+			<div class="modal-overlay" @mousedown=${this.#closeOff}>
+				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true" @mousedown=${e => e.stopPropagation()}>
+					<div class="modal-header">
+						<h3>${i18n.getMessage('euSyncOffTitle')}</h3>
+						<button type="button" class="modal-close" @click=${this.#closeOff}
+							aria-label=${i18n.getMessage('euSyncConsentCancel')}>${unsafeHTML(icons.x)}</button>
+					</div>
+					<div class="modal-body">
+						<p class="lead">${i18n.getMessage('euSyncOffBody')}</p>
+						${canDelete ? html`<p class="off-delete-note">${i18n.getMessage('euSyncOffDeleteAllDesc')}</p>` : ''}
+					</div>
+					<div class="modal-footer off-footer">
+						${canDelete ? html`
+							<button class="btn btn-danger" @click=${() => this.#exclusive(() => this.#offDeleteAll())}>${i18n.getMessage('euSyncOffDeleteAll')}</button>` : ''}
+						<span class="off-spacer"></span>
+						<button class="btn btn-secondary" @click=${this.#closeOff}>${i18n.getMessage('euSyncConsentCancel')}</button>
+						<button class="btn btn-primary" @click=${this.#offKeep}>${i18n.getMessage('euSyncOffKeep')}</button>
+					</div>
+				</div>
+			</div>`;
+	}
+
 	#renderOverlay() {
 		const i18n = window.i18n;
 		// Point five is the trade #accept() makes below: agreeing switches this
@@ -1120,7 +1187,7 @@ class EuSyncPanel extends LitElement {
 	}
 
 	updated(changed) {
-		if (this._consentOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
+		if (this._consentOpen || this._offOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
 		// The failure may belong to a row far below the top of the page.
 		if (changed.has('_error') && this._error) this.renderRoot.querySelector('.error-banner')?.scrollIntoView({ block: 'nearest' });
 	}
@@ -1146,7 +1213,7 @@ class EuSyncPanel extends LitElement {
 						<span>${i18n.getMessage('euSyncConsentDate').replace('{date}', this.#consentDate())}</span>
 					</div>
 					<div class="row-actions">
-						<button class="btn btn-secondary" @click=${this.#revoke}>${i18n.getMessage('euSyncConsentRevoke')}</button>
+						<button class="btn btn-secondary" @click=${this.#openOff}>${i18n.getMessage('euSyncConsentRevoke')}</button>
 					</div>
 				</div>` : ''}
 			${this.#stale ? html`
@@ -1156,13 +1223,14 @@ class EuSyncPanel extends LitElement {
 						<span>${i18n.getMessage('euSyncReconfirmDesc')}</span>
 					</div>
 					<div class="row-actions">
-						<button class="btn btn-secondary" @click=${this.#revoke}>${i18n.getMessage('euSyncConsentRevoke')}</button>
+						<button class="btn btn-secondary" @click=${this.#openOff}>${i18n.getMessage('euSyncConsentRevoke')}</button>
 						<button class="btn btn-primary" @click=${this.#open}>${i18n.getMessage('tutorialContinue')}</button>
 					</div>
 				</div>` : ''}
 			${this.#effective && this.#state.secret ? this.#renderSecret() : ''}
 			${this.#effective ? this.#renderStates() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
 			${this._consentOpen ? this.#renderOverlay() : ''}
+			${this._offOpen ? this.#renderOffDialog() : ''}
 		`;
 	}
 }
