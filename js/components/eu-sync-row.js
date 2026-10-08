@@ -23,10 +23,14 @@ export function rowModel({ state, local, activeState, base, currentHash }) {
 		// For the active state this browser already holds what it agreed on:
 		// Download would only throw local work away, Upload is the one way to push
 		// local changes (hence only with the hint), and Merge only pays off once the
-		// server has moved. Rename goes with any state that can be read - its name
-		// lives in the meta blob. Delete is always there and not listed.
+		// server has moved. Merge belongs to the active state alone: another
+		// state's base is what this browser agreed on back when THAT one was active,
+		// and the settings here have moved on with a different state since - merging
+		// against the old base would call all of that local edits. Open here is the
+		// way to another state. Rename goes with any state that can be read - its
+		// name lives in the meta blob. Delete is always there and not listed.
 		offers: {
-			merge: serverMoved,
+			merge: active && serverMoved,
 			download: !active,
 			upload: !active || changed,
 			rename: !state.broken,

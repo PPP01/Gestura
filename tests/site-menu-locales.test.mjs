@@ -40,7 +40,11 @@ const PENDING_TRANSLATION = ['euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 
 	'euSyncOffBody',
 	'euSyncOffKeep',
 	'euSyncOffDeleteAll',
-	'euSyncOffDeleteAllDesc'];
+	'euSyncOffDeleteAllDesc',
+	'euSyncCodeShow',
+	'euSyncCodeHide',
+	'euSyncCodeHiddenLabel',
+	'euSyncStatesCount'];
 // Changed wording in all 39 locales, not caught by a test: euSyncConsentLead and
 // euSyncConsentPoint1..5 (+Label), reworded 2026-10-08 in en/de - the other 37 still
 // carry the old consent text, which says the same in substance (no new commitment,

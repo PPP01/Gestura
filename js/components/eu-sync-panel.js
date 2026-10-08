@@ -1,5 +1,5 @@
-import { LitElement, html, css, unsafeHTML } from '../../js/lib/lit-all.min.js';
-import { commonStyles, optionStyles } from './shared-styles.js';
+import { LitElement, html, css, unsafeHTML, nothing } from '../../js/lib/lit-all.min.js';
+import { commonStyles, optionStyles, tabStyles } from './shared-styles.js';
 import { icons } from '../icons.js';
 import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
@@ -64,37 +64,116 @@ class EuSyncPanel extends LitElement {
 		_merge: { state: true },
 		_notice: { state: true },
 		_features: { state: true },
+		_tab: { state: true },
+		_codeVisible: { state: true },
+		_ask: { state: true },
 	};
 
-	static styles = [commonStyles, optionStyles, css`
+	static styles = [commonStyles, optionStyles, tabStyles, css`
 		:host { display: block; }
-		h3 { margin: 22px 0 0; font-size: 15px; font-weight: 600; }
-		.secret-row { display: block; padding: 12px 0; }
-		.secret-row .actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-		.pair { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-		.pair input { flex: 1 1 320px; min-width: 0; }
-		.pair input.invalid { box-shadow: 0 0 0 1.5px var(--danger-color); }
-		.badge-active { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; vertical-align: 1px; color: var(--success-color); box-shadow: inset 0 0 0 1px currentColor; }
 		.error { margin-top: 8px; color: var(--danger-color); font-size: 12px; }
-		/* The failure of an action in a state row. It sits above the rows, in body
-		   size and on a tinted block, because the small red line at the foot of the
-		   panel was never seen by anyone who had just pressed a button in a row. */
-		.error-banner { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 4px; padding: 10px 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; color: var(--text-primary); background: color-mix(in srgb, var(--danger-color) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 45%, transparent); }
-		.error-banner .error-icon { display: inline-flex; flex: none; color: var(--danger-color); }
-		.error-banner .error-icon svg { width: 18px; height: 18px; }
-		.error-banner .error-text { flex: 1 1 auto; min-width: 0; }
-		.error-banner .error-dismiss { flex: none; display: inline-flex; padding: 2px; border: 0; background: none; color: inherit; cursor: pointer; border-radius: 4px; }
-		.error-banner .error-dismiss svg { width: 16px; height: 16px; }
-		.error-banner .error-dismiss:focus-visible { outline: 2px solid var(--accent-color); }
 		.notice { margin-top: 8px; color: var(--warning-color); font-size: 12px; }
-		.info { margin-top: 8px; color: var(--text-secondary); font-size: 12px; }
 		.granted .setting-label span:first-child { display: inline-flex; align-items: center; gap: 8px; }
 		.granted .setting-label span.granted-icon { display: inline-flex; color: var(--success-color); }
 		.granted-icon svg { width: 18px; height: 18px; }
 		.reconfirm { color: var(--warning-color); }
 		.row-actions { display: flex; gap: 8px; flex: none; }
-		/* Icon buttons: the glyph is small, the target is not. */
-		.row-actions .btn-icon-only { min-width: 32px; min-height: 32px; }
+
+		/* Everything below follows the design hand-off (Richtung 1a, Meldungen 2a).
+		   Colours come from the page's variables only; tints are color-mix(). */
+		/* Inline, like the tab bars of the other sections (options-page .basic-tabs). */
+		.type-switch.sync-tabs { display: inline-flex; margin: 14px 0 0; }
+		.sync-card-gap { margin-top: 12px; }
+		.sync-card { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 20px; padding: 20px; border-radius: 14px; border: 1px solid var(--border-color); background: var(--card-bg); line-height: 1.45; }
+		.sync-card.states { gap: 16px; }
+		.card-title { font-size: 15px; font-weight: 600; }
+		.card-desc { margin-top: -8px; font-size: 13px; color: var(--text-secondary); }
+		svg { flex: none; }
+
+		/* A 32px target with an 18px glyph, quiet until hovered. Labels live in
+		   title and aria-label. */
+		.icon-btn { width: 32px; height: 32px; flex: none; display: grid; place-items: center; padding: 0; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer; }
+		.icon-btn svg { width: 18px; height: 18px; }
+		.icon-btn:hover:not(:disabled):not([aria-disabled="true"]) { background: color-mix(in srgb, var(--text-primary) 8%, transparent); color: var(--text-primary); }
+		.icon-btn:focus-visible, .text-btn:focus-visible, .ghost-btn:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+		.icon-btn:disabled, .icon-btn[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
+		.icon-btn.accent { color: var(--accent-color); background: color-mix(in srgb, var(--accent-color) 14%, transparent); }
+		.icon-btn.accent:hover:not(:disabled) { color: var(--accent-color); background: color-mix(in srgb, var(--accent-color) 24%, transparent); }
+		.icon-btn.danger { color: var(--danger-color); }
+		.icon-btn.danger:hover:not(:disabled) { color: var(--danger-color); background: color-mix(in srgb, var(--danger-color) 12%, transparent); }
+		.icon-btn.danger:focus-visible { outline-color: var(--danger-color); }
+		.ghost-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+		.ghost-btn svg { width: 16px; height: 16px; }
+		.ghost-btn:hover:not(:disabled) { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 8%, transparent); }
+		.ghost-btn.danger { color: var(--danger-color); }
+		.ghost-btn.danger:hover:not(:disabled) { color: var(--danger-color); background: color-mix(in srgb, var(--danger-color) 10%, transparent); }
+		.ghost-btn:disabled { opacity: .5; cursor: default; }
+		.text-btn { min-height: 32px; padding: 0 2px; border: 0; background: none; font-size: 13px; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+		.text-btn:hover { color: var(--text-primary); }
+		.field { height: 36px; box-sizing: border-box; min-width: 0; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary); font: inherit; font-size: 14px; }
+		.field.mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 13px; }
+		.field.invalid { border-color: var(--danger-color); }
+		.field-row { display: flex; flex-wrap: wrap; gap: 8px; }
+		.field-row .field { flex: 999 1 200px; }
+		.field-row .btn { flex: 1 0 auto; min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+		.field-row .btn svg { width: 16px; height: 16px; }
+		.field-row.full { opacity: .5; }
+
+		/* The code. Masked by default: what the eye does not need to see, a
+		   screenshot or a shoulder does not get. Copy and Save work either way. */
+		.code-line { display: flex; align-items: center; gap: 2px; padding: 4px 4px 4px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-tertiary); }
+		.code-line > .lock { display: inline-flex; color: var(--text-secondary); }
+		.code-line > .lock svg { width: 16px; height: 16px; }
+		.code-text { flex: 1; min-width: 0; padding: 6px 8px; font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 13px; letter-spacing: .06em; word-break: break-all; user-select: none; }
+		.code-text.shown { user-select: all; }
+		.code-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; font-size: 13px; color: var(--text-secondary); }
+
+		/* The list. */
+		.states-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+		.states-head .title { display: flex; align-items: baseline; gap: 8px; }
+		.states-head .count { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+		.states-head .tools { display: flex; flex-wrap: wrap; gap: 4px; }
+		.empty { padding: 28px 16px; border-radius: 10px; border: 1px dashed var(--border-color); text-align: center; font-size: 14px; color: var(--text-secondary); }
+		.rows { display: flex; flex-direction: column; gap: 12px; }
+		.state { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; }
+		.rail { position: relative; }
+		.state:not(:last-child) .rail::before { content: ''; position: absolute; left: 9px; top: 24px; bottom: -30px; width: 2px; background: var(--border-color); }
+		.dot { position: relative; box-sizing: border-box; width: 12px; height: 12px; margin: 18px 0 0 4px; border-radius: 50%; background: var(--card-bg); border: 2px solid var(--text-secondary); }
+		.state.active .dot { background: var(--accent-color); border-color: var(--accent-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 22%, transparent); }
+		.state.broken .dot { border: 2px dashed var(--danger-color); }
+		.state-card { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 8px 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); }
+		.state.active .state-card { border-color: var(--accent-color); background: color-mix(in srgb, var(--accent-color) 5%, var(--card-bg)); }
+		.state.broken .state-card { border: 1px dashed color-mix(in srgb, var(--danger-color) 55%, transparent); background: transparent; }
+		.state-text { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+		.state-name { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+		.badge-active { display: inline-block; margin-inline-start: 6px; padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; vertical-align: 2px; color: var(--accent-color); background: color-mix(in srgb, var(--accent-color) 14%, transparent); }
+		.state-date { font-size: 13px; color: var(--text-secondary); }
+		.hint { display: flex; align-items: flex-start; gap: 6px; margin-top: 2px; font-size: 13px; color: var(--text-secondary); }
+		.hint svg { width: 14px; height: 14px; margin-top: 2px; }
+		.hint.changed { color: var(--text-primary); }
+		.hint.changed svg { color: var(--warning-color); }
+		.broken-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--danger-color); }
+		.broken-title svg { width: 16px; height: 16px; }
+		.state-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; flex: none; }
+		.state-actions .sep { width: 1px; height: 20px; margin: 0 4px; background: var(--border-color); }
+		.full-note { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+		.full-note svg { width: 16px; height: 16px; margin-top: 1px; }
+
+		/* Messages, directly under the list's head: the small red line at the foot of
+		   the panel was never seen by anyone who had just pressed a button in a row. */
+		.msg { display: flex; gap: 10px; border-radius: 10px; }
+		.msg.error-banner { padding: 8px 6px 8px 12px; background: color-mix(in srgb, var(--danger-color) 10%, var(--card-bg)); border: 1px solid color-mix(in srgb, var(--danger-color) 30%, transparent); }
+		.msg.error-banner > svg { width: 18px; height: 18px; margin-top: 7px; color: var(--danger-color); }
+		.msg .msg-text { flex: 1; min-width: 0; padding: 6px 0; font-size: 14px; color: var(--text-primary); }
+		.msg.info { align-items: center; padding: 8px 12px; background: var(--bg-tertiary); font-size: 13px; color: var(--text-secondary); }
+		.msg.info svg { width: 16px; height: 16px; color: var(--success-color); }
+		.msg.conflict { flex-direction: column; padding: 12px; background: color-mix(in srgb, var(--warning-color) 10%, var(--card-bg)); border: 1px solid color-mix(in srgb, var(--warning-color) 35%, transparent); }
+		.msg.conflict .line { display: flex; gap: 10px; font-size: 14px; color: var(--text-primary); }
+		.msg.conflict .line svg { width: 18px; height: 18px; color: var(--warning-color); }
+		.msg.conflict .ways { display: flex; flex-wrap: wrap; gap: 8px; padding-left: 28px; }
+		.msg.conflict .ways .btn { min-height: 32px; font-size: 13px; font-weight: 600; }
+		.btn-danger-outline { color: var(--danger-color); background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 45%, transparent); }
+		.btn-danger-outline:hover:not(:disabled) { background: color-mix(in srgb, var(--danger-color) 8%, transparent); }
 		.modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; }
 		.modal-panel { width: min(620px, 92vw); max-height: 88vh; display: flex; flex-direction: column; background: var(--card-bg); border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-color); }
 		.modal-panel:focus { outline: none; }
@@ -110,6 +189,12 @@ class EuSyncPanel extends LitElement {
 		.off-footer { flex-wrap: wrap; }
 		.off-footer .off-spacer { flex: 1 1 auto; }
 		.off-delete-note { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+		/* The small question dialog (#ask): the browser's confirm() and prompt() could
+		   not be styled, wrapped long text badly and said "chrome-extension://..." as
+		   their title. */
+		.modal-panel.small { width: min(480px, 92vw); }
+		.ask-text { margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-line; }
+		.ask-field { width: 100%; margin-top: 12px; }
 	`];
 
 	constructor() {
@@ -138,6 +223,12 @@ class EuSyncPanel extends LitElement {
 		this._notice = '';       // one informational line (in sync, moved again)
 		this._features = new Set(); // what the service announced in its last list
 		this._errorCode = '';
+		// 'states' | 'settings'. The code lives under Settings: it is set up once,
+		// the states are what is used. Switching sync on lands there (#accept).
+		this._tab = 'states';
+		this._codeVisible = false;  // never stored: every visit starts masked
+		this._ask = null;           // the open #ask() dialog, see there
+		this._noticeTimer = 0;
 		// Not reactive: what willUpdate() compares against to see the switch-on
 		// and the code change as EDGES, rather than re-deciding on every render.
 		this._wasEffective = false;
@@ -149,6 +240,7 @@ class EuSyncPanel extends LitElement {
 		this._onKeydown = (e) => {
 			if (e.key === 'Escape' && this._consentOpen) { e.stopPropagation(); this.#decline(); }
 			if (e.key === 'Escape' && this._offOpen) { e.stopPropagation(); this.#closeOff(); }
+			if (e.key === 'Escape' && this._ask) { e.stopPropagation(); this.#answer(null); }
 		};
 	}
 
@@ -177,7 +269,36 @@ class EuSyncPanel extends LitElement {
 		window.removeEventListener('gestura:settings-saved', this._onSaved);
 		if (this._offStore) this._offStore();
 		document.removeEventListener('keydown', this._onKeydown, true);
+		clearTimeout(this._noticeTimer);
+		if (this._ask) this.#answer(null);
 		this.#lockScroll(false);
+	}
+
+	// A question in a dialog of our own, answered through a promise: null when
+	// cancelled, otherwise true - or, with `input`, the trimmed text. Awaited from
+	// inside #exclusive, so nothing else starts while it is open.
+	//   { title, text, confirm, danger, input }
+	#ask(opts) {
+		return new Promise(resolve => {
+			this._ask = { ...opts, value: opts.input || '', resolve };
+			this.#lockScroll(true);
+		});
+	}
+
+	#answer(value) {
+		const ask = this._ask;
+		if (!ask) return;
+		this._ask = null;
+		this.#lockScroll(false);
+		ask.resolve(value);
+	}
+
+	#confirmAsk() {
+		const ask = this._ask;
+		if (!ask) return;
+		if (ask.input === undefined) { this.#answer(true); return; }
+		const value = ask.value.trim();
+		if (value) this.#answer(value);
 	}
 
 	get #state() { return this._sync ? this._sync.euSync : null; }
@@ -277,6 +398,9 @@ class EuSyncPanel extends LitElement {
 		}
 		this._consentOpen = false;
 		this.#lockScroll(false);
+		// The first thing to do with sync on is to put the code somewhere safe - or
+		// to enter the one from the other browser.
+		this._tab = 'settings';
 	}
 
 	// Off and consent cleared in one step, as with the switch above: "off" then
@@ -296,9 +420,10 @@ class EuSyncPanel extends LitElement {
 			this._copied = true;
 			setTimeout(() => { this._copied = false; }, 2000);
 		} catch {
-			// The clipboard refused (focus, permission): the code is on screen in full
-			// and user-select: all selects it in a single click - which is what the
+			// The clipboard refused (focus, permission): the code is uncovered, and
+			// user-select: all selects it in a single click - which is what the
 			// message says.
+			this._codeVisible = true;
 			this._error = window.i18n.getMessage('euSyncSecretCopyFailed');
 		}
 	}
@@ -339,7 +464,10 @@ class EuSyncPanel extends LitElement {
 	}
 
 	async #newCode() {
-		if (!confirm(window.i18n.getMessage('euSyncSecretNewConfirm'))) return;
+		const i18n = window.i18n;
+		// The message is a question, a blank line, and the explanation.
+		const [title, ...rest] = i18n.getMessage('euSyncSecretNewConfirm').split('\n\n');
+		if (!await this.#ask({ title, text: rest.join('\n\n'), confirm: i18n.getMessage('euSyncSecretNew') })) return;
 		await this.#adoptSecret(window.GesturaSyncCode.generateSecret());
 	}
 
@@ -879,8 +1007,12 @@ class EuSyncPanel extends LitElement {
 	async #renameState(shown) {
 		const i18n = window.i18n;
 		const current = this.#nameOf(shown);
-		const input = prompt(i18n.getMessage('euSyncRenamePrompt').replace('{name}', current), current);
-		const name = (input || '').trim();
+		const name = await this.#ask({
+			title: i18n.getMessage('euSyncRename'),
+			text: i18n.getMessage('euSyncRenamePrompt').replace('{name}', current),
+			confirm: i18n.getMessage('euSyncRename'),
+			input: current,
+		});
 		if (!name || name === current) return;
 		const state = await this.#freshen(shown.stateId);
 		if (!state || this.#movedSince(shown.meta && shown.meta.payloadHash, state)) return;
@@ -893,7 +1025,13 @@ class EuSyncPanel extends LitElement {
 	}
 
 	async #deleteState(shown) {
-		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(shown)))) return;
+		const i18n = window.i18n;
+		if (!await this.#ask({
+			title: i18n.getMessage('euSyncDelete'),
+			text: i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(shown)),
+			confirm: i18n.getMessage('euSyncDelete'),
+			danger: true,
+		})) return;
 		// Delete carries no token (the contract keeps it unconditional), so the only
 		// protection is looking again as close to the request as possible - after
 		// the dialog, which may have stood open while another browser replaced the
@@ -910,7 +1048,13 @@ class EuSyncPanel extends LitElement {
 	}
 
 	async #deleteAll() {
-		if (!confirm(window.i18n.getMessage('euSyncDeleteAllConfirm'))) return;
+		const i18n = window.i18n;
+		if (!await this.#ask({
+			title: i18n.getMessage('euSyncDeleteAll'),
+			text: i18n.getMessage('euSyncDeleteAllConfirm'),
+			confirm: i18n.getMessage('euSyncDeleteAll'),
+			danger: true,
+		})) return;
 		// No stateId: this deletes everything under this locator.
 		const done = await this.#run(() => window.GesturaSync.remove());
 		if (!done) return;
@@ -932,15 +1076,15 @@ class EuSyncPanel extends LitElement {
 
 	// One row action as an icon button. The text lives in `title` AND `aria-label`
 	// - the icon alone says nothing to a screen reader, and `title` is what a
-	// mouse user gets on hover. The existing strings serve, so no new text.
-	// `why`, when given, is the reason the button cannot be used; it joins the label
-	// so a disabled button still says what it is and why it does nothing.
-	#actionButton(style, iconName, messageKey, disabled, run, why = '') {
-		const label = why ? `${window.i18n.getMessage(messageKey)} \u2013 ${why}` : window.i18n.getMessage(messageKey);
+	// mouse user gets on hover. `why`, when given, is the reason the button cannot
+	// be used: it replaces the label, and the button stays focusable
+	// (aria-disabled, not disabled) so a keyboard user can reach the reason too.
+	#actionButton(style, iconName, messageKey, run, why = '') {
+		const label = why || window.i18n.getMessage(messageKey);
 		return html`
-			<button type="button" class="btn ${style} btn-icon-only" ?disabled=${disabled || !!why}
-				title=${label} aria-label=${label}
-				@click=${() => this.#exclusive(run)}>${unsafeHTML(icons[iconName])}</button>`;
+			<button type="button" class="icon-btn ${style}" ?disabled=${this._busy && !why}
+				aria-disabled=${why ? 'true' : 'false'} title=${label} aria-label=${label}
+				@click=${() => { if (!why) this.#exclusive(run); }}>${unsafeHTML(icons[iconName])}</button>`;
 	}
 
 	#renderStateRow(state) {
@@ -952,90 +1096,122 @@ class EuSyncPanel extends LitElement {
 			base: this._bases[state.stateId],
 			currentHash: this._currentHash,
 		});
+		const name = this.#nameOf(state);
+		const date = state.updatedAt ? html`
+			<div class="state-date">${i18n.getMessage('euSyncUploadedAt').replace('{date}', this.#formatDate(state.updatedAt))}</div>` : '';
+		// A state that cannot be read offers nothing but deleting it: opening or
+		// overwriting it would need the hash out of the meta blob it does not have.
+		const text = state.broken ? html`
+			<div class="broken-title">${unsafeHTML(icons.circleAlert)}<span>${i18n.getMessage('euSyncStateBroken')}</span></div>
+			${date}` : html`
+			<div class="state-name">${name}${active ? html`<span class="badge-active">${i18n.getMessage('euSyncActive')}</span>` : ''}</div>
+			${date}
+			${changed ? html`<div class="hint changed">${unsafeHTML(icons.circleDot)}<span>${i18n.getMessage('euSyncChanged')}</span></div>` : ''}
+			${neverUploadedHere ? html`<div class="hint">${unsafeHTML(icons.monitor)}<span>${i18n.getMessage('euSyncNeverUploadedHere')}</span></div>` : ''}`;
 		return html`
-			<div class="sync-state-row">
-				<div class="grow">
-					<div class="name">${this.#nameOf(state)}${active ? html` <span class="badge-active">${i18n.getMessage('euSyncActive')}</span>` : ''}</div>
-					<div class="meta">
-						${state.updatedAt ? i18n.getMessage('euSyncUploadedAt').replace('{date}', this.#formatDate(state.updatedAt)) : ''}
-						${state.broken ? html`<span class="sync-hint"> — ${i18n.getMessage('euSyncStateBroken')}</span>` : ''}
-						${neverUploadedHere ? html`<span> — ${i18n.getMessage('euSyncNeverUploadedHere')}</span>` : ''}
+			<div class="state ${active ? 'active' : ''} ${state.broken ? 'broken' : ''}">
+				<div class="rail"><div class="dot"></div></div>
+				<div class="state-card">
+					<div class="state-text">${text}</div>
+					<div class="state-actions" role="group" aria-label=${state.broken ? i18n.getMessage('euSyncStateBroken') : name}>
+						${!state.broken && offers.merge ? this.#actionButton('accent', 'refreshCw', 'euSyncMerge',
+							() => this.#syncState(state)) : ''}
+						${!state.broken && offers.download ? this.#actionButton('', 'download', 'euSyncDownload',
+							() => this.#downloadState(state)) : ''}
+						${!state.broken && offers.upload ? this.#actionButton('', 'upload', 'euSyncUpload',
+							() => this.#uploadTo({ stateId: state.stateId, name, basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })) : ''}
+						${offers.rename ? this.#actionButton('', 'pencil', 'euSyncRename',
+							() => this.#renameState(state),
+							this._features.has('sync-meta') ? '' : i18n.getMessage('euSyncRenameUnavailable')) : ''}
+						<span class="sep" aria-hidden="true"></span>
+						${this.#actionButton('danger', 'trash2', 'euSyncDelete', () => this.#deleteState(state))}
 					</div>
-					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
-				</div>
-				<div class="row-actions">
-					${offers.merge ? this.#actionButton('btn-primary', 'refreshCw', 'euSyncMerge', this._busy || state.broken,
-						() => this.#syncState(state)) : ''}
-					${offers.download ? this.#actionButton('btn-secondary', 'download', 'euSyncDownload', this._busy || state.broken,
-						() => this.#downloadState(state)) : ''}
-					${offers.upload ? this.#actionButton('btn-secondary', 'upload', 'euSyncUpload', this._busy || state.broken,
-						() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })) : ''}
-					${offers.rename ? this.#actionButton('btn-secondary', 'squarePen', 'euSyncRename', this._busy,
-						() => this.#renameState(state),
-						this._features.has('sync-meta') ? '' : window.i18n.getMessage('euSyncRenameUnavailable')) : ''}
-					${this.#actionButton('btn-danger', 'trash2', 'euSyncDelete', this._busy,
-						() => this.#deleteState(state))}
 				</div>
 			</div>`;
 	}
 
-	// What the last action has to say, directly above the list it acted on. It used
-	// to sit below the "new state" field at the foot of the panel, where nobody
-	// looks after pressing a button in a row. role="alert" announces it; it stays
-	// until dismissed or until the next action starts (#run clears it).
-	#renderFeedback() {
+	#renderError() {
 		const i18n = window.i18n;
 		return html`
-			${this._error ? html`
-				<div class="error-banner" role="alert">
-					<span class="error-icon">${unsafeHTML(icons.triangleAlert)}</span>
-					<span class="error-text">${this._error}</span>
-					<button type="button" class="error-dismiss" title=${i18n.getMessage('euSyncErrorDismiss')}
-						aria-label=${i18n.getMessage('euSyncErrorDismiss')}
-						@click=${() => { this._error = ''; this._errorCode = ''; }}>${unsafeHTML(icons.x)}</button>
-				</div>` : ''}
-			${this._notice ? html`<div class="info">${this._notice}</div>` : ''}
+			<div class="msg error-banner" role="alert">
+				${unsafeHTML(icons.triangleAlert)}
+				<span class="msg-text">${this._error}</span>
+				<button type="button" class="icon-btn" title=${i18n.getMessage('euSyncErrorDismiss')}
+					aria-label=${i18n.getMessage('euSyncErrorDismiss')}
+					@click=${() => { this._error = ''; this._errorCode = ''; }}>${unsafeHTML(icons.x)}</button>
+			</div>`;
+	}
+
+	// What the last action has to say, directly under the head of the list it
+	// acted on. The error stays until dismissed or until the next action starts
+	// (#run clears it); the notice goes by itself (updated()). A conflict is the
+	// one error with a way out, so it is shown as the conflict box instead of the
+	// banner - with the conflict's own sentence while it is the current error.
+	#renderFeedback() {
+		const i18n = window.i18n;
+		const conflictText = this._errorCode === 'conflict' ? this._error : i18n.getMessage('euSyncErrorConflict');
+		return html`
+			${this._error && !(this._conflict && this._errorCode === 'conflict') ? this.#renderError() : ''}
+			${this._notice ? html`
+				<div class="msg info" role="status">${unsafeHTML(icons.circleCheck)}<span>${this._notice}</span></div>` : ''}
 			${this._conflict ? html`
-				<div class="row-actions">
-					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#exclusive(() => this.#refreshStates())}>${i18n.getMessage('euSyncConflictReload')}</button>
-					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#exclusive(() => this.#uploadTo(this._conflict))}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+				<div class="msg conflict" role="alert">
+					<div class="line">${unsafeHTML(icons.triangleAlert)}<span>${conflictText}</span></div>
+					<div class="ways">
+						<button class="btn btn-secondary" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#refreshStates())}>${i18n.getMessage('euSyncConflictReload')}</button>
+						<button class="btn btn-danger-outline" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#uploadTo(this._conflict))}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+					</div>
 				</div>` : ''}`;
 	}
 
 	#renderStates() {
 		const i18n = window.i18n;
 		const states = this._states || [];
-		const full = states.length >= window.GesturaSync.LIMITS.statesMax;
-		const duplicate = states.some(s => this.#nameOf(s) === this._newName.trim());
+		const max = window.GesturaSync.LIMITS.statesMax;
+		const full = states.length >= max;
+		const newName = this._newName.trim();
+		const duplicate = states.some(s => this.#nameOf(s) === newName);
+		const create = () => { if (newName && !full) this.#exclusive(() => this.#uploadTo({ name: newName })); };
 		return html`
-			${this.#renderFeedback()}
-			<div class="setting-row">
-				<div class="setting-label">
-					<span>${i18n.getMessage('euSyncStatesTitle')}</span>
-					<span>${this._states === null || states.length ? '' : i18n.getMessage('euSyncStatesEmpty')}</span>
+			<div class="sync-card states">
+				<div class="states-head">
+					<div class="title">
+						<span class="card-title">${i18n.getMessage('euSyncStatesTitle')}</span>
+						${this._states ? html`<span class="count">${i18n.getMessage('euSyncStatesCount')
+							.replace('{n}', String(states.length)).replace('{max}', String(max))}</span>` : ''}
+					</div>
+					<div class="tools">
+						<button type="button" class="ghost-btn" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#refreshStates())}>${unsafeHTML(icons.rotateCw)}${i18n.getMessage('euSyncRefresh')}</button>
+						${states.length ? html`
+							<button type="button" class="ghost-btn danger" ?disabled=${this._busy}
+								@click=${() => this.#exclusive(() => this.#deleteAll())}>${unsafeHTML(icons.trash2)}${i18n.getMessage('euSyncDeleteAll')}</button>` : ''}
+					</div>
 				</div>
-				<div class="row-actions">
-					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#exclusive(() => this.#refreshStates())}>${i18n.getMessage('euSyncRefresh')}</button>
-					${states.length ? html`
-						<button class="btn btn-danger" ?disabled=${this._busy}
-							@click=${() => this.#exclusive(() => this.#deleteAll())}>${i18n.getMessage('euSyncDeleteAll')}</button>` : ''}
-				</div>
-			</div>
-			${states.map(s => this.#renderStateRow(s))}
-			${full ? html`
-				<div class="notice">${i18n.getMessage('euSyncQuotaReached').replace('{max}', String(window.GesturaSync.LIMITS.statesMax))}</div>` : html`
-				<div class="pair">
-					<input type="text" class="input-lg" placeholder=${i18n.getMessage('euSyncStateNamePlaceholder')}
+				${this.#renderFeedback()}
+				${this._states && !states.length ? html`<div class="empty">${i18n.getMessage('euSyncStatesEmpty')}</div>` : ''}
+				${states.length ? html`<div class="rows">${states.map(s => this.#renderStateRow(s))}</div>` : ''}
+				${full ? html`
+					<div class="full-note">${unsafeHTML(icons.info)}<span>${i18n.getMessage('euSyncQuotaReached').replace('{max}', String(max))}</span></div>` : ''}
+				<div class="field-row ${full ? 'full' : ''}">
+					<input type="text" class="field" placeholder=${i18n.getMessage('euSyncStateNamePlaceholder')}
+						aria-label=${i18n.getMessage('euSyncStateNamePlaceholder')}
+						?disabled=${full}
 						.value=${this._newName}
 						@input=${e => { this._newName = e.target.value; }}
-						@keydown=${e => { if (e.key === 'Enter' && this._newName.trim()) this.#exclusive(() => this.#uploadTo({ name: this._newName.trim() })); }}>
-					<button class="btn btn-primary" ?disabled=${this._busy || !this._newName.trim()}
-						@click=${() => this.#exclusive(() => this.#uploadTo({ name: this._newName.trim() }))}>${i18n.getMessage('euSyncCreate')}</button>
+						@keydown=${e => { if (e.key === 'Enter') create(); }}>
+					<button class="btn btn-primary" ?disabled=${full || this._busy || !newName}
+						@click=${create}>${unsafeHTML(icons.upload)}${i18n.getMessage('euSyncCreate')}</button>
 				</div>
-				${duplicate ? html`<div class="notice">${i18n.getMessage('euSyncDuplicateName')}</div>` : ''}`}
+				${duplicate && !full ? html`<div class="notice">${i18n.getMessage('euSyncDuplicateName')}</div>` : ''}
+			</div>`;
+	}
+
+	// Outside the tabs, so a dialog never goes with a tab switch.
+	#renderSyncDialogs() {
+		return html`
 			<settings-preview-dialog
 				?open=${!!this._preview}
 				mode=${this._preview ? this._preview.mode : 'upload'}
@@ -1127,37 +1303,101 @@ class EuSyncPanel extends LitElement {
 			</div>`;
 	}
 
+	#renderAsk() {
+		const i18n = window.i18n;
+		const ask = this._ask;
+		return html`
+			<div class="modal-overlay" @mousedown=${() => this.#answer(null)}>
+				<div class="modal-panel small" tabindex="-1" role="dialog" aria-modal="true" aria-label=${ask.title}
+					@mousedown=${e => e.stopPropagation()}>
+					<div class="modal-header">
+						<h3>${ask.title}</h3>
+						<button type="button" class="modal-close" @click=${() => this.#answer(null)}
+							aria-label=${i18n.getMessage('euSyncConsentCancel')}>${unsafeHTML(icons.x)}</button>
+					</div>
+					<div class="modal-body">
+						<p class="ask-text">${ask.text}</p>
+						${ask.input !== undefined ? html`
+							<input type="text" class="field ask-field" aria-label=${ask.text} .value=${ask.value}
+								@input=${e => { ask.value = e.target.value; this.requestUpdate(); }}
+								@keydown=${e => { if (e.key === 'Enter') this.#confirmAsk(); }}>` : ''}
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" @click=${() => this.#answer(null)}>${i18n.getMessage('euSyncConsentCancel')}</button>
+						<button class="btn ${ask.danger ? 'btn-danger' : 'btn-primary'} ask-confirm"
+							?disabled=${ask.input !== undefined && !ask.value.trim()}
+							@click=${() => this.#confirmAsk()}>${ask.confirm}</button>
+					</div>
+				</div>
+			</div>`;
+	}
+
+	// The first two groups and the last stay readable - enough to tell two codes
+	// apart and to recognise the one in the password manager - the rest is dots,
+	// group for group, so the shape of the code does not change when it is shown.
+	#maskedCode(code) {
+		const parts = code.split('-');
+		if (parts.length <= 3) return code;
+		return parts.map((p, i) => (i < 2 || i === parts.length - 1) ? p : '•'.repeat(p.length)).join('-');
+	}
+
 	#renderSecret() {
 		const i18n = window.i18n;
 		const origin = window.GesturaSyncLocal.syncOrigin(this._local);
+		const code = this.#state.secret;
+		const shown = this._codeVisible;
+		const showLabel = i18n.getMessage(shown ? 'euSyncCodeHide' : 'euSyncCodeShow');
+		const copyLabel = i18n.getMessage(this._copied ? 'euSyncSecretCopied' : 'euSyncSecretCopy');
 		return html`
-			<div class="setting-row secret-row">
-				<div class="setting-label">
-					<span>${i18n.getMessage('euSyncSecretTitle')}</span>
-					<span>${i18n.getMessage('euSyncSecretDesc')}</span>
+			<div class="sync-card">
+				<div class="card-title">${i18n.getMessage('euSyncSecretTitle')}</div>
+				<div class="card-desc">${i18n.getMessage('euSyncSecretDesc')}</div>
+				<div class="code-line">
+					<span class="lock">${unsafeHTML(icons.lock)}</span>
+					<code class="code-text ${shown ? 'shown' : ''}"
+						aria-label=${shown ? nothing : i18n.getMessage('euSyncCodeHiddenLabel')}>${shown ? code : this.#maskedCode(code)}</code>
+					<button type="button" class="icon-btn" title=${showLabel} aria-label=${showLabel} aria-pressed=${shown ? 'true' : 'false'}
+						@click=${() => { this._codeVisible = !shown; }}>${unsafeHTML(shown ? icons.eyeOff : icons.eye)}</button>
+					<button type="button" class="icon-btn" title=${copyLabel} aria-label=${copyLabel}
+						@click=${this.#copyCode}>${unsafeHTML(this._copied ? icons.check : icons.copy)}</button>
+					<button type="button" class="icon-btn" title=${i18n.getMessage('euSyncSecretSave')} aria-label=${i18n.getMessage('euSyncSecretSave')}
+						@click=${this.#saveCode}>${unsafeHTML(icons.fileDown)}</button>
 				</div>
-				<code class="secret-code">${this.#state.secret}</code>
-				<div class="actions">
-					<button class="btn btn-secondary" @click=${this.#copyCode}>
-						${this._copied ? i18n.getMessage('euSyncSecretCopied') : i18n.getMessage('euSyncSecretCopy')}
-					</button>
-					<button class="btn btn-secondary" @click=${this.#saveCode}>${i18n.getMessage('euSyncSecretSave')}</button>
-					<button class="btn btn-secondary" @click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
-				</div>
-				<div class="setting-label" style="margin-top:14px">
-					<span>${i18n.getMessage('euSyncSecretPair')}</span>
-					<span>${i18n.getMessage('euSyncSecretPairDesc')}</span>
-				</div>
-				<div class="pair">
-					<input type="text" class="input-lg ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
+				<div class="field-row">
+					<input type="text" class="field mono ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
+						aria-label=${i18n.getMessage('euSyncSecretPair')}
+						aria-invalid=${this._codeError ? 'true' : 'false'}
 						.value=${this._codeDraft}
 						@input=${e => { this._codeDraft = e.target.value; this._codeError = ''; }}
 						@keydown=${e => { if (e.key === 'Enter') this.#exclusive(() => this.#useCode()); }}>
-					<button class="btn btn-secondary" @click=${() => this.#exclusive(() => this.#useCode())}>${i18n.getMessage('euSyncSecretPairApply')}</button>
+					<button class="btn btn-secondary" ?disabled=${this._busy || !this._codeDraft.trim()}
+						@click=${() => this.#exclusive(() => this.#useCode())}>${i18n.getMessage('euSyncSecretPairApply')}</button>
 				</div>
-				${this._codeError ? html`<div class="error">${this._codeError}</div>` : ''}
+				${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
+				<div class="code-foot">
+					<span>${i18n.getMessage('euSyncSecretPairDesc')}</span>
+					<button type="button" class="text-btn" ?disabled=${this._busy}
+						@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
+				</div>
 				${origin !== window.FlowMouseEuIntegration.PRODUCTION_ORIGIN ? html`
 					<div class="notice">${i18n.getMessage('euSyncDevOriginNotice').replace('{origin}', origin)}</div>` : ''}
+			</div>`;
+	}
+
+	#renderTabs() {
+		const i18n = window.i18n;
+		const tab = (id, label) => html`
+			<button class="type-tab ${this._tab === id ? 'active' : ''}" role="tab" aria-selected=${this._tab === id}
+				@click=${() => { this._tab = id; }}>${i18n.getMessage(label)}</button>`;
+		return html`
+			<div class="type-switch sync-tabs" role="tablist">
+				${tab('states', 'euSyncStatesTitle')}
+				${tab('settings', 'siteMenuTabSettings')}
+			</div>
+			<div role="tabpanel">
+				${this._tab === 'settings'
+					? html`${this._error ? html`<div class="sync-card-gap">${this.#renderError()}</div>` : ''}${this.#state.secret ? this.#renderSecret() : ''}`
+					: this.#renderStates()}
 			</div>`;
 	}
 
@@ -1187,9 +1427,25 @@ class EuSyncPanel extends LitElement {
 	}
 
 	updated(changed) {
-		if (this._consentOpen || this._offOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
+		if (changed.has('_ask') && this._ask) {
+			// Into the field when there is one, else onto the safe button - never onto
+			// the confirm of a deletion, where a stray Enter would answer the question.
+			const root = this.renderRoot;
+			const target = root.querySelector('.ask-field') || root.querySelector('.modal-footer .btn-secondary');
+			target?.focus();
+			target?.select?.();
+		} else if (this._consentOpen || this._offOpen) {
+			this.renderRoot.querySelector('.modal-panel')?.focus();
+		}
 		// The failure may belong to a row far below the top of the page.
-		if (changed.has('_error') && this._error) this.renderRoot.querySelector('.error-banner')?.scrollIntoView({ block: 'nearest' });
+		if (changed.has('_error') && this._error) this.renderRoot.querySelector('.error-banner, .msg.conflict')?.scrollIntoView({ block: 'nearest' });
+		// "Already in sync" and the like are confirmations, not something to act on:
+		// they go by themselves.
+		if (changed.has('_notice') && this._notice) {
+			clearTimeout(this._noticeTimer);
+			const notice = this._notice;
+			this._noticeTimer = setTimeout(() => { if (this._notice === notice) this._notice = ''; }, 4000);
+		}
 	}
 
 	render() {
@@ -1227,10 +1483,11 @@ class EuSyncPanel extends LitElement {
 						<button class="btn btn-primary" @click=${this.#open}>${i18n.getMessage('tutorialContinue')}</button>
 					</div>
 				</div>` : ''}
-			${this.#effective && this.#state.secret ? this.#renderSecret() : ''}
-			${this.#effective ? this.#renderStates() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
+			${this.#effective ? this.#renderTabs() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
+			${this.#effective ? this.#renderSyncDialogs() : ''}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 			${this._offOpen ? this.#renderOffDialog() : ''}
+			${this._ask ? this.#renderAsk() : ''}
 		`;
 	}
 }

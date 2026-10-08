@@ -16,13 +16,9 @@ describe('a state that is not the active one', () => {
 		expect(m.offers).toMatchObject({ download: true, upload: true });
 	});
 
-	it('offers Merge only while the server holds something other than the base', () => {
+	it('never offers Merge - its base belongs to a time it was active', () => {
 		expect(model().offers.merge).toBe(false);
-		expect(model({ state: state('moved') }).offers.merge).toBe(true);
-	});
-
-	it('offers no Merge without a base, however far the server moved', () => {
-		expect(model({ base: undefined, state: state('moved') }).offers.merge).toBe(false);
+		expect(model({ state: state('moved') }).offers.merge).toBe(false);
 	});
 });
 
@@ -46,6 +42,12 @@ describe('the active state', () => {
 
 	it('offers Merge when the server moved, independent of local changes', () => {
 		expect(active({ state: state('moved') }).offers.merge).toBe(true);
+		expect(active({ state: state('moved'), currentHash: 'edited' }).offers.merge).toBe(true);
+	});
+
+	it('offers no Merge while the server holds the base, or without a base', () => {
+		expect(active().offers.merge).toBe(false);
+		expect(active({ base: undefined, state: state('moved') }).offers.merge).toBe(false);
 	});
 });
 
