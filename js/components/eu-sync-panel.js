@@ -203,6 +203,9 @@ class EuSyncPanel extends LitElement {
 		.modal-panel.small { width: min(480px, 92vw); }
 		.ask-text { margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-line; }
 		.ask-field { width: 100%; margin-top: 12px; }
+		/* What the answer costs, counted: set apart from the explanation above it. */
+		.ask-note { margin: 12px 0 0; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text-primary); }
+		.ask-note.danger { color: var(--danger-color); }
 	`];
 
 	constructor() {
@@ -486,6 +489,7 @@ class EuSyncPanel extends LitElement {
 			const [, ...rest] = i18n.getMessage('euSyncSecretNewConfirm').split('\n\n');
 			if (!await this.#ask({
 				title: i18n.getMessage('euSyncSecretUseConfirmTitle'),
+				note: this.#countLine('euSyncReplaceCount'),
 				text: rest.join('\n\n'),
 				confirm: i18n.getMessage('euSyncSecretPairApply'),
 			})) return;
@@ -493,6 +497,17 @@ class EuSyncPanel extends LitElement {
 		this._loadedFrom = { secret: encoded, had };
 		this.#closePair();
 		await this.#adoptSecret(parsed.secret);
+	}
+
+	// The count a dialog names: the states under the current code as the list last
+	// read them. '' when there is nothing to name - no list was read, or it is
+	// empty - so no dialog ever says "0 states".
+	#countLine(key) {
+		const n = this._states ? this._states.length : 0;
+		if (!n) return '';
+		const i18n = window.i18n;
+		const states = n === 1 ? i18n.getMessage('euSyncStatesOne') : i18n.getMessage('euSyncStatesMany').replace('{n}', String(n));
+		return i18n.getMessage(key).replace('{states}', states);
 	}
 
 	#openPair() { this._pairOpen = true; }
@@ -521,7 +536,12 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		// The message is a question, a blank line, and the explanation.
 		const [title, ...rest] = i18n.getMessage('euSyncSecretNewConfirm').split('\n\n');
-		if (!await this.#ask({ title, text: rest.join('\n\n'), confirm: i18n.getMessage('euSyncSecretNew') })) return;
+		if (!await this.#ask({
+			title,
+			note: this.#countLine('euSyncReplaceCount'),
+			text: rest.join('\n\n'),
+			confirm: i18n.getMessage('euSyncSecretNew'),
+		})) return;
 		await this.#adoptSecret(window.GesturaSyncCode.generateSecret());
 	}
 
@@ -1116,6 +1136,7 @@ class EuSyncPanel extends LitElement {
 		if (!await this.#ask({
 			title: i18n.getMessage('euSyncDeleteAll'),
 			text: i18n.getMessage('euSyncDeleteAllConfirm'),
+			note: this.#countLine('euSyncDeleteCount'),
 			confirm: i18n.getMessage('euSyncDeleteAll'),
 			danger: true,
 		})) return;
@@ -1311,6 +1332,7 @@ class EuSyncPanel extends LitElement {
 	#renderOffDialog() {
 		const i18n = window.i18n;
 		const canDelete = this.#effective;
+		const count = this.#countLine('euSyncDeleteCount');
 		return html`
 			<div class="modal-overlay" @mousedown=${this.#closeOff}>
 				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true" @mousedown=${e => e.stopPropagation()}>
@@ -1322,6 +1344,7 @@ class EuSyncPanel extends LitElement {
 					<div class="modal-body">
 						<p class="lead">${i18n.getMessage('euSyncOffBody')}</p>
 						${canDelete ? html`<p class="off-delete-note">${i18n.getMessage('euSyncOffDeleteAllDesc')}</p>` : ''}
+						${canDelete && count ? html`<p class="ask-note danger">${count} ${i18n.getMessage('euSyncOffNothingLeft')}</p>` : ''}
 					</div>
 					<div class="modal-footer off-footer">
 						${canDelete ? html`
@@ -1378,6 +1401,7 @@ class EuSyncPanel extends LitElement {
 					</div>
 					<div class="modal-body">
 						<p class="ask-text">${ask.text}</p>
+						${ask.note ? html`<p class="ask-note ${ask.danger ? 'danger' : ''}">${ask.note}</p>` : ''}
 						${ask.input !== undefined ? html`
 							<input type="text" class="field ask-field" aria-label=${ask.text} .value=${ask.value}
 								@input=${e => { ask.value = e.target.value; this.requestUpdate(); }}
