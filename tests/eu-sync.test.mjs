@@ -163,14 +163,28 @@ describe('downloading', () => {
 	});
 
 	// The AAD already stops a blob from moving between states and roles. This
-	// stops the server from pairing an OLD payload with a NEW meta.
-	it('refuses a payload the meta did not describe', async () => {
+	// stops the server from pairing an OLD payload with a NEW meta. It is reported
+	// as `stale`, not `decrypt`: the usual cause is a list that was read before
+	// another browser replaced the state, and "wrong code" would send the user
+	// hunting for a fault that is not there.
+	it('refuses a payload the meta did not describe, as stale', async () => {
 		const key = await X.deriveKey(await secretBytes());
 		const payload = await X.encryptBlob(key, ID, 'payload', { gesturaSettings: 1 });
 		await expect(S.downloadState({
 			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
 			expectPayloadHash: 'a-hash-of-something-else',
 			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', payload }),
+		})).rejects.toMatchObject({ code: 'stale' });
+	});
+
+	// A payload that matches its hash but does not decrypt is the real thing.
+	it('still reports a payload that does not decrypt as decrypt', async () => {
+		const foreignKey = await X.deriveKey(crypto.getRandomValues(new Uint8Array(32)));
+		const foreign = await X.encryptBlob(foreignKey, ID, 'payload', { gesturaSettings: 1 });
+		await expect(S.downloadState({
+			secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+			expectPayloadHash: await X.blobHash(foreign),
+			fetchImpl: fetchOk({ stateId: ID, updatedAt: 'x', payload: foreign }),
 		})).rejects.toMatchObject({ code: 'decrypt' });
 	});
 

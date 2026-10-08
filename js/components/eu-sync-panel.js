@@ -38,6 +38,7 @@ class EuSyncPanel extends LitElement {
 		server: 'euSyncErrorServer',
 		malformed: 'euSyncErrorMalformed',
 		decrypt: 'euSyncErrorDecrypt',
+		stale: 'euSyncErrorStale',
 		disabled: 'euSyncErrorDisabled',
 		'no-secret': 'euSyncErrorNoSecret',
 		conflict: 'euSyncErrorConflict',
@@ -71,6 +72,16 @@ class EuSyncPanel extends LitElement {
 		.pair input { flex: 1 1 320px; min-width: 0; }
 		.pair input.invalid { box-shadow: 0 0 0 1.5px var(--danger-color); }
 		.error { margin-top: 8px; color: var(--danger-color); font-size: 12px; }
+		/* The failure of an action in a state row. It sits above the rows, in body
+		   size and on a tinted block, because the small red line at the foot of the
+		   panel was never seen by anyone who had just pressed a button in a row. */
+		.error-banner { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 4px; padding: 10px 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; color: var(--text-primary); background: color-mix(in srgb, var(--danger-color) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger-color) 45%, transparent); }
+		.error-banner .error-icon { display: inline-flex; flex: none; color: var(--danger-color); }
+		.error-banner .error-icon svg { width: 18px; height: 18px; }
+		.error-banner .error-text { flex: 1 1 auto; min-width: 0; }
+		.error-banner .error-dismiss { flex: none; display: inline-flex; padding: 2px; border: 0; background: none; color: inherit; cursor: pointer; border-radius: 4px; }
+		.error-banner .error-dismiss svg { width: 16px; height: 16px; }
+		.error-banner .error-dismiss:focus-visible { outline: 2px solid var(--accent-color); }
 		.notice { margin-top: 8px; color: var(--warning-color); font-size: 12px; }
 		.info { margin-top: 8px; color: var(--text-secondary); font-size: 12px; }
 		.granted .setting-label span:first-child { display: inline-flex; align-items: center; gap: 8px; }
@@ -348,6 +359,36 @@ class EuSyncPanel extends LitElement {
 		this._bases = await window.GesturaSyncBase.prune(list.map(s => s.stateId));
 	}
 
+	// Every action on a state starts here. The list on screen can be minutes old,
+	// and another browser may have replaced or deleted the state since: acting on
+	// the row's copy of its meta is how "Wrong code, or the data is damaged" came
+	// to be shown for a perfectly good state. Re-lists, takes the new list as the
+	// one on screen, and answers with the state as it stands now - or null, with
+	// the reason already on screen (the request failed, or the state is gone).
+	async #freshen(stateId) {
+		const list = await this.#run(() => window.GesturaSync.list());
+		if (!list) return null;
+		this._states = list;
+		this._bases = await window.GesturaSyncBase.prune(list.map(s => s.stateId));
+		const fresh = list.find(s => s.stateId === stateId);
+		if (!fresh) {
+			this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
+			return null;
+		}
+		return fresh;
+	}
+
+	// For the actions that WRITE (overwrite, delete): where reading can simply take
+	// the fresh data, these must not silently act on something other than what the
+	// user was looking at. True, with the reason on screen, when the state moved.
+	#movedSince(shown, fresh) {
+		const was = shown.meta && shown.meta.payloadHash;
+		const now = fresh.meta && fresh.meta.payloadHash;
+		if (was === now) return false;
+		this._error = window.i18n.getMessage('euSyncErrorChangedMeanwhile').replace('{date}', this.#formatDate(fresh.updatedAt));
+		return true;
+	}
+
 	// The name comes from the decrypted meta blob and not from the local map: a
 	// freshly paired second browser has no map, and the meta blob is the
 	// information that belongs to the state itself.
@@ -378,7 +419,16 @@ class EuSyncPanel extends LitElement {
 	// `createdAt` is the one out of the meta blob being replaced: the creation
 	// date belongs to the state, and a second browser has no local record of it.
 	// Empty for a new state - uploadState() dates it then.
-	#uploadTo({ stateId = null, name, basePayloadHash = null, createdAt = '' }) {
+	async #uploadTo({ stateId = null, name, basePayloadHash = null, createdAt = '' }) {
+		// Replacing a state named by its hash: look again first, so the preview and
+		// the token belong to what is on gestura.eu now. Without a hash the user has
+		// already answered a conflict with "overwrite anyway", or the state is new.
+		if (stateId && basePayloadHash) {
+			const fresh = await this.#freshen(stateId);
+			if (!fresh) return;
+			if (this.#movedSince({ meta: { payloadHash: basePayloadHash } }, fresh)) return;
+			createdAt = (fresh.meta && fresh.meta.createdAt) || createdAt;
+		}
 		const r = this.#validatedExport();
 		if (!r.ok) {
 			this._error = settingsErrorMessage(window.i18n, r.error);
@@ -428,6 +478,10 @@ class EuSyncPanel extends LitElement {
 	// validator is the same one the file import uses, so a state from a newer
 	// Gestura can be refused here just as clearly.
 	async #downloadState(state) {
+		// Reading proceeds with the fresh data: a state replaced since the list was
+		// shown is simply opened as it is now.
+		state = await this.#freshen(state.stateId);
+		if (!state) return;
 		// Without the hash from the meta blob nothing is even asked: it is the only
 		// tie between meta and payload, and a state whose meta does not carry one is
 		// not a state this client may open. GesturaSync.download() refuses it too -
@@ -498,7 +552,12 @@ class EuSyncPanel extends LitElement {
 		const S = window.GesturaSettingsSchema;
 		// A fresh press starts clean; a 412 retry keeps its "moved again" line for
 		// after the dialogs, and puts the same sentence into the preview's note.
-		if (attempt === 1) this._notice = '';
+		if (attempt === 1) {
+			this._notice = '';
+			// A retry after a 412 already came from a fresh list.
+			state = await this.#freshen(state.stateId);
+			if (!state) return;
+		}
 		const expect = state.meta && state.meta.payloadHash;
 		if (typeof expect !== 'string' || !expect) {
 			this._error = i18n.getMessage('euSyncStateBroken');
@@ -696,7 +755,9 @@ class EuSyncPanel extends LitElement {
 		});
 	}
 
-	async #deleteState(state) {
+	async #deleteState(shown) {
+		const state = await this.#freshen(shown.stateId);
+		if (!state || this.#movedSince(shown, state)) return;
 		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(state)))) return;
 		const done = await this.#run(() => window.GesturaSync.remove(state.stateId));
 		if (!done) return;
@@ -758,12 +819,38 @@ class EuSyncPanel extends LitElement {
 			</div>`;
 	}
 
+	// What the last action has to say, directly above the list it acted on. It used
+	// to sit below the "new state" field at the foot of the panel, where nobody
+	// looks after pressing a button in a row. role="alert" announces it; it stays
+	// until dismissed or until the next action starts (#run clears it).
+	#renderFeedback() {
+		const i18n = window.i18n;
+		return html`
+			${this._error ? html`
+				<div class="error-banner" role="alert">
+					<span class="error-icon">${unsafeHTML(icons.triangleAlert)}</span>
+					<span class="error-text">${this._error}</span>
+					<button type="button" class="error-dismiss" title=${i18n.getMessage('euSyncErrorDismiss')}
+						aria-label=${i18n.getMessage('euSyncErrorDismiss')}
+						@click=${() => { this._error = ''; this._errorCode = ''; }}>${unsafeHTML(icons.x)}</button>
+				</div>` : ''}
+			${this._notice ? html`<div class="info">${this._notice}</div>` : ''}
+			${this._conflict ? html`
+				<div class="row-actions">
+					<button class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${this.#refreshStates}>${i18n.getMessage('euSyncConflictReload')}</button>
+					<button class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${() => this.#uploadTo(this._conflict)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+				</div>` : ''}`;
+	}
+
 	#renderStates() {
 		const i18n = window.i18n;
 		const states = this._states || [];
 		const full = states.length >= window.GesturaSync.LIMITS.statesMax;
 		const duplicate = states.some(s => this.#nameOf(s) === this._newName.trim());
 		return html`
+			${this.#renderFeedback()}
 			<div class="setting-row">
 				<div class="setting-label">
 					<span>${i18n.getMessage('euSyncStatesTitle')}</span>
@@ -910,8 +997,10 @@ class EuSyncPanel extends LitElement {
 		this._seenSecret = secret;
 	}
 
-	updated() {
+	updated(changed) {
 		if (this._consentOpen) this.renderRoot.querySelector('.modal-panel')?.focus();
+		// The failure may belong to a row far below the top of the page.
+		if (changed.has('_error') && this._error) this.renderRoot.querySelector('.error-banner')?.scrollIntoView({ block: 'nearest' });
 	}
 
 	render() {
@@ -953,16 +1042,7 @@ class EuSyncPanel extends LitElement {
 					</div>
 				</div>` : ''}
 			${this.#effective && this.#state.secret ? this.#renderSecret() : ''}
-			${this.#effective ? this.#renderStates() : ''}
-			${this._error ? html`<div class="error">${this._error}</div>` : ''}
-			${this._notice ? html`<div class="info">${this._notice}</div>` : ''}
-			${this._conflict ? html`
-				<div class="row-actions">
-					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${this.#refreshStates}>${i18n.getMessage('euSyncConflictReload')}</button>
-					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#uploadTo(this._conflict)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
-				</div>` : ''}
+			${this.#effective ? this.#renderStates() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 		`;
 	}

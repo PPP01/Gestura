@@ -182,7 +182,10 @@
 		// DOMException would be reported as.
 		let hash;
 		try { hash = await X.blobHash(answer.payload); } catch { throw syncError('malformed'); }
-		if (hash !== expectPayloadHash) throw syncError('decrypt');
+		// Not `decrypt`: nothing is wrong with the code or the data. The list this
+		// hash came from is older than the payload, because another browser
+		// replaced the state since. The refusal is the same; the sentence is not.
+		if (hash !== expectPayloadHash) throw syncError('stale');
 		const key = await X.deriveKey(secret);
 		try {
 			return await X.decryptBlob(key, stateId, 'payload', answer.payload);
