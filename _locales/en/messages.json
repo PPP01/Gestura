@@ -3294,6 +3294,7 @@
 	"euSyncErrorDecrypt": { "message": "Wrong code, or the data is damaged." },
 	"euSyncErrorStale": { "message": "This state was replaced in the meantime. The list has been refreshed, please try again." },
 	"euSyncErrorChangedMeanwhile": { "message": "This state changed in the meantime ({date}). The list has been refreshed; nothing was changed." },
+	"euSyncActive": { "message": "Active" },
 	"euSyncErrorDismiss": { "message": "Dismiss" },
 	"euSyncErrorDisabled": { "message": "Sync is switched off." },
 	"euSyncErrorNoSecret": { "message": "This browser has no usable sync code." },

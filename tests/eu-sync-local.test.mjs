@@ -56,12 +56,12 @@ beforeEach(async () => {
 	// The module keeps a live cache, so emptying the store is not the same as
 	// resetting the state - write the defaults THROUGH the module so the cache
 	// goes back too. Without this the tests leak into each other.
-	await L.write({ enabled: false, consent: null, secret: '', states: {} });
+	await L.write({ enabled: false, consent: null, secret: '', states: {}, activeState: '' });
 });
 
 describe('normalizeSync', () => {
 	it('answers the defaults for an empty store', () => {
-		expect(L.normalizeSync({}).euSync).toEqual({ enabled: false, consent: null, secret: '', states: {} });
+		expect(L.normalizeSync({}).euSync).toEqual({ enabled: false, consent: null, secret: '', states: {}, activeState: '' });
 	});
 
 	it('drops a consent without a numeric version', () => {
@@ -79,6 +79,34 @@ const DAY_1 = '2026-09-03T10:00:00.000Z';
 const DAY_2 = '2026-09-04T10:00:00.000Z';
 const tier1On = (date) => integration({ consent: { version: EU.CURRENT_INTEGRATION_CONSENT, date } });
 const tier2On = (date) => sync({ consent: { version: L.CURRENT_SYNC_CONSENT, date } });
+
+describe('the active state', () => {
+	it('is the state this browser last uploaded to, adopted or merged', async () => {
+		await L.setState(ID, { name: 'Work' }, { activate: true });
+		expect((await L.read()).euSync.activeState).toBe(ID);
+	});
+
+	it('is left alone by a write that does not name it', async () => {
+		await L.setState(ID, { name: 'Work' }, { activate: true });
+		await L.setState('fedcba9876543210fedcba9876543210', { name: 'Other' });
+		expect((await L.read()).euSync.activeState).toBe(ID);
+	});
+
+	it('goes with the state when that is removed, but not with another one', async () => {
+		const OTHER = 'fedcba9876543210fedcba9876543210';
+		await L.setState(ID, { name: 'Work' }, { activate: true });
+		await L.setState(OTHER, { name: 'Other' });
+		await L.removeState(OTHER);
+		expect((await L.read()).euSync.activeState).toBe(ID);
+		await L.removeState(ID);
+		expect((await L.read()).euSync.activeState).toBe('');
+	});
+
+	it('is dropped by normalisation when it is not a state id', () => {
+		expect(L.normalizeSync({ euSync: { activeState: 'nope' } }).euSync.activeState).toBe('');
+		expect(L.normalizeSync({ euSync: { activeState: ID } }).euSync.activeState).toBe(ID);
+	});
+});
 
 describe('the tier-2 invariant', () => {
 	it('holds when both tiers are current', () => {

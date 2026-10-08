@@ -15,7 +15,7 @@
 	// Tier 2's own consent, independent of the integration's. R3 = 1.
 	const CURRENT_SYNC_CONSENT = 1;
 
-	const DEFAULTS = { enabled: false, consent: null, secret: '', states: {} };
+	const DEFAULTS = { enabled: false, consent: null, secret: '', states: {}, activeState: '' };
 
 	function normalizeSync(raw) {
 		const src = (raw && raw[KEY] && typeof raw[KEY] === 'object') ? raw[KEY] : {};
@@ -34,12 +34,18 @@
 				lastUploadDate: typeof st.lastUploadDate === 'string' ? st.lastUploadDate : '',
 			};
 		}
+		// The state this browser last uploaded to, adopted or merged with: the one
+		// whose "settings changed since" hint means something. Only an id that is
+		// still a state id survives.
+		const active = (typeof src.activeState === 'string' && root.GesturaSyncCrypto.STATE_ID_RE.test(src.activeState))
+			? src.activeState : '';
 		return {
 			euSync: {
 				enabled: src.enabled === true,
 				consent,
 				secret: typeof src.secret === 'string' ? src.secret : '',
 				states,
+				activeState: active,
 			},
 		};
 	}
@@ -127,16 +133,19 @@
 	// Merges into the state rather than replacing it: the name is written when the
 	// state is created, the hash and date on every upload, and those are separate
 	// moments.
-	async function setState(stateId, patch) {
+	// `activate` makes it the active state in the same write - one storage event,
+	// so a listener never sees the new state without the marker or the reverse.
+	async function setState(stateId, patch, opts) {
 		const states = { ...(await read()).euSync.states };
 		states[stateId] = { name: '', lastUploadHash: '', lastUploadDate: '', ...(states[stateId] || {}), ...(patch || {}) };
-		return write({ states });
+		return write(opts && opts.activate ? { states, activeState: stateId } : { states });
 	}
 
 	async function removeState(stateId) {
-		const states = { ...(await read()).euSync.states };
+		const cur = (await read()).euSync;
+		const states = { ...cur.states };
 		delete states[stateId];
-		return write({ states });
+		return write(cur.activeState === stateId ? { states, activeState: '' } : { states });
 	}
 
 	function onChange(fn) {

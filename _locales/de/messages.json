@@ -3232,6 +3232,7 @@
 	"euSyncErrorDecrypt": { "message": "Falscher Code, oder die Daten sind beschädigt." },
 	"euSyncErrorStale": { "message": "Dieser Stand wurde inzwischen ersetzt. Die Liste wurde neu geladen, bitte versuche es noch einmal." },
 	"euSyncErrorChangedMeanwhile": { "message": "Dieser Stand hat sich inzwischen geändert ({date}). Die Liste wurde neu geladen; es wurde nichts verändert." },
+	"euSyncActive": { "message": "Aktiv" },
 	"euSyncErrorDismiss": { "message": "Schließen" },
 	"euSyncErrorDisabled": { "message": "Der Abgleich ist ausgeschaltet." },
 	"euSyncErrorNoSecret": { "message": "Dieser Browser hat keinen brauchbaren Abgleich-Code." },

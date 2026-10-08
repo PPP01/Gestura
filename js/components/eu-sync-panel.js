@@ -71,6 +71,7 @@ class EuSyncPanel extends LitElement {
 		.pair { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 		.pair input { flex: 1 1 320px; min-width: 0; }
 		.pair input.invalid { box-shadow: 0 0 0 1.5px var(--danger-color); }
+		.badge-active { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; vertical-align: 1px; color: var(--success-color); box-shadow: inset 0 0 0 1px currentColor; }
 		.error { margin-top: 8px; color: var(--danger-color); font-size: 12px; }
 		/* The failure of an action in a state row. It sits above the rows, in body
 		   size and on a tinted block, because the small red line at the foot of the
@@ -276,7 +277,7 @@ class EuSyncPanel extends LitElement {
 	// exist under this code. The list on screen belongs to the old code too;
 	// willUpdate() sees the secret change and drops it before asking anew.
 	async #adoptSecret(secret) {
-		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(secret), states: {} });
+		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(secret), states: {}, activeState: '' });
 	}
 
 	async #useCode() {
@@ -353,10 +354,19 @@ class EuSyncPanel extends LitElement {
 		this._conflict = null;
 		const list = await this.#run(() => window.GesturaSync.list());
 		if (!list) return;
+		await this.#absorbList(list);
+	}
+
+	// A list that was read successfully is the truth about what the server has.
+	// A base for a state it no longer has is dropped - after a SUCCESSFUL listing
+	// only; a failed one proves nothing (spec §3). The same goes for the active
+	// marker: a state that is gone cannot be the one this browser is working with.
+	async #absorbList(list) {
 		this._states = list;
-		// A base for a state the server no longer has is dropped - after a
-		// SUCCESSFUL listing only; a failed one proves nothing (spec §3).
-		this._bases = await window.GesturaSyncBase.prune(list.map(s => s.stateId));
+		const ids = list.map(s => s.stateId);
+		this._bases = await window.GesturaSyncBase.prune(ids);
+		const active = this.#state.activeState;
+		if (active && !ids.includes(active)) await window.GesturaSyncLocal.write({ activeState: '' });
 	}
 
 	// Every action on a state starts here. The list on screen can be minutes old,
@@ -368,8 +378,7 @@ class EuSyncPanel extends LitElement {
 	async #freshen(stateId) {
 		const list = await this.#run(() => window.GesturaSync.list());
 		if (!list) return null;
-		this._states = list;
-		this._bases = await window.GesturaSyncBase.prune(list.map(s => s.stateId));
+		await this.#absorbList(list);
 		const fresh = list.find(s => s.stateId === stateId);
 		if (!fresh) {
 			this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
@@ -467,7 +476,7 @@ class EuSyncPanel extends LitElement {
 					name,
 					lastUploadHash: await window.GesturaSettingsSchema.hashOf(exportObj),
 					lastUploadDate: now,
-				});
+				}, { activate: true });
 				this._newName = '';
 				await this.#refreshStates();
 			},
@@ -515,11 +524,22 @@ class EuSyncPanel extends LitElement {
 			commit: () => window.dispatchEvent(new CustomEvent('gestura:settings-apply', {
 				detail: {
 					settings: result.settings,
-					afterSave: () => window.GesturaSyncBase.write(state.stateId, {
-						hash: expectPayloadHash,
-						payload: result.exportObj,
-						date: new Date().toISOString(),
-					}),
+					afterSave: async () => {
+						await window.GesturaSyncBase.write(state.stateId, {
+							hash: expectPayloadHash,
+							payload: result.exportObj,
+							date: new Date().toISOString(),
+						});
+						// Adopting makes this the state the browser works with. What it now
+						// holds IS this payload, so that is what "changed since" compares
+						// against - without it the state would be active with nothing to
+						// compare to, and the first save would look like a change from
+						// nowhere.
+						await window.GesturaSyncLocal.setState(state.stateId, {
+							name: this.#nameOf(state),
+							lastUploadHash: await window.GesturaSettingsSchema.hashOf(result.exportObj),
+						}, { activate: true });
+					},
 				},
 			})),
 		});
@@ -723,7 +743,7 @@ class EuSyncPanel extends LitElement {
 										name,
 										lastUploadHash: await S.hashOf(r.exportObj),
 										lastUploadDate: now,
-									});
+									}, { activate: true });
 								},
 							},
 						}));
@@ -743,7 +763,7 @@ class EuSyncPanel extends LitElement {
 				}
 				const list = await this.#run(() => window.GesturaSync.list());
 				if (!list) return;
-				this._states = list;
+				await this.#absorbList(list);
 				const fresh = list.find(x => x.stateId === state.stateId);
 				if (!fresh) {
 					this._error = i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
@@ -771,7 +791,7 @@ class EuSyncPanel extends LitElement {
 		// No stateId: this deletes everything under this locator.
 		const done = await this.#run(() => window.GesturaSync.remove());
 		if (!done) return;
-		await window.GesturaSyncLocal.write({ states: {} });
+		await window.GesturaSyncLocal.write({ states: {}, activeState: '' });
 		await window.GesturaSyncBase.clear();
 		this._bases = {};
 		this._states = [];
@@ -790,14 +810,20 @@ class EuSyncPanel extends LitElement {
 	#renderStateRow(state) {
 		const i18n = window.i18n;
 		const local = this.#state.states[state.stateId];
-		// The hint is per state and only for states THIS browser uploaded to: for a
-		// foreign state there is nothing here to compare against, and a "changed"
-		// would be a claim with no basis.
-		const changed = !!(local && local.lastUploadHash && this._currentHash && local.lastUploadHash !== this._currentHash);
+		const active = this.#state.activeState === state.stateId;
+		// The hint belongs to the ACTIVE state only. Every other state differs from
+		// the current settings by definition - another one was adopted or uploaded
+		// since - and saying so on each of them reads as "you changed something".
+		const changed = !!(active && local && local.lastUploadHash && this._currentHash && local.lastUploadHash !== this._currentHash);
+		// Merging means taking over what the state gained since this browser last
+		// agreed with it. While the server still holds the payload the base names
+		// there is nothing to take; local changes go up with Upload, not Merge.
+		const base = this._bases[state.stateId];
+		const serverMoved = !!(base && state.meta && state.meta.payloadHash && state.meta.payloadHash !== base.hash);
 		return html`
 			<div class="sync-state-row">
 				<div class="grow">
-					<div class="name">${this.#nameOf(state)}</div>
+					<div class="name">${this.#nameOf(state)}${active ? html` <span class="badge-active">${i18n.getMessage('euSyncActive')}</span>` : ''}</div>
 					<div class="meta">
 						${state.updatedAt ? i18n.getMessage('euSyncUploadedAt').replace('{date}', this.#formatDate(state.updatedAt)) : ''}
 						${state.broken ? html`<span class="sync-hint"> — ${i18n.getMessage('euSyncStateBroken')}</span>` : ''}
@@ -806,7 +832,7 @@ class EuSyncPanel extends LitElement {
 					${changed ? html`<div class="sync-hint">${i18n.getMessage('euSyncChanged')}</div>` : ''}
 				</div>
 				<div class="row-actions">
-					${this._bases[state.stateId] ? html`
+					${serverMoved ? html`
 						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
 							@click=${() => this.#guarded(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
 					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
