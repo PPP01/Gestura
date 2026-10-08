@@ -14,7 +14,10 @@ answered at level 2 changes shape at level 3.
 Within a level, a **request** field may be added when its absence keeps the old
 behaviour exactly. `basePayloadHash` (below) is such a field: an extension that
 never sends it is served as it was before the field existed, so the addition
-needs no new level.
+needs no new level. A **response** field may likewise be added when clients
+ignore unknown fields; a **new endpoint** may be added when it is announced
+through `features` - clients that have not seen the feature string simply do not
+call it.
 
 ## Bridge (page → extension, DOM events)
 
@@ -461,10 +464,18 @@ do that without sending the payload again.
   payload's `payloadHash` — it is encrypted — and does not try. Keeping it
   intact is the client's job.
 - A rename **counts as a write for retention**: it restarts the 12-month clock
-  of that state, although `updatedAt` stays where it was. The index therefore
-  needs a "last touched" value distinct from `updatedAt`, if it has none yet.
+  of that state, although `updatedAt` stays where it was. The index keeps a
+  "last touched" value distinct from `updatedAt` for exactly this.
 - Counts against the per-IP rate limit like any other request; the bytes
-  written are the `meta` envelope's.
+  counted are the `meta` envelope's - including rejected writes (404/412).
+
+`basePayloadHash` guards **the payload only**. A rename does not change it,
+so a concurrent conditional `PUT` built on the same base - carrying the old
+name in its own `meta` - is accepted and silently replaces the renamed
+`meta`. The rename is lost; the payload is never affected. Clients that care
+about the current name should re-read after any `PUT` or rename. No new
+token and no `apiLevel` bump are needed: this is an inherent property of the
+existing guard, not a new protocol element.
 
 **Telling whether the service has it.** No `apiLevel` bump: an older extension
 never calls the endpoint, and a newer one must not guess from a `404` — an old
