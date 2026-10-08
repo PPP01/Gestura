@@ -401,8 +401,9 @@ bodies always carry `apiLevel`.
 
 | Endpoint | Body | Answer |
 |---|---|---|
-| `POST /api/v1/sync/list` | `{ apiLevel, locator }` | `{ states: [{ stateId, size, updatedAt, meta }] }` |
+| `POST /api/v1/sync/list` | `{ apiLevel, locator }` | `{ states: [{ stateId, size, updatedAt, meta }], features?: [<string>] }` |
 | `PUT /api/v1/sync/state` | `{ apiLevel, locator, stateId, meta, payload, basePayloadHash? }` | `{ stateId, updatedAt, size }` |
+| `POST /api/v1/sync/meta` | `{ apiLevel, locator, stateId, meta, basePayloadHash }` | `{ stateId, updatedAt, size }` |
 | `POST /api/v1/sync/get` | `{ apiLevel, locator, stateId }` | `{ stateId, updatedAt, payload }` |
 | `POST /api/v1/sync/delete` | `{ apiLevel, locator, stateId }` — `stateId` omitted deletes every state under the locator | `{ deleted: <count> }` |
 
@@ -441,6 +442,40 @@ So merging costs this contract nothing: no new field, no new endpoint, no
 stored payload envelope, would silently overwrite settings on the other
 browser. The extension side shipped on 2026-09-05.
 
+**`POST /api/v1/sync/meta` — replace the meta blob, leave the payload alone.**
+The state's name lives inside the encrypted `meta`, which the server cannot
+read, so renaming a state means replacing `meta` and nothing else. `PUT` cannot
+do that without sending the payload again.
+
+- The server replaces **only** the stored `meta`. `payload`, `size`,
+  `createdAt` and `updatedAt` are untouched — `updatedAt` keeps describing when
+  the *content* was written, so a rename never makes a state look newer.
+- `basePayloadHash` is **required** (absent → `400`) and is compared exactly as
+  for `PUT`: against the stored payload envelope, byte for byte. A mismatch is
+  `412` with `{ "error": "conflict", "updatedAt": "<ISO-8601>" }` and nothing is
+  written. Guard and write are one transaction, as for `PUT`.
+- A `stateId` that does not exist is `404`. This endpoint never creates a state.
+- The 8 KiB limit for `meta` applies as before (`413`). Unlike `PUT`, no
+  per-locator limit can be hit: the number of states does not change.
+- The server cannot check that the new `meta` still carries the stored
+  payload's `payloadHash` — it is encrypted — and does not try. Keeping it
+  intact is the client's job.
+- A rename **counts as a write for retention**: it restarts the 12-month clock
+  of that state, although `updatedAt` stays where it was. The index therefore
+  needs a "last touched" value distinct from `updatedAt`, if it has none yet.
+- Counts against the per-IP rate limit like any other request; the bytes
+  written are the `meta` envelope's.
+
+**Telling whether the service has it.** No `apiLevel` bump: an older extension
+never calls the endpoint, and a newer one must not guess from a `404` — an old
+service answers an unknown path with one, and so does a missing state. Instead
+the `list` answer carries an optional `features` array, and an index that
+implements this endpoint includes `"sync-meta"` in it. The extension offers
+*Rename* only when it has seen that string in the answer it is working from;
+no `features` field, or no such entry, means *the service cannot rename yet*,
+and the extension says so. Extensions ignore unknown entries, so further
+features can be announced the same way.
+
 **`POST /api/v1/sync/delete` stays unconditional** and takes no token. Deleting
 is a deliberate act behind a confirmation, and unlike a silent overwrite it is
 one the user is looking at while it happens.
@@ -449,7 +484,7 @@ one the user is looking at while it happens.
 
 | Code | Status | Meaning |
 |---|---|---|
-| `bad-request` | 400 | Malformed body, unknown `apiLevel`, bad `stateId` or locator shape. |
+| `bad-request` | 400 | Malformed body, unknown `apiLevel`, bad `stateId` or locator shape; for `sync/meta` also a missing `basePayloadHash`. |
 | `not-found` | 404 | No such state under this locator. |
 | `conflict` | 412 | `basePayloadHash` does not describe the stored state — someone else wrote it first. The answer carries the current `updatedAt`. |
 | `too-large` | 413 | A single blob exceeds its limit. |
