@@ -3164,6 +3164,7 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Diese Datei stammt aus einer neueren Version von Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Diese Datei enthält Einträge, die Gestura nicht liest." },
 	"euSyncHeading": { "message": "Abgleich zwischen Browsern" },
+	"euSyncNeedsIntegration": { "message": "Der Abgleich baut auf der gestura.eu-Anbindung auf. Schalte oben die Anbindung ein, um ihn zu nutzen." },
 	"euSyncToggle": { "message": "Einstellungen abgleichen" },
 	"euSyncToggleDesc": { "message": "Verschlüsselt, ohne Konto. Aus, bis du es einschaltest." },
 	"euSyncConsentTitle": { "message": "Abgleich einschalten" },

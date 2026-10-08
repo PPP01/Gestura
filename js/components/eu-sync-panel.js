@@ -916,12 +916,11 @@ class EuSyncPanel extends LitElement {
 
 	render() {
 		const i18n = window.i18n;
-		// No switch while the integration is not effectively enabled. Absent, not
-		// greyed out: there is nothing to explain that the user cannot see for
-		// themselves one line further up.
-		if (!this.#tier1 || !this._sync) return html``;
+		if (!this._sync) return html``;
+		// No switch while the integration is not effectively enabled. The panel has
+		// its own section now, so an empty box would read as broken: say why instead.
+		if (!this.#tier1) return html`<div class="info">${i18n.getMessage('euSyncNeedsIntegration')}</div>`;
 		return html`
-			<h3>${i18n.getMessage('euSyncHeading')}</h3>
 			<div class="setting-row">
 				<div class="setting-label">
 					<span>${i18n.getMessage('euSyncToggle')}</span>

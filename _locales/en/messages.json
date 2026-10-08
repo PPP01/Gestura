@@ -3226,6 +3226,7 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "This file was written by a newer version of Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "This file contains entries Gestura refuses to read." },
 	"euSyncHeading": { "message": "Sync between browsers" },
+	"euSyncNeedsIntegration": { "message": "Sync builds on the gestura.eu integration. Turn the integration on above to use it." },
 	"euSyncToggle": { "message": "Sync settings" },
 	"euSyncToggleDesc": { "message": "Encrypted, without an account. Off until you turn it on." },
 	"euSyncConsentTitle": { "message": "Turn on sync" },

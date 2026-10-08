@@ -1199,6 +1199,12 @@ class OptionsPage extends LitElement {
 					<h2><span class="section-icon">${unsafeHTML(icon('globe', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euIntegrationTitle')}</span>${this.#renderAdvancedToggle('websiteIntegration')}</h2>
 					<div class="section-body">
 						<eu-integration-panel ?advanced-mode=${this._settings.sectionAdvanced?.websiteIntegration}></eu-integration-panel>
+					</div>
+				</div>
+
+				<div class="section ${this._activeSection === 'euSync' ? 'active' : ''}" data-nav="euSync">
+					<h2><span class="section-icon">${unsafeHTML(icon('refreshCw', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('euSyncHeading')}</span></h2>
+					<div class="section-body">
 						<eu-sync-panel></eu-sync-panel>
 					</div>
 				</div>
@@ -1363,6 +1369,7 @@ class OptionsPage extends LitElement {
 			{ id: 'blacklist', label: i18n.getMessage('blacklist'), icon: icons.mouseOff, flag: 'enableBlacklist' },
 			{ id: 'contextMenu', label: i18n.getMessage('contextMenuSection'), icon: icons.menu },
 			{ id: 'websiteIntegration', label: i18n.getMessage('euIntegrationTitle'), icon: icons.globe },
+			{ id: 'euSync', label: i18n.getMessage('euSyncHeading'), icon: icons.refreshCw },
 			{ id: 'data', label: i18n.getMessage('dataManagement'), icon: icons.hardDrive },
 			{ id: 'support', label: i18n.getMessage('supportAndFeedback'), icon: icons.messageCircleMore },
 		];
@@ -1613,7 +1620,7 @@ class OptionsPage extends LitElement {
 		} else if (way === 'eu') {
 			// Way two is way three plus tier 2. The switch happens here; the tier-2
 			// consent is the sync panel's, so the page scrolls there.
-			if (await this.#switchArea(false, 'gestura.eu')) this.#scrollToSection('websiteIntegration');
+			if (await this.#switchArea(false, 'gestura.eu')) this.#scrollToSection('euSync');
 		}
 	}
 
