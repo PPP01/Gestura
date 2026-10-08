@@ -3271,7 +3271,7 @@
 	"euSyncSecretCopied": { "message": "Copied" },
 	"euSyncSecretSave": { "message": "Save as file" },
 	"euSyncSecretNew": { "message": "New code" },
-	"euSyncSecretNewConfirm": { "message": "Generate a new code? The states saved under the old code stay on gestura.eu, but this browser stops showing them. With the old code - if you kept it, for example in your password manager - you can come back to them; without it they cannot be reached, not even to delete them, and gestura.eu removes them after 12 months." },
+	"euSyncSecretNewConfirm": { "message": "Generate a new code? The states saved under the old code stay on gestura.eu, but this browser stops showing them. As long as the old code is still somewhere - in your password manager or in another browser - you can come back to them. If it is gone, they cannot be reached, not even to delete them, and gestura.eu removes them once nobody has touched them for 12 months." },
 	"euSyncSecretPair": { "message": "Use an existing code" },
 	"euSyncSecretPairDesc": { "message": "Paste the code from your other browser here to see its states." },
 	"euSyncSecretPairApply": { "message": "Use this code" },
