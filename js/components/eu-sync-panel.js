@@ -69,6 +69,7 @@ class EuSyncPanel extends LitElement {
 		_ask: { state: true },
 		_pairOpen: { state: true },
 		_codeValid: { state: true },
+		_switchUnlocked: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, tabStyles, css`
@@ -91,6 +92,9 @@ class EuSyncPanel extends LitElement {
 		.msg.warn { padding: 4px 12px; background: color-mix(in srgb, var(--warning-color) 10%, var(--card-bg)); border: 1px solid color-mix(in srgb, var(--warning-color) 35%, transparent); }
 		.msg.warn > svg { width: 18px; height: 18px; margin-top: 7px; color: var(--warning-color); }
 		.msg.warn .msg-text { font-size: 13px; }
+		.switch-lock { flex-wrap: wrap; align-items: flex-start; padding: 6px 8px 6px 12px; }
+		.switch-lock .msg-text { flex: 1 1 260px; }
+		.switch-lock .btn { margin-left: auto; align-self: center; }
 		.delete-all-row { margin: -8px 0 16px; }
 		.sync-card { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 20px; padding: 20px; border-radius: 14px; border: 1px solid var(--border-color); background: var(--card-bg); line-height: 1.45; }
 		.sync-card.states { gap: 16px; }
@@ -241,6 +245,9 @@ class EuSyncPanel extends LitElement {
 		this._ask = null;           // the open #ask() dialog, see there
 		this._pairOpen = false;     // the "load existing code" field is shown
 		this._codeValid = false;    // what is in that field parses as a code
+		// "Change code" opened despite states under the current code. Never stored:
+		// a reload or a tab switch locks it again.
+		this._switchUnlocked = false;
 		// Not reactive: set by #useCode, read by #absorbList - the code just loaded
 		// and how many states the old one had, so the first list under the new code
 		// can say "found them" and switch to them.
@@ -496,6 +503,7 @@ class EuSyncPanel extends LitElement {
 		}
 		this._loadedFrom = { secret: encoded, had };
 		this.#closePair();
+		this._switchUnlocked = false;
 		await this.#adoptSecret(parsed.secret);
 	}
 
@@ -542,6 +550,7 @@ class EuSyncPanel extends LitElement {
 			text: rest.join('\n\n'),
 			confirm: i18n.getMessage('euSyncSecretNew'),
 		})) return;
+		this._switchUnlocked = false;
 		await this.#adoptSecret(window.GesturaSyncCode.generateSecret());
 	}
 
@@ -1473,20 +1482,30 @@ class EuSyncPanel extends LitElement {
 	}
 
 	// Loading another code or making a new one, in a card of its own: under the
-	// code they read as buttons for the code shown above them. With states under
-	// the current code, the open field says first what switching costs.
+	// code they read as buttons for the code shown above them.
+	//
+	// With states under the current code - or a list that could not be read, which
+	// may hide some - the card is locked: a warning with the count instead of the
+	// two buttons, opened with one click. The question with the count still comes
+	// before anything is changed.
 	#renderCodeSwitch() {
 		const i18n = window.i18n;
-		const had = this._states ? this._states.length : 0;
 		const apply = () => { if (this._codeValid) this.#exclusive(() => this.#useCode()); };
+		const locked = !this._switchUnlocked && !(this._states && this._states.length === 0);
+		const count = this.#countLine('euSyncCodeSwitchLocked');
 		return html`
 			<div class="sync-card">
 				<div class="card-title">${i18n.getMessage('euSyncCodeSwitchTitle')}</div>
-				${this._pairOpen ? html`
+				<div class="card-desc">${i18n.getMessage('euSyncCodeSwitchDesc')}</div>
+				${locked ? html`
+					<div class="msg warn switch-lock" role="note">
+						${unsafeHTML(icons.triangleAlert)}
+						<span class="msg-text">${count || i18n.getMessage('euSyncCodeSwitchLockedUnknown')}</span>
+						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+							@click=${() => { this._switchUnlocked = true; }}>${i18n.getMessage('euSyncCodeSwitchUnlock')}</button>
+					</div>` : this._pairOpen ? html`
 					<div class="pair-box">
 						<div class="pair-desc">${i18n.getMessage('euSyncSecretPairDesc')}</div>
-						${had ? html`
-							<div class="msg warn" role="note">${unsafeHTML(icons.triangleAlert)}<span class="msg-text">${i18n.getMessage('euSyncCodeSwitchWarning').replace('{n}', String(had))}</span></div>` : ''}
 						<div class="field-row">
 							<input type="text" class="field mono pair-field ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
 								aria-label=${i18n.getMessage('euSyncSecretPair')}
@@ -1517,7 +1536,7 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		const tab = (id, label) => html`
 			<button class="type-tab ${this._tab === id ? 'active' : ''}" role="tab" aria-selected=${this._tab === id}
-				@click=${() => { this._tab = id; }}>${i18n.getMessage(label)}</button>`;
+				@click=${() => { if (this._tab !== id) { this._tab = id; this._switchUnlocked = false; this.#closePair(); } }}>${i18n.getMessage(label)}</button>`;
 		return html`
 			<div class="type-switch sync-tabs" role="tablist">
 				${tab('states', 'euSyncStatesTitle')}
