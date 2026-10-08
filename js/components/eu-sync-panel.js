@@ -67,15 +67,13 @@ class EuSyncPanel extends LitElement {
 		_tab: { state: true },
 		_codeVisible: { state: true },
 		_ask: { state: true },
+		_pairOpen: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, tabStyles, css`
 		:host { display: block; }
 		.error { margin-top: 8px; color: var(--danger-color); font-size: 12px; }
 		.notice { margin-top: 8px; color: var(--warning-color); font-size: 12px; }
-		.granted .setting-label span:first-child { display: inline-flex; align-items: center; gap: 8px; }
-		.granted .setting-label span.granted-icon { display: inline-flex; color: var(--success-color); }
-		.granted-icon svg { width: 18px; height: 18px; }
 		.reconfirm { color: var(--warning-color); }
 		.row-actions { display: flex; gap: 8px; flex: none; }
 
@@ -84,6 +82,12 @@ class EuSyncPanel extends LitElement {
 		/* Inline, like the tab bars of the other sections (options-page .basic-tabs). */
 		.type-switch.sync-tabs { display: inline-flex; margin: 14px 0 0; }
 		.sync-card-gap { margin-top: 12px; }
+		.sync-on { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--text-secondary); }
+		.sync-on strong { font-weight: 600; color: var(--text-primary); }
+		.sync-on svg { width: 16px; height: 16px; color: var(--success-color); }
+		.pair-box { display: flex; flex-direction: column; gap: 8px; }
+		.pair-desc { font-size: 13px; color: var(--text-secondary); }
+		.delete-all-row { margin: -8px 0 16px; }
 		.sync-card { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 20px; padding: 20px; border-radius: 14px; border: 1px solid var(--border-color); background: var(--card-bg); line-height: 1.45; }
 		.sync-card.states { gap: 16px; }
 		.card-title { font-size: 15px; font-weight: 600; }
@@ -228,6 +232,11 @@ class EuSyncPanel extends LitElement {
 		this._tab = 'states';
 		this._codeVisible = false;  // never stored: every visit starts masked
 		this._ask = null;           // the open #ask() dialog, see there
+		this._pairOpen = false;     // the "load existing code" field is shown
+		// Not reactive: set by #useCode, read by #absorbList - the code just loaded
+		// and how many states the old one had, so the first list under the new code
+		// can say "found them" and switch to them.
+		this._loadedFrom = null;
 		this._noticeTimer = 0;
 		// Not reactive: what willUpdate() compares against to see the switch-on
 		// and the code change as EDGES, rather than re-deciding on every render.
@@ -452,16 +461,37 @@ class EuSyncPanel extends LitElement {
 		await window.GesturaSyncLocal.write({ secret: await window.GesturaSyncCode.encode(secret), states: {} });
 	}
 
+	// Loading another code is the same step as making a new one, seen from the
+	// states of the old code: they stay on gestura.eu, out of reach of this
+	// browser. So it asks the same question - unless the old code has nothing
+	// under it, where there is nothing to lose. A list that was never read (or
+	// failed) is not "nothing": it asks then too.
 	async #useCode() {
+		const i18n = window.i18n;
 		const parsed = await window.GesturaSyncCode.parse(this._codeDraft);
 		if (!parsed.secret) {
-			this._codeError = window.i18n.getMessage(EuSyncPanel.CODE_ERRORS[parsed.error]);
+			this._codeError = i18n.getMessage(EuSyncPanel.CODE_ERRORS[parsed.error]);
 			return;
 		}
 		this._codeError = '';
-		this._codeDraft = '';
+		const encoded = await window.GesturaSyncCode.encode(parsed.secret);
+		if (encoded === this.#state.secret) { this.#closePair(); return; }
+		const had = this._states ? this._states.length : null;
+		if (had !== 0) {
+			const [, ...rest] = i18n.getMessage('euSyncSecretNewConfirm').split('\n\n');
+			if (!await this.#ask({
+				title: i18n.getMessage('euSyncSecretUseConfirmTitle'),
+				text: rest.join('\n\n'),
+				confirm: i18n.getMessage('euSyncSecretPairApply'),
+			})) return;
+		}
+		this._loadedFrom = { secret: encoded, had };
+		this.#closePair();
 		await this.#adoptSecret(parsed.secret);
 	}
+
+	#openPair() { this._pairOpen = true; }
+	#closePair() { this._pairOpen = false; this._codeDraft = ''; this._codeError = ''; }
 
 	async #newCode() {
 		const i18n = window.i18n;
@@ -568,6 +598,16 @@ class EuSyncPanel extends LitElement {
 	async #absorbList(list) {
 		this._states = list;
 		this._features = new Set(list.features || []);
+		// The first list under a code just loaded. Going from an empty code to one
+		// with states is the pairing of a second browser - say so and show them.
+		const loaded = this._loadedFrom;
+		if (loaded && loaded.secret === this.#state.secret) {
+			this._loadedFrom = null;
+			if (loaded.had === 0 && list.length) {
+				this._tab = 'states';
+				this._notice = window.i18n.getMessage('euSyncSecretLoaded');
+			}
+		}
 		const ids = list.map(s => s.stateId);
 		this._bases = await window.GesturaSyncBase.prune(ids);
 		// Read after the await, not before: the marker may have been set while the
@@ -1185,9 +1225,6 @@ class EuSyncPanel extends LitElement {
 					<div class="tools">
 						<button type="button" class="ghost-btn" ?disabled=${this._busy}
 							@click=${() => this.#exclusive(() => this.#refreshStates())}>${unsafeHTML(icons.rotateCw)}${i18n.getMessage('euSyncRefresh')}</button>
-						${states.length ? html`
-							<button type="button" class="ghost-btn danger" ?disabled=${this._busy}
-								@click=${() => this.#exclusive(() => this.#deleteAll())}>${unsafeHTML(icons.trash2)}${i18n.getMessage('euSyncDeleteAll')}</button>` : ''}
 					</div>
 				</div>
 				${this.#renderFeedback()}
@@ -1363,25 +1400,53 @@ class EuSyncPanel extends LitElement {
 					<button type="button" class="icon-btn" title=${i18n.getMessage('euSyncSecretSave')} aria-label=${i18n.getMessage('euSyncSecretSave')}
 						@click=${this.#saveCode}>${unsafeHTML(icons.fileDown)}</button>
 				</div>
-				<div class="field-row">
-					<input type="text" class="field mono ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
-						aria-label=${i18n.getMessage('euSyncSecretPair')}
-						aria-invalid=${this._codeError ? 'true' : 'false'}
-						.value=${this._codeDraft}
-						@input=${e => { this._codeDraft = e.target.value; this._codeError = ''; }}
-						@keydown=${e => { if (e.key === 'Enter') this.#exclusive(() => this.#useCode()); }}>
-					<button class="btn btn-secondary" ?disabled=${this._busy || !this._codeDraft.trim()}
-						@click=${() => this.#exclusive(() => this.#useCode())}>${i18n.getMessage('euSyncSecretPairApply')}</button>
-				</div>
-				${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
-				<div class="code-foot">
-					<span>${i18n.getMessage('euSyncSecretPairDesc')}</span>
-					<button type="button" class="text-btn" ?disabled=${this._busy}
-						@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
-				</div>
+				${this._pairOpen ? html`
+					<div class="pair-box">
+						<div class="pair-desc">${i18n.getMessage('euSyncSecretPairDesc')}</div>
+						<div class="field-row">
+							<input type="text" class="field mono pair-field ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
+								aria-label=${i18n.getMessage('euSyncSecretPair')}
+								aria-invalid=${this._codeError ? 'true' : 'false'}
+								.value=${this._codeDraft}
+								@input=${e => { this._codeDraft = e.target.value; this._codeError = ''; }}
+								@keydown=${e => {
+									if (e.key === 'Enter') this.#exclusive(() => this.#useCode());
+									if (e.key === 'Escape') { e.stopPropagation(); this.#closePair(); }
+								}}>
+							<button class="btn btn-primary" ?disabled=${this._busy || !this._codeDraft.trim()}
+								@click=${() => this.#exclusive(() => this.#useCode())}>${i18n.getMessage('euSyncSecretPairApply')}</button>
+							<button class="btn btn-secondary" @click=${() => this.#closePair()}>${i18n.getMessage('euSyncConsentCancel')}</button>
+						</div>
+						${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
+					</div>` : html`
+					<div class="code-foot">
+						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+							@click=${() => this.#openPair()}>${i18n.getMessage('euSyncSecretLoad')}</button>
+						<button type="button" class="text-btn" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
+					</div>`}
 				${origin !== window.FlowMouseEuIntegration.PRODUCTION_ORIGIN ? html`
 					<div class="notice">${i18n.getMessage('euSyncDevOriginNotice').replace('{origin}', origin)}</div>` : ''}
 			</div>`;
+	}
+
+	// Settings: that sync is on and since when, the code, and - below it, apart -
+	// deleting everything under the code. Switching off is the switch above.
+	#renderSettings() {
+		const i18n = window.i18n;
+		const states = this._states || [];
+		return html`
+			<div class="sync-on">
+				${unsafeHTML(icons.circleCheck)}
+				<span><strong>${i18n.getMessage('euSyncConsentGranted')}</strong> \u00b7 ${i18n.getMessage('euSyncConsentDate').replace('{date}', this.#consentDate())}</span>
+			</div>
+			${this._error ? html`<div class="sync-card-gap">${this.#renderError()}</div>` : ''}
+			${this.#state.secret ? this.#renderSecret() : ''}
+			${states.length ? html`
+				<div class="delete-all-row">
+					<button type="button" class="ghost-btn danger" ?disabled=${this._busy}
+						@click=${() => this.#exclusive(() => this.#deleteAll())}>${unsafeHTML(icons.trash2)}${i18n.getMessage('euSyncDeleteAll')}</button>
+				</div>` : ''}`;
 	}
 
 	#renderTabs() {
@@ -1396,7 +1461,7 @@ class EuSyncPanel extends LitElement {
 			</div>
 			<div role="tabpanel">
 				${this._tab === 'settings'
-					? html`${this._error ? html`<div class="sync-card-gap">${this.#renderError()}</div>` : ''}${this.#state.secret ? this.#renderSecret() : ''}`
+					? this.#renderSettings()
 					: this.#renderStates()}
 			</div>`;
 	}
@@ -1427,6 +1492,7 @@ class EuSyncPanel extends LitElement {
 	}
 
 	updated(changed) {
+		if (changed.has('_pairOpen') && this._pairOpen) this.renderRoot.querySelector('.pair-field')?.focus();
 		if (changed.has('_ask') && this._ask) {
 			// Into the field when there is one, else onto the safe button - never onto
 			// the confirm of a deletion, where a stray Enter would answer the question.
@@ -1452,7 +1518,7 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		if (!this._sync) return html``;
 		return html`
-			<div class="setting-row">
+			<div class="setting-row first-row">
 				<div class="setting-label">
 					<span>${i18n.getMessage('euSyncToggle')}</span>
 					<span>${i18n.getMessage('euSyncToggleDesc')}</span>
@@ -1462,16 +1528,6 @@ class EuSyncPanel extends LitElement {
 					<span class="slider"></span>
 				</label>
 			</div>
-			${this.#effective ? html`
-				<div class="setting-row granted">
-					<div class="setting-label">
-						<span><span class="granted-icon">${unsafeHTML(icons.circleCheck)}</span>${i18n.getMessage('euSyncConsentGranted')}</span>
-						<span>${i18n.getMessage('euSyncConsentDate').replace('{date}', this.#consentDate())}</span>
-					</div>
-					<div class="row-actions">
-						<button class="btn btn-secondary" @click=${this.#openOff}>${i18n.getMessage('euSyncConsentRevoke')}</button>
-					</div>
-				</div>` : ''}
 			${this.#stale ? html`
 				<div class="setting-row">
 					<div class="setting-label reconfirm">
