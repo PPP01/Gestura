@@ -819,6 +819,10 @@ class EuSyncPanel extends LitElement {
 		// agreed with it. While the server still holds the payload the base names
 		// there is nothing to take; local changes go up with Upload, not Merge.
 		const base = this._bases[state.stateId];
+		// What the row offers. For the active state this browser already holds what
+		// it agreed on: Download would only throw local work away, Upload is the one
+		// way to push local changes (hence only with the hint), and Merge only pays
+		// off once the server has moved. Delete is always there.
 		const serverMoved = !!(base && state.meta && state.meta.payloadHash && state.meta.payloadHash !== base.hash);
 		return html`
 			<div class="sync-state-row">
@@ -835,10 +839,12 @@ class EuSyncPanel extends LitElement {
 					${serverMoved ? html`
 						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
 							@click=${() => this.#guarded(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
-					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-						@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>
-					<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-						@click=${() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })}>${i18n.getMessage('euSyncUpload')}</button>
+					${active ? '' : html`
+						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
+							@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>`}
+					${!active || changed ? html`
+						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
+							@click=${() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })}>${i18n.getMessage('euSyncUpload')}</button>` : ''}
 					<button class="btn btn-danger" ?disabled=${this._busy}
 						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
 				</div>
