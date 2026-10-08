@@ -112,6 +112,11 @@ class EuSyncPanel extends LitElement {
 		this._codeError = '';
 		this._copied = false;
 		this._busy = false;
+		// Not reactive: what _busy is derived from. Several #run()s can be in flight
+		// at once (an action's own refresh, then its request), and the first to finish
+		// must not unlock buttons the second still needs locked.
+		this._pending = 0;
+		this._op = false;
 		this._error = '';
 		this._states = null;      // null = not read yet, [] = read and empty
 		this._newName = '';
@@ -334,7 +339,8 @@ class EuSyncPanel extends LitElement {
 	// the last list that was read standing - it is still the best information
 	// there is.
 	async #run(fn) {
-		this._busy = true;
+		this._pending++;
+		this.#syncBusy();
 		this._error = '';
 		this._errorCode = '';
 		try {
@@ -343,7 +349,29 @@ class EuSyncPanel extends LitElement {
 			this.#fail(e);
 			return null;
 		} finally {
-			this._busy = false;
+			this._pending--;
+			this.#syncBusy();
+		}
+	}
+
+	#syncBusy() { this._busy = this._pending > 0 || this._op; }
+
+	// One user action at a time, from the click to the last write. Disabling the
+	// buttons while a request runs is not enough: an action is several requests
+	// with gaps between them (refresh, confirm, write, refresh), and a second click
+	// landing in a gap would interleave two flows over the same list. It also
+	// carries the error handling the click handlers used to lack - a throw after
+	// #run() (storage, hashing, the base) is shown, not an unhandled rejection.
+	// Wrap at the handler, never inside another wrapped action.
+	async #exclusive(fn) {
+		if (this._op) return;
+		this._op = true;
+		this.#syncBusy();
+		try {
+			await this.#guarded(fn);
+		} finally {
+			this._op = false;
+			this.#syncBusy();
 		}
 	}
 
@@ -365,7 +393,9 @@ class EuSyncPanel extends LitElement {
 		this._states = list;
 		const ids = list.map(s => s.stateId);
 		this._bases = await window.GesturaSyncBase.prune(ids);
-		const active = this.#state.activeState;
+		// Read after the await, not before: the marker may have been set while the
+		// base was being pruned.
+		const active = (await window.GesturaSyncLocal.read()).euSync.activeState;
 		if (active && !ids.includes(active)) await window.GesturaSyncLocal.write({ activeState: '' });
 	}
 
@@ -779,6 +809,11 @@ class EuSyncPanel extends LitElement {
 		const state = await this.#freshen(shown.stateId);
 		if (!state || this.#movedSince(shown, state)) return;
 		if (!confirm(window.i18n.getMessage('euSyncDeleteConfirm').replace('{name}', this.#nameOf(state)))) return;
+		// Delete carries no token (the contract keeps it unconditional), so the only
+		// protection is looking again as close to the request as possible: the
+		// dialog may have stood open while another browser replaced the state.
+		const again = await this.#freshen(state.stateId);
+		if (!again || this.#movedSince(state, again)) return;
 		const done = await this.#run(() => window.GesturaSync.remove(state.stateId));
 		if (!done) return;
 		await window.GesturaSyncLocal.removeState(state.stateId);
@@ -838,15 +873,15 @@ class EuSyncPanel extends LitElement {
 				<div class="row-actions">
 					${serverMoved ? html`
 						<button class="btn btn-primary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#guarded(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
+							@click=${() => this.#exclusive(() => this.#syncState(state))}>${i18n.getMessage('euSyncMerge')}</button>` : ''}
 					${active ? '' : html`
 						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#downloadState(state)}>${i18n.getMessage('euSyncDownload')}</button>`}
+							@click=${() => this.#exclusive(() => this.#downloadState(state))}>${i18n.getMessage('euSyncDownload')}</button>`}
 					${!active || changed ? html`
 						<button class="btn btn-secondary" ?disabled=${this._busy || state.broken}
-							@click=${() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt })}>${i18n.getMessage('euSyncUpload')}</button>` : ''}
+							@click=${() => this.#exclusive(() => this.#uploadTo({ stateId: state.stateId, name: this.#nameOf(state), basePayloadHash: state.meta?.payloadHash, createdAt: state.meta?.createdAt }))}>${i18n.getMessage('euSyncUpload')}</button>` : ''}
 					<button class="btn btn-danger" ?disabled=${this._busy}
-						@click=${() => this.#deleteState(state)}>${i18n.getMessage('euSyncDelete')}</button>
+						@click=${() => this.#exclusive(() => this.#deleteState(state))}>${i18n.getMessage('euSyncDelete')}</button>
 				</div>
 			</div>`;
 	}
@@ -870,9 +905,9 @@ class EuSyncPanel extends LitElement {
 			${this._conflict ? html`
 				<div class="row-actions">
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${this.#refreshStates}>${i18n.getMessage('euSyncConflictReload')}</button>
+						@click=${() => this.#exclusive(() => this.#refreshStates())}>${i18n.getMessage('euSyncConflictReload')}</button>
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${() => this.#uploadTo(this._conflict)}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
+						@click=${() => this.#exclusive(() => this.#uploadTo(this._conflict))}>${i18n.getMessage('euSyncConflictOverwrite')}</button>
 				</div>` : ''}`;
 	}
 
@@ -890,10 +925,10 @@ class EuSyncPanel extends LitElement {
 				</div>
 				<div class="row-actions">
 					<button class="btn btn-secondary" ?disabled=${this._busy}
-						@click=${this.#refreshStates}>${i18n.getMessage('euSyncRefresh')}</button>
+						@click=${() => this.#exclusive(() => this.#refreshStates())}>${i18n.getMessage('euSyncRefresh')}</button>
 					${states.length ? html`
 						<button class="btn btn-danger" ?disabled=${this._busy}
-							@click=${this.#deleteAll}>${i18n.getMessage('euSyncDeleteAll')}</button>` : ''}
+							@click=${() => this.#exclusive(() => this.#deleteAll())}>${i18n.getMessage('euSyncDeleteAll')}</button>` : ''}
 				</div>
 			</div>
 			${states.map(s => this.#renderStateRow(s))}
@@ -903,9 +938,9 @@ class EuSyncPanel extends LitElement {
 					<input type="text" class="input-lg" placeholder=${i18n.getMessage('euSyncStateNamePlaceholder')}
 						.value=${this._newName}
 						@input=${e => { this._newName = e.target.value; }}
-						@keydown=${e => { if (e.key === 'Enter' && this._newName.trim()) this.#uploadTo({ name: this._newName.trim() }); }}>
+						@keydown=${e => { if (e.key === 'Enter' && this._newName.trim()) this.#exclusive(() => this.#uploadTo({ name: this._newName.trim() })); }}>
 					<button class="btn btn-primary" ?disabled=${this._busy || !this._newName.trim()}
-						@click=${() => this.#uploadTo({ name: this._newName.trim() })}>${i18n.getMessage('euSyncCreate')}</button>
+						@click=${() => this.#exclusive(() => this.#uploadTo({ name: this._newName.trim() }))}>${i18n.getMessage('euSyncCreate')}</button>
 				</div>
 				${duplicate ? html`<div class="notice">${i18n.getMessage('euSyncDuplicateName')}</div>` : ''}`}
 			<settings-preview-dialog
