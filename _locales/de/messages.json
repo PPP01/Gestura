@@ -3209,7 +3209,7 @@
 	"euSyncSecretCopied": { "message": "Kopiert" },
 	"euSyncSecretSave": { "message": "Als Datei sichern" },
 	"euSyncSecretNew": { "message": "Neuer Code" },
-	"euSyncSecretNewConfirm": { "message": "Einen neuen Code erzeugen? Die Stände unter dem alten Code bleiben auf gestura.eu, dieser Browser zeigt sie aber nicht mehr an. Solange der alte Code noch irgendwo steckt - im Passwortspeicher oder in einem anderen Browser - kommst du wieder an sie heran. Ist er weg, sind sie nicht mehr erreichbar, auch nicht zum Löschen, und gestura.eu entfernt sie, sobald sie 12 Monate lang niemand angefasst hat." },
+	"euSyncSecretNewConfirm": { "message": "Neuen Code erzeugen?\n\nDeine bisherigen Stände bleiben auf gestura.eu erhalten, sind in diesem Browser aber nicht mehr sichtbar. Solange du den alten Code noch besitzt (z. B. im Passwortmanager oder auf einem anderen Gerät), kannst du jederzeit dorthin zurückkehren. Ohne den Code verfällt der Zugriff endgültig – gestura.eu löscht die Daten dann automatisch nach 12 Monaten Inaktivität." },
 	"euSyncSecretPair": { "message": "Vorhandenen Code verwenden" },
 	"euSyncSecretPairDesc": { "message": "Füge hier den Code aus deinem anderen Browser ein, um dessen Stände zu sehen." },
 	"euSyncSecretPairApply": { "message": "Diesen Code verwenden" },
