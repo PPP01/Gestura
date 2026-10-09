@@ -5,6 +5,7 @@ import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
 import { formatMergeSummary } from './sync-merge-dialog.js';
 import { rowModel } from './eu-sync-row.js';
+import { SYNC_ERRORS, syncErrorText } from './sync-reach.js';
 
 // The sync switch and everything behind it. Sync is a feature of its own, with
 // its own consent; it does not need the gestura.eu integration above it, and
@@ -25,24 +26,6 @@ class EuSyncPanel extends LitElement {
 		length: 'euSyncCodeErrorLength',
 		padding: 'euSyncCodeErrorPadding',
 		checksum: 'euSyncCodeErrorChecksum',
-	};
-
-	// The same reasoning as CODE_ERRORS: written out, so the key is greppable and
-	// a typo shows up here rather than as a blank error line.
-	static SYNC_ERRORS = {
-		network: 'euSyncErrorNetwork',
-		'bad-request': 'euSyncErrorBadRequest',
-		'not-found': 'euSyncErrorNotFound',
-		'too-large': 'euSyncErrorTooLarge',
-		'quota-states': 'euSyncErrorQuotaStates',
-		'rate-limited': 'euSyncErrorRateLimited',
-		server: 'euSyncErrorServer',
-		malformed: 'euSyncErrorMalformed',
-		decrypt: 'euSyncErrorDecrypt',
-		stale: 'euSyncErrorStale',
-		disabled: 'euSyncErrorDisabled',
-		'no-secret': 'euSyncErrorNoSecret',
-		conflict: 'euSyncErrorConflict',
 	};
 
 	static properties = {
@@ -579,7 +562,7 @@ class EuSyncPanel extends LitElement {
 
 	#fail(e) {
 		this._errorCode = (e && e.code) || '';
-		this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS[this._errorCode] || 'euSyncErrorServer');
+		this._error = syncErrorText(window.i18n, e);
 		// The contract puts the current updatedAt in a conflict so this line can say
 		// when the state moved, without a second request.
 		if (this._errorCode === 'conflict' && e.updatedAt) {
@@ -681,7 +664,7 @@ class EuSyncPanel extends LitElement {
 		if (!list) return null;
 		const fresh = list.find(s => s.stateId === stateId);
 		if (!fresh) {
-			this._error = window.i18n.getMessage(EuSyncPanel.SYNC_ERRORS['not-found']);
+			this._error = window.i18n.getMessage(SYNC_ERRORS['not-found']);
 			return null;
 		}
 		return fresh;
