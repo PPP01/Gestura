@@ -3385,5 +3385,9 @@
 	"fallbackGestureTip": { "message": "Triggers when the drawn trail doesn't match any other gesture" },
 	"userScale": { "message": "Custom UI Scale" },
 	"userScaleDesc": { "message": "Scale Gestura UI elements like action hints and the HUD" },
-	"scale": { "message": "Scale" }
+	"scale": { "message": "Scale" },
+	"euSyncUnreachable": { "message": "gestura.eu can't be reached right now. Please try again later." },
+	"euSyncMaintenance": { "message": "gestura.eu is under maintenance." },
+	"euSyncMaintenanceUntil": { "message": "gestura.eu is under maintenance (expected until {time})." },
+	"euSyncMaintenanceUntilDate": { "message": "gestura.eu is under maintenance (expected until {date}, {time})." }
 }

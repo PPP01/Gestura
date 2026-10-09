@@ -18,9 +18,33 @@ export const SYNC_ERRORS = {
 	disabled: 'euSyncErrorDisabled',
 	'no-secret': 'euSyncErrorNoSecret',
 	conflict: 'euSyncErrorConflict',
+	unavailable: 'euSyncUnreachable',
 };
 
 export function syncErrorText(i18n, e) {
 	const code = (e && e.code) || '';
+	if (code === 'maintenance') return maintenanceText(i18n, e.until);
 	return i18n.getMessage(SYNC_ERRORS[code] || 'euSyncErrorServer');
+}
+
+// "gestura.eu wird gewartet (voraussichtlich bis 14:00 Uhr)." A later day adds
+// the date; an until in the past or none at all drops the time rather than
+// promising one that has already gone by (spec §8).
+export function maintenanceText(i18n, until, now = new Date()) {
+	const end = until ? new Date(until) : null;
+	if (!end || Number.isNaN(end.getTime()) || end <= now) return i18n.getMessage('euSyncMaintenance');
+	const lang = i18n.getHtmlLang();
+	const time = end.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+	if (end.toDateString() === now.toDateString()) {
+		return i18n.getMessage('euSyncMaintenanceUntil').replace('{time}', time);
+	}
+	const date = end.toLocaleDateString(lang, { day: 'numeric', month: 'long' });
+	return i18n.getMessage('euSyncMaintenanceUntilDate').replace('{date}', date).replace('{time}', time);
+}
+
+// The ping's four answers, as one sentence each (spec §5).
+export function reachText(i18n, reach) {
+	if (reach.kind === 'maintenance') return maintenanceText(i18n, reach.until);
+	if (reach.kind === 'rate-limited') return i18n.getMessage('euSyncErrorRateLimited');
+	return i18n.getMessage('euSyncUnreachable');
 }
