@@ -119,6 +119,13 @@
 		return loaded ? cache : load();
 	}
 
+	// The onboarding's re-read before it commits (design §6): the area cache
+	// follows storage.onChanged, and another tab's move may not have arrived.
+	// Rejects when storage does.
+	async function readAreaFresh() {
+		return absorb(await chrome.storage.local.get(AREA_KEY)).area;
+	}
+
 	function area() {
 		return cache.area;
 	}
@@ -401,7 +408,7 @@
 	const api = {
 		AREA_KEY, NOTE_KEYS, FORMAT_KEY, EU_SYNC_KEY, QUOTA,
 		byteLength, entryBytes, isFull,
-		area, ready, get, set, remove, onChanged, usage, syncFit, fitsSync, onAreaChanged,
+		area, ready, get, set, remove, onChanged, usage, syncFit, fitsSync, onAreaChanged, readAreaFresh,
 		switchTo, note,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -202,3 +202,14 @@ describe('when the integration goes away', () => {
 		expect(L.syncEnabled({ euSync: after })).toBe(true);
 	});
 });
+
+describe('readFresh', () => {
+	it('sees a write the cache has not heard of yet', async () => {
+		await L.write({ enabled: false, secret: 'GS1-A' });
+		// Behind the module's back, as another tab whose onChanged has not arrived.
+		await chrome.storage.local.set({ [L.KEY]: { ...(await L.read()).euSync, secret: 'GS1-B' } });
+		expect((await L.read()).euSync.secret).toBe('GS1-A');     // the cache, as documented
+		expect((await L.readFresh()).euSync.secret).toBe('GS1-B');
+		expect((await L.read()).euSync.secret).toBe('GS1-B');     // and absorbed
+	});
+});

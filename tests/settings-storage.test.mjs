@@ -698,3 +698,24 @@ describe('onAreaChanged', () => {
 		expect(seen).toEqual(['local']);
 	});
 });
+
+describe('readAreaFresh', () => {
+	it('sees an area move whose storage event has not arrived yet', async () => {
+		await seedLocal();
+		await S.switchTo('sync');
+		expect(S.area()).toBe('sync');
+		// The fake runs onSet after the write and BEFORE its onChanged: inside it the
+		// cache is still stale, which is another tab's move that has not been heard of.
+		fake.hooks.onSet = async () => {
+			expect(S.area()).toBe('sync');
+			expect(await S.readAreaFresh()).toBe('local');
+			expect(S.area()).toBe('local');
+		};
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+	});
+	it('rejects when storage does, so the caller can treat it as not done', async () => {
+		await seedLocal();
+		fake.hooks.failNext = { area: 'local', op: 'get', after: 0 };
+		await expect(S.readAreaFresh()).rejects.toThrow();
+	});
+});

@@ -119,6 +119,13 @@
 		return loaded ? cache : load();
 	}
 
+	// The gate's re-read before the onboarding commits (design §6): the cache
+	// follows storage.onChanged, and another tab's write may not have arrived
+	// yet. Rejects when storage does; the caller treats that as not done.
+	async function readFresh() {
+		return absorb(await chrome.storage.local.get(KEY));
+	}
+
 	async function write(patch) {
 		const next = { ...(await read()).euSync, ...(patch || {}) };
 		await chrome.storage.local.set({ [KEY]: next });
@@ -160,7 +167,7 @@
 	const api = {
 		KEY, CURRENT_SYNC_CONSENT,
 		normalizeSync, syncConsentStale, syncEnabled, syncOrigin,
-		read, write, setState, removeState, onChange,
+		read, readFresh, write, setState, removeState, onChange,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
 	root.GesturaSyncLocal = api;
