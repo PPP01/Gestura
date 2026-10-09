@@ -72,10 +72,26 @@
 	let loading = null;
 	const listeners = new Set();
 
+	const areaListeners = new Set();
+
+	// Every way the cached area changes goes through here - this context's own
+	// write, another context's storage event, the first load - so a listener
+	// learns of each change once, whichever path brought it.
 	function absorb(raw) {
+		const before = cache.area;
 		cache = normalizeArea(raw);
 		loaded = true;
+		if (cache.area !== before) {
+			for (const fn of areaListeners) {
+				try { fn(cache.area); } catch { /* one listener must not break the others */ }
+			}
+		}
 		return cache;
+	}
+
+	function onAreaChanged(fn) {
+		areaListeners.add(fn);
+		return () => areaListeners.delete(fn);
 	}
 
 	function load() {
@@ -226,6 +242,23 @@
 		return { ok: true };
 	}
 
+	// The size question about the settings as they are stored now. Writes
+	// nothing; a failed read is 'write' (the contract has no read code), never
+	// a fit. Size only: it does not refuse for gestura.eu being on, because the
+	// panel asks it exactly then - before turning gestura.eu off on the way to
+	// browser sync (onboarding design §4). Asked in state 'local' only, where the
+	// active store is the one toSync() copies from.
+	async function fitsSync() {
+		await ready();
+		let items;
+		try {
+			items = pickKnown(await store().get(knownKeys()));
+		} catch {
+			return { ok: false, error: 'write' };
+		}
+		return syncFit(items);
+	}
+
 	async function writeArea(next) {
 		await chrome.storage.local.set({ [AREA_KEY]: next });
 		absorb({ [AREA_KEY]: next });
@@ -368,7 +401,7 @@
 	const api = {
 		AREA_KEY, NOTE_KEYS, FORMAT_KEY, EU_SYNC_KEY, QUOTA,
 		byteLength, entryBytes, isFull,
-		area, ready, get, set, remove, onChanged, usage, syncFit,
+		area, ready, get, set, remove, onChanged, usage, syncFit, fitsSync, onAreaChanged,
 		switchTo, note,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;

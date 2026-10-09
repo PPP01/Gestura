@@ -606,3 +606,95 @@ describe('save, export and import share one ceiling', () => {
 		expect(Schema.validate(huge)).toMatchObject({ ok: false, error: 'too-large' });
 	});
 });
+
+describe('fitsSync (onboarding §3) - the size refusals of toSync(), without writing', () => {
+	const big = (n) => 'x'.repeat(n);
+
+	it('answers exactly what toSync() refuses with, for a branch over the item quota', async () => {
+		await seedLocal();
+		await chrome.storage.local.set({ siteMenus: { custom: { a: big(9000) } } });
+		const fit = await S.fitsSync();
+		const real = await S.switchTo('sync');
+		expect(fit.ok).toBe(false);
+		expect(fit).toEqual(real);
+		expect(S.area()).toBe('local');
+	});
+
+	it('answers exactly what toSync() refuses with, for the total', async () => {
+		await seedLocal();
+		const patch = {};
+		// Each branch under 8192, together over 102400.
+		for (const k of KNOWN.slice(0, 20)) patch[k] = big(7000);
+		await chrome.storage.local.set(patch);
+		const fit = await S.fitsSync();
+		const real = await S.switchTo('sync');
+		expect(fit.error).toBe('total-full');
+		expect(fit).toEqual(real);
+	});
+
+	it('says ok for settings that fit, and writes nothing', async () => {
+		await seedLocal();
+		const sync = JSON.stringify(fake.raw('sync'));
+		const local = JSON.stringify(fake.raw('local'));
+		expect(await S.fitsSync()).toEqual({ ok: true });
+		expect(JSON.stringify(fake.raw('sync'))).toBe(sync);
+		expect(JSON.stringify(fake.raw('local'))).toBe(local);
+		expect(S.area()).toBe('local');
+	});
+
+	it('answers about size only - gestura.eu being on is the caller\'s business', async () => {
+		await seedLocal();
+		await chrome.storage.local.set({ [S.EU_SYNC_KEY]: { enabled: true } });
+		expect(await S.fitsSync()).toEqual({ ok: true });
+	});
+
+	it('reports a failed read as write, never as a fit', async () => {
+		await seedLocal();
+		fake.hooks.failNext = { area: 'local', op: 'get', after: 0 };
+		expect(await S.fitsSync()).toEqual({ ok: false, error: 'write' });
+	});
+});
+
+describe('onAreaChanged', () => {
+	it('fires once with the new area when this context switches', async () => {
+		const seen = [];
+		const off = S.onAreaChanged(a => seen.push(a));
+		await S.switchTo('local');
+		off();
+		expect(seen).toEqual(['local']);
+	});
+
+	it('fires for a write made by another context (storage event only)', async () => {
+		const seen = [];
+		const off = S.onAreaChanged(a => seen.push(a));
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+		off();
+		expect(seen).toEqual(['local']);
+	});
+
+	it('stays quiet when the area is written with the same value', async () => {
+		const seen = [];
+		const off = S.onAreaChanged(a => seen.push(a));
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'sync', movedAt: '', movedTo: '' } });
+		off();
+		expect(seen).toEqual([]);
+	});
+
+	it('is silent after unsubscribing', async () => {
+		const seen = [];
+		const off = S.onAreaChanged(a => seen.push(a));
+		off();
+		await S.switchTo('local');
+		expect(seen).toEqual([]);
+	});
+
+	it('a throwing listener does not stop the others', async () => {
+		const seen = [];
+		const offA = S.onAreaChanged(() => { throw new Error('boom'); });
+		const offB = S.onAreaChanged(a => seen.push(a));
+		await S.switchTo('local');
+		offA();
+		offB();
+		expect(seen).toEqual(['local']);
+	});
+});
