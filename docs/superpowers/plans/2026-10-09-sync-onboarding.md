@@ -54,7 +54,7 @@ The Lit components carry the rendering:
 
 1. **The area changes in another tab while this panel is open.** The cards must follow without a reload, and an open wizard must not finish over the change. Pinned in Task 1 (`onAreaChanged` fires on the storage event), Task 9 (`finishOnboarding` aborts on `other-tab`) and the Task 19 browser check "two tabs".
 2. **The gestura.eu card is pressed twice quickly, or with Enter while focused.** Exactly one ping and one wizard must result. Arrow keys must do nothing. Pinned in Task 8, step "browser check: double activation and keyboard".
-3. **The user cancels while the first upload is still in flight.** No profile may be left behind under a code nobody stored, as far as best effort can reach. Pinned in Task 10 (cancel deletes `_inFlight` as well as `_uploaded`) and the Task 19 check with `delayMs`.
+3. **The user cancels while the first upload is still in flight.** No profile may be left behind under a code nobody stored, as far as best effort can reach. A DELETE sent beside the PUT can land first, so the delete waits until the PUT has settled. Pinned in Task 9 (`cleanupTarget` defers an in-flight upload and never targets without a stateId) and Task 10 check #7 (order of PUT and delete in the mock log).
 4. **gestura.eu answers with an HTML page, a `404` or a `200` without `status:"ok"`** (a misrouted proxy). This must read "nicht erreichbar", never "erreichbar", and never as a server-error text inside the wizard. Pinned in Task 2's classification tests.
 5. **A stale consent, a kept code and browser sync on, all at once.** "Mit diesem Code fortfahren" must switch the area to local and keep the profile map. Pinned in Task 9 (the kept-code path through `finishOnboarding`) and Task 11's browser check.
 
@@ -116,16 +116,52 @@ Expected: ` M manifest.json` and nothing else.
 - Modify: `js/settings-storage.js` (`toSync()` measurement block, `absorb()`, `api` object)
 - Test: `tests/settings-storage.test.mjs` (append)
 
+Two commits: (A) the extraction of `syncFit` from `toSync()` (no behaviour change), (B) the new `fitsSync` and `onAreaChanged`.
+
 **Interfaces:**
 - Produces:
-  - `GesturaSettingsStorage.syncFit(items: object) → { ok: true } | { ok: false, error: 'branch-full'|'total-full', branch: string, bytes: number, quota: number, checkedArea: 'sync' }`. Pure; identical to what `toSync()` refuses with.
-  - `GesturaSettingsStorage.fitsSync() → Promise<same>`. Reads the active area and writes nothing. A failed read returns `{ ok: false, error: 'write' }`.
-  - `GesturaSettingsStorage.onAreaChanged(fn: (area: 'sync'|'local') => void) → unsubscribe`. Fires whenever the cached area changes value, whether through this context's write, another context's storage event, or the first load.
+  - `GesturaSettingsStorage.syncFit(items: object) → { ok: true } | { ok: false, error: 'branch-full'|'total-full', branch: string, bytes: number, quota: number, checkedArea: 'sync' }`. Pure; exactly `toSync()`'s **size** refusals.
+  - `GesturaSettingsStorage.fitsSync() → Promise<same | { ok: false, error: 'write' }>`. Measures the settings of the active store and writes nothing. A failed read returns `{ ok: false, error: 'write' }`.
+    - **It answers about size only.** It deliberately does not return `tier2-enabled`: the panel asks it in "gestura.eu → Browser" *while* gestura.eu is still on, before turning it off (spec §4).
+    - Callers ask it only in state `local`, where the active store is the one `toSync()` copies from. That holds for both cards that lead into browser sync, because each starts from `local`.
+  - `GesturaSettingsStorage.onAreaChanged(fn: (area: 'sync'|'local') => void) → unsubscribe`. Fires whenever the cached area changes value, whether through this context's write, another context's storage event, or the first load. A throwing listener does not stop the others.
 
-- [ ] **Step 1: Write the failing tests** (append to `tests/settings-storage.test.mjs`).
+- [ ] **Step 1 (A): Extract `syncFit` from `toSync()`.** Below `usage()`, add:
 
 ```js
-describe('syncFit / fitsSync (onboarding §3)', () => {
+	// Whether a set of settings fits browser sync, measured the way toSync()
+	// refuses: every branch against the item quota, then the total with the
+	// format marker. Pure, so the onboarding can ask BEFORE it shows a dialog
+	// whose second half (turning gestura.eu off) cannot be undone (spec §4).
+	function syncFit(items) {
+		const q = QUOTA.sync;
+		const u = usage(items, 'sync');
+		for (const [k, bytes] of Object.entries(u.branches)) {
+			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, checkedArea: 'sync' };
+		}
+		if (u.total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: u.total, quota: q.total, checkedArea: 'sync' };
+		return { ok: true };
+	}
+```
+
+In `toSync()`, replace the block from `const q = QUOTA.sync;` through the `total-full` return with:
+
+```js
+		const fit = syncFit(items);
+		if (!fit.ok) return fit;
+```
+
+Add `syncFit` to `api`. Run `npm test` → all pass, with no test changed: the existing `toSync()` refusal tests pin the shapes.
+
+```bash
+git add js/settings-storage.js
+git commit -m "refactor(storage): toSync's size check becomes syncFit()"
+```
+
+- [ ] **Step 2 (B): Write the failing tests** (append to `tests/settings-storage.test.mjs`).
+
+```js
+describe('fitsSync (onboarding §3) - the size refusals of toSync(), without writing', () => {
 	const big = (n) => 'x'.repeat(n);
 
 	it('answers exactly what toSync() refuses with, for a branch over the item quota', async () => {
@@ -152,10 +188,18 @@ describe('syncFit / fitsSync (onboarding §3)', () => {
 
 	it('says ok for settings that fit, and writes nothing', async () => {
 		await seedLocal();
-		const before = JSON.stringify([...fake.areas.sync.entries()]);
+		const sync = JSON.stringify(fake.raw('sync'));
+		const local = JSON.stringify(fake.raw('local'));
 		expect(await S.fitsSync()).toEqual({ ok: true });
-		expect(JSON.stringify([...fake.areas.sync.entries()])).toBe(before);
+		expect(JSON.stringify(fake.raw('sync'))).toBe(sync);
+		expect(JSON.stringify(fake.raw('local'))).toBe(local);
 		expect(S.area()).toBe('local');
+	});
+
+	it('answers about size only - gestura.eu being on is the caller\'s business', async () => {
+		await seedLocal();
+		await chrome.storage.local.set({ [S.EU_SYNC_KEY]: { enabled: true } });
+		expect(await S.fitsSync()).toEqual({ ok: true });
 	});
 
 	it('reports a failed read as write, never as a fit', async () => {
@@ -189,38 +233,45 @@ describe('onAreaChanged', () => {
 		off();
 		expect(seen).toEqual([]);
 	});
+
+	it('is silent after unsubscribing', async () => {
+		const seen = [];
+		const off = S.onAreaChanged(a => seen.push(a));
+		off();
+		await S.switchTo('local');
+		expect(seen).toEqual([]);
+	});
+
+	it('a throwing listener does not stop the others', async () => {
+		const seen = [];
+		const offA = S.onAreaChanged(() => { throw new Error('boom'); });
+		const offB = S.onAreaChanged(a => seen.push(a));
+		await S.switchTo('local');
+		offA();
+		offB();
+		expect(seen).toEqual(['local']);
+	});
 });
 ```
 
-Before relying on `fake.areas` and `fake.hooks`, check that `tests/helpers/fake-chrome-storage.mjs` exposes them under these names. If it uses other names, use those; do not change the helper.
+`fake.raw(name)` and `fake.hooks` are what `tests/helpers/fake-chrome-storage.mjs` exports (lines 105–111); there is no `areas`.
 
-- [ ] **Step 2: Run the tests and watch them fail.**
+- [ ] **Step 3: Run the tests and watch them fail.**
 
 Run: `npx vitest run tests/settings-storage.test.mjs`
 Expected: FAIL with `S.fitsSync is not a function` and `S.onAreaChanged is not a function`.
 
-- [ ] **Step 3: Implement.** In `js/settings-storage.js`:
+- [ ] **Step 4: Implement.** In `js/settings-storage.js`:
 
-(a) Below `usage()`, add `syncFit` and make `toSync()` use it. This is an extraction: `toSync()`'s refusals keep their exact shape.
+(a) Below `syncFit`:
 
 ```js
-	// Whether a set of settings fits browser sync, measured the way toSync()
-	// refuses: every branch against the item quota, then the total with the
-	// format marker. Pure, so the onboarding can ask BEFORE it shows a dialog
-	// whose second half (turning gestura.eu off) cannot be undone (spec §4).
-	function syncFit(items) {
-		const q = QUOTA.sync;
-		const u = usage(items, 'sync');
-		for (const [k, bytes] of Object.entries(u.branches)) {
-			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, checkedArea: 'sync' };
-		}
-		if (u.total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: u.total, quota: q.total, checkedArea: 'sync' };
-		return { ok: true };
-	}
-
-	// The same question about the settings as they are stored now. Writes
+	// The size question about the settings as they are stored now. Writes
 	// nothing; a failed read is 'write' (the contract has no read code), never
-	// a fit.
+	// a fit. Size only: it does not refuse for gestura.eu being on, because the
+	// panel asks it exactly then - before turning gestura.eu off on the way to
+	// browser sync (onboarding design §4). Asked in state 'local' only, where the
+	// active store is the one toSync() copies from.
 	async function fitsSync() {
 		await ready();
 		let items;
@@ -231,13 +282,6 @@ Expected: FAIL with `S.fitsSync is not a function` and `S.onAreaChanged is not a
 		}
 		return syncFit(items);
 	}
-```
-
-In `toSync()`, replace the block from `const q = QUOTA.sync;` through the `total-full` return with:
-
-```js
-		const fit = syncFit(items);
-		if (!fit.ok) return fit;
 ```
 
 (b) The area listener. Replace `absorb()` and add the listener set:
@@ -266,16 +310,16 @@ In `toSync()`, replace the block from `const q = QUOTA.sync;` through the `total
 	}
 ```
 
-`absorb` is declared before `cache` is read. Keep `areaListeners` above `absorb` and below `let cache`.
+Keep `areaListeners` below `let cache` and above `absorb`.
 
-(c) Add `syncFit, fitsSync, onAreaChanged` to `api`.
+(c) Add `fitsSync, onAreaChanged` to `api`.
 
-- [ ] **Step 4: Run the tests and watch them pass.**
+- [ ] **Step 5: Run the tests and watch them pass.**
 
 Run: `npx vitest run tests/settings-storage.test.mjs` → PASS (old and new tests).
 Run: `npm test` → all pass.
 
-- [ ] **Step 5: Commit.**
+- [ ] **Step 6: Commit.**
 
 ```bash
 git add js/settings-storage.js tests/settings-storage.test.mjs
@@ -283,10 +327,10 @@ git commit -m "feat(storage): non-mutating fit check for browser sync and an are
 ```
 
 **Acceptance:**
-- `fitsSync()` returns the same refusal object as `switchTo('sync')` would, for both refusal kinds.
-- `fitsSync()` writes nothing.
-- `onAreaChanged` fires exactly once per real change, from either source.
-- Every earlier `settings-storage` test still passes unchanged (the extraction changed no refusal).
+- Commit A changes no test and keeps the suite green.
+- `fitsSync()` returns the same object as `switchTo('sync')` for both size refusals.
+- `fitsSync()` writes nothing to either area.
+- `onAreaChanged` fires exactly once per real change from either source, stays silent after unsubscribing, and survives a throwing listener.
 
 ---
 
@@ -392,10 +436,12 @@ describe('503 and 404 on the sync endpoints (spec §5, §8)', () => {
 });
 ```
 
+**Change one existing test on purpose.** In the `describe('errors')` table of `tests/eu-sync.test.mjs`, the row `[404, 'not-found']` pins the old reading of a `404` from `listStates`. Change it to `[404, 'unavailable']`, with a comment: `// list never 404s per the contract; a 404 means the request missed the service (onboarding §8)`. This is the behaviour change of this task, not collateral.
+
 - [ ] **Step 2: Run the tests and watch them fail.**
 
 Run: `npx vitest run tests/eu-sync.test.mjs`
-Expected: FAIL. `S.pingService is not a function`; codes come back as `server`/`not-found`.
+Expected: FAIL. `S.pingService is not a function`; codes come back as `server`/`not-found`, including the changed table row.
 
 - [ ] **Step 3: Implement in `js/eu-sync.js`.**
 
@@ -535,7 +581,7 @@ git commit -m "feat(sync): ping, 503 maintenance with until, 404 from list/PUT r
 - Every row of the §5 classification table has a passing test.
 - The ping goes out as a GET with no body and no Content-Type.
 - `get` keeps `not-found`.
-- No existing `eu-sync` test changed.
+- Exactly one existing `eu-sync` test changed: the `404` row of the `errors` table, now `unavailable`.
 
 ---
 
@@ -639,6 +685,10 @@ describe('syncErrorText and reachText', () => {
 	});
 	it('maintenance from any endpoint uses the maintenance sentence', () => {
 		expect(syncErrorText(i18n, { code: 'maintenance', until: '' })).toBe('M');
+	});
+	it('maintenance from an endpoint carries its until into the sentence', () => {
+		const until = new Date(Date.now() + 2 * 3600 * 1000).toISOString();
+		expect(syncErrorText(i18n, { code: 'maintenance', until })).toMatch(/^M until /);
 	});
 	it('the four ping kinds', () => {
 		expect(reachText(i18n, { kind: 'unreachable' })).toBe('U');
@@ -830,10 +880,10 @@ The dialog uses `fillRefusal` itself, so keep the import.
 import { describe, it, expect } from 'vitest';
 import { switchArea, refusalText, wayBackText } from '../js/components/storage-area-switch.js';
 
-const fakeS = (answer, landedArea, note = null) => {
+const fakeS = (answer, landedArea, note = null, seen = []) => {
 	let area = 'sync';
 	return {
-		switchTo: async (target) => { area = landedArea ?? (answer.ok ? target : area); return answer; },
+		switchTo: async (target, reason) => { seen.push([target, reason]); area = landedArea ?? (answer.ok ? target : area); return answer; },
 		area: () => area,
 		note: async () => { if (note instanceof Error) throw note; return note; },
 	};
@@ -855,6 +905,12 @@ describe('switchArea', () => {
 	});
 	it('ok:false but the area moved anyway counts as landed (failed rollback)', async () => {
 		expect(await switchArea(fakeS({ ok: false, error: 'write' }, 'local'), 'local')).toEqual({ landed: true, refusal: null });
+	});
+	it('passes the reason on - it decides the note other browsers read', async () => {
+		const seen = [];
+		await switchArea(fakeS({ ok: true }, null, null, seen), 'local', 'gestura.eu');
+		await switchArea(fakeS({ ok: true }, null, null, seen), 'local');
+		expect(seen).toEqual([['local', 'gestura.eu'], ['local', 'local']]);
 	});
 	it('refused: not landed, refusal carried', async () => {
 		const res = { ok: false, error: 'branch-full', branch: 'siteMenus', bytes: 9000, quota: 8192 };
@@ -936,6 +992,7 @@ export async function wayBackText(S, i18n, formatDate) {
 
   - `#confirmWayBack` becomes `return window.confirm(await wayBackText(window.GesturaSettingsStorage, i18n, iso => this.#formatDate(iso)));`.
   - Remove the now-unused `fillRefusal` import if nothing else in the file uses it. Check with grep.
+  - The comment above `#switchArea` explains "area(), not res.ok" for a call that is no longer there. Shorten it to the method's job and point at the module: `// The judgement of where the browser landed lives in storage-area-switch.js.`
 
 - [ ] **Step 5: Run.** `npx vitest run tests/storage-area-switch.test.mjs` → PASS. `npm test` → all pass.
 
@@ -954,7 +1011,7 @@ git commit -m "refactor(storage): the area switch and its refusal texts become a
 
 **Acceptance:**
 - New module tests pass.
-- `options-page.js` no longer calls `S.switchTo` directly. Check: `grep -n "switchTo" js/components/options-page.js` gives no output.
+- `options-page.js` no longer calls `S.switchTo` directly. Check: `grep -n "\.switchTo(" js/components/options-page.js` gives no output.
 - The browser behaviour of the Datenverwaltung switch is unchanged (step 6).
 
 ---
@@ -1003,7 +1060,9 @@ The following pending keys are rewritten in Task 13 and are therefore not touche
 
 - [ ] **Step 2: Find what is left.**
 
-Run: `node -e "for (const l of ['de','en']) { const m=require('./_locales/'+l+'/messages.json'); for (const [k,v] of Object.entries(m)) if (/^(euSync|settingsPreview|syncMerge)/.test(k) && (l==='de' ? /\bSt(a|ä)nd(e|en|es)?\b/ : /\bstates?\b/i).test(v.message)) console.log(l,k) }"`
+Run: `node -e "for (const l of ['de','en']) { const m=require('./_locales/'+l+'/messages.json'); for (const [k,v] of Object.entries(m)) { const t=v.message.replace(/\{[a-z]+\}/g,''); if (/^(euSync|settingsPreview|syncMerge)/.test(k) && (l==='de' ? /\bSt(a|ä)nd(e|en|es)?\b/ : /\bstates?\b/i).test(t)) console.log(l,k) } }"`
+
+`{tokens}` are stripped first: `euSyncReplaceCount` and `euSyncDeleteCount` carry a `{states}` token, which is a placeholder name, not text.
 
 Expected: only `euSyncConsentPoint*` (Task 16) and the three Task-13 keys. Any other hit is changed the same way and added to the table in this plan.
 
@@ -1011,13 +1070,15 @@ Expected: only `euSyncConsentPoint*` (Task 16) and the three Task-13 keys. Any o
 
 ```js
 // Changed wording in all 39 locales, not caught by a test: Stand/state -> Profil/profile
-// (onboarding design §2) in settingsPreviewChangeThere, euSyncOffBody, euSyncOffDeleteAllDesc,
-// euSyncSecretDesc, euSyncSecretNewConfirm, euSyncStatesTitle, euSyncCreate, euSyncDeleteConfirm,
-// euSyncDeleteAllConfirm, euSyncStateBroken, euSyncDuplicateName, euSyncQuotaReached,
-// euSyncErrorNotFound, euSyncErrorQuotaStates, euSyncMerge*; the 37 others still say "state".
+// (onboarding design §2) in <the keys of the table above that are NOT in PENDING_TRANSLATION>;
+// the 37 others still say "state".
 ```
 
-Before writing it, check every listed key against the PENDING list: keys that are pending are not "all 39" and do not belong in this note. Trim the list accordingly.
+Build the key list from the step-1 table minus `PENDING_TRANSLATION`, with a one-liner rather than by hand:
+
+`node -e "const t=require('fs').readFileSync('tests/site-menu-locales.test.mjs','utf8'); const keys=[/* paste the step-1 table's keys */]; console.log(keys.filter(k=>!t.includes(\"'\"+k+\"'\")).join(', '))"`
+
+Paste its output into the comment. By today's list that includes, among others, `euSyncSecretPairDesc` and `euSyncErrorConflict`; the command, not this sentence, is authoritative.
 
 - [ ] **Step 4: Run.** `npm test` → all pass. The placeholder test passes, so no `$` was introduced.
 
@@ -1169,7 +1230,8 @@ The gestura.eu card still opens today's consent dialog; Task 10 replaces that di
 	async #choose(to) {
 		const i18n = window.i18n;
 		const S = window.GesturaSettingsStorage;
-		const from = this.#card().card;
+		const { card: from, repair } = this.#card();
+		if (repair) return;
 		this._choiceMsg = '';
 		this._choiceRetry = null;
 		switch (planFor(from, to)) {
@@ -1305,7 +1367,8 @@ Methods:
 		const { card, repair } = this.#card();
 		const opt = (id, titleKey, descKey) => {
 			const active = card === id;
-			const blocked = this._busy || this._checking;
+			// In the repair state nothing but the repair line is offered (spec §3).
+			const blocked = this._busy || this._checking || repair;
 			return html`
 				<button type="button" class="way-card" aria-pressed=${active ? 'true' : 'false'}
 					aria-disabled=${blocked ? 'true' : 'false'}
@@ -1373,7 +1436,7 @@ Methods:
 `render()`:
   - Replace the first `setting-row` (the toggle) with `${this.#renderChoice()}`.
   - Delete `#onToggle`.
-  - Leave the stale row and the rest of `render()` as they are.
+  - In the repair state the tabs and the sync dialogs are not rendered (spec §3: "Nothing else is offered in that state"). The two `this.#effective ? …` lines become `this.#effective && !this.#card().repair ? …`. Leave the stale row and the rest of `render()` as they are.
   - The `.first-row` class goes with the deleted row.
   - Add `this._choiceMsg` to the `updated()` scroll-into-view check:
 
@@ -1428,8 +1491,10 @@ Task 15 refines the `'eu'` branch; this is today's behaviour, routed through the
 | 11 | From gestura.eu (consent dialog accepted), click "Nur in diesem Browser" | The turn-off dialog, without the browser sentence |
 | 12 | From gestura.eu, click "Über deinen Browser" with settings that fit | The turn-off dialog **with** "Danach überträgt wieder dein Browser …"; "Nur ausschalten" → `area()` = `sync`, `euSync.enabled` false |
 | 13 | As 12 but seeded 9000-byte branch | Refusal at the cards, no dialog, gestura.eu stays on |
-| 14 | Write `euSync.enabled = true` while `area` = `sync` (CDP) | gestura.eu pressed + repair line; "Erneut versuchen" → `area()` = `local` |
+| 14 | Write `euSync.enabled = true` while `area` = `sync` (CDP) | gestura.eu pressed + repair line; the other cards do nothing, no tabs are shown; "Erneut versuchen" → `area()` = `local`, tabs appear |
 | 15 | Two tabs: switch to local in tab A | Tab B's cards follow without reload |
+
+Known intermediate state after this commit, accepted because nothing is released between tasks: the storage-full dialog's gestura.eu way already runs through the ping, but its description (`storageWayEuDesc`) still reads the old text until Task 15.
 
 - [ ] **Step 9: Commit.**
 
@@ -1446,49 +1511,84 @@ git commit -m "feat(sync): the sync section becomes the choice between three way
 
 ---
 
-### Task 9: The wizard's finishing order, pure
+### Task 9: The wizard's decisions, pure: finishing order, patch, cleanup
 
 **Files:**
+- Modify: `js/eu-sync-local.js` (+ `readFresh()`), `tests/eu-sync-local.test.mjs` (append)
 - Create: `js/components/sync-onboarding-flow.js`
 - Test: `tests/sync-onboarding-flow.test.mjs`
 
 **Interfaces:**
 - Produces:
+  - `GesturaSyncLocal.readFresh() → Promise<{ euSync }>`. Reads `chrome.storage.local` itself, absorbs the result into the cache and returns it. The gate's re-read must not trust a cache whose `onChanged` from another tab may not have arrived yet. A failed read rejects, and the wizard treats that as a failed finish.
   - `createGeneration() → { next(): number, isCurrent(t: number): boolean }`.
-  - `sameSetup(a: euSync, b: euSync) → boolean`. Compares `enabled`, `secret` and `consent`.
+  - `sameSetup(a: euSync, b: euSync) → boolean`. Compares `enabled`, `secret` and `consent`, not the profile map.
+  - `buildPatch({ opened: euSync, code: string, consent: { version, date }, uploaded: null | { stateId, name, date }, lastUploadHash: string }) → patch`.
+  - `cleanupTarget({ uploaded, inFlight }) → null | { when: 'now'|'settled', secret, origin, stateId }`. It never returns a target without a `stateId`: `deleteStates` without one deletes **every** profile under the code ([js/eu-sync.js:225](../../../js/eu-sync.js#L225)).
   - `finishOnboarding({ opened, reread, writeSync, patch, area, switchToLocal, rollback, writeBase }) → Promise<{ ok: true } | { ok: false, reason: 'other-tab'|'write'|'switch', rolledBack?: boolean }>`.
-    - `opened` is `{ euSync }` as read when the wizard opened.
-    - `reread()` resolves to `{ euSync }`.
-    - `writeSync(patch)` writes it.
-    - `area()` returns `'sync'|'local'`.
-    - `switchToLocal()` performs the switch; its outcome is judged by `area()`.
+    - `opened` and `reread()` both have the shape `{ euSync, area }`.
+    - `area()` returns the live area.
+    - `switchToLocal()` performs the switch, judged by `area()`.
     - `rollback(euSync)` writes it back.
     - `writeBase` is a function or `null`.
 
-- [ ] **Step 1: Failing tests** `tests/sync-onboarding-flow.test.mjs`:
+- [ ] **Step 1: `readFresh` test** (append to `tests/eu-sync-local.test.mjs`):
+
+```js
+describe('readFresh', () => {
+	it('sees a write the cache has not heard of yet', async () => {
+		await L.write({ enabled: false, secret: 'GS1-A' });
+		// Behind the module's back, as another tab whose onChanged has not arrived.
+		await chrome.storage.local.set({ [L.KEY]: { ...(await L.read()).euSync, secret: 'GS1-B' } });
+		expect((await L.read()).euSync.secret).toBe('GS1-A');     // the cache, as documented
+		expect((await L.readFresh()).euSync.secret).toBe('GS1-B');
+		expect((await L.read()).euSync.secret).toBe('GS1-B');     // and absorbed
+	});
+});
+```
+
+The fake in that file (lines 5–15) stores the `onChanged` listener but never calls it on `set`, so a direct `chrome.storage.local.set` really is a write the cache has not heard of.
+
+Run → FAIL (`L.readFresh is not a function`).
+
+- [ ] **Step 2: Implement `readFresh`** in `js/eu-sync-local.js`, below `read()`:
+
+```js
+	// The gate's re-read before the onboarding commits (design §6): the cache
+	// follows storage.onChanged, and another tab's write may not have arrived
+	// yet. Rejects when storage does; the caller treats that as not done.
+	async function readFresh() {
+		return absorb(await chrome.storage.local.get(KEY));
+	}
+```
+
+Add it to `api`. Run → PASS; `npm test` → green. Commit together with step 4.
+
+- [ ] **Step 3: Failing tests** `tests/sync-onboarding-flow.test.mjs`:
 
 ```js
 import { describe, it, expect } from 'vitest';
-import { createGeneration, sameSetup, finishOnboarding } from '../js/components/sync-onboarding-flow.js';
+import { createGeneration, sameSetup, buildPatch, cleanupTarget, finishOnboarding } from '../js/components/sync-onboarding-flow.js';
 
 const OFF = { enabled: false, consent: null, secret: '', states: {}, activeState: '' };
 const PATCH = { enabled: true, consent: { version: 2, date: 'd' }, secret: 'GS1-NEW' };
 
 // A recorder for the steps, as tests/settings-merge.test.mjs does for commitOrder.
-function harness({ now = OFF, area = 'sync', landed = 'local', failWrite = false, failRollback = false, failBase = false, base = true } = {}) {
+// `state` is what storage holds; writeSync/rollback change it, reread reports it.
+function harness({ area = 'sync', landed = 'local', failWrite = false, failRollback = false, failBase = false, base = true, meddle = null } = {}) {
 	const log = [];
-	let current = area;
+	const state = { euSync: { ...OFF }, area };
 	const steps = {
-		opened: { euSync: OFF },
-		reread: async () => { log.push('reread'); return { euSync: now }; },
-		writeSync: async (p) => { log.push(['write', p]); if (failWrite) throw new Error('w'); },
+		opened: { euSync: { ...OFF }, area },
+		reread: async () => { log.push('reread'); if (meddle) meddle(state, log); return { euSync: { ...state.euSync }, area: state.area }; },
+		writeSync: async (p) => { log.push(['write', p]); if (failWrite) throw new Error('w'); state.euSync = { ...state.euSync, ...p }; },
 		patch: PATCH,
-		area: () => current,
-		switchToLocal: async () => { log.push('switch'); current = landed; },
-		rollback: async (prev) => { log.push(['rollback', prev]); if (failRollback) throw new Error('r'); },
+		area: () => state.area,
+		switchToLocal: async () => { log.push('switch'); state.area = landed; },
+		rollback: async (prev) => { log.push(['rollback', prev]); if (failRollback) throw new Error('r'); state.euSync = { ...prev }; },
 		writeBase: base ? async () => { log.push('base'); if (failBase) throw new Error('b'); } : null,
 	};
-	return { steps, log };
+	return { steps, log, state };
 }
 
 describe('finishOnboarding (spec §6)', () => {
@@ -1503,27 +1603,45 @@ describe('finishOnboarding (spec §6)', () => {
 		expect(log).toEqual(['reread', ['write', PATCH], 'base']);
 	});
 	it('another tab set sync up meanwhile: stops before writing anything', async () => {
-		const { steps, log } = harness({ now: { ...OFF, enabled: true, secret: 'GS1-OTHER', consent: { version: 2, date: 'x' } } });
+		const { steps, log } = harness({ meddle: (s) => { s.euSync = { ...OFF, enabled: true, secret: 'GS1-OTHER', consent: { version: 2, date: 'x' } }; } });
 		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'other-tab' });
 		expect(log).toEqual(['reread']);
 	});
 	it('another tab only changed the code: stops as well', async () => {
-		const { steps } = harness({ now: { ...OFF, secret: 'GS1-OTHER' } });
+		const { steps } = harness({ meddle: (s) => { s.euSync = { ...OFF, secret: 'GS1-OTHER' }; } });
 		expect((await finishOnboarding(steps)).reason).toBe('other-tab');
+	});
+	it('another tab moved the storage area: stops as well (spec §6 re-reads both)', async () => {
+		const { steps, log } = harness({ area: 'local', meddle: (s) => { s.area = 'sync'; } });
+		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'other-tab' });
+		expect(log).toEqual(['reread']);
 	});
 	it('the euSync write fails: nothing else happens', async () => {
 		const { steps, log } = harness({ failWrite: true });
 		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'write' });
 		expect(log).toEqual(['reread', ['write', PATCH]]);
 	});
+	it('a failed re-read is a failed finish, nothing written', async () => {
+		const { steps, log } = harness();
+		steps.reread = async () => { log.push('reread'); throw new Error('storage'); };
+		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'write' });
+		expect(log).toEqual(['reread']);
+	});
 	it('the switch does not land: rolls euSync back to what was opened, no base', async () => {
 		const { steps, log } = harness({ landed: 'sync' });
 		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'switch', rolledBack: true });
-		expect(log).toEqual(['reread', ['write', PATCH], 'switch', ['rollback', OFF]]);
+		expect(log).toEqual(['reread', ['write', PATCH], 'switch', 'reread', ['rollback', OFF]]);
+	});
+	it('the switch does not land and another tab wrote meanwhile: no rollback over it', async () => {
+		let n = 0;
+		const { steps, log, state } = harness({ landed: 'sync', meddle: (s) => { if (++n === 2) s.euSync = { ...s.euSync, secret: 'GS1-OTHER' }; } });
+		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'other-tab', rolledBack: false });
+		expect(log.some(e => Array.isArray(e) && e[0] === 'rollback')).toBe(false);
+		expect(state.euSync.secret).toBe('GS1-OTHER');
 	});
 	it('the switch throws but the area moved: counts as landed', async () => {
-		const { steps, log } = harness();
-		steps.switchToLocal = async () => { log.push('switch'); steps.area = () => 'local'; throw new Error('noted:false'); };
+		const { steps, log, state } = harness();
+		steps.switchToLocal = async () => { log.push('switch'); state.area = 'local'; throw new Error('noted:false'); };
 		expect(await finishOnboarding(steps)).toEqual({ ok: true });
 	});
 	it('the rollback fails too: reports it, so the repair line can take over', async () => {
@@ -1541,13 +1659,50 @@ describe('finishOnboarding (spec §6)', () => {
 	});
 	it('the kept-code path (stale consent, browser sync on) switches and keeps the map', async () => {
 		const kept = { enabled: true, consent: { version: 1, date: 'old' }, secret: 'GS1-KEPT', states: { a: {} }, activeState: 'a' };
-		const { steps, log } = harness();
-		steps.opened = { euSync: kept };
-		steps.reread = async () => { log.push('reread'); return { euSync: kept }; };
-		steps.patch = { enabled: true, consent: { version: 2, date: 'd' } };
+		const { steps, log, state } = harness();
+		state.euSync = { ...kept };
+		steps.opened = { euSync: kept, area: 'sync' };
+		steps.patch = buildPatch({ opened: kept, code: 'GS1-KEPT', consent: { version: 2, date: 'd' }, uploaded: null });
 		steps.writeBase = null;
 		expect(await finishOnboarding(steps)).toEqual({ ok: true });
-		expect(log).toEqual(['reread', ['write', { enabled: true, consent: { version: 2, date: 'd' } }], 'switch']);
+		expect(log).toEqual(['reread', ['write', { enabled: true, consent: { version: 2, date: 'd' }, secret: 'GS1-KEPT' }], 'switch']);
+		expect(state.euSync.states).toEqual({ a: {} });
+		expect(state.euSync.activeState).toBe('a');
+	});
+});
+
+describe('buildPatch', () => {
+	const consent = { version: 2, date: 'd' };
+	it('Way A: the new code, the uploaded profile as the only and active one', () => {
+		const p = buildPatch({ opened: { ...OFF, secret: 'GS1-OLD', states: { x: {} } }, code: 'GS1-NEW', consent,
+			uploaded: { stateId: 's1', name: 'Büro', date: 't' }, lastUploadHash: 'h' });
+		expect(p).toEqual({ enabled: true, consent, secret: 'GS1-NEW',
+			states: { s1: { name: 'Büro', lastUploadHash: 'h', lastUploadDate: 't' } }, activeState: 's1' });
+	});
+	it('Way B with another code: the old map goes with the old code', () => {
+		expect(buildPatch({ opened: { ...OFF, secret: 'GS1-OLD', states: { x: {} }, activeState: 'x' }, code: 'GS1-NEW', consent, uploaded: null }))
+			.toEqual({ enabled: true, consent, secret: 'GS1-NEW', states: {}, activeState: '' });
+	});
+	it('the kept code: map and active profile are not touched', () => {
+		expect(buildPatch({ opened: { ...OFF, secret: 'GS1-KEPT', states: { x: {} }, activeState: 'x' }, code: 'GS1-KEPT', consent, uploaded: null }))
+			.toEqual({ enabled: true, consent, secret: 'GS1-KEPT' });
+	});
+});
+
+describe('cleanupTarget (cancel leaves nothing behind)', () => {
+	const t = { secret: 'S', origin: 'O', stateId: 's1' };
+	it('nothing uploaded, nothing in flight: nothing to delete', () => {
+		expect(cleanupTarget({ uploaded: null, inFlight: null })).toBe(null);
+	});
+	it('an acknowledged upload is deleted now', () => {
+		expect(cleanupTarget({ uploaded: t, inFlight: null })).toEqual({ when: 'now', ...t });
+	});
+	it('an upload still in flight is deleted once it settled - a DELETE racing the PUT could land first', () => {
+		expect(cleanupTarget({ uploaded: null, inFlight: t })).toEqual({ when: 'settled', ...t });
+	});
+	it('never a target without a stateId - that would delete every profile under the code', () => {
+		expect(cleanupTarget({ uploaded: { ...t, stateId: '' }, inFlight: null })).toBe(null);
+		expect(cleanupTarget({ uploaded: null, inFlight: { ...t, stateId: undefined } })).toBe(null);
 	});
 });
 
@@ -1573,7 +1728,7 @@ describe('sameSetup', () => {
 
 Run → FAIL (module missing).
 
-- [ ] **Step 2: Implement** `js/components/sync-onboarding-flow.js`:
+- [ ] **Step 4: Implement** `js/components/sync-onboarding-flow.js`:
 
 ```js
 // The onboarding wizard's decisions, without a DOM (design §6) - the way
@@ -1598,19 +1753,55 @@ export function sameSetup(a, b) {
 		&& JSON.stringify(a.consent) === JSON.stringify(b.consent);
 }
 
+// The one euSync write of a finished onboarding. Way A: the new code with its
+// first profile as the only and active one. Another code without an upload
+// (Way B): the map belongs to the old code and goes with it. The kept code:
+// map and active profile stay as they are.
+export function buildPatch({ opened, code, consent, uploaded, lastUploadHash = '' }) {
+	const patch = { enabled: true, consent, secret: code };
+	if (uploaded) {
+		patch.states = { [uploaded.stateId]: { name: uploaded.name, lastUploadHash, lastUploadDate: uploaded.date } };
+		patch.activeState = uploaded.stateId;
+	} else if (code !== opened.secret) {
+		patch.states = {};
+		patch.activeState = '';
+	}
+	return patch;
+}
+
+// What a cancel has to delete so nothing is left behind (§6). An upload still
+// in flight is deleted only once it has settled: a DELETE sent beside it can
+// reach the server first, and the PUT would then create the profile after all.
+// Never a target without a stateId - deleteStates() without one deletes every
+// profile under the code.
+export function cleanupTarget({ uploaded, inFlight }) {
+	const pick = uploaded || inFlight;
+	if (!pick || typeof pick.stateId !== 'string' || !pick.stateId) return null;
+	return { when: uploaded ? 'now' : 'settled', secret: pick.secret, origin: pick.origin, stateId: pick.stateId };
+}
+
+const same = (a, b) => a.area === b.area && sameSetup(a.euSync, b.euSync);
+
 // Finishing, in exactly this order:
-// 1. Re-read: if another tab set sync up or changed the code since the wizard
-//    opened, stop and store nothing.
+// 1. Re-read euSync AND the area: if another tab set sync up, changed the code
+//    or moved the storage since the wizard opened, stop and store nothing.
 // 2. ONE write of euSync. It is the commit point, and from it on toSync()
 //    refuses - so the race of §3 cannot start a switch back to browser sync.
 // 3. The area to local, judged by area() - never by the switch's own answer:
 //    a failed second copy can still leave the browser switched. Not landed:
-//    roll euSync back to what was read at the start.
+//    roll euSync back to what was read at the start - but only while what is
+//    stored is still this wizard's write. Another tab's newer setup is never
+//    overwritten with an old snapshot.
 // 4. The base. A failed base write means "no base", which only delays Sync.
 export async function finishOnboarding(steps) {
 	const { opened, reread, writeSync, patch, switchToLocal, rollback, writeBase } = steps;
-	const now = await reread();
-	if (!sameSetup(opened.euSync, now.euSync)) return { ok: false, reason: 'other-tab' };
+	let now;
+	try {
+		now = await reread();
+	} catch {
+		return { ok: false, reason: 'write' };
+	}
+	if (!same(opened, now)) return { ok: false, reason: 'other-tab' };
 	try {
 		await writeSync(patch);
 	} catch {
@@ -1621,6 +1812,9 @@ export async function finishOnboarding(steps) {
 	if (steps.area() === 'sync') {
 		try { await switchToLocal(); } catch { /* judged below */ }
 		if (steps.area() !== 'local') {
+			let after;
+			try { after = await reread(); } catch { return { ok: false, reason: 'switch', rolledBack: false }; }
+			if (!sameSetup(after.euSync, { ...opened.euSync, ...patch })) return { ok: false, reason: 'other-tab', rolledBack: false };
 			try {
 				await rollback(opened.euSync);
 			} catch {
@@ -1636,22 +1830,27 @@ export async function finishOnboarding(steps) {
 }
 ```
 
-- [ ] **Step 3: Run** → PASS. `npm test` → all pass.
+The window between the re-read before the rollback and the rollback itself is not closed; `chrome.storage` has no compare-and-swap. It shrinks from "the whole switch" to one storage round trip, and it only opens at all after a failed switch.
 
-- [ ] **Step 4: Commit.**
+- [ ] **Step 5: Run** → PASS. `npm test` → all pass.
+
+- [ ] **Step 6: Commit.**
 
 ```bash
-git add js/components/sync-onboarding-flow.js tests/sync-onboarding-flow.test.mjs
-git commit -m "feat(sync): onboarding finishing order with rollback and the other-tab abort"
+git add js/eu-sync-local.js tests/eu-sync-local.test.mjs js/components/sync-onboarding-flow.js tests/sync-onboarding-flow.test.mjs
+git commit -m "feat(sync): onboarding finishing order, patch and cancel cleanup as pure functions"
 ```
 
 **Acceptance:**
 - Every failure point of §6 has a passing test with its log:
-  - other tab;
+  - other tab, whether through euSync **or** the area;
+  - failed re-read;
   - write;
-  - switch not landed, with or without rollback;
+  - switch not landed, with rollback, with failed rollback, and with another tab's write in between (no rollback);
   - base.
-- So do the generation token and the kept-code path.
+- `buildPatch` has a test for each of its three cases.
+- `cleanupTarget` never yields a target without a stateId and defers an in-flight upload.
+- `readFresh` sees a write the cache has not.
 
 ---
 
@@ -1664,7 +1863,7 @@ git commit -m "feat(sync): onboarding finishing order with rollback and the othe
 - Modify: `_locales/en|de/messages.json`, `tests/site-menu-locales.test.mjs`
 
 **Interfaces:**
-- Consumes: `createGeneration`, `finishOnboarding` (Task 9); `syncErrorText` (Task 3); `switchArea` (Task 5); `GesturaSync.listStates/uploadState/deleteStates` (existing); `GesturaSyncCode.generateSecret/encode/parse`; `GesturaSyncCrypto.newStateId`; `GesturaSettingsSchema.validatedExport/hashOf`; `GesturaSyncBase.write`.
+- Consumes: `createGeneration`, `buildPatch`, `cleanupTarget`, `finishOnboarding`, `GesturaSyncLocal.readFresh` (Task 9); `syncErrorText` (Task 3); `switchArea` (Task 5); `GesturaSync.listStates/uploadState/deleteStates` (existing); `GesturaSyncCode.generateSecret/encode/parse`; `GesturaSyncCrypto.newStateId`; `GesturaSettingsSchema.validatedExport/hashOf`; `GesturaSyncBase.write`.
 - Produces:
   - From `sync-code-input.js`:
     - `CODE_ERRORS`, moved from the panel;
@@ -1709,7 +1908,12 @@ describe('checkDraft (strict validation, as in the panel)', () => {
 		const typo = CODE.slice(0, -1) + (CODE.endsWith('W') ? 'X' : 'W');
 		const r = await checkDraft(typo);
 		expect(r.valid).toBe(false);
-		expect(['euSyncCodeErrorChecksum', 'euSyncCodeErrorPadding']).toContain(r.error);
+		expect(r.error).toBe('euSyncCodeErrorChecksum');
+	});
+	it('"too short" is never said while typing - the grey button says it', async () => {
+		for (const draft of ['GS1-000G', 'GS1-000G-40R4-0M30', CODE.slice(0, -5)]) {
+			expect(await checkDraft(draft)).toEqual({ valid: false, error: '' });
+		}
 	});
 });
 
@@ -1825,7 +2029,7 @@ git commit -m "refactor(sync): code-field rules, masking and the code file move 
 | `euSyncWizardSaveFailed` *(owner check)* | Die Einrichtung konnte in diesem Browser nicht gespeichert werden. | The setup could not be saved in this browser. |
 | `euSyncAfterWayB` | Wähle ein Profil aus, um es zu aktivieren – oder sichere deine aktuellen Einstellungen vorab als neues Profil. | Pick a profile to activate it – or first save your current settings as a new profile. |
 
-The existing keys `euSyncConsentTitle`, the consent lead and points, `euSyncConsentCancel`, `tutorialContinue` ("Weiter"), `euSyncSecretCopy`/`Copied`/`Save`, `euSyncSecretPair`, `euSyncSecretPairApply`, `euSyncConnecting` and `euSyncRetry` are reused.
+The existing keys for the consent lead and points, `euSyncConsentCancel`, `tutorialContinue` ("Weiter"), `euSyncSecretCopy`/`Copied`/`Save`, `euSyncSecretPair`, `euSyncSecretPairApply`, `euSyncConnecting` and `euSyncRetry` are reused.
 
 - [ ] **Step 4: The wizard component** `js/components/sync-onboarding-dialog.js`:
 
@@ -1837,8 +2041,25 @@ import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
 import { syncErrorText } from './sync-reach.js';
 import { checkDraft, maskCode, saveCodeFile } from './sync-code-input.js';
-import { createGeneration, finishOnboarding } from './sync-onboarding-flow.js';
+import { createGeneration, buildPatch, cleanupTarget, finishOnboarding } from './sync-onboarding-flow.js';
 import { switchArea } from './storage-area-switch.js';
+
+// The element that really has focus, through the shadow roots it sits in: on
+// the options page document.activeElement is only <options-page>.
+function deepActive() {
+	let a = document.activeElement;
+	while (a && a.shadowRoot && a.shadowRoot.activeElement) a = a.shadowRoot.activeElement;
+	return a;
+}
+
+// Best effort, never awaited by the UI: a profile under a code nobody stored
+// otherwise goes with the 12-month retention.
+function deleteTarget(target) {
+	return window.GesturaSync.deleteStates({
+		secret: target.secret, origin: target.origin, stateId: target.stateId,
+		fetchImpl: (u, i) => fetch(u, i),
+	}).catch(() => {});
+}
 
 // Turning on sync through gestura.eu, as a guided dialog (onboarding design §6).
 // Nothing is stored until it is done: code and consent live here. Cancel at any
@@ -1847,7 +2068,8 @@ import { switchArea } from './storage-area-switch.js';
 //
 // The calls in between do not go through gated() - it knows of no sync yet.
 // The wizard has its own gate: a generation token per attempt, the server from
-// syncOrigin() per request, and a re-read of euSync before finishing.
+// syncOrigin() per request, and a fresh re-read of euSync and the area before
+// finishing (sync-onboarding-flow.js).
 class SyncOnboardingDialog extends LitElement {
 	static properties = {
 		open: { type: Boolean },
@@ -1866,6 +2088,7 @@ class SyncOnboardingDialog extends LitElement {
 		_preview: { state: true },
 		_copied: { state: true },
 		_opened: { state: true },
+		_uploaded: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, css`
@@ -1914,6 +2137,7 @@ class SyncOnboardingDialog extends LitElement {
 		this.start = 'choice';
 		this._gen = createGeneration();
 		this._t = 0;
+		this._returnFocus = null;
 		this.#reset();
 		this._onKeydown = (e) => {
 			// The hosted preview has its own Escape; this one only while it is closed.
@@ -1930,7 +2154,7 @@ class SyncOnboardingDialog extends LitElement {
 		this._draft = '';
 		this._draftValid = false;
 		this._draftError = '';
-		this._entered = null;    // Way B's raw secret, once accepted
+		this._entered = null;    // Way B's raw secret under an empty code
 		this._empty = false;
 		this._name = '';
 		this._busy = false;
@@ -1940,7 +2164,7 @@ class SyncOnboardingDialog extends LitElement {
 		this._preview = null;
 		this._copied = false;
 		this._opened = null;     // { euSync, area } as read when the wizard opened
-		this._inFlight = null;   // { secret, stateId, origin } of an upload not yet answered
+		this._inFlight = null;   // { secret, stateId, origin, settled } of an unanswered upload
 		this._uploaded = null;   // { secret, stateId, origin, payloadHash, exportObj, name, date }
 		this._finishing = false;
 	}
@@ -1959,20 +2183,43 @@ class SyncOnboardingDialog extends LitElement {
 	}
 
 	updated(changed) {
-		if (changed.has('_step') || (changed.has('open') && this.open)) {
+		// The hosted preview releases the scroll lock in ITS updated(), which runs
+		// after any handler here - so the lock is re-asserted from the wizard's own
+		// state, after every change that could have released it.
+		if (changed.has('open') || changed.has('_preview')) this.#lockScroll(this.open);
+		if (!this.open) return;
+		// Focus follows what the user now has to do: a new step, the name field
+		// appearing under an empty code, and the return from the preview.
+		const refocus = changed.has('_step') || changed.has('open') || changed.has('_empty') || changed.has('_stopped')
+			|| (changed.has('_preview') && !this._preview && changed.get('_preview'));
+		if (refocus) {
 			const root = this.renderRoot;
-			(root.querySelector('.focus-first') || root.querySelector('.modal-panel'))?.focus();
+			(root.querySelector('.focus-first:not([disabled])') || root.querySelector('.modal-panel'))?.focus();
 		}
 	}
 
 	async #begin() {
 		this.#reset();
 		this._t = this._gen.next();
-		this.#lockScroll(true);
+		this._returnFocus = deepActive();
 		const t = this._t;
-		const sync = await window.GesturaSyncLocal.read();
+		const sync = await window.GesturaSyncLocal.readFresh();
 		if (!this._gen.isCurrent(t)) return;
 		this._opened = { euSync: sync.euSync, area: window.GesturaSettingsStorage.area() };
+	}
+
+	// Tab and Shift+Tab stay inside the dialog: aria-modal says the page behind
+	// is gone, and the cards behind it would start a second onboarding.
+	#onTrapKeydown(e) {
+		if (e.key !== 'Tab') return;
+		const panel = this.renderRoot.querySelector('.modal-panel');
+		const items = [...panel.querySelectorAll('button:not([disabled]), input:not([disabled])')];
+		if (!items.length) { e.preventDefault(); return; }
+		const here = this.renderRoot.activeElement;
+		const first = items[0];
+		const last = items[items.length - 1];
+		if (e.shiftKey && (here === first || here === panel)) { e.preventDefault(); last.focus(); }
+		else if (!e.shiftKey && here === last) { e.preventDefault(); first.focus(); }
 	}
 
 	// Cancel, Escape and the X: nothing stays behind (§6). Ignored while
@@ -1980,24 +2227,27 @@ class SyncOnboardingDialog extends LitElement {
 	#cancel() {
 		if (this._finishing) return;
 		this._gen.next();
-		const orphan = this._uploaded || this._inFlight;
-		if (orphan) {
-			// Best effort. If it fails, the profile sits under a code nobody stored
-			// and goes with the 12-month retention.
-			window.GesturaSync.deleteStates({ secret: orphan.secret, origin: orphan.origin, stateId: orphan.stateId, fetchImpl: (u, i) => fetch(u, i) }).catch(() => {});
-		}
+		const target = cleanupTarget({ uploaded: this._uploaded, inFlight: this._inFlight });
+		if (target && target.when === 'now') deleteTarget(target);
+		// Still in flight: a DELETE sent now could reach the server before the PUT
+		// and leave the profile behind after all. Delete once the PUT has settled -
+		// whichever way: a timeout says nothing about whether it landed.
+		if (target && target.when === 'settled') this._inFlight.settled.then(() => deleteTarget(target));
 		this.#close('onboarding-cancel');
 	}
 
 	#close(type, detail) {
+		const back = this._returnFocus;
+		this._returnFocus = null;
 		this.open = false;
-		this.#lockScroll(false);
 		this.#reset();
 		this.dispatchEvent(new CustomEvent(type, { detail, bubbles: true, composed: true }));
+		if (back && typeof back.focus === 'function' && back.isConnected) back.focus();
 	}
 
 	// One request of this attempt. The answer is dropped when the attempt is no
-	// longer current; an error is shown, never thrown.
+	// longer current; an error is shown, never thrown. `fn` gets the server and
+	// a fetch, and may hand back the promise it started (see #upload).
 	async #request(fn) {
 		const t = this._t;
 		this._busy = true;
@@ -2015,6 +2265,9 @@ class SyncOnboardingDialog extends LitElement {
 		}
 	}
 
+	// A retry belongs to the attempt that failed; after a cancel there is none.
+	#offerRetry(t, fn) { if (this._gen.isCurrent(t)) this._retry = fn; }
+
 	#next() { this._step = this.start === 'existing' ? 'existing' : 'choice'; }
 
 	async #toNew() {
@@ -2027,6 +2280,7 @@ class SyncOnboardingDialog extends LitElement {
 	}
 
 	#back() {
+		if (this._busy || this._uploaded) return;
 		this._error = '';
 		this._retry = null;
 		if (this._step === 'new' || this._step === 'existing') { this._step = 'choice'; this._empty = false; this._entered = null; return; }
@@ -2044,11 +2298,18 @@ class SyncOnboardingDialog extends LitElement {
 	}
 
 	// Way B: done as soon as the code holds at least one READABLE profile.
+	// Busy from the first moment: a second Enter during parse() would otherwise
+	// start a second listing and a second finish.
 	async #useExisting() {
+		if (this._busy || this._finishing) return;
+		const t = this._t;
+		this._busy = true;
 		const parsed = await window.GesturaSyncCode.parse(this._draft);
+		if (!this._gen.isCurrent(t)) return;
+		this._busy = false;
 		if (!parsed.secret) return;
 		const got = await this.#request(ctx => window.GesturaSync.listStates({ ...ctx, secret: parsed.secret }));
-		if (!got) { this._retry = () => this.#useExisting(); return; }
+		if (!got) { this.#offerRetry(t, () => this.#useExisting()); return; }
 		if (got.result.some(s => !s.broken)) {
 			await this.#finish({ secret: parsed.secret, way: 'existing' });
 			return;
@@ -2060,69 +2321,71 @@ class SyncOnboardingDialog extends LitElement {
 
 	// Way A, and Way B under an empty code: the usual preview, hosted here.
 	#openPreview() {
+		if (this._busy || this._finishing || this._preview) return;
 		const r = window.GesturaSettingsSchema.validatedExport(settingsStore.current, window.i18n.version, { forSync: true });
 		if (!r.ok) { this._error = settingsErrorMessage(window.i18n, r.error); return; }
 		this._preview = r;
 	}
 
-	#onPreviewCancel() {
-		this._preview = null;
-		// The preview released the scroll lock when it closed; the wizard is still open.
-		this.#lockScroll(true);
-	}
+	#onPreviewCancel() { this._preview = null; }
 
 	async #onPreviewConfirm() {
 		const r = this._preview;
 		this._preview = null;
-		this.#lockScroll(true);
 		if (r) await this.#upload(r.exportObj);
 	}
 
 	async #upload(exportObj) {
+		if (this._busy || this._finishing) return;
+		const t = this._t;
 		const secret = this._entered || this._secret;
 		const name = this._name.trim();
 		if (!this._uploaded) {
-			const got = await this.#request(async ctx => {
-				this._inFlight = { secret, stateId: this._stateId, origin: ctx.origin };
+			const got = await this.#request(ctx => {
 				// No basePayloadHash: a PUT without one replaces, so a retry after a
 				// timeout that did reach the server writes the same profile again
 				// instead of a second one (§6).
-				return window.GesturaSync.uploadState({
+				const put = window.GesturaSync.uploadState({
 					...ctx, secret, stateId: this._stateId, name, createdAt: '',
 					exportObj, extVersion: window.i18n.version, basePayloadHash: null,
 				});
+				this._inFlight = { secret, stateId: this._stateId, origin: ctx.origin, settled: put.then(() => {}, () => {}) };
+				return put;
 			});
-			if (!got) { this._retry = () => this.#upload(exportObj); return; }
+			if (!this._gen.isCurrent(t)) return;
 			this._inFlight = null;
+			if (!got) { this.#offerRetry(t, () => this.#upload(exportObj)); return; }
 			this._uploaded = { secret, stateId: this._stateId, origin: got.origin, payloadHash: got.result.payloadHash, exportObj, name, date: new Date().toISOString() };
 		}
 		await this.#finish({ secret, way: this._entered ? 'existing' : 'new' });
 	}
 
-	// Done. The order and its failures live in finishOnboarding().
+	// Done. The order and its failures live in finishOnboarding(); the patch in
+	// buildPatch().
 	async #finish({ secret, encoded, way }) {
+		if (this._finishing) return;
+		const t = this._t;
 		const L = window.GesturaSyncLocal;
 		const S = window.GesturaSettingsStorage;
-		const code = encoded || await window.GesturaSyncCode.encode(secret);
-		const opened = this._opened.euSync;
-		const patch = { enabled: true, consent: { version: L.CURRENT_SYNC_CONSENT, date: new Date().toISOString() }, secret: code };
+		const i18n = window.i18n;
 		const u = this._uploaded;
-		if (u) {
-			patch.states = { [u.stateId]: { name: u.name, lastUploadHash: await window.GesturaSettingsSchema.hashOf(u.exportObj), lastUploadDate: u.date } };
-			patch.activeState = u.stateId;
-		} else if (code !== opened.secret) {
-			// A different code: the map belongs to the old one and goes with it.
-			patch.states = {};
-			patch.activeState = '';
-		}
 		this._finishing = true;
 		this._busy = true;
 		this._error = '';
+		this._retry = null;
 		let res;
 		try {
+			const code = encoded || await window.GesturaSyncCode.encode(secret);
+			const patch = buildPatch({
+				opened: this._opened.euSync,
+				code,
+				consent: { version: L.CURRENT_SYNC_CONSENT, date: new Date().toISOString() },
+				uploaded: u,
+				lastUploadHash: u ? await window.GesturaSettingsSchema.hashOf(u.exportObj) : '',
+			});
 			res = await finishOnboarding({
 				opened: this._opened,
-				reread: () => L.read(),
+				reread: async () => ({ euSync: (await L.readFresh()).euSync, area: S.area() }),
 				writeSync: (p) => L.write(p),
 				patch,
 				area: () => S.area(),
@@ -2130,11 +2393,13 @@ class SyncOnboardingDialog extends LitElement {
 				rollback: (prev) => L.write(prev),
 				writeBase: u ? () => window.GesturaSyncBase.write(u.stateId, { hash: u.payloadHash, payload: u.exportObj, date: u.date }) : null,
 			});
+		} catch {
+			res = { ok: false, reason: 'write' };
 		} finally {
 			this._finishing = false;
 			this._busy = false;
 		}
-		const i18n = window.i18n;
+		if (!this._gen.isCurrent(t)) return;
 		if (res.ok || (res.reason === 'switch' && !res.rolledBack)) {
 			// Done - or stuck at (sync, enabled): the setup exists, and the panel's
 			// repair line takes over from here.
@@ -2145,12 +2410,13 @@ class SyncOnboardingDialog extends LitElement {
 		if (res.reason === 'other-tab') {
 			this._error = i18n.getMessage('euSyncWizardOtherTab');
 			this._stopped = true;
-			if (u) window.GesturaSync.deleteStates({ secret: u.secret, origin: u.origin, stateId: u.stateId, fetchImpl: (a, b) => fetch(a, b) }).catch(() => {});
+			const target = cleanupTarget({ uploaded: u, inFlight: null });
+			if (target) deleteTarget(target);
 			this._uploaded = null;
 			return;
 		}
 		this._error = i18n.getMessage(res.reason === 'write' ? 'euSyncWizardSaveFailed' : 'storageSwitchFailed');
-		this._retry = () => this.#finish({ secret, encoded, way });
+		this.#offerRetry(t, () => this.#finish({ secret, encoded, way }));
 	}
 
 	async #copy() {
@@ -2185,7 +2451,7 @@ class SyncOnboardingDialog extends LitElement {
 
 	#renderName(i18n) {
 		const name = this._name.trim();
-		const go = () => { if (name && !this._busy) this.#openPreview(); };
+		const go = () => { if (name) this.#openPreview(); };
 		return html`
 			<div class="field-row">
 				<input type="text" class="field focus-first" placeholder=${i18n.getMessage('euSyncWizardNamePlaceholder')}
@@ -2210,18 +2476,23 @@ class SyncOnboardingDialog extends LitElement {
 	}
 
 	#renderExisting(i18n) {
-		const apply = () => { if (this._draftValid && !this._busy) this.#useExisting(); };
-		return html`
+		const apply = () => { if (this._draftValid) this.#useExisting(); };
+		// Under an empty code the code field is done with: it is not rendered as
+		// a disabled input (focus would fall out of the dialog), the code is
+		// shown as text and the name field takes over.
+		return this._empty ? html`
+			<div class="kept"><code>${maskCode(this._draft.trim())}</code></div>
+			<div class="hint">${i18n.getMessage('euSyncWizardExistingEmpty')}</div>
+			${this.#renderName(i18n)}` : html`
 			<div class="field-row">
 				<input type="text" class="field mono focus-first ${this._draftError ? 'invalid' : ''}" placeholder="GS1-…"
 					aria-label=${i18n.getMessage('euSyncSecretPair')} aria-invalid=${this._draftError ? 'true' : 'false'}
-					spellcheck="false" autocomplete="off" ?disabled=${this._empty}
+					spellcheck="false" autocomplete="off"
 					.value=${this._draft} @input=${e => this.#onDraft(e.target.value)}
 					@keydown=${e => { if (e.key === 'Enter') apply(); }}>
-				${this._empty ? '' : html`<button class="btn btn-primary" ?disabled=${this._busy || !this._draftValid} @click=${apply}>${i18n.getMessage('euSyncSecretPairApply')}</button>`}
+				<button class="btn btn-primary" ?disabled=${this._busy || !this._draftValid} @click=${apply}>${i18n.getMessage('euSyncSecretPairApply')}</button>
 			</div>
-			${this._draftError ? html`<div class="error" role="alert">${this._draftError}</div>` : ''}
-			${this._empty ? html`<div class="hint">${i18n.getMessage('euSyncWizardExistingEmpty')}</div>${this.#renderName(i18n)}` : ''}`;
+			${this._draftError ? html`<div class="error" role="alert">${this._draftError}</div>` : ''}`;
 	}
 
 	render() {
@@ -2235,10 +2506,11 @@ class SyncOnboardingDialog extends LitElement {
 			: this.#renderExisting(i18n);
 		return html`
 			<div class="modal-overlay ${this._preview ? 'hidden' : ''}" @mousedown=${() => this.#cancel()}>
-				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="wizTitle" @mousedown=${e => e.stopPropagation()}>
+				<div class="modal-panel" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="wizTitle"
+					@mousedown=${e => e.stopPropagation()} @keydown=${e => this.#onTrapKeydown(e)}>
 					<div class="modal-header">
 						<h3 id="wizTitle">${i18n.getMessage('euSyncWizardTitle')}</h3>
-						<button type="button" class="modal-close" @click=${() => this.#cancel()} aria-label=${i18n.getMessage('euSyncConsentCancel')}>${unsafeHTML(icons.x)}</button>
+						<button type="button" class="modal-close" ?disabled=${this._finishing} @click=${() => this.#cancel()} aria-label=${i18n.getMessage('euSyncConsentCancel')}>${unsafeHTML(icons.x)}</button>
 					</div>
 					<div class="modal-body">
 						${body}
@@ -2254,7 +2526,7 @@ class SyncOnboardingDialog extends LitElement {
 							${step !== 'consent' ? html`<button class="btn btn-secondary" ?disabled=${this._busy || !!this._uploaded} @click=${() => this.#back()}>${i18n.getMessage('euSyncWizardBack')}</button>` : ''}
 							<span class="spacer"></span>
 							<button class="btn btn-secondary" ?disabled=${this._finishing} @click=${() => this.#cancel()}>${i18n.getMessage('euSyncConsentCancel')}</button>
-							${step === 'consent' ? html`<button class="btn btn-primary" ?disabled=${!this._opened} @click=${() => this.#next()}>${i18n.getMessage('tutorialContinue')}</button>` : ''}`}
+							${step === 'consent' ? html`<button class="btn btn-primary focus-first" ?disabled=${!this._opened} @click=${() => this.#next()}>${i18n.getMessage('tutorialContinue')}</button>` : ''}`}
 					</div>
 				</div>
 			</div>
@@ -2274,6 +2546,8 @@ customElements.define('sync-onboarding-dialog', SyncOnboardingDialog);
 
 Note for the implementer: the closed wizard renders nothing, so the preview element only exists while the wizard is open. That is intended: one modal at a time, one scroll lock, one Escape handler (§6).
 
+`settings-preview-dialog` has no Tab trap and no focus return of its own ([js/components/settings-preview-dialog.js:145-180](../../../js/components/settings-preview-dialog.js#L145-L180)). That is older than this work and holds for every place the preview is used. The wizard covers the return from the preview itself (`updated()`); the preview's own trap is a separate ticket, not part of this plan.
+
 Run `npm test` → green. The module-syntax test parses the new file.
 
 ```bash
@@ -2285,6 +2559,7 @@ git commit -m "feat(sync): onboarding wizard - consent, choice, new code, existi
   - `import './sync-onboarding-dialog.js';`
   - Add properties `_wizard` and `_wizardStart` to the state, and `_landingHint` as well.
   - In the constructor: `this._wizard = false; this._wizardStart = 'choice'; this._landingHint = false;`.
+  - In `#renderChoice`, the cards are blocked while the wizard is open as well: `const blocked = this._busy || this._checking || repair || this._wizard;`. The trap keeps keyboard focus inside the wizard; this covers a mouse click on the overlay's edge and any path that bypasses the trap.
   - Delete `_consentOpen`, `#open`, `#decline`, `#accept`, `#renderOverlay`, the Escape branch for `_consentOpen`, and `this._consentOpen ? this.#renderOverlay() : ''` in `render()`. Grep for every name until there are no hits.
   - In `#startOnboarding`, the line `this.#open();` becomes:
 
@@ -2334,7 +2609,7 @@ Run `npm test` → green.
 | 4 | Upload button with an empty name | Disabled; with "Büro" enabled |
 | 5 | Upload → preview opens, wizard hidden; Cancel in the preview | Back on step 3, wizard visible, page still scroll-locked; mock log: no PUT |
 | 6 | Upload → confirm | One PUT; wizard closes; `euSync` = enabled, consent v1 (v2 after Task 16), the shown code, `states` holds the id with name "Büro" and `lastUploadHash`, `activeState` = that id; `area` = `local`; base exists for the id; tab "Deine Profile" lists "Büro" as active |
-| 7 | Fresh profile, mock `delayMs: 3000`, upload → while "Verbinde …" shows, press Cancel | Wizard closes; `euSync` untouched; mock log: PUT then POST `/delete` with that stateId |
+| 7 | Fresh profile, mock `delayMs: 3000`, upload → while "Verbinde …" shows, press Cancel | Wizard closes at once; `euSync` untouched; mock log: the PUT, and the POST `/delete` with that stateId only **after** the PUT was answered (compare the `at` stamps); the delete body carries a `stateId` |
 | 8 | Mock `forceStatus: 500` on upload, then "Erneut versuchen" after resetting | First: error + retry, nothing stored; retry: one more PUT **with the same stateId**; done |
 | 9 | Way B with a code holding one readable profile (made in step 6, in a second profile dir or after "Alles löschen" here) | Done; lands on "Deine Profile" with the after-Way-B hint; `states` = `{}`, `activeState` = '' |
 | 10 | Way B with an empty code | "Unter diesem Code ist noch nichts gespeichert …" + name field; upload → done under **that** code |
@@ -2343,6 +2618,11 @@ Run `npm test` → green.
 | 13 | Escape while the preview is open | Closes only the preview; wizard stays |
 | 14 | Two tabs: open the wizard in A, finish onboarding in B, then confirm the upload in A | A shows "Der Abgleich wurde inzwischen in einem anderen Tab eingerichtet." with only "Schließen"; `euSync` is B's; A's uploaded profile deleted (mock log) |
 | 15 | Keyboard only: Tab through every step | Focus lands in the panel/first field each step; Enter in the name field opens the preview |
+| 16 | Tab / Shift+Tab past the last / first control of each step | Focus wraps inside the wizard, never reaches the cards behind it |
+| 17 | Open the wizard from the gestura.eu card with Enter, then Cancel; again, then finish | Focus returns to the gestura.eu card both times |
+| 18 | Preview cancel, and preview confirm with a failing upload | Page stays scroll-locked (`document.documentElement.style.overflow === 'hidden'`) and focus is back inside the wizard |
+| 19 | Way B: valid code, press Enter twice fast | One POST `/sync/list` in the mock log, one finish |
+| 20 | Way B under an empty code | The code field is replaced by the masked code; focus lands in the name field |
 
 - [ ] **Step 7: Commit.**
 
@@ -2352,7 +2632,7 @@ git commit -m "feat(sync): the panel opens the onboarding wizard instead of the 
 ```
 
 **Acceptance:**
-- All 15 browser checks pass.
+- All 20 browser checks pass.
 - `grep -n "_consentOpen\|#renderOverlay\|#accept" js/components/eu-sync-panel.js` gives no output.
 - Nothing is written to `euSync` before done (checks 1, 5, 7, 12).
 - The suite is green.
@@ -2395,7 +2675,7 @@ In the footer, for `step === 'consent'` and `this.#kept`, replace the single "We
 							${step === 'consent' && this.#kept ? html`
 								<button class="btn btn-secondary" ?disabled=${this._busy} @click=${() => this.#next()}>${i18n.getMessage('euSyncWizardKeptOther')}</button>
 								<button class="btn btn-primary" ?disabled=${this._busy} @click=${() => this.#finish({ encoded: this.#kept, way: 'kept' })}>${i18n.getMessage('euSyncWizardKeptContinue')}</button>` : ''}
-							${step === 'consent' && !this.#kept ? html`<button class="btn btn-primary" ?disabled=${!this._opened} @click=${() => this.#next()}>${i18n.getMessage('tutorialContinue')}</button>` : ''}
+							${step === 'consent' && !this.#kept ? html`<button class="btn btn-primary focus-first" ?disabled=${!this._opened} @click=${() => this.#next()}>${i18n.getMessage('tutorialContinue')}</button>` : ''}
 ```
 
 Replace the existing consent-step "Weiter" line with these two. The patch in `#finish` keeps `states` and `activeState` for the kept code, because `code === opened.secret`. Confirm by reading `#finish`: the `else if` only fires for a different code.
@@ -3001,7 +3281,8 @@ git commit -m "docs(contract): sync ping, maintenance 503 and GET in CORS"
   - the *(owner check)* texts are complete proposals, not gaps.
 - **Type consistency:**
   - `switchArea(S, target, reason)` → `{landed, refusal}` is used in T5, T8, T10.
-  - `finishOnboarding(steps)` keys are `opened, reread, writeSync, patch, area, switchToLocal, rollback, writeBase` (T9 = T10).
+  - `finishOnboarding(steps)` keys are `opened, reread, writeSync, patch, area, switchToLocal, rollback, writeBase`, with `opened` and `reread()` both `{ euSync, area }` (T9 = T10).
+  - `buildPatch({ opened, code, consent, uploaded, lastUploadHash })` and `cleanupTarget({ uploaded, inFlight })` are the same in T9 and T10.
   - `pingService` kinds are `reachable|maintenance|rate-limited|unreachable` (T2 = T3 `reachText`).
   - `chooseWay` returns `{opened, message}` (T8 = T15).
   - `lockText(i18n, n, key?)` is the same in T13's test and implementation.
