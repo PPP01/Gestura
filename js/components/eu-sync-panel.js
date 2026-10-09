@@ -8,6 +8,7 @@ import { rowModel } from './eu-sync-row.js';
 import { SYNC_ERRORS, syncErrorText, reachText } from './sync-reach.js';
 import { cardFor, planFor } from './storage-choice.js';
 import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
+import { CODE_ERRORS, checkDraft, maskCode, saveCodeFile } from './sync-code-input.js';
 
 // The sync switch and everything behind it. Sync is a feature of its own, with
 // its own consent; it does not need the gestura.eu integration above it, and
@@ -19,17 +20,6 @@ import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
 // browser's own sync - the key would then sit with the browser vendor, and the
 // whole design would be pointless.
 class EuSyncPanel extends LitElement {
-	// Written out rather than composed from the error code: a computed key cannot
-	// be found by searching, and a typo in one would surface to the user first -
-	// as an empty message beside an input field.
-	static CODE_ERRORS = {
-		prefix: 'euSyncCodeErrorPrefix',
-		charset: 'euSyncCodeErrorCharset',
-		length: 'euSyncCodeErrorLength',
-		padding: 'euSyncCodeErrorPadding',
-		checksum: 'euSyncCodeErrorChecksum',
-	};
-
 	static properties = {
 		_local: { state: true },
 		_sync: { state: true },
@@ -645,15 +635,7 @@ class EuSyncPanel extends LitElement {
 	// into the file because a file holding nothing but a code tells nobody what it
 	// is a year from now.
 	#saveCode() {
-		const i18n = window.i18n;
-		const header = i18n.getMessage('euSyncSecretFileHeader').replace('{date}', new Date().toISOString().slice(0, 10));
-		const blob = new Blob([header + '\n\n' + this.#state.secret + '\n'], { type: 'text/plain' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'gestura-sync-secret.txt';
-		a.click();
-		setTimeout(() => URL.revokeObjectURL(url), 10000);
+		saveCodeFile(window.i18n, this.#state.secret);
 	}
 
 	// A different code means a different locator, different state ids, different
@@ -674,7 +656,7 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		const parsed = await window.GesturaSyncCode.parse(this._codeDraft);
 		if (!parsed.secret) {
-			this._codeError = i18n.getMessage(EuSyncPanel.CODE_ERRORS[parsed.error]);
+			this._codeError = i18n.getMessage(CODE_ERRORS[parsed.error]);
 			return;
 		}
 		this._codeError = '';
@@ -720,13 +702,10 @@ class EuSyncPanel extends LitElement {
 		this._codeDraft = value;
 		this._codeValid = false;
 		this._codeError = '';
-		const parsed = await window.GesturaSyncCode.parse(value);
+		const r = await checkDraft(value);
 		if (this._codeDraft !== value) return;
-		this._codeValid = !!parsed.secret;
-		const early = parsed.error === 'charset' || (parsed.error === 'prefix' && value.trim().length >= 3);
-		if (early || parsed.error === 'padding' || parsed.error === 'checksum') {
-			this._codeError = window.i18n.getMessage(EuSyncPanel.CODE_ERRORS[parsed.error]);
-		}
+		this._codeValid = r.valid;
+		this._codeError = r.error ? window.i18n.getMessage(r.error) : '';
 	}
 
 	async #newCode() {
@@ -1619,12 +1598,6 @@ class EuSyncPanel extends LitElement {
 	// The first two groups and the last stay readable - enough to tell two codes
 	// apart and to recognise the one in the password manager - the rest is dots,
 	// group for group, so the shape of the code does not change when it is shown.
-	#maskedCode(code) {
-		const parts = code.split('-');
-		if (parts.length <= 3) return code;
-		return parts.map((p, i) => (i < 2 || i === parts.length - 1) ? p : '•'.repeat(p.length)).join('-');
-	}
-
 	#renderSecret() {
 		const i18n = window.i18n;
 		const origin = window.GesturaSyncLocal.syncOrigin(this._local);
@@ -1639,7 +1612,7 @@ class EuSyncPanel extends LitElement {
 				<div class="code-line">
 					<span class="lock">${unsafeHTML(icons.lock)}</span>
 					<code class="code-text ${shown ? 'shown' : ''}"
-						aria-label=${shown ? nothing : i18n.getMessage('euSyncCodeHiddenLabel')}>${shown ? code : this.#maskedCode(code)}</code>
+						aria-label=${shown ? nothing : i18n.getMessage('euSyncCodeHiddenLabel')}>${shown ? code : maskCode(code)}</code>
 					<button type="button" class="icon-btn" title=${showLabel} aria-label=${showLabel} aria-pressed=${shown ? 'true' : 'false'}
 						@click=${() => { this._codeVisible = !shown; }}>${unsafeHTML(shown ? icons.eyeOff : icons.eye)}</button>
 					<button type="button" class="icon-btn" title=${copyLabel} aria-label=${copyLabel}
