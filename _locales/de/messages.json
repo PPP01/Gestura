@@ -3359,5 +3359,8 @@
 	"euSyncWizardExistingEmpty": { "message": "Unter diesem Code ist noch nichts gespeichert. Lade hier dein erstes Profil hoch." },
 	"euSyncWizardOtherTab": { "message": "Der Abgleich wurde inzwischen in einem anderen Tab eingerichtet." },
 	"euSyncWizardSaveFailed": { "message": "Die Einrichtung konnte in diesem Browser nicht gespeichert werden." },
-	"euSyncAfterWayB": { "message": "Wähle ein Profil aus, um es zu aktivieren – oder sichere deine aktuellen Einstellungen vorab als neues Profil." }
+	"euSyncAfterWayB": { "message": "Wähle ein Profil aus, um es zu aktivieren – oder sichere deine aktuellen Einstellungen vorab als neues Profil." },
+	"euSyncWizardKeptCode": { "message": "Gespeicherter Code: {code}" },
+	"euSyncWizardKeptContinue": { "message": "Mit diesem Code fortfahren" },
+	"euSyncWizardKeptOther": { "message": "Anderen Code verwenden" }
 }

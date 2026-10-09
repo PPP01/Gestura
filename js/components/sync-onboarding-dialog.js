@@ -392,12 +392,17 @@ class SyncOnboardingDialog extends LitElement {
 		}
 	}
 
+	// A code kept by "Nur ausschalten", or a stale consent (§6): the consent step
+	// names it and offers to go on with it.
+	get #kept() { return this._opened && this._opened.euSync.secret ? this._opened.euSync.secret : ''; }
+
 	#renderConsent(i18n) {
 		const points = [1, 2, 3, 4, 5].map(n => [`euSyncConsentPoint${n}Label`, `euSyncConsentPoint${n}`]);
 		return html`
 			${this._opened && this._opened.area === 'sync' ? html`<div class="box-warn">${i18n.getMessage('euSyncWizardBrowserSyncBox')}</div>` : ''}
 			<p class="lead">${i18n.getMessage('euSyncConsentLead')}</p>
-			<ul>${points.map(([label, body]) => html`<li><strong>${i18n.getMessage(label)}</strong> ${i18n.getMessage(body)}</li>`)}</ul>`;
+			<ul>${points.map(([label, body]) => html`<li><strong>${i18n.getMessage(label)}</strong> ${i18n.getMessage(body)}</li>`)}</ul>
+			${this.#kept ? html`<div class="kept">${i18n.getMessage('euSyncWizardKeptCode').replace('{code}', '')}<code>${maskCode(this.#kept)}</code></div>` : ''}`;
 	}
 
 	#renderChoice(i18n) {
@@ -489,7 +494,10 @@ class SyncOnboardingDialog extends LitElement {
 							${step !== 'consent' ? html`<button class="btn btn-secondary" ?disabled=${this._busy || !!this._uploaded} @click=${() => this.#back()}>${i18n.getMessage('euSyncWizardBack')}</button>` : ''}
 							<span class="spacer"></span>
 							<button class="btn btn-secondary" ?disabled=${this._finishing} @click=${() => this.#cancel()}>${i18n.getMessage('euSyncConsentCancel')}</button>
-							${step === 'consent' ? html`<button class="btn btn-primary focus-first" ?disabled=${!this._opened} @click=${() => this.#next()}>${i18n.getMessage('tutorialContinue')}</button>` : ''}`}
+							${step === 'consent' && this.#kept ? html`
+								<button class="btn btn-secondary" ?disabled=${this._busy} @click=${() => this.#next()}>${i18n.getMessage('euSyncWizardKeptOther')}</button>
+								<button class="btn btn-primary focus-first" ?disabled=${this._busy} @click=${() => this.#finish({ encoded: this.#kept, way: 'kept' })}>${i18n.getMessage('euSyncWizardKeptContinue')}</button>` : ''}
+							${step === 'consent' && !this.#kept ? html`<button class="btn btn-primary focus-first" ?disabled=${!this._opened} @click=${() => this.#next()}>${i18n.getMessage('tutorialContinue')}</button>` : ''}`}
 					</div>
 				</div>
 			</div>

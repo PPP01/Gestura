@@ -3421,5 +3421,8 @@
 	"euSyncWizardExistingEmpty": { "message": "Nothing is saved under this code yet. Upload your first profile here." },
 	"euSyncWizardOtherTab": { "message": "Sync was set up in another tab in the meantime." },
 	"euSyncWizardSaveFailed": { "message": "The setup could not be saved in this browser." },
-	"euSyncAfterWayB": { "message": "Pick a profile to activate it – or first save your current settings as a new profile." }
+	"euSyncAfterWayB": { "message": "Pick a profile to activate it – or first save your current settings as a new profile." },
+	"euSyncWizardKeptCode": { "message": "Saved code: {code}" },
+	"euSyncWizardKeptContinue": { "message": "Continue with this code" },
+	"euSyncWizardKeptOther": { "message": "Use a different code" }
 }
