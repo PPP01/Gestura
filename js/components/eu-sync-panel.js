@@ -9,7 +9,7 @@ import { SYNC_ERRORS, syncErrorText, reachText } from './sync-reach.js';
 import { cardFor, planFor } from './storage-choice.js';
 import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
 import './sync-onboarding-dialog.js';
-import { CODE_ERRORS, checkDraft, maskCode, saveCodeFile } from './sync-code-input.js';
+import { CODE_ERRORS, checkDraft, maskCode, saveCodeFile, lockText } from './sync-code-input.js';
 
 // The sync switch and everything behind it. Sync is a feature of its own, with
 // its own consent; it does not need the gestura.eu integration above it, and
@@ -45,7 +45,6 @@ class EuSyncPanel extends LitElement {
 		_tab: { state: true },
 		_codeVisible: { state: true },
 		_ask: { state: true },
-		_pairOpen: { state: true },
 		_codeValid: { state: true },
 		_switchUnlocked: { state: true },
 		_area: { state: true },
@@ -78,7 +77,8 @@ class EuSyncPanel extends LitElement {
 		.switch-lock { flex-wrap: wrap; align-items: flex-start; padding: 6px 8px 6px 12px; }
 		.switch-lock .msg-text { flex: 1 1 260px; }
 		.switch-lock .btn { margin-left: auto; align-self: center; }
-		.delete-all-row { margin: -8px 0 16px; }
+		.sync-card.danger-card { border-color: color-mix(in srgb, var(--danger-color) 40%, var(--border-color)); }
+		.block-title { font-size: 14px; font-weight: 600; }
 		.sync-card { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 20px; padding: 20px; border-radius: 14px; border: 1px solid var(--border-color); background: var(--card-bg); line-height: 1.45; }
 		.sync-card.states { gap: 16px; }
 		.card-title { font-size: 15px; font-weight: 600; }
@@ -245,7 +245,6 @@ class EuSyncPanel extends LitElement {
 		this._tab = 'states';
 		this._codeVisible = false;  // never stored: every visit starts masked
 		this._ask = null;           // the open #ask() dialog, see there
-		this._pairOpen = false;     // the "load existing code" field is shown
 		this._codeValid = false;    // what is in that field parses as a code
 		// "Change code" opened despite states under the current code. Never stored:
 		// a reload or a tab switch locks it again.
@@ -628,7 +627,7 @@ class EuSyncPanel extends LitElement {
 		}
 		this._codeError = '';
 		const encoded = await window.GesturaSyncCode.encode(parsed.secret);
-		if (encoded === this.#state.secret) { this.#closePair(); return; }
+		if (encoded === this.#state.secret) { this.#resetDraft(); return; }
 		const had = this._states ? this._states.length : null;
 		if (had !== 0) {
 			const [, ...rest] = i18n.getMessage('euSyncSecretNewConfirm').split('\n\n');
@@ -640,7 +639,7 @@ class EuSyncPanel extends LitElement {
 			})) return;
 		}
 		this._loadedFrom = { secret: encoded, had };
-		this.#closePair();
+		this.#resetDraft();
 		this._switchUnlocked = false;
 		await this.#adoptSecret(parsed.secret);
 	}
@@ -656,8 +655,7 @@ class EuSyncPanel extends LitElement {
 		return i18n.getMessage(key).replace('{states}', states);
 	}
 
-	#openPair() { this._pairOpen = true; }
-	#closePair() { this._pairOpen = false; this._codeDraft = ''; this._codeError = ''; this._codeValid = false; }
+	#resetDraft() { this._codeDraft = ''; this._codeError = ''; this._codeValid = false; }
 
 	// The button only goes live for a code that parses - prefix, alphabet,
 	// length and checksum. A wrong character or a wrong prefix is said at once;
@@ -1568,7 +1566,6 @@ class EuSyncPanel extends LitElement {
 	// deleting everything under the code. Switching off is the switch above.
 	#renderSettings() {
 		const i18n = window.i18n;
-		const states = this._states || [];
 		return html`
 			<div class="sync-on">
 				${unsafeHTML(icons.circleCheck)}
@@ -1576,67 +1573,78 @@ class EuSyncPanel extends LitElement {
 			</div>
 			${this._error ? html`<div class="sync-card-gap">${this.#renderError()}</div>` : ''}
 			${this.#state.secret ? html`${this.#renderSecret()}${this.#renderCodeSwitch()}` : ''}
-			${states.length ? html`
-				<div class="delete-all-row">
-					<button type="button" class="ghost-btn danger" ?disabled=${this._busy}
-						@click=${() => this.#exclusive(() => this.#deleteAll())}>${unsafeHTML(icons.trash2)}${i18n.getMessage('euSyncDeleteAll')}</button>
-				</div>` : ''}`;
+			${this.#renderDeleteAll()}`;
 	}
 
-	// Loading another code or making a new one, in a card of its own: under the
-	// code they read as buttons for the code shown above them.
-	//
-	// With states under the current code - or a list that could not be read, which
-	// may hide some - the card is locked: a warning with the count instead of the
-	// two buttons, opened with one click. The question with the count still comes
-	// before anything is changed.
+	// Loading another code or making a new one (spec §7). With profiles under the
+	// current code - or a list that could not be read, which may hide some - the
+	// card is locked behind a warning that names what a change costs HERE; one
+	// click opens both ways. With a known zero there is nothing to lose: the
+	// sentence and the field, open.
 	#renderCodeSwitch() {
 		const i18n = window.i18n;
+		const n = this._states ? this._states.length : null;
+		const zero = n === 0;
+		const locked = !zero && !this._switchUnlocked;
 		const apply = () => { if (this._codeValid) this.#exclusive(() => this.#useCode()); };
-		const locked = !this._switchUnlocked && !(this._states && this._states.length === 0);
-		const count = this.#countLine('euSyncCodeSwitchLocked');
-		// Cancel closes the field and, where there are states, locks the card again.
-		const cancel = () => { this.#closePair(); this._switchUnlocked = false; };
+		const cancel = () => { this.#resetDraft(); this._switchUnlocked = false; };
+		const field = html`
+			<div class="field-row">
+				<input type="text" class="field mono pair-field ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
+					aria-label=${i18n.getMessage('euSyncCodeLoadTitle')} aria-invalid=${this._codeError ? 'true' : 'false'}
+					spellcheck="false" autocomplete="off" .value=${this._codeDraft}
+					@input=${e => this.#onCodeInput(e.target.value)}
+					@keydown=${e => {
+						if (e.key === 'Enter') apply();
+						if (e.key === 'Escape' && !zero) { e.stopPropagation(); cancel(); }
+					}}>
+				<button class="btn btn-primary" ?disabled=${this._busy || !this._codeValid} @click=${apply}>${i18n.getMessage('euSyncSecretPairApply')}</button>
+			</div>
+			${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}`;
+		let lock = null;
+		if (locked) {
+			const t = n === null ? lockText(i18n, 0, 'euSyncCodeSwitchLockedUnknown') : lockText(i18n, n);
+			lock = html`
+				<div class="msg warn switch-lock" role="note">
+					${unsafeHTML(icons.triangleAlert)}
+					<span class="msg-text">${t.before}<strong>${t.here}</strong>${t.after}</span>
+					<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${() => { this._switchUnlocked = true; }}>${i18n.getMessage('euSyncCodeSwitchUnlock')}</button>
+				</div>`;
+		}
 		return html`
 			<div class="sync-card">
 				<div class="card-title">${i18n.getMessage('euSyncCodeSwitchTitle')}</div>
-				<div class="card-desc">${i18n.getMessage('euSyncCodeSwitchDesc')}</div>
-				${locked ? html`
-					<div class="msg warn switch-lock" role="note">
-						${unsafeHTML(icons.triangleAlert)}
-						<span class="msg-text">${count || i18n.getMessage('euSyncCodeSwitchLockedUnknown')}</span>
-						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
-							@click=${() => { this._switchUnlocked = true; this.#openPair(); }}>${i18n.getMessage('euSyncCodeSwitchUnlock')}</button>
-					</div>` : this._pairOpen ? html`
+				${zero ? html`<div class="card-desc">${i18n.getMessage('euSyncCodeSwitchDesc')}</div>${field}` : ''}
+				${lock || ''}
+				${!zero && !locked ? html`
 					<div class="pair-box">
+						<div class="block-title">${i18n.getMessage('euSyncCodeLoadTitle')}</div>
 						<div class="pair-desc">${i18n.getMessage('euSyncSecretPairDesc')}</div>
-						<div class="field-row">
-							<input type="text" class="field mono pair-field ${this._codeError ? 'invalid' : ''}" placeholder="GS1-…"
-								aria-label=${i18n.getMessage('euSyncSecretPair')}
-								aria-invalid=${this._codeError ? 'true' : 'false'}
-								spellcheck="false" autocomplete="off"
-								.value=${this._codeDraft}
-								@input=${e => this.#onCodeInput(e.target.value)}
-								@keydown=${e => {
-									if (e.key === 'Enter') apply();
-									if (e.key === 'Escape') { e.stopPropagation(); cancel(); }
-								}}>
-							<button class="btn btn-primary" ?disabled=${this._busy || !this._codeValid}
-								@click=${apply}>${i18n.getMessage('euSyncSecretPairApply')}</button>
-							<button class="btn btn-secondary" @click=${cancel}>${i18n.getMessage('euSyncConsentCancel')}</button>
-						</div>
-						${this._codeError ? html`<div class="error" role="alert">${this._codeError}</div>` : ''}
-						<div class="code-foot end">
-							<button type="button" class="text-btn" ?disabled=${this._busy}
-								@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
-						</div>
-					</div>` : html`
-					<div class="code-foot">
-						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
-							@click=${() => this.#openPair()}>${i18n.getMessage('euSyncSecretLoad')}</button>
-						<button type="button" class="text-btn" ?disabled=${this._busy}
-							@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncSecretNew')}</button>
-					</div>`}
+						${field}
+					</div>
+					<div class="pair-box">
+						<div class="block-title">${i18n.getMessage('euSyncSecretNew')}</div>
+						<div class="pair-desc">${i18n.getMessage('euSyncCodeNewDesc')}</div>
+						<div><button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#newCode())}>${i18n.getMessage('euSyncCodeNewButton')}</button></div>
+					</div>
+					<div class="code-foot end"><button type="button" class="text-btn" @click=${cancel}>${i18n.getMessage('euSyncConsentCancel')}</button></div>` : ''}
+			</div>`;
+	}
+
+	// Last, always, in the danger style (spec §7). Turning sync off is the choice
+	// at the top; this only deletes. Active while profiles are known or the list
+	// is unknown - a request while unreachable fails cleanly with its message.
+	#renderDeleteAll() {
+		const i18n = window.i18n;
+		const empty = !!this._states && this._states.length === 0;
+		return html`
+			<div class="sync-card danger-card">
+				<div class="card-title">${i18n.getMessage('euSyncDeleteAll')}</div>
+				<div class="card-desc">${i18n.getMessage(empty ? 'euSyncDeleteAllEmpty' : 'euSyncDeleteAllDesc')}</div>
+				${empty ? '' : html`<div><button type="button" class="btn btn-danger-outline" ?disabled=${this._busy}
+					@click=${() => this.#exclusive(() => this.#deleteAll())}>${unsafeHTML(icons.trash2)} ${i18n.getMessage('euSyncDeleteAllButton')}</button></div>`}
 			</div>`;
 	}
 
@@ -1644,7 +1652,7 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		const tab = (id, label) => html`
 			<button class="type-tab ${this._tab === id ? 'active' : ''}" role="tab" aria-selected=${this._tab === id}
-				@click=${() => { if (this._tab !== id) { this._tab = id; this._landingHint = false; this._switchUnlocked = false; this.#closePair(); } }}>${i18n.getMessage(label)}</button>`;
+				@click=${() => { if (this._tab !== id) { this._tab = id; this._landingHint = false; this._switchUnlocked = false; this.#resetDraft(); } }}>${i18n.getMessage(label)}</button>`;
 		return html`
 			<div class="type-switch sync-tabs" role="tablist">
 				${tab('states', 'euSyncStatesTitle')}
@@ -1675,6 +1683,8 @@ class EuSyncPanel extends LitElement {
 			// new one, and a hash from an earlier switch-on may predate saves made
 			// while sync was off.
 			this._states = null;
+			this._switchUnlocked = false;
+			this.#resetDraft();
 			this.#recomputeHash();
 			this.#refreshStates();
 		}
@@ -1683,7 +1693,7 @@ class EuSyncPanel extends LitElement {
 	}
 
 	updated(changed) {
-		if (changed.has('_pairOpen') && this._pairOpen) this.renderRoot.querySelector('.pair-field')?.focus();
+		if (changed.has('_switchUnlocked') && this._switchUnlocked) this.renderRoot.querySelector('.pair-field')?.focus();
 		if (changed.has('_ask') && this._ask) {
 			// Into the field when there is one, else onto the safe button - never onto
 			// the confirm of a deletion, where a stray Enter would answer the question.

@@ -3221,9 +3221,8 @@
 	"euSyncSecretUseConfirmTitle": { "message": "Anderen Code verwenden?" },
 	"euSyncSecretLoaded": { "message": "Code geladen — die darunter gesicherten Profile siehst du jetzt hier." },
 	"euSyncCodeSwitchTitle": { "message": "Code wechseln" },
-	"euSyncCodeSwitchDesc": { "message": "Nutzt du den Abgleich bereits? Lade deinen bestehenden Code aus einem anderen Browser, um dessen Stände hier zu sehen." },
-	"euSyncCodeSwitchLocked": { "message": "Ein Wechsel des Codes ersetzt hier {states}. Sichere den aktuellen Code vorher." },
-	"euSyncCodeSwitchLockedUnknown": { "message": "Ein Wechsel des Codes kann hier Stände ersetzen. Sichere den aktuellen Code vorher." },
+	"euSyncCodeSwitchDesc": { "message": "Nutzt du gestura.eu bereits? Gib deinen Code aus dem anderen Browser ein, um dessen Profile hier zu laden." },
+	"euSyncCodeSwitchLockedUnknown": { "message": "Ein Wechsel kann {here} deine Profile entfernen, deine aktuellen Einstellungen bleiben erhalten. Sichere den aktuellen Code vorher." },
 	"euSyncCodeSwitchUnlock": { "message": "Code trotzdem wechseln" },
 	"euSyncSecretPair": { "message": "Vorhandenen Code verwenden" },
 	"euSyncSecretPairDesc": { "message": "Füge hier den Code aus deinem anderen Browser ein, um dessen Profile zu sehen." },
@@ -3362,5 +3361,14 @@
 	"euSyncAfterWayB": { "message": "Wähle ein Profil aus, um es zu aktivieren – oder sichere deine aktuellen Einstellungen vorab als neues Profil." },
 	"euSyncWizardKeptCode": { "message": "Gespeicherter Code: {code}" },
 	"euSyncWizardKeptContinue": { "message": "Mit diesem Code fortfahren" },
-	"euSyncWizardKeptOther": { "message": "Anderen Code verwenden" }
+	"euSyncWizardKeptOther": { "message": "Anderen Code verwenden" },
+	"euSyncCodeSwitchLockedOne": { "message": "Ein Wechsel entfernt {here} dein Profil, deine aktuellen Einstellungen bleiben erhalten. Sichere den aktuellen Code vorher." },
+	"euSyncCodeSwitchLockedMany": { "message": "Ein Wechsel entfernt {here} deine {n} Profile, deine aktuellen Einstellungen bleiben erhalten. Sichere den aktuellen Code vorher." },
+	"euSyncCodeSwitchHere": { "message": "hier" },
+	"euSyncCodeLoadTitle": { "message": "Code laden" },
+	"euSyncCodeNewDesc": { "message": "Startet ohne Profile. Deine bisherigen erreichst du weiter mit dem alten Code." },
+	"euSyncCodeNewButton": { "message": "Neuen Code erzeugen" },
+	"euSyncDeleteAllDesc": { "message": "Löscht deine Profile auf gestura.eu – auch für deine anderen Browser mit diesem Code. Zum Ausschalten wähle oben einen anderen Weg." },
+	"euSyncDeleteAllEmpty": { "message": "Unter diesem Code ist nichts gespeichert." },
+	"euSyncDeleteAllButton": { "message": "Alles löschen" }
 }

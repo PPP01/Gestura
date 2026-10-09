@@ -41,3 +41,14 @@ export function saveCodeFile(i18n, code) {
 	a.click();
 	setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
+
+// The lock's sentence with "hier" set apart, so the panel can make it bold: a
+// change removes the profiles HERE - with no way back without the old code
+// (design §2: never promise a way back that does not exist).
+export function lockText(i18n, n, key) {
+	const msg = key ? i18n.getMessage(key)
+		: n === 1 ? i18n.getMessage('euSyncCodeSwitchLockedOne')
+		: i18n.getMessage('euSyncCodeSwitchLockedMany').replace('{n}', String(n));
+	const [before, after = ''] = msg.split('{here}');
+	return { before, here: i18n.getMessage('euSyncCodeSwitchHere'), after };
+}

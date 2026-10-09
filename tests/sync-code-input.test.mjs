@@ -45,3 +45,19 @@ describe('maskCode', () => {
 		expect(m).toContain('••••');
 	});
 });
+
+describe('lockText (spec §11 lock, singular/plural, bold "hier")', () => {
+	let lockText;
+	beforeAll(async () => { ({ lockText } = await import('../js/components/sync-code-input.js')); });
+	const i18n = { getMessage: k => ({
+		euSyncCodeSwitchLockedOne: 'Ein Wechsel entfernt {here} dein Profil, Rest.',
+		euSyncCodeSwitchLockedMany: 'Ein Wechsel entfernt {here} deine {n} Profile, Rest.',
+		euSyncCodeSwitchHere: 'hier',
+	}[k]) };
+	it('one profile', () => {
+		expect(lockText(i18n, 1)).toEqual({ before: 'Ein Wechsel entfernt ', here: 'hier', after: ' dein Profil, Rest.' });
+	});
+	it('several profiles', () => {
+		expect(lockText(i18n, 3)).toEqual({ before: 'Ein Wechsel entfernt ', here: 'hier', after: ' deine 3 Profile, Rest.' });
+	});
+});
