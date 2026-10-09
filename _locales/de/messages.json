@@ -3343,5 +3343,21 @@
 	"euSyncRepair": { "message": "Die Umstellung ist nicht abgeschlossen." },
 	"euSyncRetry": { "message": "Erneut versuchen" },
 	"euSyncConnecting": { "message": "Verbinde mit gestura.eu …" },
-	"euSyncOffToBrowser": { "message": "Danach überträgt wieder dein Browser – mit den Einstellungen aus diesem Browser." }
+	"euSyncOffToBrowser": { "message": "Danach überträgt wieder dein Browser – mit den Einstellungen aus diesem Browser." },
+	"euSyncWizardTitle": { "message": "Abgleich über gestura.eu einrichten" },
+	"euSyncWizardBack": { "message": "Zurück" },
+	"euSyncWizardClose": { "message": "Schließen" },
+	"euSyncWizardBrowserSyncBox": { "message": "Dein Browser-Sync ist aktiv. gestura.eu löst ihn ab – deine Einstellungen werden danach nicht mehr über das Browser-Konto abgeglichen." },
+	"euSyncWizardNewTitle": { "message": "Ich habe noch keinen Code" },
+	"euSyncWizardNewDesc": { "message": "neuen Abgleich-Code erstellen" },
+	"euSyncWizardExistingTitle": { "message": "Ich habe bereits einen Code" },
+	"euSyncWizardExistingDesc": { "message": "Profile aus einem anderen Browser laden" },
+	"euSyncWizardSaveHint": { "message": "Sichere diesen Code (z. B. im Passwortmanager). Nur mit ihm hast du in anderen Browsern Zugriff auf deine Profile." },
+	"euSyncWizardNamePlaceholder": { "message": "z. B. Büro" },
+	"euSyncWizardNameLabel": { "message": "Name des Profils" },
+	"euSyncWizardUploadFirst": { "message": "Erstes Profil hochladen" },
+	"euSyncWizardExistingEmpty": { "message": "Unter diesem Code ist noch nichts gespeichert. Lade hier dein erstes Profil hoch." },
+	"euSyncWizardOtherTab": { "message": "Der Abgleich wurde inzwischen in einem anderen Tab eingerichtet." },
+	"euSyncWizardSaveFailed": { "message": "Die Einrichtung konnte in diesem Browser nicht gespeichert werden." },
+	"euSyncAfterWayB": { "message": "Wähle ein Profil aus, um es zu aktivieren – oder sichere deine aktuellen Einstellungen vorab als neues Profil." }
 }

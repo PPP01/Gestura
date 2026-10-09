@@ -3405,5 +3405,21 @@
 	"euSyncRepair": { "message": "The switch did not complete." },
 	"euSyncRetry": { "message": "Try again" },
 	"euSyncConnecting": { "message": "Connecting to gestura.eu …" },
-	"euSyncOffToBrowser": { "message": "Afterwards your browser transfers them again – with the settings from this browser." }
+	"euSyncOffToBrowser": { "message": "Afterwards your browser transfers them again – with the settings from this browser." },
+	"euSyncWizardTitle": { "message": "Set up sync through gestura.eu" },
+	"euSyncWizardBack": { "message": "Back" },
+	"euSyncWizardClose": { "message": "Close" },
+	"euSyncWizardBrowserSyncBox": { "message": "Your browser sync is on. gestura.eu replaces it – your settings are no longer synced through your browser account afterwards." },
+	"euSyncWizardNewTitle": { "message": "I don't have a code yet" },
+	"euSyncWizardNewDesc": { "message": "create a new sync code" },
+	"euSyncWizardExistingTitle": { "message": "I already have a code" },
+	"euSyncWizardExistingDesc": { "message": "load profiles from another browser" },
+	"euSyncWizardSaveHint": { "message": "Save this code (e.g. in your password manager). Only with it can you reach your profiles from other browsers." },
+	"euSyncWizardNamePlaceholder": { "message": "e.g. Office" },
+	"euSyncWizardNameLabel": { "message": "Profile name" },
+	"euSyncWizardUploadFirst": { "message": "Upload your first profile" },
+	"euSyncWizardExistingEmpty": { "message": "Nothing is saved under this code yet. Upload your first profile here." },
+	"euSyncWizardOtherTab": { "message": "Sync was set up in another tab in the meantime." },
+	"euSyncWizardSaveFailed": { "message": "The setup could not be saved in this browser." },
+	"euSyncAfterWayB": { "message": "Pick a profile to activate it – or first save your current settings as a new profile." }
 }
