@@ -10,7 +10,6 @@ import { tooltip } from '../tooltip.js';
 import { percentOf } from '../storage-usage.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
 import { branchLabel } from './storage-full-dialog.js';
-import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -28,8 +27,6 @@ class OptionsPage extends LitElement {
 		_navProximityShow: { state: true },
 		_preview: { state: true },
 		_storageFailure: { state: true },
-		_syncNote: { state: true },
-		_switchRefusal: { state: true },
 	};
 
 	static styles = [
@@ -296,8 +293,7 @@ class OptionsPage extends LitElement {
 		this._statusTimer = null;
 		this._preview = null;
 		this._storageFailure = null;
-		this._syncNote = null;
-		this._switchRefusal = null;
+		this._offArea = null;
 		this._store = settingsStore;
 	}
 
@@ -324,6 +320,8 @@ class OptionsPage extends LitElement {
 		window.addEventListener('scroll', this._boundScroll, { passive: true });
 		window.addEventListener('action-catalog-changed', this._boundCatalogChanged);
 		this.addEventListener('navigate-section', this._boundNavigateSection);
+		// The sync section moves the area now; the storage rows here measure against it.
+		this._offArea = window.GesturaSettingsStorage.onAreaChanged(() => this.requestUpdate());
 		this.#init();
 		this.#checkPendingImport();
 	}
@@ -336,6 +334,7 @@ class OptionsPage extends LitElement {
 		window.removeEventListener('action-catalog-changed', this._boundCatalogChanged);
 		window.removeEventListener('gestura:storage-full', this._boundStorageFull);
 		this.removeEventListener('navigate-section', this._boundNavigateSection);
+		if (this._offArea) this._offArea();
 	}
 
 	#flushPendingPatch() {
@@ -361,7 +360,6 @@ class OptionsPage extends LitElement {
 	async #init() {
 		await this._store.waitForLoad();
 		this._settings = { ...this._store.current };
-		await this.#refreshSyncNote();
 		this._ready = true;
 
 		this._store.onChange((changed) => {
@@ -1213,16 +1211,6 @@ class OptionsPage extends LitElement {
 				<div class="section ${this._activeSection === 'data' ? 'active' : ''}" data-nav="data">
 					<h2><span class="section-icon">${unsafeHTML(icon('hardDrive', { strokeWidth: 2.3 }))}</span> <span>${i18n.getMessage('dataManagement')}</span></h2>
 					<div class="section-body">
-						<div class="setting-row first-row">
-							<div class="setting-label">
-								<span>${i18n.getMessage('syncStatus')}</span>
-								<span>${i18n.getMessage('syncStatusDesc')}</span>
-							</div>
-							<div class="sync-status">
-								<span>${i18n.getMessage('saved')}</span>
-								${this._settings.lastSyncTime ? html`<span>${this.#formatSyncTime(this._settings.lastSyncTime)}</span>` : ''}
-							</div>
-						</div>
 						${this.#renderStorageRows(i18n)}
 						<div class="setting-row actions">
 							<button class="btn btn-secondary btn-lg" @click=${this.#exportSettings}>${i18n.getMessage('export')}</button>
@@ -1473,13 +1461,6 @@ class OptionsPage extends LitElement {
 		return 'v' + window.i18n.version;
 	}
 
-	#formatSyncTime(timeStr) {
-		if (!timeStr) return '';
-		try {
-			return new Date(timeStr).toLocaleTimeString();
-		} catch { return ''; }
-	}
-
 	#showStatus(message, type = 'success') {
 		this._statusMessage = message;
 		this._statusType = type;
@@ -1520,11 +1501,11 @@ class OptionsPage extends LitElement {
 			.replace('{used}', bytes).replace('{total}', quota).replace('{percent}', percentOf(bytes, quota));
 		const cls = (bytes, quota) => { const p = percentOf(bytes, quota); return p >= 100 ? 'over' : (p >= 75 ? 'near' : ''); };
 		const totalRow = html`
-			<div class="setting-row">
+			<div class="setting-row first-row">
 				<div class="setting-label"><span>${i18n.getMessage('storageUsageLabel')}</span></div>
 				<span class="storage-value ${cls(u.total, u.quota.total)}">${detail(u.total, u.quota.total)}</span>
 			</div>`;
-		if (u.quota.item === null) return html`${totalRow}${this.#renderAreaSwitch(i18n)}`;
+		if (u.quota.item === null) return totalRow;
 		// The label for a branch is BRANCH_LABELS' business, so that this section
 		// and the refusal dialog cannot end up calling the same branch two things.
 		const branches = ['siteMenus', 'searchEngines', 'mouseGestures']
@@ -1534,99 +1515,19 @@ class OptionsPage extends LitElement {
 				<div class="setting-label"><span>${label}</span></div>
 				<span class="storage-value ${cls(u.branches[key] || 0, u.quota.item)}">${detail(u.branches[key] || 0, u.quota.item)}</span>
 			</div>`);
-		return html`${totalRow}${rows}${this.#renderAreaSwitch(i18n)}${this.#renderSyncNote(i18n)}`;
+		return html`${totalRow}${rows}`;
 	}
 
-	// note() reads chrome.storage.sync and has no try/catch of its own: a broken
-	// sync store REJECTS instead of resolving null, and an unhandled rejection
-	// while the options page is opening is a page that never renders. Hence the
-	// catch here, and hence the area check first - in state 'local' the note is
-	// meaningless and the read pointless.
-	async #refreshSyncNote() {
-		const S = window.GesturaSettingsStorage;
-		if (S.area() !== 'sync') { this._syncNote = null; return; }
-		try {
-			this._syncNote = await S.note();
-		} catch {
-			this._syncNote = null;
-		}
-	}
-
-	// The switch of storage-move design §4, both directions. A refusal names its
-	// reason and changes nothing; a success re-renders the rows against the new
-	// ceiling. settingsStore keeps its #current - the values did not change, only
-	// where they live. The judgement of where the browser landed lives in
-	// storage-area-switch.js.
-	async #switchArea(toSync, reason = 'local') {
-		const S = window.GesturaSettingsStorage;
-		const i18n = window.i18n;
-		const target = toSync ? 'sync' : 'local';
-		if (target === 'sync' && !(await this.#confirmWayBack(i18n))) return false;
-		// Cleared before the attempt, never after it: a second try does not stack a
-		// second line, and a switch that goes through leaves none behind.
-		this._switchRefusal = null;
-		const { landed, refusal } = await switchArea(S, target, reason);
-		// Not #showStatus: that hides after 1500 ms, and a two-clause refusal
-		// carrying a branch name and two numbers is functionally silent at that
-		// length. It stands beside the switch it refused until the next attempt.
-		// The design's own words are "refused with numbers, never silent".
-		if (refusal) this._switchRefusal = refusalText(i18n, refusal);
-		await this.#refreshSyncNote();
-		this.requestUpdate();
-		return landed;
-	}
-
-	// The way back writes this browser's whole local copy over chrome.storage.sync
-	// (js/settings-storage.js, toSync()), so it asks first; the date of the
-	// departure comes from the note the other browser left (wayBackText).
-	async #confirmWayBack(i18n) {
-		return window.confirm(await wayBackText(window.GesturaSettingsStorage, i18n, iso => this.#formatDate(iso)));
-	}
-
+	// The storage-full dialog's ways out. The panel owns every change of where the
+	// settings live (spec §9); this only scrolls there and hands the choice over.
 	async #onStorageWay(e) {
 		const way = e.detail.way;
+		const panel = this.shadowRoot.querySelector('eu-sync-panel');
 		this._storageFailure = null;
-		if (way === 'local') {
-			await this.#switchArea(false, 'local');
-		} else if (way === 'eu') {
-			// Way two is way three plus tier 2. The switch happens here; the tier-2
-			// consent is the sync panel's, so the page scrolls there.
-			if (await this.#switchArea(false, 'gestura.eu')) this.#scrollToSection('euSync');
+		if ((way === 'local' || way === 'eu') && panel) {
+			this.#scrollToSection('euSync');
+			await panel.chooseWay(way);
 		}
-	}
-
-	#renderAreaSwitch(i18n) {
-		const S = window.GesturaSettingsStorage;
-		const on = S.area() === 'sync';
-		return html`
-			<div class="setting-row">
-				<div class="setting-label">
-					<span>${i18n.getMessage('storageBrowserSync')}</span>
-					<span>${i18n.getMessage(on ? 'storageBrowserSyncOnDesc' : 'storageBrowserSyncOffDesc')}</span>
-				</div>
-				<label class="toggle">
-					<input type="checkbox" .checked=${on} @change=${(e) => { const want = e.target.checked; e.target.checked = on; this.#switchArea(want); }}>
-					<span class="slider"></span>
-				</label>
-			</div>
-			${this._switchRefusal ? html`<div class="notice">${this._switchRefusal}</div>` : ''}`;
-	}
-
-	// A date, not a time: #formatSyncTime renders toLocaleTimeString() for the
-	// "saved at" line, and "not synchronised since 14:32" would name the wrong thing.
-	#formatDate(iso) {
-		try {
-			return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-		} catch { return String(iso).slice(0, 10); }
-	}
-
-	#renderSyncNote(i18n) {
-		if (!this._syncNote) return '';
-		return html`
-			<div class="notice">
-				${i18n.getMessage('storageMovedNote').replace('{date}', this.#formatDate(this._syncNote.movedAt))}
-				<button class="btn btn-secondary" @click=${() => this.#switchArea(false, this._syncNote.movedTo)}>${i18n.getMessage('storageMovedSwitch')}</button>
-			</div>`;
 	}
 
 	#renderFeatureToggle(key, sectionId, label, first = false) {

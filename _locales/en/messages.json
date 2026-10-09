@@ -3389,5 +3389,21 @@
 	"euSyncUnreachable": { "message": "gestura.eu can't be reached right now. Please try again later." },
 	"euSyncMaintenance": { "message": "gestura.eu is under maintenance." },
 	"euSyncMaintenanceUntil": { "message": "gestura.eu is under maintenance (expected until {time})." },
-	"euSyncMaintenanceUntilDate": { "message": "gestura.eu is under maintenance (expected until {date}, {time})." }
+	"euSyncMaintenanceUntilDate": { "message": "gestura.eu is under maintenance (expected until {date}, {time})." },
+	"euSyncChoiceLabel": { "message": "How should your settings get to your other browsers?" },
+	"euSyncCardBrowserTitle": { "message": "Through your browser" },
+	"euSyncCardBrowserDesc": { "message": "Syncs automatically, but not across browsers (e.g. only Chrome to Chrome) and not in every browser (Brave, for example, not at all). Offers little room – only for a few custom search engines and menus." },
+	"euSyncCardLocalTitle": { "message": "Only in this browser" },
+	"euSyncCardLocalDesc": { "message": "Plenty of room and 100 % local: this browser no longer transfers your settings – unless you export them yourself. Syncing with other browsers is done by hand, via file export and import." },
+	"euSyncCardEuTitle": { "message": "Through gestura.eu" },
+	"euSyncCardEuDesc": { "message": "Just as much room, end-to-end encrypted and far more convenient than export and import: transfer your settings across browsers – Chrome, Firefox, Brave & co. Up to 5 profiles (Office, Laptop, Private …), entirely without an account." },
+	"euSyncCardSwitchConfirm": { "message": "Switch" },
+	"euSyncStatusSaved": { "message": "Saved at {time}" },
+	"euSyncStatusWayBrowser": { "message": "Synced through your browser" },
+	"euSyncStatusWayLocal": { "message": "Only in this browser" },
+	"euSyncStatusWayEu": { "message": "Synced through gestura.eu" },
+	"euSyncRepair": { "message": "The switch did not complete." },
+	"euSyncRetry": { "message": "Try again" },
+	"euSyncConnecting": { "message": "Connecting to gestura.eu …" },
+	"euSyncOffToBrowser": { "message": "Afterwards your browser transfers them again – with the settings from this browser." }
 }

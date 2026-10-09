@@ -3327,5 +3327,21 @@
 	"euSyncUnreachable": { "message": "gestura.eu ist derzeit nicht erreichbar. Bitte versuche es später noch einmal." },
 	"euSyncMaintenance": { "message": "gestura.eu wird gewartet." },
 	"euSyncMaintenanceUntil": { "message": "gestura.eu wird gewartet (voraussichtlich bis {time} Uhr)." },
-	"euSyncMaintenanceUntilDate": { "message": "gestura.eu wird gewartet (voraussichtlich bis {date}, {time} Uhr)." }
+	"euSyncMaintenanceUntilDate": { "message": "gestura.eu wird gewartet (voraussichtlich bis {date}, {time} Uhr)." },
+	"euSyncChoiceLabel": { "message": "Wie sollen deine Einstellungen in andere Browser kommen?" },
+	"euSyncCardBrowserTitle": { "message": "Über deinen Browser" },
+	"euSyncCardBrowserDesc": { "message": "Automatische Synchronisation, aber nicht browserübergreifend (z. B. nur Chrome zu Chrome) und nicht in jedem Browser (Brave z. B. gar nicht). Bietet wenig Platz – nur für wenige eigene Suchmaschinen und Menüs." },
+	"euSyncCardLocalTitle": { "message": "Nur in diesem Browser" },
+	"euSyncCardLocalDesc": { "message": "Reichlich Platz und 100 % lokal: Dieser Browser überträgt deine Einstellungen nicht mehr – außer du exportierst sie selbst. Ein Abgleich mit anderen Browsern läuft manuell per Datei-Ex- und -Import." },
+	"euSyncCardEuTitle": { "message": "Über gestura.eu" },
+	"euSyncCardEuDesc": { "message": "Ebenso reichlich Platz, Ende-zu-Ende-verschlüsselt und deutlich komfortabler als der Ex-/Import: Übertrage deine Einstellungen browserübergreifend zwischen Chrome, Firefox, Brave & Co. Bis zu 5 Profile (Büro, Laptop, Privat …), komplett ohne Konto." },
+	"euSyncCardSwitchConfirm": { "message": "Umstellen" },
+	"euSyncStatusSaved": { "message": "Gespeichert um {time}" },
+	"euSyncStatusWayBrowser": { "message": "Abgleich über deinen Browser" },
+	"euSyncStatusWayLocal": { "message": "Nur in diesem Browser" },
+	"euSyncStatusWayEu": { "message": "Abgleich über gestura.eu" },
+	"euSyncRepair": { "message": "Die Umstellung ist nicht abgeschlossen." },
+	"euSyncRetry": { "message": "Erneut versuchen" },
+	"euSyncConnecting": { "message": "Verbinde mit gestura.eu …" },
+	"euSyncOffToBrowser": { "message": "Danach überträgt wieder dein Browser – mit den Einstellungen aus diesem Browser." }
 }

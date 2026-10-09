@@ -5,7 +5,9 @@ import { settingsStore } from '../settings-store.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
 import { formatMergeSummary } from './sync-merge-dialog.js';
 import { rowModel } from './eu-sync-row.js';
-import { SYNC_ERRORS, syncErrorText } from './sync-reach.js';
+import { SYNC_ERRORS, syncErrorText, reachText } from './sync-reach.js';
+import { cardFor, planFor } from './storage-choice.js';
+import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
 
 // The sync switch and everything behind it. Sync is a feature of its own, with
 // its own consent; it does not need the gestura.eu integration above it, and
@@ -53,6 +55,11 @@ class EuSyncPanel extends LitElement {
 		_pairOpen: { state: true },
 		_codeValid: { state: true },
 		_switchUnlocked: { state: true },
+		_area: { state: true },
+		_choiceMsg: { state: true },
+		_choiceRetry: { state: true },
+		_checking: { state: true },
+		_movedNote: { state: true },
 	};
 
 	static styles = [commonStyles, optionStyles, tabStyles, css`
@@ -194,6 +201,22 @@ class EuSyncPanel extends LitElement {
 		/* What the answer costs, counted: set apart from the explanation above it. */
 		.ask-note { margin: 12px 0 0; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text-primary); }
 		.ask-note.danger { color: var(--danger-color); }
+
+		/* The three ways (onboarding design §3). */
+		.way-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 4px; }
+		.way-card { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; text-align: start; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font: inherit; cursor: pointer; }
+		.way-card:hover:not([aria-disabled="true"]) { border-color: color-mix(in srgb, var(--accent-color) 55%, var(--border-color)); }
+		.way-card:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+		.way-card[aria-pressed="true"] { border-color: var(--accent-color); background: color-mix(in srgb, var(--accent-color) 6%, var(--card-bg)); cursor: default; }
+		.way-card[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: .6; cursor: not-allowed; }
+		.way-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+		.way-title svg { width: 16px; height: 16px; color: var(--accent-color); }
+		.way-desc { font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+		.status-row { margin-top: 10px; font-size: 13px; color: var(--text-secondary); }
+		.connecting { min-height: 0; font-size: 13px; color: var(--text-secondary); }
+		.connecting:not(:empty) { margin-top: 8px; }
+		.choice-msg { margin-top: 10px; }
+		.moved-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; font-size: 13px; color: var(--warning-color); }
 	`];
 
 	constructor() {
@@ -232,6 +255,12 @@ class EuSyncPanel extends LitElement {
 		// "Change code" opened despite states under the current code. Never stored:
 		// a reload or a tab switch locks it again.
 		this._switchUnlocked = false;
+		this._area = window.GesturaSettingsStorage.area();
+		this._choiceMsg = '';
+		this._choiceRetry = null;
+		this._checking = false;
+		this._movedNote = null;
+		this._offArea = null;
 		// Not reactive: set by #useCode, read by #absorbList - the code just loaded
 		// and how many states the old one had, so the first list under the new code
 		// can say "found them" and switch to them.
@@ -241,7 +270,7 @@ class EuSyncPanel extends LitElement {
 		// and the code change as EDGES, rather than re-deciding on every render.
 		this._wasEffective = false;
 		this._seenSecret = '';
-		this._onSaved = () => this.#recomputeHash();
+		this._onSaved = () => { this.#recomputeHash(); this.requestUpdate(); };
 		this._offLocal = null;
 		this._offStore = null;
 		this._offSync = null;
@@ -266,7 +295,11 @@ class EuSyncPanel extends LitElement {
 		// upload" hint needs exactly the other half: a change made on THIS page.
 		// That is what gestura:settings-saved is for (js/settings-store.js).
 		window.addEventListener('gestura:settings-saved', this._onSaved);
-		this._offStore = settingsStore.onChange(() => this.#recomputeHash());
+		this._offStore = settingsStore.onChange(() => { this.#recomputeHash(); this.requestUpdate(); });
+		// The cards follow the storage area, whichever tab or context moves it.
+		const S = window.GesturaSettingsStorage;
+		S.ready().then(() => { this._area = S.area(); this.#refreshMovedNote(); });
+		this._offArea = S.onAreaChanged(area => { this._area = area; this.#refreshMovedNote(); });
 		document.addEventListener('keydown', this._onKeydown, true);
 	}
 
@@ -276,6 +309,7 @@ class EuSyncPanel extends LitElement {
 		if (this._offSync) this._offSync();
 		window.removeEventListener('gestura:settings-saved', this._onSaved);
 		if (this._offStore) this._offStore();
+		if (this._offArea) this._offArea();
 		document.removeEventListener('keydown', this._onKeydown, true);
 		clearTimeout(this._noticeTimer);
 		if (this._ask) this.#answer(null);
@@ -326,29 +360,198 @@ class EuSyncPanel extends LitElement {
 	#open() { this._consentOpen = true; this.#lockScroll(true); }
 	#decline() { this._consentOpen = false; this.#lockScroll(false); }
 
-	#onToggle(e) {
-		if (e.target.checked) {
-			// Nothing is stored here - the dialog decides that. Reset at once so the
-			// switch does not flash "on" in the meantime.
-			e.target.checked = false;
-			this.#open();
+	// note() reads chrome.storage.sync and rejects when that store is broken -
+	// caught here, and only asked in state 'sync', where it means something.
+	async #refreshMovedNote() {
+		const S = window.GesturaSettingsStorage;
+		if (S.area() !== 'sync') { this._movedNote = null; return; }
+		try { this._movedNote = await S.note(); } catch { this._movedNote = null; }
+	}
+
+	#card() {
+		return cardFor(this._area, !!(this.#state && this.#state.enabled));
+	}
+
+	// One plan per change, one dialog at most (spec §4). Runs inside #exclusive.
+	async #choose(to) {
+		const i18n = window.i18n;
+		const S = window.GesturaSettingsStorage;
+		const { card: from, repair } = this.#card();
+		if (repair) return;
+		this._choiceMsg = '';
+		this._choiceRetry = null;
+		switch (planFor(from, to)) {
+		case 'to-local':
+			await this.#landOn('local', 'local');
+			return;
+		case 'to-browser': {
+			const fit = await S.fitsSync();
+			if (!fit.ok) { this._choiceMsg = refusalText(i18n, fit); return; }
+			if (!await this.#ask({
+				title: i18n.getMessage('euSyncCardBrowserTitle'),
+				text: await wayBackText(S, i18n, iso => this.#formatDay(iso)),
+				confirm: i18n.getMessage('euSyncCardSwitchConfirm'),
+			})) return;
+			await this.#landOn('sync');
 			return;
 		}
-		// Not off yet: the dialog asks first. Reset so the switch does not show
-		// "off" for a decision that has not been made.
-		e.target.checked = true;
-		this.#openOff();
+		case 'onboard':
+			await this.#startOnboarding();
+			return;
+		case 'off':
+			this.#openOff(false);
+			return;
+		case 'off-then-browser': {
+			// Checked BEFORE the dialog: "Alles löschen" in it cannot be undone, and
+			// a switch that is refused afterwards would have cost the profiles for
+			// nothing.
+			const fit = await S.fitsSync();
+			if (!fit.ok) { this._choiceMsg = refusalText(i18n, fit); return; }
+			this.#openOff(true);
+			return;
+		}
+		default:
+		}
+	}
+
+	async #landOn(target, reason = 'local') {
+		const { refusal } = await switchArea(window.GesturaSettingsStorage, target, reason);
+		if (refusal) this._choiceMsg = refusalText(window.i18n, refusal);
+	}
+
+	// The reachability check in front of the onboarding (spec §5): once per
+	// activation, and again on "Erneut versuchen". On failure the choice stays
+	// where it was.
+	async #startOnboarding(opts = {}) {
+		this._choiceMsg = '';
+		this._choiceRetry = null;
+		this._checking = true;
+		let reach;
+		try {
+			reach = await window.GesturaSync.ping();
+		} catch {
+			reach = { kind: 'unreachable' };
+		} finally {
+			this._checking = false;
+		}
+		if (reach.kind !== 'reachable') {
+			this._choiceMsg = reachText(window.i18n, reach);
+			this._choiceRetry = () => this.#startOnboarding(opts);
+			return { opened: false, message: this._choiceMsg };
+		}
+		this.#open();          // Task 10 replaces this with the wizard
+		return { opened: true, message: '' };
+	}
+
+	// The storage-full dialog's ways out land here: the panel owns every change
+	// of where settings live (spec §9).
+	async chooseWay(way) {
+		let result = { opened: false, message: '' };
+		await this.#exclusive(async () => {
+			if (way === 'local') {
+				await this.#landOn('local', 'local');
+				result = { opened: this._area === 'local', message: this._choiceMsg };
+				return;
+			}
+			result = await this.#startOnboarding();
+		});
+		return result;
+	}
+
+	#formatDay(iso) {
+		try {
+			return new Date(iso).toLocaleDateString(window.i18n.getHtmlLang(), { year: 'numeric', month: 'long', day: 'numeric' });
+		} catch { return String(iso).slice(0, 10); }
+	}
+
+	// The choice IS the explanation (spec §3). Buttons with aria-pressed, not a
+	// radio group: arrow keys in a radio group select, and selecting here opens
+	// dialogs and moves storage. The active card does nothing when pressed.
+	#renderChoice() {
+		const i18n = window.i18n;
+		const { card, repair } = this.#card();
+		const opt = (id, titleKey, descKey) => {
+			const active = card === id;
+			// In the repair state nothing but the repair line is offered (spec §3).
+			const blocked = this._busy || this._checking || repair;
+			return html`
+				<button type="button" class="way-card" aria-pressed=${active ? 'true' : 'false'}
+					aria-disabled=${blocked ? 'true' : 'false'}
+					@click=${() => { if (!active && !blocked) this.#exclusive(() => this.#choose(id)); }}>
+					<span class="way-title">${active ? unsafeHTML(icons.circleCheck) : ''}${i18n.getMessage(titleKey)}</span>
+					<span class="way-desc">${i18n.getMessage(descKey)}</span>
+				</button>`;
+		};
+		return html`
+			<div class="way-cards" role="group" aria-label=${i18n.getMessage('euSyncChoiceLabel')}>
+				${opt('browser', 'euSyncCardBrowserTitle', 'euSyncCardBrowserDesc')}
+				${opt('local', 'euSyncCardLocalTitle', 'euSyncCardLocalDesc')}
+				${opt('eu', 'euSyncCardEuTitle', 'euSyncCardEuDesc')}
+			</div>
+			<div class="connecting" role="status">${this._checking ? i18n.getMessage('euSyncConnecting') : ''}</div>
+			${repair ? html`
+				<div class="msg warn switch-lock choice-msg" role="alert">
+					${unsafeHTML(icons.triangleAlert)}
+					<span class="msg-text">${i18n.getMessage('euSyncRepair')}</span>
+					<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+						@click=${() => this.#exclusive(() => this.#landOn('local', 'gestura.eu'))}>${i18n.getMessage('euSyncRetry')}</button>
+				</div>` : ''}
+			${this._choiceMsg ? html`
+				<div class="msg error-banner choice-msg" role="alert">
+					${unsafeHTML(icons.triangleAlert)}
+					<span class="msg-text">${this._choiceMsg}</span>
+					${this._choiceRetry ? html`
+						<button type="button" class="btn btn-secondary" ?disabled=${this._busy || this._checking}
+							@click=${() => { const retry = this._choiceRetry; this.#exclusive(() => retry()); }}>${i18n.getMessage('euSyncRetry')}</button>` : ''}
+				</div>` : ''}
+			${this.#renderStatusRow(card)}
+			${this.#renderMovedNote()}`;
+	}
+
+	#renderStatusRow(card) {
+		const i18n = window.i18n;
+		let time = '';
+		try {
+			const t = settingsStore.current.lastSyncTime;
+			if (t) time = new Date(t).toLocaleTimeString(i18n.getHtmlLang(), { hour: '2-digit', minute: '2-digit' });
+		} catch { /* store not loaded yet: no time */ }
+		const way = i18n.getMessage({ browser: 'euSyncStatusWayBrowser', local: 'euSyncStatusWayLocal', eu: 'euSyncStatusWayEu' }[card]);
+		return html`<div class="status-row">${time ? `${i18n.getMessage('euSyncStatusSaved').replace('{time}', time)} · ` : ''}${way}</div>`;
+	}
+
+	// "Another browser switched browser sync off" - only in state 'sync' (spec
+	// §3). Its button follows where that browser went: to local, or to
+	// gestura.eu, where this user most likely has the other browser's code.
+	#renderMovedNote() {
+		const note = this._movedNote;
+		if (!note || this._area !== 'sync') return '';
+		const i18n = window.i18n;
+		const go = note.movedTo === 'gestura.eu'
+			? () => this.#startOnboarding({ start: 'existing' })
+			: () => this.#landOn('local', 'local');
+		return html`
+			<div class="moved-note">
+				<span>${i18n.getMessage('storageMovedNote').replace('{date}', this.#formatDay(note.movedAt))}</span>
+				<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+					@click=${() => this.#exclusive(go)}>${i18n.getMessage('storageMovedSwitch')}</button>
+			</div>`;
 	}
 
 	// Turning sync off asks first, and says what it means: nothing is deleted,
 	// the code stays, the states stay. Deleting everything is offered there as a
 	// separate, explicit choice - never as a side effect of the switch.
-	#openOff() { this._offOpen = true; this.#lockScroll(true); }
+	// `toBrowser`: the user came from "Über deinen Browser" - once gestura.eu is
+	// off, the switch to browser sync follows (spec §4).
+	#openOff(toBrowser = false) { this._offOpen = { toBrowser }; this.#lockScroll(true); }
 	#closeOff() { this._offOpen = false; this.#lockScroll(false); }
 
 	async #offKeep() {
+		const toBrowser = !!(this._offOpen && this._offOpen.toBrowser);
 		this.#closeOff();
 		await this.#revoke();
+		// gestura.eu -> Browser (spec §4): the fit was checked before the dialog;
+		// toSync() refuses while the switch is on, so this comes after it.
+		if (toBrowser) await this.#landOn('sync');
 	}
 
 	// Server first, then this browser, then the switch - in that order, because
@@ -358,6 +561,7 @@ class EuSyncPanel extends LitElement {
 	// - the code gone here, the states still there - would leave states nobody
 	// can reach any more but the retention period.
 	async #offDeleteAll() {
+		const toBrowser = !!(this._offOpen && this._offOpen.toBrowser);
 		this.#closeOff();
 		const done = await this.#run(() => window.GesturaSync.remove());
 		if (!done) return;
@@ -367,6 +571,7 @@ class EuSyncPanel extends LitElement {
 		try {
 			await window.GesturaSyncLocal.write({ enabled: false, consent: null, secret: '', states: {} });
 		} catch { /* the states are gone either way; the switch can be turned off again */ }
+		if (toBrowser) await this.#landOn('sync');
 	}
 
 	// Generates the secret along with the first switch-on: sync enabled without a
@@ -1336,6 +1541,7 @@ class EuSyncPanel extends LitElement {
 					</div>
 					<div class="modal-body">
 						<p class="lead">${i18n.getMessage('euSyncOffBody')}</p>
+						${this._offOpen && this._offOpen.toBrowser ? html`<p class="lead">${i18n.getMessage('euSyncOffToBrowser')}</p>` : ''}
 						${canDelete ? html`<p class="off-delete-note">${i18n.getMessage('euSyncOffDeleteAllDesc')}</p>` : ''}
 						${canDelete && count ? html`<p class="ask-note danger">${count} ${i18n.getMessage('euSyncOffNothingLeft')}</p>` : ''}
 					</div>
@@ -1576,6 +1782,7 @@ class EuSyncPanel extends LitElement {
 		} else if (this._consentOpen || this._offOpen) {
 			this.renderRoot.querySelector('.modal-panel')?.focus();
 		}
+		if (changed.has('_choiceMsg') && this._choiceMsg) this.renderRoot.querySelector('.choice-msg')?.scrollIntoView({ block: 'nearest' });
 		// The failure may belong to a row far below the top of the page.
 		if (changed.has('_error') && this._error) this.renderRoot.querySelector('.error-banner, .msg.conflict')?.scrollIntoView({ block: 'nearest' });
 		// "Already in sync" and the like are confirmations, not something to act on:
@@ -1591,16 +1798,7 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		if (!this._sync) return html``;
 		return html`
-			<div class="setting-row first-row">
-				<div class="setting-label">
-					<span>${i18n.getMessage('euSyncToggle')}</span>
-					<span>${i18n.getMessage('euSyncToggleDesc')}</span>
-				</div>
-				<label class="toggle">
-					<input type="checkbox" .checked=${this.#effective} @change=${this.#onToggle}>
-					<span class="slider"></span>
-				</label>
-			</div>
+			${this.#renderChoice()}
 			${this.#stale ? html`
 				<div class="setting-row">
 					<div class="setting-label reconfirm">
@@ -1608,12 +1806,12 @@ class EuSyncPanel extends LitElement {
 						<span>${i18n.getMessage('euSyncReconfirmDesc')}</span>
 					</div>
 					<div class="row-actions">
-						<button class="btn btn-secondary" @click=${this.#openOff}>${i18n.getMessage('euSyncConsentRevoke')}</button>
+						<button class="btn btn-secondary" @click=${() => this.#openOff(false)}>${i18n.getMessage('euSyncConsentRevoke')}</button>
 						<button class="btn btn-primary" @click=${this.#open}>${i18n.getMessage('tutorialContinue')}</button>
 					</div>
 				</div>` : ''}
-			${this.#effective ? this.#renderTabs() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
-			${this.#effective ? this.#renderSyncDialogs() : ''}
+			${this.#effective && !this.#card().repair ? this.#renderTabs() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
+			${this.#effective && !this.#card().repair ? this.#renderSyncDialogs() : ''}
 			${this._consentOpen ? this.#renderOverlay() : ''}
 			${this._offOpen ? this.#renderOffDialog() : ''}
 			${this._ask ? this.#renderAsk() : ''}
