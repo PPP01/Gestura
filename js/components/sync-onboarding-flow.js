@@ -41,10 +41,10 @@ export function buildPatch({ opened, code, consent, uploaded, lastUploadHash = '
 // reach the server first, and the PUT would then create the profile after all.
 // Never a target without a stateId - deleteStates() without one deletes every
 // profile under the code.
-export function cleanupTarget({ uploaded, inFlight }) {
-	const pick = uploaded || inFlight;
+export function cleanupTarget({ uploaded, inFlight, failed = null }) {
+	const pick = uploaded || inFlight || failed;
 	if (!pick || typeof pick.stateId !== 'string' || !pick.stateId) return null;
-	return { when: uploaded ? 'now' : 'settled', secret: pick.secret, origin: pick.origin, stateId: pick.stateId };
+	return { when: inFlight && !uploaded ? 'settled' : 'now', secret: pick.secret, origin: pick.origin, stateId: pick.stateId };
 }
 
 const same = (a, b) => a.area === b.area && sameSetup(a.euSync, b.euSync);

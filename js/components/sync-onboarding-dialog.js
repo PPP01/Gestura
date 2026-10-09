@@ -128,6 +128,7 @@ class SyncOnboardingDialog extends LitElement {
 		this._preview = null;
 		this._copied = false;
 		this._opened = null;     // { euSync, area } as read when the wizard opened
+		this._failedPut = null;  // { secret, stateId, origin } of an upload that errored: it may still have landed
 		this._inFlight = null;   // { secret, stateId, origin, settled } of an unanswered upload
 		this._uploaded = null;   // { secret, stateId, origin, payloadHash, exportObj, name, date }
 		this._finishing = false;
@@ -191,7 +192,7 @@ class SyncOnboardingDialog extends LitElement {
 	#cancel() {
 		if (this._finishing) return;
 		this._gen.next();
-		const target = cleanupTarget({ uploaded: this._uploaded, inFlight: this._inFlight });
+		const target = cleanupTarget({ uploaded: this._uploaded, inFlight: this._inFlight, failed: this._failedPut });
 		if (target && target.when === 'now') deleteTarget(target);
 		// Still in flight: a DELETE sent now could reach the server before the PUT
 		// and leave the profile behind after all. Delete once the PUT has settled -
@@ -317,8 +318,15 @@ class SyncOnboardingDialog extends LitElement {
 				return put;
 			});
 			if (!this._gen.isCurrent(t)) return;
+			const sent = this._inFlight;
 			this._inFlight = null;
-			if (!got) { this.#offerRetry(t, () => this.#upload(exportObj)); return; }
+			if (!got) {
+				// A timed-out or failed PUT may still have reached the server: a later
+				// cancel deletes that id too (harmless when it does not exist).
+				if (sent) this._failedPut = { secret: sent.secret, stateId: sent.stateId, origin: sent.origin };
+				this.#offerRetry(t, () => this.#upload(exportObj));
+				return;
+			}
 			this._uploaded = { secret, stateId: this._stateId, origin: got.origin, payloadHash: got.result.payloadHash, exportObj, name, date: new Date().toISOString() };
 		}
 		await this.#finish({ secret, way: this._entered ? 'existing' : 'new' });

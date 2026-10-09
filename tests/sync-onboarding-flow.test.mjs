@@ -145,3 +145,13 @@ describe('sameSetup', () => {
 		expect(sameSetup(OFF, { ...OFF, consent: { version: 2, date: 'x' } })).toBe(false);
 	});
 });
+
+describe('cleanupTarget after a failed upload', () => {
+	const t = { secret: 'S', origin: 'O', stateId: 's1' };
+	it('a PUT that errored may still have landed: cancel deletes its id now', () => {
+		expect(cleanupTarget({ uploaded: null, inFlight: null, failed: t })).toEqual({ when: 'now', ...t });
+	});
+	it('still never without a stateId', () => {
+		expect(cleanupTarget({ uploaded: null, inFlight: null, failed: { ...t, stateId: '' } })).toBe(null);
+	});
+});
