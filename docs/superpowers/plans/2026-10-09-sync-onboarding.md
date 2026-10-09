@@ -1515,22 +1515,24 @@ git commit -m "feat(sync): the sync section becomes the choice between three way
 
 **Files:**
 - Modify: `js/eu-sync-local.js` (+ `readFresh()`), `tests/eu-sync-local.test.mjs` (append)
+- Modify: `js/settings-storage.js` (+ `readAreaFresh()`), `tests/settings-storage.test.mjs` (append)
 - Create: `js/components/sync-onboarding-flow.js`
 - Test: `tests/sync-onboarding-flow.test.mjs`
 
 **Interfaces:**
 - Produces:
   - `GesturaSyncLocal.readFresh() → Promise<{ euSync }>`. Reads `chrome.storage.local` itself, absorbs the result into the cache and returns it. The gate's re-read must not trust a cache whose `onChanged` from another tab may not have arrived yet. A failed read rejects, and the wizard treats that as a failed finish.
+  - `GesturaSettingsStorage.readAreaFresh() → Promise<'sync'|'local'>`. Reads `settingsArea` from `chrome.storage.local` itself and absorbs it, the same reason as `readFresh`: the area cache follows `storage.onChanged`, and another tab's move may not have arrived. A failed read rejects.
   - `createGeneration() → { next(): number, isCurrent(t: number): boolean }`.
   - `sameSetup(a: euSync, b: euSync) → boolean`. Compares `enabled`, `secret` and `consent`, not the profile map.
   - `buildPatch({ opened: euSync, code: string, consent: { version, date }, uploaded: null | { stateId, name, date }, lastUploadHash: string }) → patch`.
   - `cleanupTarget({ uploaded, inFlight }) → null | { when: 'now'|'settled', secret, origin, stateId }`. It never returns a target without a `stateId`: `deleteStates` without one deletes **every** profile under the code ([js/eu-sync.js:225](../../../js/eu-sync.js#L225)).
-  - `finishOnboarding({ opened, reread, writeSync, patch, area, switchToLocal, rollback, writeBase }) → Promise<{ ok: true } | { ok: false, reason: 'other-tab'|'write'|'switch', rolledBack?: boolean }>`.
-    - `opened` and `reread()` both have the shape `{ euSync, area }`.
-    - `area()` returns the live area.
+  - `finishOnboarding({ opened, reread, writeSync, patch, area, switchToLocal, writeBase }) → Promise<{ ok: true } | { ok: false, reason: 'other-tab'|'write'|'switch' }>`.
+    - `opened` and `reread()` both have the shape `{ euSync, area }`; `reread()` reads both **from storage**, not from a cache.
+    - `area()` returns the live area (cache is fine here: it is only read after this context's own switch).
     - `switchToLocal()` performs the switch, judged by `area()`.
-    - `rollback(euSync)` writes it back.
     - `writeBase` is a function or `null`.
+    - **There is no rollback.** After a switch that does not land, the stored state is `(sync, enabled: true)` - the repairable state the panel's repair line already handles. Writing the old euSync back would be a read-merge-write with no compare-and-swap and could erase another tab's change in that window; leaving the repairable state loses nothing.
 
 - [ ] **Step 1: `readFresh` test** (append to `tests/eu-sync-local.test.mjs`):
 
@@ -1564,6 +1566,44 @@ Run → FAIL (`L.readFresh is not a function`).
 
 Add it to `api`. Run → PASS; `npm test` → green. Commit together with step 4.
 
+- [ ] **Step 2b: `readAreaFresh` in the façade** - test first (append to `tests/settings-storage.test.mjs`):
+
+```js
+describe('readAreaFresh', () => {
+	it('sees an area move whose storage event has not arrived yet', async () => {
+		await seedLocal();
+		await S.switchTo('sync');
+		expect(S.area()).toBe('sync');
+		// The fake runs onSet after the write and BEFORE its onChanged: inside it the
+		// cache is still stale, which is another tab's move that has not been heard of.
+		fake.hooks.onSet = async () => {
+			expect(S.area()).toBe('sync');
+			expect(await S.readAreaFresh()).toBe('local');
+			expect(S.area()).toBe('local');
+		};
+		await chrome.storage.local.set({ [S.AREA_KEY]: { area: 'local', movedAt: 'x', movedTo: 'local' } });
+	});
+	it('rejects when storage does, so the caller can treat it as not done', async () => {
+		await seedLocal();
+		fake.hooks.failNext = { area: 'local', op: 'get', after: 0 };
+		await expect(S.readAreaFresh()).rejects.toThrow();
+	});
+});
+```
+
+Run → FAIL (`S.readAreaFresh is not a function`). Implement in `js/settings-storage.js`, next to `ready()`:
+
+```js
+	// The onboarding's re-read before it commits (design §6): the area cache
+	// follows storage.onChanged, and another tab's move may not have arrived.
+	// Rejects when storage does.
+	async function readAreaFresh() {
+		return absorb(await chrome.storage.local.get(AREA_KEY)).area;
+	}
+```
+
+Add it to `api`. Run → PASS; `npm test` → green.
+
 - [ ] **Step 3: Failing tests** `tests/sync-onboarding-flow.test.mjs`:
 
 ```js
@@ -1574,8 +1614,8 @@ const OFF = { enabled: false, consent: null, secret: '', states: {}, activeState
 const PATCH = { enabled: true, consent: { version: 2, date: 'd' }, secret: 'GS1-NEW' };
 
 // A recorder for the steps, as tests/settings-merge.test.mjs does for commitOrder.
-// `state` is what storage holds; writeSync/rollback change it, reread reports it.
-function harness({ area = 'sync', landed = 'local', failWrite = false, failRollback = false, failBase = false, base = true, meddle = null } = {}) {
+// `state` is what storage holds; writeSync changes it, reread reports it.
+function harness({ area = 'sync', landed = 'local', failWrite = false, failBase = false, base = true, meddle = null } = {}) {
 	const log = [];
 	const state = { euSync: { ...OFF }, area };
 	const steps = {
@@ -1585,7 +1625,6 @@ function harness({ area = 'sync', landed = 'local', failWrite = false, failRollb
 		patch: PATCH,
 		area: () => state.area,
 		switchToLocal: async () => { log.push('switch'); state.area = landed; },
-		rollback: async (prev) => { log.push(['rollback', prev]); if (failRollback) throw new Error('r'); state.euSync = { ...prev }; },
 		writeBase: base ? async () => { log.push('base'); if (failBase) throw new Error('b'); } : null,
 	};
 	return { steps, log, state };
@@ -1627,26 +1666,17 @@ describe('finishOnboarding (spec §6)', () => {
 		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'write' });
 		expect(log).toEqual(['reread']);
 	});
-	it('the switch does not land: rolls euSync back to what was opened, no base', async () => {
-		const { steps, log } = harness({ landed: 'sync' });
-		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'switch', rolledBack: true });
-		expect(log).toEqual(['reread', ['write', PATCH], 'switch', 'reread', ['rollback', OFF]]);
-	});
-	it('the switch does not land and another tab wrote meanwhile: no rollback over it', async () => {
-		let n = 0;
-		const { steps, log, state } = harness({ landed: 'sync', meddle: (s) => { if (++n === 2) s.euSync = { ...s.euSync, secret: 'GS1-OTHER' }; } });
-		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'other-tab', rolledBack: false });
-		expect(log.some(e => Array.isArray(e) && e[0] === 'rollback')).toBe(false);
-		expect(state.euSync.secret).toBe('GS1-OTHER');
+	it('the switch does not land: the repairable (sync, enabled) state stays, nothing is written back, no base', async () => {
+		const { steps, log, state } = harness({ landed: 'sync' });
+		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'switch' });
+		expect(log).toEqual(['reread', ['write', PATCH], 'switch']);
+		expect(state.euSync.enabled).toBe(true);
+		expect(state.euSync.secret).toBe('GS1-NEW');
 	});
 	it('the switch throws but the area moved: counts as landed', async () => {
 		const { steps, log, state } = harness();
 		steps.switchToLocal = async () => { log.push('switch'); state.area = 'local'; throw new Error('noted:false'); };
 		expect(await finishOnboarding(steps)).toEqual({ ok: true });
-	});
-	it('the rollback fails too: reports it, so the repair line can take over', async () => {
-		const { steps } = harness({ landed: 'sync', failRollback: true });
-		expect(await finishOnboarding(steps)).toEqual({ ok: false, reason: 'switch', rolledBack: false });
 	});
 	it('a failed base write is harmless', async () => {
 		const { steps } = harness({ failBase: true });
@@ -1789,12 +1819,13 @@ const same = (a, b) => a.area === b.area && sameSetup(a.euSync, b.euSync);
 //    refuses - so the race of §3 cannot start a switch back to browser sync.
 // 3. The area to local, judged by area() - never by the switch's own answer:
 //    a failed second copy can still leave the browser switched. Not landed:
-//    roll euSync back to what was read at the start - but only while what is
-//    stored is still this wizard's write. Another tab's newer setup is never
-//    overwritten with an old snapshot.
+//    report 'switch' and leave (sync, enabled) as it is. That is the state the
+//    panel's repair line handles, and nothing is written back: a rollback would
+//    be a read-merge-write without compare-and-swap and could erase another
+//    tab's change made in that window.
 // 4. The base. A failed base write means "no base", which only delays Sync.
 export async function finishOnboarding(steps) {
-	const { opened, reread, writeSync, patch, switchToLocal, rollback, writeBase } = steps;
+	const { opened, reread, writeSync, patch, switchToLocal, writeBase } = steps;
 	let now;
 	try {
 		now = await reread();
@@ -1811,17 +1842,7 @@ export async function finishOnboarding(steps) {
 	// after the switch is the one question that decides.
 	if (steps.area() === 'sync') {
 		try { await switchToLocal(); } catch { /* judged below */ }
-		if (steps.area() !== 'local') {
-			let after;
-			try { after = await reread(); } catch { return { ok: false, reason: 'switch', rolledBack: false }; }
-			if (!sameSetup(after.euSync, { ...opened.euSync, ...patch })) return { ok: false, reason: 'other-tab', rolledBack: false };
-			try {
-				await rollback(opened.euSync);
-			} catch {
-				return { ok: false, reason: 'switch', rolledBack: false };
-			}
-			return { ok: false, reason: 'switch', rolledBack: true };
-		}
+		if (steps.area() !== 'local') return { ok: false, reason: 'switch' };
 	}
 	if (writeBase) {
 		try { await writeBase(); } catch { /* "no base" - Sync after the next activate */ }
@@ -1830,14 +1851,14 @@ export async function finishOnboarding(steps) {
 }
 ```
 
-The window between the re-read before the rollback and the rollback itself is not closed; `chrome.storage` has no compare-and-swap. It shrinks from "the whole switch" to one storage round trip, and it only opens at all after a failed switch.
+The window between the re-read and the single euSync write is not closed either; `chrome.storage` has no compare-and-swap. It is one storage round trip and the write is a merge of this wizard's own patch, so the worst outcome is the other tab's setup being replaced by this one - which the user just confirmed in this wizard.
 
 - [ ] **Step 5: Run** → PASS. `npm test` → all pass.
 
 - [ ] **Step 6: Commit.**
 
 ```bash
-git add js/eu-sync-local.js tests/eu-sync-local.test.mjs js/components/sync-onboarding-flow.js tests/sync-onboarding-flow.test.mjs
+git add js/settings-storage.js tests/settings-storage.test.mjs js/eu-sync-local.js tests/eu-sync-local.test.mjs js/components/sync-onboarding-flow.js tests/sync-onboarding-flow.test.mjs
 git commit -m "feat(sync): onboarding finishing order, patch and cancel cleanup as pure functions"
 ```
 
@@ -1846,11 +1867,11 @@ git commit -m "feat(sync): onboarding finishing order, patch and cancel cleanup 
   - other tab, whether through euSync **or** the area;
   - failed re-read;
   - write;
-  - switch not landed, with rollback, with failed rollback, and with another tab's write in between (no rollback);
+  - switch not landed: `(sync, enabled)` stays, no write-back;
   - base.
 - `buildPatch` has a test for each of its three cases.
 - `cleanupTarget` never yields a target without a stateId and defers an in-flight upload.
-- `readFresh` sees a write the cache has not.
+- `readFresh` and `readAreaFresh` see a write the cache has not.
 
 ---
 
@@ -2385,12 +2406,11 @@ class SyncOnboardingDialog extends LitElement {
 			});
 			res = await finishOnboarding({
 				opened: this._opened,
-				reread: async () => ({ euSync: (await L.readFresh()).euSync, area: S.area() }),
+				reread: async () => ({ euSync: (await L.readFresh()).euSync, area: await S.readAreaFresh() }),
 				writeSync: (p) => L.write(p),
 				patch,
 				area: () => S.area(),
 				switchToLocal: () => switchArea(S, 'local', 'gestura.eu'),
-				rollback: (prev) => L.write(prev),
 				writeBase: u ? () => window.GesturaSyncBase.write(u.stateId, { hash: u.payloadHash, payload: u.exportObj, date: u.date }) : null,
 			});
 		} catch {
@@ -2400,7 +2420,7 @@ class SyncOnboardingDialog extends LitElement {
 			this._busy = false;
 		}
 		if (!this._gen.isCurrent(t)) return;
-		if (res.ok || (res.reason === 'switch' && !res.rolledBack)) {
+		if (res.ok || res.reason === 'switch') {
 			// Done - or stuck at (sync, enabled): the setup exists, and the panel's
 			// repair line takes over from here.
 			this._uploaded = null;
@@ -3281,7 +3301,7 @@ git commit -m "docs(contract): sync ping, maintenance 503 and GET in CORS"
   - the *(owner check)* texts are complete proposals, not gaps.
 - **Type consistency:**
   - `switchArea(S, target, reason)` → `{landed, refusal}` is used in T5, T8, T10.
-  - `finishOnboarding(steps)` keys are `opened, reread, writeSync, patch, area, switchToLocal, rollback, writeBase`, with `opened` and `reread()` both `{ euSync, area }` (T9 = T10).
+  - `finishOnboarding(steps)` keys are `opened, reread, writeSync, patch, area, switchToLocal, writeBase`, with `opened` and `reread()` both `{ euSync, area }` (T9 = T10).
   - `buildPatch({ opened, code, consent, uploaded, lastUploadHash })` and `cleanupTarget({ uploaded, inFlight })` are the same in T9 and T10.
   - `pingService` kinds are `reachable|maintenance|rate-limited|unreachable` (T2 = T3 `reachText`).
   - `chooseWay` returns `{opened, message}` (T8 = T15).
