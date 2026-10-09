@@ -70,6 +70,9 @@ const PENDING_TRANSLATION = ['euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 
 // (sync is no longer 'being built' there and is independent of the integration).
 // Changed wording in all 39 locales, not caught by a test: euSyncSecretNewConfirm
 // (en/de now say the old states stay reachable while the old code exists anywhere; 37 still say they are lost).
+// Changed wording in all 39 locales, not caught by a test: Stand/state -> Profil/profile
+// (onboarding design §2) in euSyncSecretDesc, euSyncSecretNewConfirm, euSyncSecretPairDesc, euSyncStatesTitle, euSyncCreate, euSyncDeleteConfirm, euSyncDeleteAllConfirm, euSyncStateBroken, euSyncDuplicateName, euSyncQuotaReached, euSyncErrorNotFound, euSyncErrorQuotaStates, euSyncErrorConflict, euSyncMergeNewerVersion, euSyncMergeNoBase, euSyncMergeMovedAgain, euSyncMergeTheirs, euSyncMergeAllTheirs;
+// the 37 others still say "state".
 
 const featureKeys = Object.keys(en).filter(k =>
 	!PENDING_TRANSLATION.includes(k)
