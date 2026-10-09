@@ -27,6 +27,7 @@ class StorageFullDialog extends LitElement {
 		.way:hover { border-color: var(--primary-color); }
 		.way strong { font-size: 14px; }
 		.way span { font-size: 12px; opacity: .8; }
+		.eu-notice { margin: 4px 20px 0; padding: 10px 12px; border-radius: 8px; font-size: 13px; background: color-mix(in srgb, var(--warning-color) 12%, transparent); }
 	`];
 
 	constructor() {
@@ -97,9 +98,10 @@ class StorageFullDialog extends LitElement {
 				<div class="modal" role="dialog" aria-modal="true" aria-labelledby="storageFullTitle"
 					@keydown=${(e) => this.#onTrapKeydown(e)}>
 					<div class="modal-header" id="storageFullTitle">${this.#title(i18n)}</div>
+					${this.failure.euNotice ? html`<div class="eu-notice" role="alert">${this.failure.euNotice}</div>` : ''}
 					<div class="ways">
 						${this.#way(i18n, 'shrink', 'storageWayShrink', 'storageWayShrinkDesc')}
-						${local ? '' : this.#way(i18n, 'eu', 'storageWayEu', 'storageWayEuDesc')}
+						${local ? '' : this.#way(i18n, 'eu', 'storageWayEu', 'euSyncStorageWayEuDesc')}
 						${local ? '' : this.#way(i18n, 'local', 'storageWayLocal', 'storageWayLocalDesc')}
 					</div>
 				</div>

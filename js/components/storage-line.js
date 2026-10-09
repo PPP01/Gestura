@@ -18,6 +18,11 @@ import { remainingEntries, percentOf } from '../storage-usage.js';
 export function renderStorageLine(i18n, key, settings, entries, avgFallback) {
 	const S = window.GesturaSettingsStorage;
 	const quota = S.QUOTA[S.area()];
+	// Only while browser sync is the way (spec §9): the line is shared by the
+	// menu and engine managers, so the link asks the options page - via the
+	// event it already handles - to jump to the sync section.
+	const more = html` <button type="button" class="storage-more"
+		@click=${(e) => e.currentTarget.dispatchEvent(new CustomEvent('navigate-section', { detail: { section: 'euSync' }, bubbles: true, composed: true }))}>${i18n.getMessage('euSyncStorageMoreRoom')}</button>`;
 	if (quota.item === null) {
 		const percent = percentOf(S.usage(settings).total, quota.total);
 		if (percent >= 100) return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}</div>`;
@@ -30,7 +35,7 @@ export function renderStorageLine(i18n, key, settings, entries, avgFallback) {
 	const bytes = key in settings ? S.entryBytes(key, settings[key]) : 0;
 	const percent = percentOf(bytes, quota.item);
 	if (percent >= 100) {
-		return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}</div>`;
+		return html`<div class="notice storage-full">${i18n.getMessage('storageFull')}${more}</div>`;
 	}
 	const left = remainingEntries(quota.item - bytes, entries, avgFallback);
 	// Bei 0 passt kein weiterer Eintrag mehr - "noch etwa 0" wäre nur
@@ -38,6 +43,6 @@ export function renderStorageLine(i18n, key, settings, entries, avgFallback) {
 	const text = i18n.getMessage('storageUsed').replace('{percent}', percent)
 		+ (left > 0 ? ' · ' + i18n.getMessage('storageRemaining').replace('{count}', left) : '');
 	return percent >= 75
-		? html`<div class="notice">${text}</div>`
+		? html`<div class="notice">${text}${more}</div>`
 		: html`<div class="storage-line">${text}</div>`;
 }

@@ -3433,5 +3433,8 @@
 	"euSyncDeleteAllDesc": { "message": "Deletes your profiles on gestura.eu – also for your other browsers with this code. To turn sync off, choose another way above." },
 	"euSyncDeleteAllEmpty": { "message": "Nothing is saved under this code." },
 	"euSyncDeleteAllButton": { "message": "Delete everything" },
-	"euSyncListFailed": { "message": "Your profiles could not be loaded. This changes nothing about your settings here." }
+	"euSyncListFailed": { "message": "Your profiles could not be loaded. This changes nothing about your settings here." },
+	"euSyncStorageMoreRoom": { "message": "Get more room →" },
+	"euSyncStorageWayEuDesc": { "message": "Much more room, and your settings can travel end-to-end encrypted between your browsers. A short guide walks you through the setup. Nothing has been saved yet: make the change again afterwards." },
+	"euSyncStorageWayEuUnreachable": { "message": "You also get more room with “Turn off browser sync”." }
 }

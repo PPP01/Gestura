@@ -3371,5 +3371,8 @@
 	"euSyncDeleteAllDesc": { "message": "Löscht deine Profile auf gestura.eu – auch für deine anderen Browser mit diesem Code. Zum Ausschalten wähle oben einen anderen Weg." },
 	"euSyncDeleteAllEmpty": { "message": "Unter diesem Code ist nichts gespeichert." },
 	"euSyncDeleteAllButton": { "message": "Alles löschen" },
-	"euSyncListFailed": { "message": "Deine Profile konnten nicht geladen werden. An deinen Einstellungen hier ändert das nichts." }
+	"euSyncListFailed": { "message": "Deine Profile konnten nicht geladen werden. An deinen Einstellungen hier ändert das nichts." },
+	"euSyncStorageMoreRoom": { "message": "Mehr Platz bekommen →" },
+	"euSyncStorageWayEuDesc": { "message": "Deutlich mehr Platz, und deine Einstellungen lassen sich Ende-zu-Ende-verschlüsselt zwischen deinen Browsern übertragen. Ein Assistent führt dich durch die Einrichtung. Gespeichert ist noch nichts: Nimm die Änderung danach erneut vor." },
+	"euSyncStorageWayEuUnreachable": { "message": "Mehr Platz bekommst du auch mit „Browser-Sync ausschalten“." }
 }

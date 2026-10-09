@@ -14,6 +14,7 @@ function getStylesheetText(href) {
 
 export const commonStyles = css`
 	${unsafeCSS(getStylesheetText('common.css'))}
+	.storage-more { margin-inline-start: 6px; padding: 0; border: 0; background: none; font: inherit; color: var(--accent-color); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 `;
 
 export const optionStyles = css`

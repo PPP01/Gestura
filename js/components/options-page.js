@@ -1518,16 +1518,31 @@ class OptionsPage extends LitElement {
 		return html`${totalRow}${rows}`;
 	}
 
-	// The storage-full dialog's ways out. The panel owns every change of where the
-	// settings live (spec §9); this only scrolls there and hands the choice over.
+	// Way 'eu' opens the wizard behind the reachability check (spec §9). The
+	// dialog stays until the wizard is open; unreachable, it says so there and
+	// points at turning browser sync off instead.
 	async #onStorageWay(e) {
 		const way = e.detail.way;
+		const failure = this._storageFailure;
 		const panel = this.shadowRoot.querySelector('eu-sync-panel');
-		this._storageFailure = null;
-		if ((way === 'local' || way === 'eu') && panel) {
+		if (way === 'shrink' || !panel) { this._storageFailure = null; return; }
+		if (way === 'local') {
+			this._storageFailure = null;
 			this.#scrollToSection('euSync');
-			await panel.chooseWay(way);
+			await panel.chooseWay('local');
+			return;
 		}
+		const i18n = window.i18n;
+		this._storageFailure = { ...failure, euNotice: i18n.getMessage('euSyncConnecting') };
+		const r = await panel.chooseWay('eu');
+		if (r.opened) {
+			this._storageFailure = null;
+			this.#scrollToSection('euSync');
+			return;
+		}
+		this._storageFailure = r.message
+			? { ...failure, euNotice: `${r.message} ${i18n.getMessage('euSyncStorageWayEuUnreachable')}` }
+			: failure;
 	}
 
 	#renderFeatureToggle(key, sectionId, label, first = false) {
