@@ -641,6 +641,7 @@ with it. Only its own consent version decides:
 | Sync version | Scope |
 |---|---|
 | 1 | Encrypted settings states are stored on gestura.eu under a locator derived from a secret only this browser holds. The server sees ciphertext, sizes and timestamps — not the state names, not the settings. Upload and download are explicit clicks; before every upload the complete content is shown. |
+| 2 | Everything in 1, worded around profiles, plus: switching to gestura.eu replaces the browser's own sync for these settings (they move to local storage). Re-consent from version 1 keeps the stored code, the profile map and the active profile. |
 
 ## Developer origin
 

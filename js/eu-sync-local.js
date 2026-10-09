@@ -13,8 +13,8 @@
 
 	const EU = root.FlowMouseEuIntegration;
 	const KEY = 'euSync';
-	// Sync's own consent, independent of the integration's. R3 = 1.
-	const CURRENT_SYNC_CONSENT = 1;
+	// Sync's own consent, independent of the integration's. R3 = 1; 2 = the onboarding text (profiles, replaces browser sync).
+	const CURRENT_SYNC_CONSENT = 2;
 
 	const DEFAULTS = { enabled: false, consent: null, secret: '', states: {}, activeState: '' };
 
