@@ -8,6 +8,7 @@ import { rowModel } from './eu-sync-row.js';
 import { SYNC_ERRORS, syncErrorText, reachText } from './sync-reach.js';
 import { cardFor, planFor } from './storage-choice.js';
 import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
+import './sync-onboarding-dialog.js';
 import { CODE_ERRORS, checkDraft, maskCode, saveCodeFile } from './sync-code-input.js';
 
 // The sync switch and everything behind it. Sync is a feature of its own, with
@@ -23,7 +24,9 @@ class EuSyncPanel extends LitElement {
 	static properties = {
 		_local: { state: true },
 		_sync: { state: true },
-		_consentOpen: { state: true },
+		_wizard: { state: true },
+		_wizardStart: { state: true },
+		_landingHint: { state: true },
 		_offOpen: { state: true },
 		_codeDraft: { state: true },
 		_codeError: { state: true },
@@ -213,7 +216,9 @@ class EuSyncPanel extends LitElement {
 		super();
 		this._local = null;
 		this._sync = null;
-		this._consentOpen = false;
+		this._wizard = false;        // the onboarding wizard is open
+		this._wizardStart = 'choice';
+		this._landingHint = false;   // the line after Way B (euSyncAfterWayB)
 		this._offOpen = false;     // the "turn sync off?" dialog
 		this._codeDraft = '';
 		this._codeError = '';
@@ -236,7 +241,7 @@ class EuSyncPanel extends LitElement {
 		this._features = new Set(); // what the service announced in its last list
 		this._errorCode = '';
 		// 'states' | 'settings'. The code lives under Settings: it is set up once,
-		// the states are what is used. Switching sync on lands there (#accept).
+		// the states are what is used. The onboarding lands on the states.
 		this._tab = 'states';
 		this._codeVisible = false;  // never stored: every visit starts masked
 		this._ask = null;           // the open #ask() dialog, see there
@@ -265,7 +270,6 @@ class EuSyncPanel extends LitElement {
 		this._offStore = null;
 		this._offSync = null;
 		this._onKeydown = (e) => {
-			if (e.key === 'Escape' && this._consentOpen) { e.stopPropagation(); this.#decline(); }
 			if (e.key === 'Escape' && this._offOpen) { e.stopPropagation(); this.#closeOff(); }
 			if (e.key === 'Escape' && this._ask) { e.stopPropagation(); this.#answer(null); }
 		};
@@ -347,9 +351,6 @@ class EuSyncPanel extends LitElement {
 
 	#lockScroll(on) { document.documentElement.style.overflow = on ? 'hidden' : ''; }
 
-	#open() { this._consentOpen = true; this.#lockScroll(true); }
-	#decline() { this._consentOpen = false; this.#lockScroll(false); }
-
 	// note() reads chrome.storage.sync and rejects when that store is broken -
 	// caught here, and only asked in state 'sync', where it means something.
 	async #refreshMovedNote() {
@@ -429,7 +430,8 @@ class EuSyncPanel extends LitElement {
 			this._choiceRetry = () => this.#startOnboarding(opts);
 			return { opened: false, message: this._choiceMsg };
 		}
-		this.#open();          // Task 10 replaces this with the wizard
+		this._wizardStart = opts.start === 'existing' ? 'existing' : 'choice';
+		this._wizard = true;
 		return { opened: true, message: '' };
 	}
 
@@ -463,7 +465,7 @@ class EuSyncPanel extends LitElement {
 		const opt = (id, titleKey, descKey) => {
 			const active = card === id;
 			// In the repair state nothing but the repair line is offered (spec §3).
-			const blocked = this._busy || this._checking || repair;
+			const blocked = this._busy || this._checking || repair || this._wizard;
 			return html`
 				<button type="button" class="way-card" aria-pressed=${active ? 'true' : 'false'}
 					aria-disabled=${blocked ? 'true' : 'false'}
@@ -527,6 +529,14 @@ class EuSyncPanel extends LitElement {
 			</div>`;
 	}
 
+	// Both ways land on "Deine Profile" (§6). After Way B the hint says what
+	// the user may do next - activating is not required.
+	#onOnboarded(e) {
+		this._wizard = false;
+		this._tab = 'states';
+		this._landingHint = e.detail && e.detail.way === 'existing';
+	}
+
 	// Turning sync off asks first, and says what it means: nothing is deleted,
 	// the code stays, the states stay. Deleting everything is offered there as a
 	// separate, explicit choice - never as a side effect of the switch.
@@ -564,54 +574,11 @@ class EuSyncPanel extends LitElement {
 		if (toBrowser) await this.#landOn('sync');
 	}
 
-	// Generates the secret along with the first switch-on: sync enabled without a
-	// code would be a state in which nothing works and nothing explains why. An
-	// existing code is kept - switching off and on again must not orphan the
-	// states.
-	async #accept() {
-		// gestura.eu sync requires browser sync off (storage-move design §4): one
-		// switch, two consumers, no state in which both run. A refused switch keeps
-		// the dialog open with the reason, exactly like a failed write below.
-		const S = window.GesturaSettingsStorage;
-		if (S.area() === 'sync') {
-			const moved = await S.switchTo('local', 'gestura.eu');
-			// Asked of the area, not of moved.ok: switchTo() answers
-			// { ok: false, error: 'write' } when its sequence broke, and a failed
-			// rollback inside it can leave the browser genuinely switched. Then the
-			// requirement is met and "nothing was changed" would be untrue, so the
-			// consent goes through.
-			if (!moved.ok && S.area() !== 'local') {
-				this._error = window.i18n.getMessage('storageSwitchFailed');
-				return;
-			}
-		}
-		const patch = {
-			enabled: true,
-			consent: { version: window.GesturaSyncLocal.CURRENT_SYNC_CONSENT, date: new Date().toISOString() },
-		};
-		if (!this.#state || !this.#state.secret) {
-			patch.secret = await window.GesturaSyncCode.encode(window.GesturaSyncCode.generateSecret());
-		}
-		try {
-			await window.GesturaSyncLocal.write(patch);
-		} catch {
-			// Not stored, so not closed either: the dialog stays where it is instead
-			// of claiming a decision that is written nowhere.
-			return;
-		}
-		this._consentOpen = false;
-		this.#lockScroll(false);
-		// The first thing to do with sync on is to put the code somewhere safe - or
-		// to enter the one from the other browser.
-		this._tab = 'settings';
-	}
-
 	// Off and consent cleared in one step, as with the switch above: "off" then
 	// always means "no consent on record", and switching back on always goes
 	// through the text. The code and the states stay - they are local data, and
 	// the user did not withdraw them.
 	async #revoke() {
-		this._consentOpen = false;
 		this.#lockScroll(false);
 		this._error = '';
 		try { await window.GesturaSyncLocal.write({ enabled: false, consent: null }); } catch { /* nothing changed */ }
@@ -786,6 +753,7 @@ class EuSyncPanel extends LitElement {
 	// Wrap at the handler, never inside another wrapped action.
 	async #exclusive(fn) {
 		if (this._op) return;
+		this._landingHint = false;
 		this._op = true;
 		this.#syncBusy();
 		try {
@@ -1449,6 +1417,7 @@ class EuSyncPanel extends LitElement {
 							@click=${() => this.#exclusive(() => this.#refreshStates())}>${unsafeHTML(icons.rotateCw)}${i18n.getMessage('euSyncRefresh')}</button>
 					</div>
 				</div>
+				${this._landingHint ? html`<div class="msg info" role="status">${unsafeHTML(icons.info)}<span>${i18n.getMessage('euSyncAfterWayB')}</span></div>` : ''}
 				${this.#renderFeedback()}
 				${this._states && !states.length ? html`<div class="empty">${i18n.getMessage('euSyncStatesEmpty')}</div>` : ''}
 				${states.length ? html`<div class="rows">${states.map(s => this.#renderStateRow(s))}</div>` : ''}
@@ -1530,36 +1499,6 @@ class EuSyncPanel extends LitElement {
 						<span class="off-spacer"></span>
 						<button class="btn btn-secondary" @click=${this.#closeOff}>${i18n.getMessage('euSyncConsentCancel')}</button>
 						<button class="btn btn-primary" @click=${this.#offKeep}>${i18n.getMessage('euSyncOffKeep')}</button>
-					</div>
-				</div>
-			</div>`;
-	}
-
-	#renderOverlay() {
-		const i18n = window.i18n;
-		// Point five is the trade #accept() makes below: agreeing switches this
-		// browser out of chrome.storage.sync, the browser's own sync stops carrying
-		// the settings, and #revoke() does NOT switch back - putting them back would
-		// blind-overwrite whatever another browser has synced in the meantime, which
-		// is the reconciliation this design leaves to its own plan. A consent that
-		// does not name that is not consent to it.
-		const points = [1, 2, 3, 4, 5].map(n => [`euSyncConsentPoint${n}Label`, `euSyncConsentPoint${n}`]);
-		return html`
-			<div class="modal-overlay" @mousedown=${this.#decline}>
-				<div class="modal-panel" tabindex="-1" @mousedown=${e => e.stopPropagation()}>
-					<div class="modal-header">
-						<h3>${i18n.getMessage('euSyncConsentTitle')}</h3>
-						<button type="button" class="modal-close" @click=${this.#decline}
-							aria-label=${i18n.getMessage('euSyncConsentCancel')}>${unsafeHTML(icons.x)}</button>
-					</div>
-					<div class="modal-body">
-						<p class="lead">${i18n.getMessage('euSyncConsentLead')}</p>
-						<ul>${points.map(([label, body]) => html`
-							<li><strong>${i18n.getMessage(label)}</strong> ${i18n.getMessage(body)}</li>`)}</ul>
-					</div>
-					<div class="modal-footer">
-						<button class="btn btn-secondary" @click=${this.#decline}>${i18n.getMessage('euSyncConsentCancel')}</button>
-						<button class="btn btn-primary" @click=${this.#accept}>${i18n.getMessage('euSyncConsentAccept')}</button>
 					</div>
 				</div>
 			</div>`;
@@ -1705,7 +1644,7 @@ class EuSyncPanel extends LitElement {
 		const i18n = window.i18n;
 		const tab = (id, label) => html`
 			<button class="type-tab ${this._tab === id ? 'active' : ''}" role="tab" aria-selected=${this._tab === id}
-				@click=${() => { if (this._tab !== id) { this._tab = id; this._switchUnlocked = false; this.#closePair(); } }}>${i18n.getMessage(label)}</button>`;
+				@click=${() => { if (this._tab !== id) { this._tab = id; this._landingHint = false; this._switchUnlocked = false; this.#closePair(); } }}>${i18n.getMessage(label)}</button>`;
 		return html`
 			<div class="type-switch sync-tabs" role="tablist">
 				${tab('states', 'euSyncStatesTitle')}
@@ -1752,7 +1691,7 @@ class EuSyncPanel extends LitElement {
 			const target = root.querySelector('.ask-field') || root.querySelector('.modal-footer .btn-secondary');
 			target?.focus();
 			target?.select?.();
-		} else if (this._consentOpen || this._offOpen) {
+		} else if (this._offOpen) {
 			this.renderRoot.querySelector('.modal-panel')?.focus();
 		}
 		if (changed.has('_choiceMsg') && this._choiceMsg) this.renderRoot.querySelector('.choice-msg')?.scrollIntoView({ block: 'nearest' });
@@ -1780,14 +1719,16 @@ class EuSyncPanel extends LitElement {
 					</div>
 					<div class="row-actions">
 						<button class="btn btn-secondary" @click=${() => this.#openOff(false)}>${i18n.getMessage('euSyncConsentRevoke')}</button>
-						<button class="btn btn-primary" @click=${this.#open}>${i18n.getMessage('tutorialContinue')}</button>
+						<button class="btn btn-primary" @click=${() => this.#exclusive(() => this.#startOnboarding())}>${i18n.getMessage('tutorialContinue')}</button>
 					</div>
 				</div>` : ''}
 			${this.#effective && !this.#card().repair ? this.#renderTabs() : (this._error ? html`<div class="error">${this._error}</div>` : '')}
 			${this.#effective && !this.#card().repair ? this.#renderSyncDialogs() : ''}
-			${this._consentOpen ? this.#renderOverlay() : ''}
 			${this._offOpen ? this.#renderOffDialog() : ''}
 			${this._ask ? this.#renderAsk() : ''}
+			<sync-onboarding-dialog ?open=${this._wizard} .start=${this._wizardStart}
+				@onboarding-done=${this.#onOnboarded}
+				@onboarding-cancel=${() => { this._wizard = false; }}></sync-onboarding-dialog>
 		`;
 	}
 }
