@@ -138,7 +138,7 @@ In both cases **stored settings hold deltas, not full copies** — a menu the us
 
 ### The gestura.eu subsystem — two independent switches
 
-Optional, **off by default**, and the largest single addition to the fork. Two switches, each with its own consent and **independent of each other**: *integration* lets gestura.eu pages hand entries over and lets the update check run; *sync* saves settings to the service as encrypted states. Sync does not need the integration, and turning the integration off leaves sync alone (until 2026-10 sync rode on the integration and was switched off with it, without a warning — do not reintroduce that). Sync's gate is `GesturaSyncLocal.syncEnabled(sync)`: its own switch and a consent of the current version, nothing else. The integration's state is read for sync only to pick the server — its developer origin names *which* gestura.eu to talk to and is not a permission. Every sync network path is wrapped in `gated()`, which re-reads the live state *after* the call as well as before.
+Optional, **off by default**, and the largest single addition to the fork. Two switches, each with its own consent and **independent of each other**: *integration* lets gestura.eu pages hand entries over and lets the update check run; *sync* saves settings to the service as encrypted states. Sync does not need the integration, and turning the integration off leaves sync alone (until 2026-10 sync rode on the integration and was switched off with it, without a warning — do not reintroduce that). The sync section also owns the choice of where settings live (browser sync / only this browser / gestura.eu): `js/components/storage-area-switch.js` performs the switch, and `options-page.js` no longer has a browser-sync toggle. Sync's gate is `GesturaSyncLocal.syncEnabled(sync)`: its own switch and a consent of the current version, nothing else. The integration's state is read for sync only to pick the server — its developer origin names *which* gestura.eu to talk to and is not a permission. Every sync network path is wrapped in `gated()`, which re-reads the live state *after* the call as well as before.
 
 | file | owns |
 |---|---|
@@ -149,6 +149,8 @@ Optional, **off by default**, and the largest single addition to the fork. Two s
 | [js/eu-settings-schema.js](js/eu-settings-schema.js) | `validate` / `buildExport`; `forSync` keeps the nine `DEVICE_LOCAL` keys home |
 | [js/eu-sync.js](js/eu-sync.js) | the four endpoints, the `412` write token |
 | [js/eu-sync-base.js](js/eu-sync-base.js) | `euSyncBase`: the payload each state last agreed on, gzipped |
+| [js/components/storage-choice.js](js/components/storage-choice.js) | the card mapping and the transition table of the three-way choice |
+| [js/components/sync-onboarding-dialog.js](js/components/sync-onboarding-dialog.js), [sync-onboarding-flow.js](js/components/sync-onboarding-flow.js) | the wizard, and its finishing order (re-read, one `euSync` write, area switch, base) as pure functions |
 | [js/settings-merge.js](js/settings-merge.js) | `MERGE_MAP`, the three-way merge, `apply`, `commitOrder` |
 
 **The contract is [docs/gestura-eu-api.md](docs/gestura-eu-api.md)** and the index repo reads that file directly — change it deliberately, and never to match an implementation shortcut.
