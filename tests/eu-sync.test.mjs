@@ -233,7 +233,8 @@ const incompressible = (n) => {
 describe('errors', () => {
 	it.each([
 		[400, 'bad-request'],
-		[404, 'not-found'],
+		// list never 404s per the contract; a 404 means the request missed the service (onboarding §8)
+		[404, 'unavailable'],
 		[409, 'quota-states'],
 		[413, 'too-large'],
 		[429, 'rate-limited'],
@@ -460,5 +461,89 @@ describe('renaming a state', () => {
 	it('goes through the gate', async () => {
 		await L.write({ enabled: false });
 		await expect(S.rename({ stateId: ID, meta, name: 'Office' })).rejects.toMatchObject({ code: 'disabled' });
+	});
+});
+
+// The ping and 503 checks need answers with arbitrary text and no JSON body
+// on the request side, which fetchOk/fetchStatus assume.
+const fetchRaw = (status, text, seen = []) => async (url, init) => {
+	seen.push({ url, init });
+	return { ok: status >= 200 && status < 300, status, headers: { get: () => null }, text: async () => text };
+};
+
+describe('ping classification (spec §5)', () => {
+	const ping = (status, text) => S.pingService({ origin: 'https://gestura.eu', fetchImpl: fetchRaw(status, text) });
+
+	it('200 with status ok is reachable, with the features', async () => {
+		expect(await ping(200, '{"status":"ok","features":["sync-meta",3]}')).toEqual({ kind: 'reachable', features: ['sync-meta'] });
+	});
+	it('200 with an HTML page is unreachable', async () => {
+		expect(await ping(200, '<html>proxy</html>')).toEqual({ kind: 'unreachable' });
+	});
+	it('200 JSON without status ok is unreachable', async () => {
+		expect(await ping(200, '{"status":"degraded"}')).toEqual({ kind: 'unreachable' });
+	});
+	it('503 maintenance with a valid until', async () => {
+		expect(await ping(503, '{"error":"maintenance","until":"2026-10-09T12:00:00+00:00"}'))
+			.toEqual({ kind: 'maintenance', until: '2026-10-09T12:00:00.000Z' });
+	});
+	it('503 maintenance with a garbage until drops the time', async () => {
+		expect(await ping(503, '{"error":"maintenance","until":"14 Uhr"}')).toEqual({ kind: 'maintenance', until: '' });
+	});
+	it('503 maintenance without until', async () => {
+		expect(await ping(503, '{"error":"maintenance"}')).toEqual({ kind: 'maintenance', until: '' });
+	});
+	it('503 unavailable, 503 HTML, 500, 404, 403 are unreachable', async () => {
+		for (const [status, text] of [[503, '{"error":"unavailable"}'], [503, '<html/>'], [500, '{}'], [404, '{}'], [403, '{}']]) {
+			expect(await ping(status, text)).toEqual({ kind: 'unreachable' });
+		}
+	});
+	it('429 is rate-limited', async () => {
+		expect(await ping(429, '{"error":"rate-limited"}')).toEqual({ kind: 'rate-limited' });
+	});
+	it('a network failure is unreachable', async () => {
+		const r = await S.pingService({ origin: 'https://gestura.eu', fetchImpl: async () => { throw new TypeError('down'); } });
+		expect(r).toEqual({ kind: 'unreachable' });
+	});
+	it('is a GET with no body and no Content-Type, to the ping path', async () => {
+		const seen = [];
+		await S.pingService({ origin: 'https://gestura.eu', fetchImpl: fetchRaw(200, '{"status":"ok"}', seen) });
+		expect(seen[0].url).toBe('https://gestura.eu/api/v1/sync/ping');
+		expect(seen[0].init.method).toBe('GET');
+		expect(seen[0].init.body).toBeUndefined();
+		expect(seen[0].init.headers).toBeUndefined();
+		expect(seen[0].init.redirect).toBe('error');
+		expect(seen[0].init.credentials).toBe('omit');
+	});
+});
+
+describe('503 and 404 on the sync endpoints (spec §5, §8)', () => {
+	it('a maintenance 503 from list throws maintenance with until', async () => {
+		const err = await S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu',
+			fetchImpl: fetchRaw(503, '{"error":"maintenance","until":"2026-10-09T12:00:00Z"}') }).catch(e => e);
+		expect(err.code).toBe('maintenance');
+		expect(err.until).toBe('2026-10-09T12:00:00.000Z');
+	});
+	it('a plain 503 is unavailable', async () => {
+		const err = await S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu', fetchImpl: fetchRaw(503, 'x') }).catch(e => e);
+		expect(err.code).toBe('unavailable');
+	});
+	it('404 from list reads as unavailable', async () => {
+		const err = await S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu', fetchImpl: fetchStatus(404) }).catch(e => e);
+		expect(err.code).toBe('unavailable');
+	});
+	it('404 from PUT state reads as unavailable', async () => {
+		const err = await S.uploadState({ secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID, name: 'n',
+			exportObj: { a: 1 }, extVersion: '1', fetchImpl: fetchStatus(404) }).catch(e => e);
+		expect(err.code).toBe('unavailable');
+	});
+	it('404 from get stays not-found', async () => {
+		const err = await S.downloadState({ secret: await secretBytes(), origin: 'https://gestura.eu', stateId: ID,
+			expectPayloadHash: 'h', fetchImpl: fetchStatus(404) }).catch(e => e);
+		expect(err.code).toBe('not-found');
+	});
+	it('a POST still sends JSON with its Content-Type', async () => {
+		await S.listStates({ secret: await secretBytes(), origin: 'https://gestura.eu', fetchImpl: fetchOk({ states: [] }) });
+		expect(calls[0].init.headers).toEqual({ 'Content-Type': 'application/json' });
 	});
 });

@@ -14,7 +14,7 @@
 
 	const EU = root.FlowMouseEuIntegration;
 	const BASE = '/api/v1/sync';
-	const PATHS = { list: BASE + '/list', state: BASE + '/state', get: BASE + '/get', del: BASE + '/delete', meta: BASE + '/meta' };
+	const PATHS = { list: BASE + '/list', state: BASE + '/state', get: BASE + '/get', del: BASE + '/delete', meta: BASE + '/meta', ping: BASE + '/ping' };
 
 	// Mirrors docs/gestura-eu-api.md. Checked client-side too, so an oversized
 	// state is refused with the number rather than with a 413.
@@ -28,53 +28,74 @@
 
 	const STATUS = {
 		400: 'bad-request', 404: 'not-found', 409: 'quota-states',
-		412: 'conflict', 413: 'too-large', 429: 'rate-limited',
+		412: 'conflict', 413: 'too-large', 429: 'rate-limited', 503: 'unavailable',
 	};
 
 	// `updatedAt` is carried only by a conflict, where the contract puts it in the
 	// refusal so the panel can say WHEN the state moved under the upload without
 	// asking a second time. Empty everywhere else.
-	function syncError(code, updatedAt) {
+	// `until` is carried only by maintenance: the expected end, as ISO, or ''
+	// when the server sent none or something that is not a date (spec §5).
+	function syncError(code, updatedAt, until) {
 		const e = new Error(code);
 		e.code = code;
 		e.updatedAt = typeof updatedAt === 'string' ? updatedAt : '';
+		e.until = typeof until === 'string' ? until : '';
 		return e;
+	}
+
+	function validUntil(v) {
+		if (typeof v !== 'string') return '';
+		const t = Date.parse(v);
+		return Number.isNaN(t) ? '' : new Date(t).toISOString();
 	}
 
 	async function request(opts) {
 		const { origin, path, method, body, fetchImpl } = opts;
 		const ctl = new AbortController();
 		const timer = setTimeout(() => ctl.abort(), LIMITS.timeoutMs);
+		const init = {
+			method,
+			credentials: 'omit',
+			cache: 'no-store',
+			// A JSON API has no business redirecting, and a redirect is how a
+			// same-origin promise quietly stops being one. Same rule as the update
+			// check.
+			redirect: 'error',
+			signal: ctl.signal,
+		};
+		// A GET carries nothing, and no Content-Type either: that keeps the ping a
+		// simple request, which is what the server's CORS answer is built for
+		// (spec §5).
+		if (body !== undefined) {
+			init.headers = { 'Content-Type': 'application/json' };
+			init.body = JSON.stringify(body);
+		}
 		let res;
 		try {
-			res = await fetchImpl(origin + path, {
-				method,
-				credentials: 'omit',
-				cache: 'no-store',
-				// A JSON API has no business redirecting, and a redirect is how a
-				// same-origin promise quietly stops being one. Same rule as the update
-				// check.
-				redirect: 'error',
-				signal: ctl.signal,
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(body),
-			});
+			res = await fetchImpl(origin + path, init);
 		} catch {
 			clearTimeout(timer);
 			throw syncError('network');
 		}
 		try {
 			if (!res.ok) {
-				const code = STATUS[res.status] || 'server';
-				// The body of an error is read for exactly one code, and defensively:
-				// a conflict carries the current updatedAt, and a body that is missing,
-				// truncated or not JSON must still arrive as a clean conflict rather
-				// than as a second, unrelated failure.
+				let code = STATUS[res.status] || 'server';
+				// The body of an error is read for exactly two codes, and defensively:
+				// a conflict carries the current updatedAt, a 503 may say it is planned
+				// maintenance and until when. A body that is missing, truncated or not
+				// JSON still arrives as the plain code.
 				let updatedAt = '';
+				let until = '';
 				if (code === 'conflict') {
 					try { updatedAt = JSON.parse(await res.text()).updatedAt; } catch { /* no date, still a conflict */ }
+				} else if (code === 'unavailable') {
+					try {
+						const b = JSON.parse(await res.text());
+						if (b && b.error === 'maintenance') { code = 'maintenance'; until = validUntil(b.until); }
+					} catch { /* not maintenance, just unavailable */ }
 				}
-				throw syncError(code, updatedAt);
+				throw syncError(code, updatedAt, until);
 			}
 			const declared = Number(res.headers?.get?.('content-length'));
 			if (Number.isFinite(declared) && declared > LIMITS.responseMaxBytes) throw syncError('too-large');
@@ -99,13 +120,25 @@
 
 	const isEnvelope = (v) => typeof v === 'string' && v.length > 0;
 
+	// The contract never answers 404 to list or to PUT state - those create or
+	// enumerate, there is nothing to be missing. A 404 there means the request
+	// did not reach the sync service (a proxy, a wrong route), and "this state
+	// no longer exists" would send the user looking for a deleted state.
+	async function reachedService(promise) {
+		try {
+			return await promise;
+		} catch (e) {
+			throw (e && e.code === 'not-found') ? syncError('unavailable') : e;
+		}
+	}
+
 	async function listStates(opts) {
 		const { secret, origin, fetchImpl } = opts;
 		const X = root.GesturaSyncCrypto;
-		const answer = await request({
+		const answer = await reachedService(request({
 			origin, path: PATHS.list, method: 'POST', fetchImpl,
 			body: { apiLevel: EU.API_LEVEL, locator: await X.deriveLocator(secret) },
-		});
+		}));
 		if (!Array.isArray(answer.states)) throw syncError('malformed');
 		const key = await X.deriveKey(secret);
 		const out = [];
@@ -183,7 +216,7 @@
 		// Only a usable hash travels. Anything else - '', null, a number - would be
 		// a token the server has to reject, and the caller meant "unconditional".
 		if (typeof basePayloadHash === 'string' && basePayloadHash) body.basePayloadHash = basePayloadHash;
-		const answer = await request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body });
+		const answer = await reachedService(request({ origin, path: PATHS.state, method: 'PUT', fetchImpl, body }));
 		return { ...answer, payloadHash };
 	}
 
@@ -226,6 +259,32 @@
 		return request({ origin, path: PATHS.del, method: 'POST', fetchImpl, body });
 	}
 
+	// Reachability before the onboarding starts (spec §5). Only a 200 that
+	// says status ok counts: an HTML page, a 404 from a misrouted proxy or any
+	// other answer is "not reachable", because the wizard that follows would
+	// fail on it anyway. Never throws - the caller shows one of four sentences.
+	async function pingService(opts) {
+		const { origin, fetchImpl } = opts;
+		try {
+			const answer = await request({ origin, path: PATHS.ping, method: 'GET', fetchImpl });
+			if (answer.status !== 'ok') return { kind: 'unreachable' };
+			const features = Array.isArray(answer.features) ? answer.features.filter(f => typeof f === 'string') : [];
+			return { kind: 'reachable', features };
+		} catch (e) {
+			const code = e && e.code;
+			if (code === 'maintenance') return { kind: 'maintenance', until: e.until };
+			if (code === 'rate-limited') return { kind: 'rate-limited' };
+			return { kind: 'unreachable' };
+		}
+	}
+
+	// Not gated: it is asked exactly while sync is NOT on yet. The server is the
+	// one gated() would talk to.
+	async function ping() {
+		const origin = root.GesturaSyncLocal.syncOrigin(await root.GesturaEuLocal.read());
+		return pingService({ origin, fetchImpl: (url, init) => fetch(url, init) });
+	}
+
 	// The gate. Read the live state, act, read it again - and throw 'disabled'
 	// rather than return, so no caller can mistake a discarded answer for an
 	// empty one.
@@ -257,7 +316,7 @@
 
 	const api = {
 		PATHS, LIMITS, syncError, request,
-		listStates, uploadState, downloadState, deleteStates, renameState,
+		listStates, uploadState, downloadState, deleteStates, renameState, pingService, ping,
 		list, upload, download, remove, rename,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
