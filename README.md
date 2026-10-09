@@ -172,7 +172,7 @@ Gestura settings are stored locally via the browser's storage API. Where they li
 
 **Brave does not sync extension settings across devices, even when Brave Sync is enabled.** This is a limitation of Brave itself, not of Gestura. Brave runs its own self-hosted sync infrastructure (Brave Sync v2) that deliberately covers only a subset of the browser's data types — bookmarks, history, passwords, open tabs, the list of installed extensions, and so on. The *extension settings* data type (the storage area Gestura uses via `chrome.storage.sync`) is not included, and there is no API an extension could use to opt into it.
 
-Your settings are still saved and preserved on each Brave device — they are simply not carried over to your other devices automatically. Two ways around it, both on the options page: **Export** and **Import** move the configuration as a file, and **gestura.eu sync** — off by default, behind its own consent — saves it as a named state you can open in the other browser and afterwards reconcile with a single click.
+Your settings are still saved and preserved on each Brave device — they are simply not carried over to your other devices automatically. Two ways around it, both on the options page: **Export** and **Import** move the configuration as a file, and **gestura.eu sync** — off by default, behind its own consent — saves it as a named profile you can open in the other browser and afterwards reconcile with a single click.
 
 See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
 

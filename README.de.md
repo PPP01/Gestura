@@ -178,7 +178,7 @@ Gesturas Einstellungen werden lokal über die Storage-API des Browsers gespeiche
 
 **Brave synchronisiert Erweiterungs-Einstellungen nicht zwischen Geräten, auch nicht mit aktivem Brave Sync.** Das ist eine Einschränkung von Brave selbst, nicht von Gestura. Brave betreibt eine eigene, selbst gehostete Sync-Infrastruktur (Brave Sync v2), die bewusst nur einen Teil der Browserdaten abdeckt — Lesezeichen, Verlauf, Passwörter, offene Tabs, die Liste installierter Erweiterungen und so weiter. Der Datentyp *Erweiterungs-Einstellungen* (der Speicherbereich, den Gestura über `chrome.storage.sync` nutzt) ist nicht dabei, und es gibt keine API, über die eine Erweiterung ihn anfordern könnte.
 
-Deine Einstellungen werden auf jedem Brave-Gerät trotzdem gespeichert und bleiben erhalten — sie wandern nur nicht automatisch auf deine anderen Geräte. Zwei Wege daran vorbei, beide auf der Optionsseite: **Export** und **Import** bewegen die Konfiguration als Datei, und der **gestura.eu-Abgleich** — standardmäßig aus, hinter eigener Zustimmung — sichert sie als benannten Stand, den du im anderen Browser öffnen und danach mit einem Klick zusammenführen kannst.
+Deine Einstellungen werden auf jedem Brave-Gerät trotzdem gespeichert und bleiben erhalten — sie wandern nur nicht automatisch auf deine anderen Geräte. Zwei Wege daran vorbei, beide auf der Optionsseite: **Export** und **Import** bewegen die Konfiguration als Datei, und der **gestura.eu-Abgleich** — standardmäßig aus, hinter eigener Zustimmung — sichert sie als benanntes Profil, das du im anderen Browser öffnen und danach mit einem Klick zusammenführen kannst.
 
 Die vollständige Datenschutzerklärung steht in [PRIVACY.md](PRIVACY.md).
 
