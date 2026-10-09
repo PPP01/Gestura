@@ -27,18 +27,6 @@
 		"message": "跟隨系統",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "同步狀態",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "設定透過 %browserName% 帳號同步",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "已儲存",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "作者",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "此檔案由較新版本的 Gestura 產生。" },
 	"settingsPreviewErrorForbiddenKey": { "message": "此檔案包含 Gestura 拒絕讀取的項目。" },
 	"euSyncHeading": { "message": "瀏覽器間同步" },
-	"euSyncToggle": { "message": "同步設定" },
-	"euSyncToggleDesc": { "message": "已加密，無需帳號。在你開啟之前保持關閉。" },
-	"euSyncConsentTitle": { "message": "開啟同步" },
 	"euSyncConsentLead": { "message": "同步會把你的 Gestura 設定帶到其他瀏覽器——已加密，無需帳號，也不需要密碼。" },
 	"euSyncConsentPoint1Label": { "message": "功能說明。" },
 	"euSyncConsentPoint1": { "message": "你把設定儲存為一個具名存檔，再到另一個瀏覽器中開啟。上傳和下載一律由你親自點擊；不會自動執行任何動作。" },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura 會為此瀏覽器產生一組代碼。持有它的人可以讀取、取代和刪除你的存檔——請妥善保管。沒有它，就無法再存取舊的存檔，連刪除也不行；gestura.eu 會移除 12 個月未動過的存檔。" },
 	"euSyncConsentPoint5Label": { "message": "瀏覽器同步讓位。" },
 	"euSyncConsentPoint5": { "message": "同意後，此瀏覽器的設定會從瀏覽器同步移到本機儲存空間：你瀏覽器自身的同步將不再傳送這些設定，而你的其他瀏覽器會保留它們現有的副本。之後再關閉 gestura.eu 同步，設定也不會自動移回——你需要在資料區自行操作。" },
-	"euSyncConsentAccept": { "message": "開啟同步" },
 	"euSyncConsentCancel": { "message": "取消" },
 	"euSyncConsentGranted": { "message": "同步已開啟" },
 	"euSyncConsentDate": { "message": "同意日期：{date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "縮小內容" },
 	"storageWayShrinkDesc": { "message": "未儲存任何內容。請移除一些項目，然後重新進行變更。" },
 	"storageWayEu": { "message": "改用 gestura.eu 同步" },
-	"storageWayEuDesc": { "message": "此裝置上的空間大得多——而且一旦你開啟 gestura.eu 整合，它就會把設定加密後傳送到你的其他瀏覽器，加密用的代碼只有你持有。目前尚未儲存任何內容：之後請重新進行變更。" },
 	"storageWayLocal": { "message": "關閉瀏覽器同步" },
 	"storageWayLocalDesc": { "message": "約 1 MiB，僅限此裝置。目前尚未儲存任何內容：之後請重新進行變更。" },
 	"storageBranchOther": { "message": "你的某項設定" },
 	"storageSwitchToSyncConfirm": { "message": "此瀏覽器的設定將取代瀏覽器同步目前保存的所有內容。其他瀏覽器在這段期間存放在那裡的內容都會被覆寫。要重新開啟瀏覽器同步嗎？" },
 	"storageSwitchToSyncConfirmSince": { "message": "此瀏覽器的設定將取代瀏覽器同步目前保存的所有內容——包括其他瀏覽器自 {date} 起存放在那裡的內容。要重新開啟瀏覽器同步嗎？" },
-	"storageBrowserSync": { "message": "瀏覽器同步" },
-	"storageBrowserSyncOnDesc": { "message": "你的瀏覽器會把這些設定傳送到你的其他裝置——每個區段 8192 位元組。" },
-	"storageBrowserSyncOffDesc": { "message": "已關閉。最多 1 MiB，僅儲存在此裝置上。" },
 	"storageSwitchRefusedBranch": { "message": "無法重新開啟瀏覽器同步：{branch} 為 {used} 位元組，而瀏覽器同步每個區段最多只能承載 {total}。" },
 	"storageSwitchRefusedTotal": { "message": "無法重新開啟瀏覽器同步：你的設定為 {used} 位元組，而瀏覽器同步最多只能承載 {total}。" },
 	"storageSwitchRefusedTier2": { "message": "gestura.eu 同步開啟期間，無法重新開啟瀏覽器同步。請先關閉 gestura.eu 同步。" },

@@ -27,18 +27,6 @@
 		"message": "לפי המערכת",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "סטטוס סנכרון",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "סנכרון הגדרות דרך חשבון %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "נשמר",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "מחבר",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "הקובץ הזה נכתב בגרסה חדשה יותר של Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "הקובץ הזה מכיל ערכים ש-Gestura מסרב לקרוא." },
 	"euSyncHeading": { "message": "סנכרון בין דפדפנים" },
-	"euSyncToggle": { "message": "סנכרון הגדרות" },
-	"euSyncToggleDesc": { "message": "מוצפן, בלי חשבון. כבוי עד שתפעיל." },
-	"euSyncConsentTitle": { "message": "הפעלת סנכרון" },
 	"euSyncConsentLead": { "message": "הסנכרון מעביר את הגדרות Gestura שלך לדפדפנים האחרים שלך, מוצפן, בלי חשבון ובלי סיסמה." },
 	"euSyncConsentPoint1Label": { "message": "מה הוא עושה." },
 	"euSyncConsentPoint1": { "message": "אתה שומר את ההגדרות שלך כמצב בעל שם ופותח אותו בדפדפן אחר. העלאה והורדה הן תמיד לחיצה שלך; שום דבר לא קורה מעצמו." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura יוצר קוד לדפדפן הזה. מי שמחזיק בו יכול לקרוא, להחליף ולמחוק את המצבים שלך, לכן שמור אותו במקום בטוח. בלעדיו אי אפשר להגיע למצבים הישנים, אפילו לא כדי למחוק אותם; gestura.eu מסיר מצבים שלא נגעו בהם 12 חודשים." },
 	"euSyncConsentPoint5Label": { "message": "סנכרון הדפדפן מפנה את הדרך." },
 	"euSyncConsentPoint5": { "message": "ההסכמה מעבירה את ההגדרות של הדפדפן הזה מסנכרון הדפדפן לאחסון המקומי שלו: הסנכרון המובנה של הדפדפן כבר לא יעביר אותן, והדפדפנים האחרים שלך שומרים על העותק שכבר יש להם. כיבוי הסנכרון של gestura.eu בהמשך לא מחזיר אותן; את זה תעשה בעצמך באזור הנתונים." },
-	"euSyncConsentAccept": { "message": "הפעל סנכרון" },
 	"euSyncConsentCancel": { "message": "ביטול" },
 	"euSyncConsentGranted": { "message": "הסנכרון פועל" },
 	"euSyncConsentDate": { "message": "אושר ב-{date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "הקטנה" },
 	"storageWayShrinkDesc": { "message": "שום דבר לא נשמר. הסר כמה ערכים ואז בצע את השינוי שוב." },
 	"storageWayEu": { "message": "מעבר לסנכרון של gestura.eu" },
-	"storageWayEuDesc": { "message": "הרבה יותר מקום במכשיר הזה, וברגע שתפעיל את השילוב עם gestura.eu הוא מעביר את ההגדרות לדפדפנים האחרים שלך, מוצפנות תחת קוד שרק אתה מחזיק. עדיין לא נשמר דבר: בצע את השינוי שוב אחר כך." },
 	"storageWayLocal": { "message": "כיבוי סנכרון הדפדפן" },
 	"storageWayLocalDesc": { "message": "כ-1 MiB, במכשיר הזה בלבד. עדיין לא נשמר דבר: בצע את השינוי שוב אחר כך." },
 	"storageBranchOther": { "message": "אחת ההגדרות שלך" },
 	"storageSwitchToSyncConfirm": { "message": "ההגדרות של הדפדפן הזה יחליפו את כל מה שסנכרון הדפדפן מחזיק כרגע. מה שדפדפן אחר שמר שם בינתיים יידרס. להפעיל שוב את סנכרון הדפדפן?" },
 	"storageSwitchToSyncConfirmSince": { "message": "ההגדרות של הדפדפן הזה יחליפו את כל מה שסנכרון הדפדפן מחזיק כרגע, כולל מה שדפדפן אחר שמר שם מאז {date}. להפעיל שוב את סנכרון הדפדפן?" },
-	"storageBrowserSync": { "message": "סנכרון דפדפן" },
-	"storageBrowserSyncOnDesc": { "message": "הדפדפן שלך מעביר את ההגדרות האלה למכשירים האחרים שלך, 8192 בייטים לכל קטע." },
-	"storageBrowserSyncOffDesc": { "message": "כבוי. עד 1 MiB, נשמר במכשיר הזה בלבד." },
 	"storageSwitchRefusedBranch": { "message": "אי אפשר להפעיל שוב את סנכרון הדפדפן: {branch} הוא {used} בייטים, וסנכרון הדפדפן נושא לכל היותר {total} לכל קטע." },
 	"storageSwitchRefusedTotal": { "message": "אי אפשר להפעיל שוב את סנכרון הדפדפן: ההגדרות שלך הן {used} בייטים, וסנכרון הדפדפן נושא לכל היותר {total}." },
 	"storageSwitchRefusedTier2": { "message": "אי אפשר להפעיל שוב את סנכרון הדפדפן כל עוד הסנכרון של gestura.eu פועל. כבה אותו קודם." },

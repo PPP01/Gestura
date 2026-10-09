@@ -27,18 +27,6 @@
 		"message": "Zgodnie z systemem",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Stan synchronizacji",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Synchronizacja ustawień przez konto %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Zapisano",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Autor",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Ten plik został zapisany przez nowszą wersję Gestury." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Ten plik zawiera wpisy, których Gestura odmawia odczytu." },
 	"euSyncHeading": { "message": "Synchronizacja między przeglądarkami" },
-	"euSyncToggle": { "message": "Synchronizuj ustawienia" },
-	"euSyncToggleDesc": { "message": "Szyfrowana, bez konta. Wyłączona, dopóki jej nie włączysz." },
-	"euSyncConsentTitle": { "message": "Włącz synchronizację" },
 	"euSyncConsentLead": { "message": "Synchronizacja przenosi ustawienia Gestury do Twoich innych przeglądarek — szyfrowana, bez konta i bez hasła." },
 	"euSyncConsentPoint1Label": { "message": "Co robi." },
 	"euSyncConsentPoint1": { "message": "Zapisujesz ustawienia jako nazwany stan i otwierasz go w innej przeglądarce. Wysyłanie i pobieranie zawsze wymaga Twojego kliknięcia; nic nie dzieje się samo." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura generuje kod dla tej przeglądarki. Kto go ma, może odczytywać, zastępować i usuwać Twoje stany — przechowuj go w bezpiecznym miejscu. Bez niego dawne stany są nieosiągalne, nawet by je usunąć; gestura.eu usuwa stany nietknięte od 12 miesięcy." },
 	"euSyncConsentPoint5Label": { "message": "Synchronizacja przeglądarki ustępuje." },
 	"euSyncConsentPoint5": { "message": "Zgoda przenosi ustawienia tej przeglądarki z synchronizacji przeglądarki do jej pamięci lokalnej: synchronizacja Twojej przeglądarki przestaje je przenosić, a inne przeglądarki zachowują kopię, którą już mają. Ponowne wyłączenie synchronizacji gestura.eu nie przenosi ich z powrotem — robisz to sam w sekcji danych." },
-	"euSyncConsentAccept": { "message": "Włącz synchronizację" },
 	"euSyncConsentCancel": { "message": "Anuluj" },
 	"euSyncConsentGranted": { "message": "Synchronizacja jest włączona" },
 	"euSyncConsentDate": { "message": "Zgoda udzielona: {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Zmniejsz je" },
 	"storageWayShrinkDesc": { "message": "Nic nie zostaje zapisane. Usuń kilka wpisów, a potem powtórz zmianę." },
 	"storageWayEu": { "message": "Przełącz na synchronizację gestura.eu" },
-	"storageWayEuDesc": { "message": "Znacznie więcej miejsca na tym urządzeniu — a po włączeniu integracji z gestura.eu przenosi ustawienia do Twoich innych przeglądarek, szyfrowane kodem, który masz tylko Ty. Nic jeszcze nie zapisano: potem powtórz zmianę." },
 	"storageWayLocal": { "message": "Wyłącz synchronizację przeglądarki" },
 	"storageWayLocalDesc": { "message": "Około 1 MiB, tylko na tym urządzeniu. Nic jeszcze nie zapisano: potem powtórz zmianę." },
 	"storageBranchOther": { "message": "Jedno z Twoich ustawień" },
 	"storageSwitchToSyncConfirm": { "message": "Ustawienia tej przeglądarki zastąpią wszystko, co synchronizacja przeglądarki obecnie przechowuje. To, co w międzyczasie zapisała tam inna przeglądarka, zostanie nadpisane. Włączyć ponownie synchronizację przeglądarki?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Ustawienia tej przeglądarki zastąpią wszystko, co synchronizacja przeglądarki obecnie przechowuje — w tym to, co inna przeglądarka zapisała tam od {date}. Włączyć ponownie synchronizację przeglądarki?" },
-	"storageBrowserSync": { "message": "Synchronizacja przeglądarki" },
-	"storageBrowserSyncOnDesc": { "message": "Twoja przeglądarka przenosi te ustawienia na inne urządzenia — 8192 bajty na sekcję." },
-	"storageBrowserSyncOffDesc": { "message": "Wyłączona. Do 1 MiB, przechowywane tylko na tym urządzeniu." },
 	"storageSwitchRefusedBranch": { "message": "Nie można ponownie włączyć synchronizacji przeglądarki: {branch} ma {used} bajtów, a synchronizacja przeglądarki przenosi co najwyżej {total} na sekcję." },
 	"storageSwitchRefusedTotal": { "message": "Nie można ponownie włączyć synchronizacji przeglądarki: Twoje ustawienia mają {used} bajtów, a synchronizacja przeglądarki przenosi co najwyżej {total}." },
 	"storageSwitchRefusedTier2": { "message": "Nie można ponownie włączyć synchronizacji przeglądarki, gdy włączona jest synchronizacja gestura.eu. Najpierw ją wyłącz." },

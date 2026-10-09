@@ -27,18 +27,6 @@
 		"message": "Theo hệ thống",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Trạng thái đồng bộ hóa",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Đồng bộ cài đặt qua tài khoản %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Đã lưu",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Tác giả",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Tệp này được tạo bởi phiên bản Gestura mới hơn." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Tệp này chứa các mục mà Gestura từ chối đọc." },
 	"euSyncHeading": { "message": "Đồng bộ giữa các trình duyệt" },
-	"euSyncToggle": { "message": "Đồng bộ cài đặt" },
-	"euSyncToggleDesc": { "message": "Được mã hóa, không cần tài khoản. Tắt cho đến khi bạn bật." },
-	"euSyncConsentTitle": { "message": "Bật đồng bộ" },
 	"euSyncConsentLead": { "message": "Đồng bộ đưa cài đặt Gestura của bạn sang các trình duyệt khác — được mã hóa, không cần tài khoản và không cần mật khẩu." },
 	"euSyncConsentPoint1Label": { "message": "Nó làm gì." },
 	"euSyncConsentPoint1": { "message": "Bạn lưu cài đặt thành một bản lưu có tên và mở nó trong trình duyệt khác. Tải lên và tải xuống luôn do chính bạn nhấp; không có gì tự xảy ra." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura tạo một mã cho trình duyệt này. Ai có mã đều có thể đọc, thay thế và xóa các bản lưu của bạn — hãy cất giữ ở nơi an toàn. Không có mã, các bản lưu cũ không thể truy cập được nữa, kể cả để xóa; gestura.eu xóa các bản lưu không được động đến trong 12 tháng." },
 	"euSyncConsentPoint5Label": { "message": "Đồng bộ của trình duyệt nhường chỗ." },
 	"euSyncConsentPoint5": { "message": "Khi đồng ý, cài đặt của trình duyệt này được chuyển từ đồng bộ trình duyệt sang bộ nhớ cục bộ: đồng bộ của chính trình duyệt không còn mang chúng đi nữa, và các trình duyệt khác của bạn giữ bản sao mà chúng đã có. Tắt đồng bộ gestura.eu sau này sẽ không tự chuyển chúng trở lại — bạn tự làm việc đó trong phần dữ liệu." },
-	"euSyncConsentAccept": { "message": "Bật đồng bộ" },
 	"euSyncConsentCancel": { "message": "Hủy" },
 	"euSyncConsentGranted": { "message": "Đồng bộ đang bật" },
 	"euSyncConsentDate": { "message": "Đã đồng ý vào {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Làm nhỏ lại" },
 	"storageWayShrinkDesc": { "message": "Không có gì được lưu. Hãy xóa bớt một số mục, rồi thực hiện lại thay đổi." },
 	"storageWayEu": { "message": "Chuyển sang đồng bộ gestura.eu" },
-	"storageWayEuDesc": { "message": "Nhiều chỗ hơn hẳn trên thiết bị này — và khi bạn bật tích hợp gestura.eu, nó mang cài đặt sang các trình duyệt khác của bạn, được mã hóa bằng một mã chỉ bạn nắm giữ. Chưa có gì được lưu: hãy thực hiện lại thay đổi sau đó." },
 	"storageWayLocal": { "message": "Tắt đồng bộ trình duyệt" },
 	"storageWayLocalDesc": { "message": "Khoảng 1 MiB, chỉ trên thiết bị này. Chưa có gì được lưu: hãy thực hiện lại thay đổi sau đó." },
 	"storageBranchOther": { "message": "Một trong các cài đặt của bạn" },
 	"storageSwitchToSyncConfirm": { "message": "Cài đặt của trình duyệt này sẽ thay thế mọi thứ mà đồng bộ trình duyệt hiện đang giữ. Những gì trình duyệt khác đã lưu ở đó trong lúc này sẽ bị ghi đè. Bật lại đồng bộ trình duyệt?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Cài đặt của trình duyệt này sẽ thay thế mọi thứ mà đồng bộ trình duyệt hiện đang giữ — kể cả những gì trình duyệt khác đã lưu ở đó kể từ {date}. Bật lại đồng bộ trình duyệt?" },
-	"storageBrowserSync": { "message": "Đồng bộ trình duyệt" },
-	"storageBrowserSyncOnDesc": { "message": "Trình duyệt của bạn mang các cài đặt này sang các thiết bị khác — 8192 byte mỗi phần." },
-	"storageBrowserSyncOffDesc": { "message": "Tắt. Tối đa 1 MiB, chỉ lưu trên thiết bị này." },
 	"storageSwitchRefusedBranch": { "message": "Không thể bật lại đồng bộ trình duyệt: {branch} nặng {used} byte, và đồng bộ trình duyệt mang tối đa {total} mỗi phần." },
 	"storageSwitchRefusedTotal": { "message": "Không thể bật lại đồng bộ trình duyệt: cài đặt của bạn nặng {used} byte, và đồng bộ trình duyệt mang tối đa {total}." },
 	"storageSwitchRefusedTier2": { "message": "Không thể bật lại đồng bộ trình duyệt khi đồng bộ gestura.eu đang bật. Hãy tắt nó trước." },

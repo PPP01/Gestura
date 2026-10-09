@@ -27,18 +27,6 @@
 		"message": "Sistem varsayılanı",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Senkronizasyon Durumu",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Ayarları %browserName% hesabı üzerinden senkronize et",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Kaydedildi",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Yazar",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Bu dosya Gestura'nın daha yeni bir sürümü tarafından yazılmış." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Bu dosya, Gestura'nın okumayı reddettiği girdiler içeriyor." },
 	"euSyncHeading": { "message": "Tarayıcılar arası senkronizasyon" },
-	"euSyncToggle": { "message": "Ayarları senkronize et" },
-	"euSyncToggleDesc": { "message": "Şifreli, hesapsız. Sen açana kadar kapalı." },
-	"euSyncConsentTitle": { "message": "Senkronizasyonu aç" },
 	"euSyncConsentLead": { "message": "Senkronizasyon, Gestura ayarlarını diğer tarayıcılarına taşır — şifreli, hesapsız ve parolasız." },
 	"euSyncConsentPoint1Label": { "message": "Ne yapar." },
 	"euSyncConsentPoint1": { "message": "Ayarlarını adlandırılmış bir durum olarak kaydeder ve başka bir tarayıcıda açarsın. Yükleme ve indirme her zaman senin tıklamanla olur; kendiliğinden hiçbir şey yapılmaz." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura bu tarayıcı için bir kod üretir. Koda sahip olan kişi durumlarını okuyabilir, değiştirebilir ve silebilir — güvenli bir yerde sakla. Kod olmadan eski durumlara erişilemez, silinemez bile; gestura.eu 12 ay boyunca dokunulmayan durumları kaldırır." },
 	"euSyncConsentPoint5Label": { "message": "Tarayıcı senkronizasyonu devre dışı kalır." },
 	"euSyncConsentPoint5": { "message": "Onaylamak, bu tarayıcının ayarlarını tarayıcı senkronizasyonundan yerel depolamasına taşır: tarayıcının kendi senkronizasyonu artık bunları taşımaz, diğer tarayıcıların elindeki kopyayı korur. gestura.eu senkronizasyonunu tekrar kapatmak ayarları geri taşımaz — bunu veri bölümünden kendin yaparsın." },
-	"euSyncConsentAccept": { "message": "Senkronizasyonu aç" },
 	"euSyncConsentCancel": { "message": "İptal" },
 	"euSyncConsentGranted": { "message": "Senkronizasyon açık" },
 	"euSyncConsentDate": { "message": "{date} tarihinde onaylandı" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Küçült" },
 	"storageWayShrinkDesc": { "message": "Hiçbir şey kaydedilmedi. Bazı girdileri kaldır, sonra değişikliği tekrar yap." },
 	"storageWayEu": { "message": "gestura.eu senkronizasyonuna geç" },
-	"storageWayEuDesc": { "message": "Bu cihazda çok daha fazla yer — ve gestura.eu entegrasyonunu açtığında, ayarlarını yalnızca senin elindeki bir kodla şifreleyip diğer tarayıcılarına taşır. Henüz hiçbir şey kaydedilmedi: sonrasında değişikliği tekrar yap." },
 	"storageWayLocal": { "message": "Tarayıcı senkronizasyonunu kapat" },
 	"storageWayLocalDesc": { "message": "Yaklaşık 1 MiB, yalnızca bu cihazda. Henüz hiçbir şey kaydedilmedi: sonrasında değişikliği tekrar yap." },
 	"storageBranchOther": { "message": "Ayarlarından biri" },
 	"storageSwitchToSyncConfirm": { "message": "Bu tarayıcının ayarları, tarayıcı senkronizasyonunda şu an bulunan her şeyin yerine geçecek. Başka bir tarayıcının bu arada orada kaydettiği her şeyin üzerine yazılır. Tarayıcı senkronizasyonu tekrar açılsın mı?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Bu tarayıcının ayarları, tarayıcı senkronizasyonunda şu an bulunan her şeyin yerine geçecek — başka bir tarayıcının {date} tarihinden bu yana orada kaydettikleri de dahil. Tarayıcı senkronizasyonu tekrar açılsın mı?" },
-	"storageBrowserSync": { "message": "Tarayıcı senkronizasyonu" },
-	"storageBrowserSyncOnDesc": { "message": "Tarayıcın bu ayarları diğer cihazlarına taşır — bölüm başına 8192 bayt." },
-	"storageBrowserSyncOffDesc": { "message": "Kapalı. 1 MiB'a kadar, yalnızca bu cihazda saklanır." },
 	"storageSwitchRefusedBranch": { "message": "Tarayıcı senkronizasyonu tekrar açılamıyor: {branch} {used} bayt ve tarayıcı senkronizasyonu bölüm başına en fazla {total} taşır." },
 	"storageSwitchRefusedTotal": { "message": "Tarayıcı senkronizasyonu tekrar açılamıyor: ayarların {used} bayt ve tarayıcı senkronizasyonu en fazla {total} taşır." },
 	"storageSwitchRefusedTier2": { "message": "gestura.eu senkronizasyonu açıkken tarayıcı senkronizasyonu tekrar açılamaz. Önce onu kapat." },

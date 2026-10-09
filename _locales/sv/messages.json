@@ -27,18 +27,6 @@
 		"message": "Följ systeminställningar",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Synkroniseringsstatus",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Synkronisera inställningar via %browserName%-konto",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Sparat",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Författare",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Filen skapades av en nyare version av Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Filen innehåller poster som Gestura vägrar läsa." },
 	"euSyncHeading": { "message": "Synkronisering mellan webbläsare" },
-	"euSyncToggle": { "message": "Synkronisera inställningar" },
-	"euSyncToggleDesc": { "message": "Krypterat, utan konto. Av tills du slår på det." },
-	"euSyncConsentTitle": { "message": "Slå på synkronisering" },
 	"euSyncConsentLead": { "message": "Synkroniseringen för dina Gestura-inställningar till dina andra webbläsare – krypterat, utan konto och utan lösenord." },
 	"euSyncConsentPoint1Label": { "message": "Vad den gör." },
 	"euSyncConsentPoint1": { "message": "Du sparar dina inställningar som ett namngivet tillstånd och öppnar det i en annan webbläsare. Uppladdning och nedladdning sker alltid med ditt eget klick; ingenting sker av sig självt." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura skapar en kod för den här webbläsaren. Den som har den kan läsa, ersätta och ta bort dina tillstånd – förvara den på ett säkert ställe. Utan den går de gamla tillstånden inte längre att nå, inte ens för att ta bort dem; gestura.eu tar bort tillstånd som inte har rörts på 12 månader." },
 	"euSyncConsentPoint5Label": { "message": "Webbläsarsynkroniseringen viker undan." },
 	"euSyncConsentPoint5": { "message": "Om du godkänner flyttas den här webbläsarens inställningar från webbläsarsynkroniseringen till dess lokala lagring: webbläsarens egen synkronisering för dem inte längre vidare, och dina andra webbläsare behåller den kopia de redan har. Om du slår av gestura.eu-synkroniseringen igen flyttas de inte tillbaka – det gör du själv i dataavsnittet." },
-	"euSyncConsentAccept": { "message": "Slå på synkronisering" },
 	"euSyncConsentCancel": { "message": "Avbryt" },
 	"euSyncConsentGranted": { "message": "Synkronisering är på" },
 	"euSyncConsentDate": { "message": "Godkänt den {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Gör den mindre" },
 	"storageWayShrinkDesc": { "message": "Ingenting sparas. Ta bort några poster och gör sedan ändringen igen." },
 	"storageWayEu": { "message": "Byt till gestura.eu-synkronisering" },
-	"storageWayEuDesc": { "message": "Mycket mer utrymme på den här enheten – och när du slår på gestura.eu-integrationen för den inställningarna vidare till dina andra webbläsare, krypterat med en kod som bara du har. Ingenting har sparats ännu: gör ändringen igen efteråt." },
 	"storageWayLocal": { "message": "Slå av webbläsarsynkronisering" },
 	"storageWayLocalDesc": { "message": "Cirka 1 MiB, endast på den här enheten. Ingenting har sparats ännu: gör ändringen igen efteråt." },
 	"storageBranchOther": { "message": "En av dina inställningar" },
 	"storageSwitchToSyncConfirm": { "message": "Den här webbläsarens inställningar ersätter allt som webbläsarsynkroniseringen just nu innehåller. Det som en annan webbläsare har sparat där under tiden skrivs över. Slå på webbläsarsynkroniseringen igen?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Den här webbläsarens inställningar ersätter allt som webbläsarsynkroniseringen just nu innehåller – inklusive det som en annan webbläsare har sparat där sedan {date}. Slå på webbläsarsynkroniseringen igen?" },
-	"storageBrowserSync": { "message": "Webbläsarsynkronisering" },
-	"storageBrowserSyncOnDesc": { "message": "Din webbläsare för dessa inställningar vidare till dina andra enheter – 8192 byte per avsnitt." },
-	"storageBrowserSyncOffDesc": { "message": "Av. Upp till 1 MiB, lagras endast på den här enheten." },
 	"storageSwitchRefusedBranch": { "message": "Webbläsarsynkroniseringen kan inte slås på igen: {branch} är {used} byte, och webbläsarsynkroniseringen bär högst {total} per avsnitt." },
 	"storageSwitchRefusedTotal": { "message": "Webbläsarsynkroniseringen kan inte slås på igen: dina inställningar är {used} byte, och webbläsarsynkroniseringen bär högst {total}." },
 	"storageSwitchRefusedTier2": { "message": "Webbläsarsynkroniseringen kan inte slås på igen så länge gestura.eu-synkroniseringen är aktiverad. Slå av den först." },

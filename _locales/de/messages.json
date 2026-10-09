@@ -27,18 +27,6 @@
 		"message": "Systemstandard",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Synchronisierungsstatus",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Einstellungen über %browserName%-Konto synchronisieren",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Gespeichert",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Autor",
 		"description": "Author"
@@ -3086,15 +3074,11 @@
 	"storageWayShrink": { "message": "Kleiner machen" },
 	"storageWayShrinkDesc": { "message": "Nichts wird gespeichert. Entferne einige Einträge und nimm die Änderung dann erneut vor." },
 	"storageWayEu": { "message": "Auf gestura.eu-Sync umsteigen" },
-	"storageWayEuDesc": { "message": "Deutlich mehr Platz auf diesem Gerät — und sobald du die gestura.eu-Integration einschaltest, überträgt sie die Einstellungen auf deine anderen Browser, verschlüsselt unter einem Code, den nur du hast. Gespeichert ist noch nichts: Nimm die Änderung danach erneut vor." },
 	"storageWayLocal": { "message": "Browser-Sync ausschalten" },
 	"storageWayLocalDesc": { "message": "Etwa 1 MiB, nur auf diesem Gerät. Gespeichert ist noch nichts: Nimm die Änderung danach erneut vor." },
 	"storageBranchOther": { "message": "Eine deiner Einstellungen" },
 	"storageSwitchToSyncConfirm": { "message": "Die Einstellungen dieses Browsers ersetzen alles, was der Browser-Sync derzeit enthält. Was ein anderer Browser dort inzwischen gespeichert hat, wird überschrieben. Browser-Sync wieder einschalten?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Die Einstellungen dieses Browsers ersetzen alles, was der Browser-Sync derzeit enthält — auch das, was ein anderer Browser dort seit {date} gespeichert hat. Browser-Sync wieder einschalten?" },
-	"storageBrowserSync": { "message": "Browser-Sync" },
-	"storageBrowserSyncOnDesc": { "message": "Dein Browser überträgt diese Einstellungen auf deine anderen Geräte — 8192 Bytes je Abschnitt." },
-	"storageBrowserSyncOffDesc": { "message": "Aus. Bis zu 1 MiB, nur auf diesem Gerät gespeichert." },
 	"storageSwitchRefusedBranch": { "message": "Der Browser-Sync lässt sich nicht wieder einschalten: {branch} ist {used} Bytes groß, der Browser-Sync trägt je Abschnitt höchstens {total}." },
 	"storageSwitchRefusedTotal": { "message": "Der Browser-Sync lässt sich nicht wieder einschalten: deine Einstellungen sind {used} Bytes groß, der Browser-Sync trägt höchstens {total}." },
 	"storageSwitchRefusedTier2": { "message": "Der Browser-Sync lässt sich nicht wieder einschalten, solange der gestura.eu-Sync eingeschaltet ist. Schalte den zuerst aus." },
@@ -3180,9 +3164,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Diese Datei stammt aus einer neueren Version von Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Diese Datei enthält Einträge, die Gestura nicht liest." },
 	"euSyncHeading": { "message": "Abgleich zwischen Browsern" },
-	"euSyncToggle": { "message": "Einstellungen abgleichen" },
-	"euSyncToggleDesc": { "message": "Verschlüsselt, ohne Konto. Aus, bis du es einschaltest." },
-	"euSyncConsentTitle": { "message": "Abgleich einschalten" },
 	"euSyncConsentLead": { "message": "Übertrage deine Gestura-Einstellungen flexibel in andere Browser – Ende-zu-Ende-verschlüsselt, ohne Konto und ohne Passwort." },
 	"euSyncConsentPoint1Label": { "message": "Kein heimlicher Abgleich:" },
 	"euSyncConsentPoint1": { "message": "Du bestimmst den Zeitpunkt. Einstellungen werden nur gespeichert oder geladen, wenn du es selbst auslöst." },
@@ -3194,7 +3175,6 @@
 	"euSyncConsentPoint4": { "message": "Nur wer deinen Code hat, kann deine Profile lesen und ändern. Bewahre ihn gut auf – ohne ihn gibt es keine Wiederherstellung. Profile, die 12 Monate lang niemand nutzt, werden gelöscht." },
 	"euSyncConsentPoint5Label": { "message": "Ersetzt den Browser-Sync:" },
 	"euSyncConsentPoint5": { "message": "Gestura verwaltet deine Einstellungen ab jetzt lokal und über gestura.eu statt über das Sync-Konto deines Browsers. Du kannst das jederzeit oben wieder umstellen." },
-	"euSyncConsentAccept": { "message": "Abgleich einschalten" },
 	"euSyncConsentCancel": { "message": "Abbrechen" },
 	"euSyncConsentGranted": { "message": "Der Abgleich ist an" },
 	"euSyncConsentDate": { "message": "Zugestimmt am {date}" },
@@ -3217,7 +3197,6 @@
 	"euSyncSecretSave": { "message": "Als Datei sichern" },
 	"euSyncSecretNew": { "message": "Neuer Code" },
 	"euSyncSecretNewConfirm": { "message": "Neuen Code erzeugen?\n\nDeine bisherigen Profile bleiben auf gestura.eu erhalten, sind in diesem Browser aber nicht mehr sichtbar. Solange du den alten Code noch besitzt (z. B. im Passwortmanager oder auf einem anderen Gerät), kannst du jederzeit dorthin zurückkehren. Ohne den Code verfällt der Zugriff endgültig – gestura.eu löscht die Daten dann automatisch nach 12 Monaten Inaktivität." },
-	"euSyncSecretLoad": { "message": "Bestehenden Code laden" },
 	"euSyncSecretUseConfirmTitle": { "message": "Anderen Code verwenden?" },
 	"euSyncSecretLoaded": { "message": "Code geladen — die darunter gesicherten Profile siehst du jetzt hier." },
 	"euSyncCodeSwitchTitle": { "message": "Code wechseln" },

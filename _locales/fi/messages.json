@@ -27,18 +27,6 @@
 		"message": "Järjestelmän mukaan",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Synkronoinnin tila",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Asetusten synkronointi %browserName%-tilin kautta",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Tallennettu",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Tekijä",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Tämän tiedoston on kirjoittanut Gesturan uudempi versio." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Tämä tiedosto sisältää merkintöjä, joita Gestura ei suostu lukemaan." },
 	"euSyncHeading": { "message": "Synkronointi selainten välillä" },
-	"euSyncToggle": { "message": "Synkronoi asetukset" },
-	"euSyncToggleDesc": { "message": "Salattu, ilman tiliä. Pois käytöstä, kunnes otat sen käyttöön." },
-	"euSyncConsentTitle": { "message": "Ota synkronointi käyttöön" },
 	"euSyncConsentLead": { "message": "Synkronointi vie Gesturan asetuksesi muihin selaimiisi — salattuna, ilman tiliä ja ilman salasanaa." },
 	"euSyncConsentPoint1Label": { "message": "Mitä se tekee." },
 	"euSyncConsentPoint1": { "message": "Tallennat asetuksesi nimettynä tilana ja avaat sen toisessa selaimessa. Lähetys ja lataus ovat aina oma napsautuksesi; mitään ei tapahdu itsestään." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura luo tälle selaimelle koodin. Se, jolla koodi on, voi lukea, korvata ja poistaa tilasi — säilytä se turvallisessa paikassa. Ilman sitä vanhoihin tiloihin ei pääse käsiksi, ei edes poistaakseen niitä; gestura.eu poistaa tilat, joihin ei ole koskettu 12 kuukauteen." },
 	"euSyncConsentPoint5Label": { "message": "Selaimen synkronointi väistyy." },
 	"euSyncConsentPoint5": { "message": "Suostumus siirtää tämän selaimen asetukset pois selaimen synkronoinnista sen paikalliseen tallennustilaan: selaimesi oma synkronointi ei enää kuljeta niitä, ja muut selaimesi säilyttävät jo olemassa olevan kopion. gestura.eu-synkronoinnin poistaminen käytöstä ei siirrä asetuksia takaisin — teet sen itse Tiedonhallinta-osiossa." },
-	"euSyncConsentAccept": { "message": "Ota synkronointi käyttöön" },
 	"euSyncConsentCancel": { "message": "Peruuta" },
 	"euSyncConsentGranted": { "message": "Synkronointi on käytössä" },
 	"euSyncConsentDate": { "message": "Hyväksytty {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Pienennä" },
 	"storageWayShrinkDesc": { "message": "Mitään ei tallenneta. Poista joitakin merkintöjä ja tee muutos uudelleen." },
 	"storageWayEu": { "message": "Siirry gestura.eu-synkronointiin" },
-	"storageWayEuDesc": { "message": "Paljon enemmän tilaa tällä laitteella — ja kun otat gestura.eu-integraation käyttöön, se vie asetukset muihin selaimiisi salattuna koodilla, jonka vain sinä hallitset. Mitään ei ole vielä tallennettu: tee muutos uudelleen sen jälkeen." },
 	"storageWayLocal": { "message": "Poista selaimen synkronointi käytöstä" },
 	"storageWayLocalDesc": { "message": "Noin 1 MiB, vain tällä laitteella. Mitään ei ole vielä tallennettu: tee muutos uudelleen sen jälkeen." },
 	"storageBranchOther": { "message": "Yksi asetuksistasi" },
 	"storageSwitchToSyncConfirm": { "message": "Tämän selaimen asetukset korvaavat kaiken, mitä selaimen synkronointi tällä hetkellä sisältää. Mitä tahansa toinen selain on sinne sillä välin tallentanut, korvataan. Otetaanko selaimen synkronointi uudelleen käyttöön?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Tämän selaimen asetukset korvaavat kaiken, mitä selaimen synkronointi tällä hetkellä sisältää — myös sen, mitä toinen selain on sinne tallentanut {date} jälkeen. Otetaanko selaimen synkronointi uudelleen käyttöön?" },
-	"storageBrowserSync": { "message": "Selaimen synkronointi" },
-	"storageBrowserSyncOnDesc": { "message": "Selaimesi vie nämä asetukset muille laitteillesi — 8192 tavua osiota kohden." },
-	"storageBrowserSyncOffDesc": { "message": "Pois käytöstä. Enintään 1 MiB, tallennettu vain tälle laitteelle." },
 	"storageSwitchRefusedBranch": { "message": "Selaimen synkronointia ei voi ottaa uudelleen käyttöön: {branch} on {used} tavua, ja selaimen synkronointi kuljettaa enintään {total} osiota kohden." },
 	"storageSwitchRefusedTotal": { "message": "Selaimen synkronointia ei voi ottaa uudelleen käyttöön: asetuksesi ovat {used} tavua, ja selaimen synkronointi kuljettaa enintään {total}." },
 	"storageSwitchRefusedTier2": { "message": "Selaimen synkronointia ei voi ottaa uudelleen käyttöön, kun gestura.eu-synkronointi on käytössä. Poista se ensin käytöstä." },

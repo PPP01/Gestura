@@ -27,18 +27,6 @@
 		"message": "Sundin ang Sistema",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Katayuan ng Pag-sync",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "I-sync ang mga setting gamit ang %browserName% account",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Nai-save",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "May-akda",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Isinulat ang file na ito ng mas bagong bersyon ng Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "May mga entry ang file na ito na tinatanggihang basahin ng Gestura." },
 	"euSyncHeading": { "message": "Pag-sync sa pagitan ng mga browser" },
-	"euSyncToggle": { "message": "I-sync ang mga setting" },
-	"euSyncToggleDesc": { "message": "Naka-encrypt, walang account. Naka-off hangga't hindi mo ino-on." },
-	"euSyncConsentTitle": { "message": "I-on ang pag-sync" },
 	"euSyncConsentLead": { "message": "Dinadala ng pag-sync ang iyong mga setting ng Gestura sa iba mong browser — naka-encrypt, walang account at walang password." },
 	"euSyncConsentPoint1Label": { "message": "Ano ang ginagawa nito." },
 	"euSyncConsentPoint1": { "message": "Sine-save mo ang iyong mga setting bilang may pangalang state at binubuksan ito sa ibang browser. Ikaw palagi ang nagki-click para mag-upload at mag-download; walang nangyayari nang kusa." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gumagawa ang Gestura ng code para sa browser na ito. Sinumang may hawak nito ay nakakabasa, nakakapalit at nakakatanggal ng iyong mga state — itago ito sa ligtas na lugar. Kung wala ito, hindi na maaabot ang mga lumang state, kahit para tanggalin; inaalis ng gestura.eu ang mga state na hindi ginalaw sa loob ng 12 buwan." },
 	"euSyncConsentPoint5Label": { "message": "Magpapaubaya ang pag-sync ng browser." },
 	"euSyncConsentPoint5": { "message": "Ang pagpayag ay naglilipat ng mga setting ng browser na ito mula sa pag-sync ng browser patungo sa lokal na storage nito: hindi na dinadala ng sariling pag-sync ng browser mo ang mga ito, at pinananatili ng iba mong browser ang kopyang mayroon na sila. Hindi ibinabalik ng pag-off ng pag-sync ng gestura.eu ang mga ito — ikaw mismo ang gagawa niyon sa seksyon ng data." },
-	"euSyncConsentAccept": { "message": "I-on ang pag-sync" },
 	"euSyncConsentCancel": { "message": "Kanselahin" },
 	"euSyncConsentGranted": { "message": "Naka-on ang pag-sync" },
 	"euSyncConsentDate": { "message": "Pinayagan noong {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Paliitin ito" },
 	"storageWayShrinkDesc": { "message": "Walang na-save. Mag-alis ng ilang entry, pagkatapos ay gawin muli ang pagbabago." },
 	"storageWayEu": { "message": "Lumipat sa pag-sync ng gestura.eu" },
-	"storageWayEuDesc": { "message": "Mas maraming espasyo sa device na ito — at kapag in-on mo ang integrasyon ng gestura.eu, dinadala nito ang mga setting sa iba mong browser, naka-encrypt sa code na ikaw lang ang may hawak. Wala pang na-save: gawin muli ang pagbabago pagkatapos." },
 	"storageWayLocal": { "message": "I-off ang pag-sync ng browser" },
 	"storageWayLocalDesc": { "message": "Mga 1 MiB, sa device na ito lang. Wala pang na-save: gawin muli ang pagbabago pagkatapos." },
 	"storageBranchOther": { "message": "Isa sa iyong mga setting" },
 	"storageSwitchToSyncConfirm": { "message": "Papalitan ng mga setting ng browser na ito ang lahat ng hawak ngayon ng pag-sync ng browser. Ma-o-overwrite ang anumang na-save ng ibang browser doon samantala. I-on muli ang pag-sync ng browser?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Papalitan ng mga setting ng browser na ito ang lahat ng hawak ngayon ng pag-sync ng browser — kasama ang anumang na-save ng ibang browser doon mula noong {date}. I-on muli ang pag-sync ng browser?" },
-	"storageBrowserSync": { "message": "Pag-sync ng browser" },
-	"storageBrowserSyncOnDesc": { "message": "Dinadala ng iyong browser ang mga setting na ito sa iba mong device — 8192 byte bawat seksyon." },
-	"storageBrowserSyncOffDesc": { "message": "Naka-off. Hanggang 1 MiB, iniimbak sa device na ito lang." },
 	"storageSwitchRefusedBranch": { "message": "Hindi maaaring i-on muli ang pag-sync ng browser: {used} byte ang {branch}, at hanggang {total} lang bawat seksyon ang dinadala ng pag-sync ng browser." },
 	"storageSwitchRefusedTotal": { "message": "Hindi maaaring i-on muli ang pag-sync ng browser: {used} byte ang iyong mga setting, at hanggang {total} lang ang dinadala ng pag-sync ng browser." },
 	"storageSwitchRefusedTier2": { "message": "Hindi maaaring i-on muli ang pag-sync ng browser habang naka-enable ang pag-sync ng gestura.eu. I-off muna iyon." },

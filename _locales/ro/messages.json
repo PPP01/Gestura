@@ -27,18 +27,6 @@
 		"message": "Urmează Sistemul",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Stare Sincronizare",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Sincronizare setări prin contul %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Salvat",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Autor",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Acest fișier a fost scris de o versiune mai nouă de Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Acest fișier conține intrări pe care Gestura refuză să le citească." },
 	"euSyncHeading": { "message": "Sincronizare între browsere" },
-	"euSyncToggle": { "message": "Sincronizează setările" },
-	"euSyncToggleDesc": { "message": "Criptat, fără cont. Dezactivat până când îl activați." },
-	"euSyncConsentTitle": { "message": "Activează sincronizarea" },
 	"euSyncConsentLead": { "message": "Sincronizarea duce setările Gestura în celelalte browsere ale dumneavoastră — criptat, fără cont și fără parolă." },
 	"euSyncConsentPoint1Label": { "message": "Ce face." },
 	"euSyncConsentPoint1": { "message": "Salvați setările ca o stare cu nume și o deschideți în alt browser. Încărcarea și descărcarea se fac mereu printr-un clic al dumneavoastră; nimic nu se întâmplă de la sine." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura generează un cod pentru acest browser. Oricine îl are poate citi, înlocui și șterge stările dumneavoastră — păstrați-l într-un loc sigur. Fără el, stările vechi nu mai pot fi accesate, nici măcar pentru a fi șterse; gestura.eu elimină stările neatinse timp de 12 luni." },
 	"euSyncConsentPoint5Label": { "message": "Sincronizarea browserului se retrage." },
 	"euSyncConsentPoint5": { "message": "Acceptarea mută setările acestui browser din sincronizarea browserului în stocarea sa locală: sincronizarea proprie a browserului nu le mai transportă, iar celelalte browsere păstrează copia pe care o au deja. Dezactivarea sincronizării gestura.eu nu le mută înapoi — acest lucru îl faceți singur în secțiunea de date." },
-	"euSyncConsentAccept": { "message": "Activează sincronizarea" },
 	"euSyncConsentCancel": { "message": "Anulează" },
 	"euSyncConsentGranted": { "message": "Sincronizarea este activă" },
 	"euSyncConsentDate": { "message": "Acord dat la {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Micșorați-le" },
 	"storageWayShrinkDesc": { "message": "Nimic nu este salvat. Eliminați câteva intrări, apoi repetați modificarea." },
 	"storageWayEu": { "message": "Treceți la sincronizarea gestura.eu" },
-	"storageWayEuDesc": { "message": "Mult mai mult spațiu pe acest dispozitiv — iar după ce activați integrarea gestura.eu, duce setările în celelalte browsere, criptate sub un cod pe care îl dețineți doar dumneavoastră. Încă nu s-a salvat nimic: repetați modificarea după aceea." },
 	"storageWayLocal": { "message": "Dezactivați sincronizarea browserului" },
 	"storageWayLocalDesc": { "message": "Aproximativ 1 MiB, doar pe acest dispozitiv. Încă nu s-a salvat nimic: repetați modificarea după aceea." },
 	"storageBranchOther": { "message": "Una dintre setările dumneavoastră" },
 	"storageSwitchToSyncConfirm": { "message": "Setările acestui browser vor înlocui tot ce conține acum sincronizarea browserului. Ce a salvat între timp alt browser acolo se suprascrie. Reactivați sincronizarea browserului?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Setările acestui browser vor înlocui tot ce conține acum sincronizarea browserului — inclusiv ce a salvat acolo alt browser din {date}. Reactivați sincronizarea browserului?" },
-	"storageBrowserSync": { "message": "Sincronizarea browserului" },
-	"storageBrowserSyncOnDesc": { "message": "Browserul duce aceste setări pe celelalte dispozitive — 8192 de octeți pe secțiune." },
-	"storageBrowserSyncOffDesc": { "message": "Dezactivată. Până la 1 MiB, stocat doar pe acest dispozitiv." },
 	"storageSwitchRefusedBranch": { "message": "Sincronizarea browserului nu poate fi reactivată: {branch} are {used} octeți, iar sincronizarea browserului transportă cel mult {total} pe secțiune." },
 	"storageSwitchRefusedTotal": { "message": "Sincronizarea browserului nu poate fi reactivată: setările dumneavoastră au {used} octeți, iar sincronizarea browserului transportă cel mult {total}." },
 	"storageSwitchRefusedTier2": { "message": "Sincronizarea browserului nu poate fi reactivată cât timp sincronizarea gestura.eu este activă. Dezactivați-o mai întâi." },

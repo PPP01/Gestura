@@ -27,18 +27,6 @@
 		"message": "متابعة النظام",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "حالة المزامنة",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "مزامنة الإعدادات عبر حساب %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "تم الحفظ",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "المؤلف",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "كُتب هذا الملف بواسطة إصدار أحدث من Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "يحتوي هذا الملف على عناصر يرفض Gestura قراءتها." },
 	"euSyncHeading": { "message": "المزامنة بين المتصفحات" },
-	"euSyncToggle": { "message": "مزامنة الإعدادات" },
-	"euSyncToggleDesc": { "message": "مشفرة ودون حساب. متوقفة حتى تشغّلها." },
-	"euSyncConsentTitle": { "message": "تشغيل المزامنة" },
 	"euSyncConsentLead": { "message": "تنقل المزامنة إعدادات Gestura إلى متصفحاتك الأخرى، مشفرة ودون حساب ودون كلمة مرور." },
 	"euSyncConsentPoint1Label": { "message": "ما الذي تفعله." },
 	"euSyncConsentPoint1": { "message": "تحفظ إعداداتك كحالة مسماة وتفتحها في متصفح آخر. الرفع والتنزيل دائمًا بنقرة منك؛ لا يحدث شيء من تلقاء نفسه." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "ينشئ Gestura رمزًا لهذا المتصفح. من يملكه يمكنه قراءة حالاتك واستبدالها وحذفها، فاحتفظ به في مكان آمن. وبدونه لا يمكن الوصول إلى الحالات القديمة، ولا حتى لحذفها؛ ويزيل gestura.eu الحالات التي لم تُمَس لمدة 12 شهرًا." },
 	"euSyncConsentPoint5Label": { "message": "مزامنة المتصفح تتنحى جانبًا." },
 	"euSyncConsentPoint5": { "message": "الموافقة تنقل إعدادات هذا المتصفح من مزامنة المتصفح إلى تخزينه المحلي: لن تحملها مزامنة متصفحك بعد الآن، وتحتفظ متصفحاتك الأخرى بالنسخة التي لديها. إيقاف مزامنة gestura.eu لاحقًا لا يعيدها إلى مكانها، بل تفعل ذلك بنفسك في قسم البيانات." },
-	"euSyncConsentAccept": { "message": "تشغيل المزامنة" },
 	"euSyncConsentCancel": { "message": "إلغاء" },
 	"euSyncConsentGranted": { "message": "المزامنة قيد التشغيل" },
 	"euSyncConsentDate": { "message": "تمت الموافقة في {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "تصغيرها" },
 	"storageWayShrinkDesc": { "message": "لم يُحفظ شيء. أزل بعض العناصر ثم كرر التغيير." },
 	"storageWayEu": { "message": "التبديل إلى مزامنة gestura.eu" },
-	"storageWayEuDesc": { "message": "مساحة أكبر بكثير على هذا الجهاز، وبمجرد تشغيل تكامل gestura.eu تنقل الإعدادات إلى متصفحاتك الأخرى مشفرة برمز تملكه وحدك. لم يُحفظ شيء بعد: كرر التغيير بعد ذلك." },
 	"storageWayLocal": { "message": "إيقاف مزامنة المتصفح" },
 	"storageWayLocalDesc": { "message": "نحو 1 MiB، على هذا الجهاز فقط. لم يُحفظ شيء بعد: كرر التغيير بعد ذلك." },
 	"storageBranchOther": { "message": "أحد إعداداتك" },
 	"storageSwitchToSyncConfirm": { "message": "ستحل إعدادات هذا المتصفح محل كل ما تحمله مزامنة المتصفح حاليًا. وكل ما حفظه متصفح آخر هناك في الأثناء سيُستبدل. هل تريد إعادة تشغيل مزامنة المتصفح؟" },
 	"storageSwitchToSyncConfirmSince": { "message": "ستحل إعدادات هذا المتصفح محل كل ما تحمله مزامنة المتصفح حاليًا، بما في ذلك ما حفظه متصفح آخر هناك منذ {date}. هل تريد إعادة تشغيل مزامنة المتصفح؟" },
-	"storageBrowserSync": { "message": "مزامنة المتصفح" },
-	"storageBrowserSyncOnDesc": { "message": "ينقل متصفحك هذه الإعدادات إلى أجهزتك الأخرى، بحد 8192 بايت لكل قسم." },
-	"storageBrowserSyncOffDesc": { "message": "متوقفة. حتى 1 MiB، مخزنة على هذا الجهاز فقط." },
 	"storageSwitchRefusedBranch": { "message": "لا يمكن إعادة تشغيل مزامنة المتصفح: حجم {branch} هو {used} بايت، وتحمل مزامنة المتصفح {total} كحد أقصى لكل قسم." },
 	"storageSwitchRefusedTotal": { "message": "لا يمكن إعادة تشغيل مزامنة المتصفح: حجم إعداداتك {used} بايت، وتحمل مزامنة المتصفح {total} كحد أقصى." },
 	"storageSwitchRefusedTier2": { "message": "لا يمكن إعادة تشغيل مزامنة المتصفح أثناء تفعيل مزامنة gestura.eu. أوقفها أولًا." },

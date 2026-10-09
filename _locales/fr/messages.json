@@ -27,18 +27,6 @@
 		"message": "Suivre le système",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "État de synchronisation",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Synchronisation des paramètres via le compte %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Enregistré",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Auteur",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Ce fichier a été écrit par une version plus récente de Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Ce fichier contient des entrées que Gestura refuse de lire." },
 	"euSyncHeading": { "message": "Synchronisation entre navigateurs" },
-	"euSyncToggle": { "message": "Synchroniser les paramètres" },
-	"euSyncToggleDesc": { "message": "Chiffrée, sans compte. Désactivée tant que vous ne l'activez pas." },
-	"euSyncConsentTitle": { "message": "Activer la synchronisation" },
 	"euSyncConsentLead": { "message": "La synchronisation transporte vos paramètres Gestura vers vos autres navigateurs : chiffrée, sans compte et sans mot de passe." },
 	"euSyncConsentPoint1Label": { "message": "Ce qu'elle fait." },
 	"euSyncConsentPoint1": { "message": "Vous enregistrez vos paramètres comme un état nommé et l'ouvrez dans un autre navigateur. L'envoi et le téléchargement se font toujours à votre clic ; rien ne se passe tout seul." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura génère un code pour ce navigateur. Quiconque le possède peut lire, remplacer et supprimer vos états : conservez-le en lieu sûr. Sans lui, les anciens états ne sont plus accessibles, pas même pour les supprimer ; gestura.eu supprime les états restés intacts pendant 12 mois." },
 	"euSyncConsentPoint5Label": { "message": "La synchro du navigateur s'efface." },
 	"euSyncConsentPoint5": { "message": "En acceptant, les paramètres de ce navigateur quittent la synchro du navigateur pour son stockage local : la synchronisation propre à votre navigateur ne les transporte plus, et vos autres navigateurs gardent la copie qu'ils ont déjà. Désactiver ensuite la synchronisation gestura.eu ne les y remet pas : vous le faites vous-même dans la section des données." },
-	"euSyncConsentAccept": { "message": "Activer la synchronisation" },
 	"euSyncConsentCancel": { "message": "Annuler" },
 	"euSyncConsentGranted": { "message": "La synchronisation est activée" },
 	"euSyncConsentDate": { "message": "Accepté le {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Réduire la taille" },
 	"storageWayShrinkDesc": { "message": "Rien n'est enregistré. Supprimez quelques entrées, puis refaites la modification." },
 	"storageWayEu": { "message": "Passer à la synchro gestura.eu" },
-	"storageWayEuDesc": { "message": "Bien plus de place sur cet appareil, et, une fois l'intégration gestura.eu activée, elle transporte les paramètres vers vos autres navigateurs, chiffrés avec un code que vous seul détenez. Rien n'est encore enregistré : refaites ensuite la modification." },
 	"storageWayLocal": { "message": "Désactiver la synchro du navigateur" },
 	"storageWayLocalDesc": { "message": "Environ 1 Mio, sur cet appareil uniquement. Rien n'est encore enregistré : refaites ensuite la modification." },
 	"storageBranchOther": { "message": "L'un de vos paramètres" },
 	"storageSwitchToSyncConfirm": { "message": "Les paramètres de ce navigateur remplaceront tout ce que la synchro du navigateur contient actuellement. Ce qu'un autre navigateur y a enregistré entre-temps sera écrasé. Réactiver la synchro du navigateur ?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Les paramètres de ce navigateur remplaceront tout ce que la synchro du navigateur contient actuellement, y compris ce qu'un autre navigateur y a enregistré depuis le {date}. Réactiver la synchro du navigateur ?" },
-	"storageBrowserSync": { "message": "Synchro du navigateur" },
-	"storageBrowserSyncOnDesc": { "message": "Votre navigateur transporte ces paramètres vers vos autres appareils, 8192 octets par section." },
-	"storageBrowserSyncOffDesc": { "message": "Désactivée. Jusqu'à 1 Mio, stocké uniquement sur cet appareil." },
 	"storageSwitchRefusedBranch": { "message": "Impossible de réactiver la synchro du navigateur : {branch} fait {used} octets, et la synchro du navigateur en transporte au maximum {total} par section." },
 	"storageSwitchRefusedTotal": { "message": "Impossible de réactiver la synchro du navigateur : vos paramètres font {used} octets, et la synchro du navigateur en transporte au maximum {total}." },
 	"storageSwitchRefusedTier2": { "message": "Impossible de réactiver la synchro du navigateur tant que la synchronisation gestura.eu est activée. Désactivez-la d'abord." },

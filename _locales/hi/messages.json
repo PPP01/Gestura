@@ -27,18 +27,6 @@
 		"message": "सिस्टम के अनुसार",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "सिंक स्थिति",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "%browserName% खाते के माध्यम से सेटिंग्स सिंक",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "सहेजा गया",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "लेखक",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "यह फ़ाइल Gestura के नए संस्करण ने लिखी है।" },
 	"settingsPreviewErrorForbiddenKey": { "message": "इस फ़ाइल में ऐसी प्रविष्टियाँ हैं जिन्हें Gestura पढ़ने से मना करता है।" },
 	"euSyncHeading": { "message": "ब्राउज़रों के बीच सिंक" },
-	"euSyncToggle": { "message": "सेटिंग्स सिंक करें" },
-	"euSyncToggleDesc": { "message": "एन्क्रिप्टेड, बिना खाते के। जब तक आप चालू नहीं करते, बंद रहता है।" },
-	"euSyncConsentTitle": { "message": "सिंक चालू करें" },
 	"euSyncConsentLead": { "message": "सिंक आपकी Gestura सेटिंग्स को आपके दूसरे ब्राउज़रों तक पहुँचाता है — एन्क्रिप्टेड, बिना खाते और बिना पासवर्ड के।" },
 	"euSyncConsentPoint1Label": { "message": "यह क्या करता है।" },
 	"euSyncConsentPoint1": { "message": "आप अपनी सेटिंग्स को नाम वाली स्थिति के रूप में सहेजते हैं और उसे दूसरे ब्राउज़र में खोलते हैं। अपलोड और डाउनलोड हमेशा आपके अपने क्लिक से होते हैं; अपने आप कुछ नहीं होता।" },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura इस ब्राउज़र के लिए एक कोड बनाता है। जिसके पास यह है वह आपकी स्थितियाँ पढ़ सकता है, बदल सकता है और हटा सकता है — इसे सुरक्षित जगह रखें। इसके बिना पुरानी स्थितियों तक पहुँचा नहीं जा सकता, हटाने के लिए भी नहीं; gestura.eu 12 महीने तक अछूती रही स्थितियों को हटा देता है।" },
 	"euSyncConsentPoint5Label": { "message": "ब्राउज़र सिंक किनारे हट जाता है।" },
 	"euSyncConsentPoint5": { "message": "सहमति देने पर इस ब्राउज़र की सेटिंग्स ब्राउज़र सिंक से निकलकर इसके स्थानीय स्टोरेज में चली जाती हैं: आपका ब्राउज़र का अपना सिंक उन्हें आगे नहीं ले जाता, और आपके दूसरे ब्राउज़र अपने पास पहले से मौजूद प्रति रखते हैं। gestura.eu सिंक फिर से बंद करने पर वे वापस नहीं जातीं — यह आप डेटा अनुभाग में खुद करते हैं।" },
-	"euSyncConsentAccept": { "message": "सिंक चालू करें" },
 	"euSyncConsentCancel": { "message": "रद्द करें" },
 	"euSyncConsentGranted": { "message": "सिंक चालू है" },
 	"euSyncConsentDate": { "message": "{date} को सहमति दी गई" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "छोटा करें" },
 	"storageWayShrinkDesc": { "message": "कुछ भी सहेजा नहीं गया। कुछ प्रविष्टियाँ हटाएं, फिर बदलाव दोबारा करें।" },
 	"storageWayEu": { "message": "gestura.eu सिंक पर जाएँ" },
-	"storageWayEuDesc": { "message": "इस डिवाइस पर कहीं ज़्यादा जगह — और gestura.eu इंटीग्रेशन चालू करने के बाद, यह सेटिंग्स को आपके दूसरे ब्राउज़रों तक पहुँचाता है, ऐसे कोड के तहत एन्क्रिप्टेड जो केवल आपके पास है। अभी कुछ सहेजा नहीं गया: बाद में बदलाव दोबारा करें।" },
 	"storageWayLocal": { "message": "ब्राउज़र सिंक बंद करें" },
 	"storageWayLocalDesc": { "message": "लगभग 1 MiB, केवल इस डिवाइस पर। अभी कुछ सहेजा नहीं गया: बाद में बदलाव दोबारा करें।" },
 	"storageBranchOther": { "message": "आपकी एक सेटिंग" },
 	"storageSwitchToSyncConfirm": { "message": "इस ब्राउज़र की सेटिंग्स ब्राउज़र सिंक में अभी जो कुछ है उसे बदल देंगी। इस बीच किसी दूसरे ब्राउज़र ने वहाँ जो सहेजा है वह ओवरराइट हो जाएगा। ब्राउज़र सिंक फिर से चालू करें?" },
 	"storageSwitchToSyncConfirmSince": { "message": "इस ब्राउज़र की सेटिंग्स ब्राउज़र सिंक में अभी जो कुछ है उसे बदल देंगी — इसमें वह भी शामिल है जो किसी दूसरे ब्राउज़र ने {date} के बाद वहाँ सहेजा है। ब्राउज़र सिंक फिर से चालू करें?" },
-	"storageBrowserSync": { "message": "ब्राउज़र सिंक" },
-	"storageBrowserSyncOnDesc": { "message": "आपका ब्राउज़र इन सेटिंग्स को आपके दूसरे डिवाइसों तक पहुँचाता है — प्रति अनुभाग 8192 बाइट।" },
-	"storageBrowserSyncOffDesc": { "message": "बंद। 1 MiB तक, केवल इस डिवाइस पर सहेजा जाता है।" },
 	"storageSwitchRefusedBranch": { "message": "ब्राउज़र सिंक फिर से चालू नहीं किया जा सकता: {branch} {used} बाइट का है, और ब्राउज़र सिंक प्रति अनुभाग अधिकतम {total} ले जाता है।" },
 	"storageSwitchRefusedTotal": { "message": "ब्राउज़र सिंक फिर से चालू नहीं किया जा सकता: आपकी सेटिंग्स {used} बाइट की हैं, और ब्राउज़र सिंक अधिकतम {total} ले जाता है।" },
 	"storageSwitchRefusedTier2": { "message": "gestura.eu सिंक चालू रहते ब्राउज़र सिंक फिर से चालू नहीं किया जा सकता। पहले उसे बंद करें।" },

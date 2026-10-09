@@ -27,18 +27,6 @@
 		"message": "ตามระบบ",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "สถานะการซิงค์",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "การตั้งค่าซิงค์ผ่านบัญชี %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "บันทึกแล้ว",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "ผู้เขียน",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "ไฟล์นี้สร้างโดย Gestura เวอร์ชันที่ใหม่กว่า" },
 	"settingsPreviewErrorForbiddenKey": { "message": "ไฟล์นี้มีรายการที่ Gestura ปฏิเสธที่จะอ่าน" },
 	"euSyncHeading": { "message": "ซิงค์ระหว่างเบราว์เซอร์" },
-	"euSyncToggle": { "message": "ซิงค์การตั้งค่า" },
-	"euSyncToggleDesc": { "message": "เข้ารหัส ไม่ต้องมีบัญชี ปิดอยู่จนกว่าคุณจะเปิด" },
-	"euSyncConsentTitle": { "message": "เปิดการซิงค์" },
 	"euSyncConsentLead": { "message": "การซิงค์จะนำการตั้งค่า Gestura ของคุณไปยังเบราว์เซอร์อื่น โดยเข้ารหัส ไม่ต้องมีบัญชี และไม่ต้องใช้รหัสผ่าน" },
 	"euSyncConsentPoint1Label": { "message": "ทำอะไรบ้าง" },
 	"euSyncConsentPoint1": { "message": "คุณบันทึกการตั้งค่าเป็นสถานะที่ตั้งชื่อไว้ แล้วเปิดในเบราว์เซอร์อื่น การอัปโหลดและดาวน์โหลดเกิดจากการคลิกของคุณเสมอ ไม่มีอะไรเกิดขึ้นเอง" },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura สร้างรหัสสำหรับเบราว์เซอร์นี้ ใครก็ตามที่มีรหัสนี้สามารถอ่าน แทนที่ และลบสถานะของคุณได้ โปรดเก็บไว้ในที่ปลอดภัย หากไม่มีรหัส จะเข้าถึงสถานะเก่าไม่ได้อีก แม้แต่จะลบ gestura.eu จะลบสถานะที่ไม่มีการแตะต้องนาน 12 เดือน" },
 	"euSyncConsentPoint5Label": { "message": "การซิงค์ของเบราว์เซอร์ถอยออกไป" },
 	"euSyncConsentPoint5": { "message": "การยินยอมจะย้ายการตั้งค่าของเบราว์เซอร์นี้ออกจากการซิงค์ของเบราว์เซอร์ไปเก็บในที่เก็บข้อมูลในเครื่อง การซิงค์ของเบราว์เซอร์จะไม่นำการตั้งค่าเหล่านี้ไปอีก และเบราว์เซอร์อื่นของคุณจะเก็บสำเนาที่มีอยู่แล้วไว้ การปิดการซิงค์ gestura.eu อีกครั้งจะไม่ย้ายกลับ คุณต้องทำเองในส่วนข้อมูล" },
-	"euSyncConsentAccept": { "message": "เปิดการซิงค์" },
 	"euSyncConsentCancel": { "message": "ยกเลิก" },
 	"euSyncConsentGranted": { "message": "การซิงค์เปิดอยู่" },
 	"euSyncConsentDate": { "message": "ยินยอมเมื่อ {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "ทำให้เล็กลง" },
 	"storageWayShrinkDesc": { "message": "ยังไม่ได้บันทึกอะไร ลบบางรายการออก แล้วทำการเปลี่ยนแปลงอีกครั้ง" },
 	"storageWayEu": { "message": "เปลี่ยนไปใช้การซิงค์ gestura.eu" },
-	"storageWayEuDesc": { "message": "มีที่ว่างในเครื่องนี้มากกว่ามาก และเมื่อเปิดการเชื่อมต่อ gestura.eu จะนำการตั้งค่าไปยังเบราว์เซอร์อื่นของคุณโดยเข้ารหัสด้วยรหัสที่มีเพียงคุณถือ ยังไม่ได้บันทึกอะไร ให้ทำการเปลี่ยนแปลงอีกครั้งหลังจากนั้น" },
 	"storageWayLocal": { "message": "ปิดการซิงค์ของเบราว์เซอร์" },
 	"storageWayLocalDesc": { "message": "ประมาณ 1 MiB เฉพาะในเครื่องนี้ ยังไม่ได้บันทึกอะไร ให้ทำการเปลี่ยนแปลงอีกครั้งหลังจากนั้น" },
 	"storageBranchOther": { "message": "หนึ่งในการตั้งค่าของคุณ" },
 	"storageSwitchToSyncConfirm": { "message": "การตั้งค่าของเบราว์เซอร์นี้จะแทนที่ทุกอย่างที่การซิงค์ของเบราว์เซอร์เก็บอยู่ในตอนนี้ สิ่งที่เบราว์เซอร์อื่นบันทึกไว้ที่นั่นในระหว่างนั้นจะถูกเขียนทับ เปิดการซิงค์ของเบราว์เซอร์อีกครั้งหรือไม่" },
 	"storageSwitchToSyncConfirmSince": { "message": "การตั้งค่าของเบราว์เซอร์นี้จะแทนที่ทุกอย่างที่การซิงค์ของเบราว์เซอร์เก็บอยู่ในตอนนี้ รวมถึงสิ่งที่เบราว์เซอร์อื่นบันทึกไว้ที่นั่นตั้งแต่ {date} เปิดการซิงค์ของเบราว์เซอร์อีกครั้งหรือไม่" },
-	"storageBrowserSync": { "message": "การซิงค์ของเบราว์เซอร์" },
-	"storageBrowserSyncOnDesc": { "message": "เบราว์เซอร์ของคุณนำการตั้งค่าเหล่านี้ไปยังอุปกรณ์อื่น — 8192 ไบต์ต่อส่วน" },
-	"storageBrowserSyncOffDesc": { "message": "ปิดอยู่ สูงสุด 1 MiB เก็บเฉพาะในเครื่องนี้" },
 	"storageSwitchRefusedBranch": { "message": "เปิดการซิงค์ของเบราว์เซอร์อีกครั้งไม่ได้: {branch} มี {used} ไบต์ และการซิงค์ของเบราว์เซอร์รองรับสูงสุด {total} ต่อส่วน" },
 	"storageSwitchRefusedTotal": { "message": "เปิดการซิงค์ของเบราว์เซอร์อีกครั้งไม่ได้: การตั้งค่าของคุณมี {used} ไบต์ และการซิงค์ของเบราว์เซอร์รองรับสูงสุด {total}" },
 	"storageSwitchRefusedTier2": { "message": "เปิดการซิงค์ของเบราว์เซอร์อีกครั้งไม่ได้ขณะที่การซิงค์ gestura.eu เปิดอยู่ ให้ปิดอันนั้นก่อน" },

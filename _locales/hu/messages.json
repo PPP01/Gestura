@@ -27,18 +27,6 @@
 		"message": "Rendszer követése",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Szinkronizálás állapota",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Beállítások szinkronizálása %browserName% fiókkal",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Mentve",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Szerző",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Ezt a fájlt a Gestura egy újabb verziója írta." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Ez a fájl olyan bejegyzéseket tartalmaz, amelyeket a Gestura nem hajlandó beolvasni." },
 	"euSyncHeading": { "message": "Szinkronizálás böngészők között" },
-	"euSyncToggle": { "message": "Beállítások szinkronizálása" },
-	"euSyncToggleDesc": { "message": "Titkosítva, fiók nélkül. Kikapcsolva, amíg be nem kapcsolod." },
-	"euSyncConsentTitle": { "message": "Szinkronizálás bekapcsolása" },
 	"euSyncConsentLead": { "message": "A szinkronizálás a Gestura-beállításaidat átviszi a többi böngésződbe – titkosítva, fiók és jelszó nélkül." },
 	"euSyncConsentPoint1Label": { "message": "Mit csinál." },
 	"euSyncConsentPoint1": { "message": "A beállításaidat elnevezett állapotként mented el, és egy másik böngészőben megnyitod. A feltöltés és a letöltés mindig a te saját kattintásod; magától semmi nem történik." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "A Gestura generál egy kódot ehhez a böngészőhöz. Aki birtokolja, el tudja olvasni, felülírni és törölni az állapotaidat – tartsd biztonságos helyen. Nélküle a régi állapotok már nem érhetők el, törölni sem lehet őket; a gestura.eu a 12 hónapig érintetlen állapotokat eltávolítja." },
 	"euSyncConsentPoint5Label": { "message": "A böngészős szinkronizálás háttérbe vonul." },
 	"euSyncConsentPoint5": { "message": "A hozzájárulással a böngésző beállításai kikerülnek a böngészős szinkronizálásból a helyi tárhelyre: a böngésződ saját szinkronizálása már nem viszi át őket, a többi böngésződ pedig megtartja a másolatot, amely már náluk van. Ha később kikapcsolod a gestura.eu-szinkronizálást, a beállítások nem költöznek vissza maguktól – ezt te végzed el az adatkezelési részben." },
-	"euSyncConsentAccept": { "message": "Szinkronizálás bekapcsolása" },
 	"euSyncConsentCancel": { "message": "Mégse" },
 	"euSyncConsentGranted": { "message": "A szinkronizálás be van kapcsolva" },
 	"euSyncConsentDate": { "message": "Hozzájárulás: {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Kisebbre csökkentés" },
 	"storageWayShrinkDesc": { "message": "Semmi nem kerül mentésre. Távolíts el néhány bejegyzést, majd végezd el újra a módosítást." },
 	"storageWayEu": { "message": "Váltás a gestura.eu-szinkronizálásra" },
-	"storageWayEuDesc": { "message": "Jóval több hely ezen az eszközön – és amint bekapcsolod a gestura.eu-integrációt, titkosítva viszi át a beállításokat a többi böngésződbe, egy csak nálad lévő kód alatt. Még semmi nincs mentve: utána végezd el újra a módosítást." },
 	"storageWayLocal": { "message": "Böngészős szinkronizálás kikapcsolása" },
 	"storageWayLocalDesc": { "message": "Körülbelül 1 MiB, csak ezen az eszközön. Még semmi nincs mentve: utána végezd el újra a módosítást." },
 	"storageBranchOther": { "message": "Egyik beállításod" },
 	"storageSwitchToSyncConfirm": { "message": "Ennek a böngészőnek a beállításai felváltanak mindent, amit a böngészős szinkronizálás jelenleg tárol. Amit egy másik böngésző közben ott elmentett, felülíródik. Visszakapcsolod a böngészős szinkronizálást?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Ennek a böngészőnek a beállításai felváltanak mindent, amit a böngészős szinkronizálás jelenleg tárol – azt is, amit egy másik böngésző {date} óta ott elmentett. Visszakapcsolod a böngészős szinkronizálást?" },
-	"storageBrowserSync": { "message": "Böngészős szinkronizálás" },
-	"storageBrowserSyncOnDesc": { "message": "A böngésződ átviszi ezeket a beállításokat a többi eszközödre – szakaszonként 8192 bájt." },
-	"storageBrowserSyncOffDesc": { "message": "Kikapcsolva. Legfeljebb 1 MiB, csak ezen az eszközön tárolva." },
 	"storageSwitchRefusedBranch": { "message": "A böngészős szinkronizálás nem kapcsolható vissza: a(z) {branch} {used} bájt, a böngészős szinkronizálás szakaszonként legfeljebb {total} bájtot bír el." },
 	"storageSwitchRefusedTotal": { "message": "A böngészős szinkronizálás nem kapcsolható vissza: a beállításaid {used} bájtosak, a böngészős szinkronizálás legfeljebb {total} bájtot bír el." },
 	"storageSwitchRefusedTier2": { "message": "A böngészős szinkronizálás nem kapcsolható vissza, amíg a gestura.eu-szinkronizálás be van kapcsolva. Előbb azt kapcsold ki." },

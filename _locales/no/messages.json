@@ -27,18 +27,6 @@
 		"message": "Følg systemet",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Synkroniseringsstatus",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Innstillinger synkroniseres via %browserName%-konto",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Lagret",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Forfatter",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Denne filen er skrevet av en nyere versjon av Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Denne filen inneholder oppføringer som Gestura nekter å lese." },
 	"euSyncHeading": { "message": "Synkronisering mellom nettlesere" },
-	"euSyncToggle": { "message": "Synkroniser innstillinger" },
-	"euSyncToggleDesc": { "message": "Kryptert, uten konto. Av til du slår det på." },
-	"euSyncConsentTitle": { "message": "Slå på synkronisering" },
 	"euSyncConsentLead": { "message": "Synkronisering tar med Gestura-innstillingene dine til de andre nettleserne dine, kryptert, uten konto og uten passord." },
 	"euSyncConsentPoint1Label": { "message": "Hva den gjør." },
 	"euSyncConsentPoint1": { "message": "Du lagrer innstillingene dine som en navngitt tilstand og åpner den i en annen nettleser. Opplasting og nedlasting skjer alltid med ditt eget klikk; ingenting skjer av seg selv." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura genererer en kode for denne nettleseren. Alle som har den, kan lese, erstatte og slette tilstandene dine, så oppbevar den trygt. Uten den kan de gamle tilstandene ikke lenger nås, ikke engang for å slettes; gestura.eu fjerner tilstander som ikke er rørt på 12 måneder." },
 	"euSyncConsentPoint5Label": { "message": "Nettleser-synkroniseringen viker." },
 	"euSyncConsentPoint5": { "message": "Når du samtykker, flyttes innstillingene i denne nettleseren ut av nettleser-synkroniseringen og over i lokal lagring: nettleserens egen synkronisering bærer dem ikke lenger, og de andre nettleserne dine beholder kopien de allerede har. Å slå av gestura.eu-synkronisering igjen flytter dem ikke tilbake; det gjør du selv i dataseksjonen." },
-	"euSyncConsentAccept": { "message": "Slå på synkronisering" },
 	"euSyncConsentCancel": { "message": "Avbryt" },
 	"euSyncConsentGranted": { "message": "Synkronisering er på" },
 	"euSyncConsentDate": { "message": "Godkjent {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Gjør det mindre" },
 	"storageWayShrinkDesc": { "message": "Ingenting er lagret. Fjern noen oppføringer, og gjør endringen på nytt." },
 	"storageWayEu": { "message": "Bytt til gestura.eu-synkronisering" },
-	"storageWayEuDesc": { "message": "Mye mer plass på denne enheten, og når du slår på gestura.eu-integrasjonen, tar den med innstillingene til de andre nettleserne dine, kryptert under en kode bare du har. Ingenting er lagret ennå: gjør endringen på nytt etterpå." },
 	"storageWayLocal": { "message": "Slå av nettleser-synkronisering" },
 	"storageWayLocalDesc": { "message": "Omtrent 1 MiB, bare på denne enheten. Ingenting er lagret ennå: gjør endringen på nytt etterpå." },
 	"storageBranchOther": { "message": "En av innstillingene dine" },
 	"storageSwitchToSyncConfirm": { "message": "Innstillingene i denne nettleseren erstatter alt nettleser-synkroniseringen holder akkurat nå. Det en annen nettleser har lagret der i mellomtiden, overskrives. Slå nettleser-synkronisering på igjen?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Innstillingene i denne nettleseren erstatter alt nettleser-synkroniseringen holder akkurat nå, inkludert det en annen nettleser har lagret der siden {date}. Slå nettleser-synkronisering på igjen?" },
-	"storageBrowserSync": { "message": "Nettleser-synkronisering" },
-	"storageBrowserSyncOnDesc": { "message": "Nettleseren din tar med disse innstillingene til de andre enhetene dine, 8192 byte per seksjon." },
-	"storageBrowserSyncOffDesc": { "message": "Av. Opptil 1 MiB, lagret bare på denne enheten." },
 	"storageSwitchRefusedBranch": { "message": "Nettleser-synkronisering kan ikke slås på igjen: {branch} er {used} byte, og nettleser-synkronisering bærer høyst {total} per seksjon." },
 	"storageSwitchRefusedTotal": { "message": "Nettleser-synkronisering kan ikke slås på igjen: innstillingene dine er {used} byte, og nettleser-synkronisering bærer høyst {total}." },
 	"storageSwitchRefusedTier2": { "message": "Nettleser-synkronisering kan ikke slås på igjen mens gestura.eu-synkronisering er aktiv. Slå den av først." },

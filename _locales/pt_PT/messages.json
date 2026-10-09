@@ -27,18 +27,6 @@
 		"message": "Seguir sistema",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Estado da Sincronização",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Sincronização de definições via conta %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Guardado",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Autor",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Este ficheiro foi escrito por uma versão mais recente do Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Este ficheiro contém entradas que o Gestura recusa ler." },
 	"euSyncHeading": { "message": "Sincronização entre navegadores" },
-	"euSyncToggle": { "message": "Sincronizar definições" },
-	"euSyncToggleDesc": { "message": "Encriptada, sem conta. Desativada até a ativar." },
-	"euSyncConsentTitle": { "message": "Ativar a sincronização" },
 	"euSyncConsentLead": { "message": "A sincronização leva as suas definições do Gestura para os seus outros navegadores — encriptada, sem conta e sem palavra-passe." },
 	"euSyncConsentPoint1Label": { "message": "O que faz." },
 	"euSyncConsentPoint1": { "message": "Guarda as suas definições como um estado com nome e abre-o noutro navegador. O envio e a transferência são sempre um clique seu; nada acontece sozinho." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "O Gestura gera um código para este navegador. Quem o tiver pode ler, substituir e eliminar os seus estados — guarde-o num local seguro. Sem ele, os estados antigos deixam de estar acessíveis, nem sequer para os eliminar; o gestura.eu remove os estados que não sejam tocados durante 12 meses." },
 	"euSyncConsentPoint5Label": { "message": "A sincronização do navegador afasta-se." },
 	"euSyncConsentPoint5": { "message": "Ao aceitar, as definições deste navegador saem da sincronização do navegador para o seu armazenamento local: a sincronização do próprio navegador deixa de as transportar, e os seus outros navegadores mantêm a cópia que já têm. Desativar novamente a sincronização do gestura.eu não as devolve — fá-lo você na secção de dados." },
-	"euSyncConsentAccept": { "message": "Ativar a sincronização" },
 	"euSyncConsentCancel": { "message": "Cancelar" },
 	"euSyncConsentGranted": { "message": "A sincronização está ativa" },
 	"euSyncConsentDate": { "message": "Aceite em {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Reduzir o tamanho" },
 	"storageWayShrinkDesc": { "message": "Nada é guardado. Remova algumas entradas e faça a alteração novamente." },
 	"storageWayEu": { "message": "Mudar para a sincronização do gestura.eu" },
-	"storageWayEuDesc": { "message": "Muito mais espaço neste dispositivo — e, depois de ativar a integração com o gestura.eu, leva as definições para os seus outros navegadores, encriptadas com um código que só você possui. Nada foi guardado ainda: faça a alteração novamente depois." },
 	"storageWayLocal": { "message": "Desativar a sincronização do navegador" },
 	"storageWayLocalDesc": { "message": "Cerca de 1 MiB, apenas neste dispositivo. Nada foi guardado ainda: faça a alteração novamente depois." },
 	"storageBranchOther": { "message": "Uma das suas definições" },
 	"storageSwitchToSyncConfirm": { "message": "As definições deste navegador vão substituir tudo o que a sincronização do navegador contém atualmente. O que outro navegador tiver guardado lá entretanto é substituído. Reativar a sincronização do navegador?" },
 	"storageSwitchToSyncConfirmSince": { "message": "As definições deste navegador vão substituir tudo o que a sincronização do navegador contém atualmente — incluindo o que outro navegador tiver guardado lá desde {date}. Reativar a sincronização do navegador?" },
-	"storageBrowserSync": { "message": "Sincronização do navegador" },
-	"storageBrowserSyncOnDesc": { "message": "O seu navegador leva estas definições para os seus outros dispositivos — 8192 bytes por secção." },
-	"storageBrowserSyncOffDesc": { "message": "Desativada. Até 1 MiB, guardado apenas neste dispositivo." },
 	"storageSwitchRefusedBranch": { "message": "Não é possível reativar a sincronização do navegador: {branch} tem {used} bytes, e a sincronização do navegador suporta no máximo {total} por secção." },
 	"storageSwitchRefusedTotal": { "message": "Não é possível reativar a sincronização do navegador: as suas definições têm {used} bytes, e a sincronização do navegador suporta no máximo {total}." },
 	"storageSwitchRefusedTier2": { "message": "Não é possível reativar a sincronização do navegador enquanto a sincronização do gestura.eu estiver ativa. Desative-a primeiro." },

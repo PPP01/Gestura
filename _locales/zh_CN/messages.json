@@ -27,18 +27,6 @@
 		"message": "跟随系统",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "同步状态",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "设置通过 %browserName% 账号同步",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "已保存",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "作者",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "此文件由更新版本的 Gestura 生成。" },
 	"settingsPreviewErrorForbiddenKey": { "message": "此文件包含 Gestura 拒绝读取的条目。" },
 	"euSyncHeading": { "message": "浏览器间同步" },
-	"euSyncToggle": { "message": "同步设置" },
-	"euSyncToggleDesc": { "message": "加密，无需账号。开启前保持关闭。" },
-	"euSyncConsentTitle": { "message": "开启同步" },
 	"euSyncConsentLead": { "message": "同步可将你的 Gestura 设置带到其他浏览器：加密，无需账号，也无需密码。" },
 	"euSyncConsentPoint1Label": { "message": "功能说明。" },
 	"euSyncConsentPoint1": { "message": "你将设置保存为一个命名状态，然后在另一个浏览器中打开。上传和下载始终由你亲自点击，不会自动进行。" },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura 会为此浏览器生成一个代码。持有该代码的人可以读取、替换和删除你的状态，请妥善保管。没有它就无法再访问旧状态，甚至无法删除；gestura.eu 会清除 12 个月未动过的状态。" },
 	"euSyncConsentPoint5Label": { "message": "浏览器同步让位。" },
 	"euSyncConsentPoint5": { "message": "同意后，此浏览器的设置会从浏览器同步移到本地存储：浏览器自带的同步将不再携带这些设置，其他浏览器会保留它们已有的副本。再次关闭 gestura.eu 同步不会把设置移回，需要你在数据部分自行操作。" },
-	"euSyncConsentAccept": { "message": "开启同步" },
 	"euSyncConsentCancel": { "message": "取消" },
 	"euSyncConsentGranted": { "message": "同步已开启" },
 	"euSyncConsentDate": { "message": "同意于 {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "缩减内容" },
 	"storageWayShrinkDesc": { "message": "未保存任何内容。请删除一些条目，然后重新进行更改。" },
 	"storageWayEu": { "message": "切换到 gestura.eu 同步" },
-	"storageWayEuDesc": { "message": "此设备上的空间大得多；开启 gestura.eu 集成后，还会用只有你持有的代码加密，把设置带到其他浏览器。目前尚未保存任何内容，请之后重新进行更改。" },
 	"storageWayLocal": { "message": "关闭浏览器同步" },
 	"storageWayLocalDesc": { "message": "约 1 MiB，仅限此设备。目前尚未保存任何内容，请之后重新进行更改。" },
 	"storageBranchOther": { "message": "你的某项设置" },
 	"storageSwitchToSyncConfirm": { "message": "此浏览器的设置将替换浏览器同步当前保存的全部内容，其他浏览器在此期间保存在那里的内容会被覆盖。要重新开启浏览器同步吗？" },
 	"storageSwitchToSyncConfirmSince": { "message": "此浏览器的设置将替换浏览器同步当前保存的全部内容，包括其他浏览器自 {date} 以来保存在那里的内容。要重新开启浏览器同步吗？" },
-	"storageBrowserSync": { "message": "浏览器同步" },
-	"storageBrowserSyncOnDesc": { "message": "浏览器会将这些设置带到你的其他设备，每个部分 8192 字节。" },
-	"storageBrowserSyncOffDesc": { "message": "已关闭。最多 1 MiB，仅存储在此设备上。" },
 	"storageSwitchRefusedBranch": { "message": "无法重新开启浏览器同步：{branch} 为 {used} 字节，而浏览器同步每个部分最多承载 {total}。" },
 	"storageSwitchRefusedTotal": { "message": "无法重新开启浏览器同步：你的设置为 {used} 字节，而浏览器同步最多承载 {total}。" },
 	"storageSwitchRefusedTier2": { "message": "gestura.eu 同步开启期间，无法重新开启浏览器同步。请先关闭它。" },

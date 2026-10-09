@@ -27,18 +27,6 @@
 		"message": "Podle systému",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Stav synchronizace",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Synchronizace nastavení přes účet %browserName%",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Uloženo",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Autor",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Tento soubor vytvořila novější verze Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Tento soubor obsahuje položky, které Gestura odmítá číst." },
 	"euSyncHeading": { "message": "Synchronizace mezi prohlížeči" },
-	"euSyncToggle": { "message": "Synchronizovat nastavení" },
-	"euSyncToggleDesc": { "message": "Šifrovaně, bez účtu. Vypnuto, dokud to nezapnete." },
-	"euSyncConsentTitle": { "message": "Zapnout synchronizaci" },
 	"euSyncConsentLead": { "message": "Synchronizace přenáší vaše nastavení Gestura do dalších prohlížečů — šifrovaně, bez účtu a bez hesla." },
 	"euSyncConsentPoint1Label": { "message": "Co dělá." },
 	"euSyncConsentPoint1": { "message": "Nastavení uložíte jako pojmenovaný stav a otevřete ho v jiném prohlížeči. Nahrání i stažení vždy vyvoláte sami kliknutím; nic se neděje samo." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura pro tento prohlížeč vygeneruje kód. Kdo ho má, může vaše stavy číst, nahrazovat i mazat — uložte ho na bezpečné místo. Bez něj se ke starým stavům už nedostanete, ani abyste je smazali; gestura.eu odstraňuje stavy, na které se 12 měsíců nesáhlo." },
 	"euSyncConsentPoint5Label": { "message": "Synchronizace prohlížeče ustupuje." },
 	"euSyncConsentPoint5": { "message": "Souhlasem se nastavení tohoto prohlížeče přesune ze synchronizace prohlížeče do jeho místního úložiště: synchronizace vašeho prohlížeče je už nepřenáší a vaše ostatní prohlížeče si ponechají kopii, kterou už mají. Opětovné vypnutí synchronizace gestura.eu je nepřesune zpět — to uděláte sami v části Data." },
-	"euSyncConsentAccept": { "message": "Zapnout synchronizaci" },
 	"euSyncConsentCancel": { "message": "Zrušit" },
 	"euSyncConsentGranted": { "message": "Synchronizace je zapnutá" },
 	"euSyncConsentDate": { "message": "Odsouhlaseno {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Zmenšit" },
 	"storageWayShrinkDesc": { "message": "Nic se neukládá. Odeberte některé položky a změnu proveďte znovu." },
 	"storageWayEu": { "message": "Přepnout na synchronizaci gestura.eu" },
-	"storageWayEuDesc": { "message": "Na tomto zařízení mnohem více místa — a po zapnutí integrace gestura.eu přenáší nastavení do vašich dalších prohlížečů, šifrovaně pod kódem, který máte jen vy. Zatím nic není uloženo: poté změnu proveďte znovu." },
 	"storageWayLocal": { "message": "Vypnout synchronizaci prohlížeče" },
 	"storageWayLocalDesc": { "message": "Asi 1 MiB, pouze na tomto zařízení. Zatím nic není uloženo: poté změnu proveďte znovu." },
 	"storageBranchOther": { "message": "Jedno z vašich nastavení" },
 	"storageSwitchToSyncConfirm": { "message": "Nastavení tohoto prohlížeče nahradí vše, co synchronizace prohlížeče právě obsahuje. Cokoli, co si tam mezitím uložil jiný prohlížeč, bude přepsáno. Znovu zapnout synchronizaci prohlížeče?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Nastavení tohoto prohlížeče nahradí vše, co synchronizace prohlížeče právě obsahuje — včetně toho, co si tam od {date} uložil jiný prohlížeč. Znovu zapnout synchronizaci prohlížeče?" },
-	"storageBrowserSync": { "message": "Synchronizace prohlížeče" },
-	"storageBrowserSyncOnDesc": { "message": "Váš prohlížeč přenáší tato nastavení do dalších zařízení — 8192 bajtů na část." },
-	"storageBrowserSyncOffDesc": { "message": "Vypnuto. Až 1 MiB, uloženo pouze na tomto zařízení." },
 	"storageSwitchRefusedBranch": { "message": "Synchronizaci prohlížeče nelze znovu zapnout: {branch} má {used} bajtů a synchronizace prohlížeče přenese nejvýše {total} na část." },
 	"storageSwitchRefusedTotal": { "message": "Synchronizaci prohlížeče nelze znovu zapnout: vaše nastavení má {used} bajtů a synchronizace prohlížeče přenese nejvýše {total}." },
 	"storageSwitchRefusedTier2": { "message": "Synchronizaci prohlížeče nelze znovu zapnout, dokud je zapnutá synchronizace gestura.eu. Nejprve ji vypněte." },

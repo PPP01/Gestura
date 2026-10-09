@@ -27,18 +27,6 @@
 		"message": "Systeem volgen",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Synchronisatiestatus",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Instellingensynchronisatie via %browserName%-account",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Opgeslagen",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Auteur",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Dit bestand is geschreven door een nieuwere versie van Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Dit bestand bevat items die Gestura weigert te lezen." },
 	"euSyncHeading": { "message": "Synchronisatie tussen browsers" },
-	"euSyncToggle": { "message": "Instellingen synchroniseren" },
-	"euSyncToggleDesc": { "message": "Versleuteld, zonder account. Uit totdat u het inschakelt." },
-	"euSyncConsentTitle": { "message": "Synchronisatie inschakelen" },
 	"euSyncConsentLead": { "message": "Synchronisatie brengt uw Gestura-instellingen naar uw andere browsers — versleuteld, zonder account en zonder wachtwoord." },
 	"euSyncConsentPoint1Label": { "message": "Wat het doet." },
 	"euSyncConsentPoint1": { "message": "U slaat uw instellingen op als een benoemde staat en opent die in een andere browser. Uploaden en downloaden zijn altijd uw eigen klik; er gebeurt niets vanzelf." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura genereert een code voor deze browser. Wie die heeft, kan uw staten lezen, vervangen en verwijderen — bewaar de code op een veilige plek. Zonder code zijn de oude staten niet meer bereikbaar, zelfs niet om te verwijderen; gestura.eu verwijdert staten die 12 maanden onaangeroerd zijn." },
 	"euSyncConsentPoint5Label": { "message": "Browsersynchronisatie treedt terug." },
 	"euSyncConsentPoint5": { "message": "Door akkoord te gaan, worden de instellingen van deze browser uit de browsersynchronisatie naar de lokale opslag verplaatst: de eigen synchronisatie van uw browser draagt ze niet meer, en uw andere browsers houden de kopie die ze al hebben. Als u gestura.eu-synchronisatie weer uitschakelt, gaan ze niet terug — dat doet u zelf in het gedeelte Gegevens." },
-	"euSyncConsentAccept": { "message": "Synchronisatie inschakelen" },
 	"euSyncConsentCancel": { "message": "Annuleren" },
 	"euSyncConsentGranted": { "message": "Synchronisatie is aan" },
 	"euSyncConsentDate": { "message": "Akkoord op {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Kleiner maken" },
 	"storageWayShrinkDesc": { "message": "Er is niets opgeslagen. Verwijder enkele items en voer de wijziging daarna opnieuw uit." },
 	"storageWayEu": { "message": "Overschakelen naar gestura.eu-synchronisatie" },
-	"storageWayEuDesc": { "message": "Veel meer ruimte op dit apparaat — en zodra u de gestura.eu-integratie inschakelt, brengt het de instellingen versleuteld naar uw andere browsers, onder een code die alleen u hebt. Er is nog niets opgeslagen: voer de wijziging daarna opnieuw uit." },
 	"storageWayLocal": { "message": "Browsersynchronisatie uitschakelen" },
 	"storageWayLocalDesc": { "message": "Ongeveer 1 MiB, alleen op dit apparaat. Er is nog niets opgeslagen: voer de wijziging daarna opnieuw uit." },
 	"storageBranchOther": { "message": "Een van uw instellingen" },
 	"storageSwitchToSyncConfirm": { "message": "De instellingen van deze browser vervangen alles wat browsersynchronisatie nu bevat. Wat een andere browser intussen daar heeft opgeslagen, wordt overschreven. Browsersynchronisatie weer inschakelen?" },
 	"storageSwitchToSyncConfirmSince": { "message": "De instellingen van deze browser vervangen alles wat browsersynchronisatie nu bevat — inclusief wat een andere browser daar sinds {date} heeft opgeslagen. Browsersynchronisatie weer inschakelen?" },
-	"storageBrowserSync": { "message": "Browsersynchronisatie" },
-	"storageBrowserSyncOnDesc": { "message": "Uw browser brengt deze instellingen naar uw andere apparaten — 8192 bytes per sectie." },
-	"storageBrowserSyncOffDesc": { "message": "Uit. Tot 1 MiB, alleen op dit apparaat opgeslagen." },
 	"storageSwitchRefusedBranch": { "message": "Browsersynchronisatie kan niet weer worden ingeschakeld: {branch} is {used} bytes, en browsersynchronisatie draagt hooguit {total} per sectie." },
 	"storageSwitchRefusedTotal": { "message": "Browsersynchronisatie kan niet weer worden ingeschakeld: uw instellingen zijn {used} bytes, en browsersynchronisatie draagt hooguit {total}." },
 	"storageSwitchRefusedTier2": { "message": "Browsersynchronisatie kan niet weer worden ingeschakeld zolang gestura.eu-synchronisatie aan staat. Schakel die eerst uit." },

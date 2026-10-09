@@ -27,18 +27,6 @@
 		"message": "সিস্টেম অনুসরণ করুন",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "সিঙ্ক স্ট্যাটাস",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "%browserName% অ্যাকাউন্টের মাধ্যমে সেটিংস সিঙ্ক করুন",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "সংরক্ষিত",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "লেখক",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "এই ফাইলটি Gestura-র নতুন সংস্করণে লেখা হয়েছে।" },
 	"settingsPreviewErrorForbiddenKey": { "message": "এই ফাইলে এমন এন্ট্রি আছে যা Gestura পড়তে অস্বীকার করে।" },
 	"euSyncHeading": { "message": "ব্রাউজারগুলোর মধ্যে সিঙ্ক" },
-	"euSyncToggle": { "message": "সেটিংস সিঙ্ক" },
-	"euSyncToggleDesc": { "message": "এনক্রিপ্টেড, অ্যাকাউন্ট ছাড়াই। আপনি চালু না করা পর্যন্ত বন্ধ।" },
-	"euSyncConsentTitle": { "message": "সিঙ্ক চালু করুন" },
 	"euSyncConsentLead": { "message": "সিঙ্ক আপনার Gestura সেটিংস অন্য ব্রাউজারে পৌঁছে দেয় — এনক্রিপ্টেড, অ্যাকাউন্ট ও পাসওয়ার্ড ছাড়াই।" },
 	"euSyncConsentPoint1Label": { "message": "এটি কী করে।" },
 	"euSyncConsentPoint1": { "message": "আপনি সেটিংস একটি নামযুক্ত স্টেট হিসেবে সংরক্ষণ করেন এবং অন্য ব্রাউজারে খোলেন। আপলোড ও ডাউনলোড সবসময় আপনার নিজের ক্লিকে হয়; নিজে থেকে কিছু ঘটে না।" },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura এই ব্রাউজারের জন্য একটি কোড তৈরি করে। যার কাছে এটি আছে সে আপনার স্টেট পড়তে, প্রতিস্থাপন করতে ও মুছতে পারে — এটি নিরাপদ জায়গায় রাখুন। এটি ছাড়া পুরোনো স্টেটগুলোতে আর পৌঁছানো যায় না, মুছতেও না; gestura.eu ১২ মাস অস্পৃষ্ট স্টেট সরিয়ে দেয়।" },
 	"euSyncConsentPoint5Label": { "message": "ব্রাউজার সিঙ্ক সরে দাঁড়ায়।" },
 	"euSyncConsentPoint5": { "message": "সম্মতি দিলে এই ব্রাউজারের সেটিংস ব্রাউজার সিঙ্ক থেকে স্থানীয় স্টোরেজে সরে যায়: আপনার ব্রাউজারের নিজস্ব সিঙ্ক আর এগুলো বহন করে না, এবং আপনার অন্য ব্রাউজারগুলো তাদের কাছে থাকা কপি রেখে দেয়। gestura.eu সিঙ্ক আবার বন্ধ করলে সেগুলো ফিরে যায় না — ডেটা বিভাগে আপনি নিজে তা করবেন।" },
-	"euSyncConsentAccept": { "message": "সিঙ্ক চালু করুন" },
 	"euSyncConsentCancel": { "message": "বাতিল" },
 	"euSyncConsentGranted": { "message": "সিঙ্ক চালু আছে" },
 	"euSyncConsentDate": { "message": "সম্মতির তারিখ: {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "ছোট করুন" },
 	"storageWayShrinkDesc": { "message": "কিছুই সংরক্ষিত হয়নি। কিছু এন্ট্রি সরান, তারপর পরিবর্তনটি আবার করুন।" },
 	"storageWayEu": { "message": "gestura.eu সিঙ্কে যান" },
-	"storageWayEuDesc": { "message": "এই ডিভাইসে অনেক বেশি জায়গা — আর gestura.eu ইন্টিগ্রেশন চালু করলে এটি শুধু আপনার কাছে থাকা কোডে এনক্রিপ্ট করে সেটিংস আপনার অন্য ব্রাউজারে পৌঁছে দেয়। এখনও কিছু সংরক্ষিত হয়নি: পরে পরিবর্তনটি আবার করুন।" },
 	"storageWayLocal": { "message": "ব্রাউজার সিঙ্ক বন্ধ করুন" },
 	"storageWayLocalDesc": { "message": "প্রায় ১ MiB, শুধু এই ডিভাইসে। এখনও কিছু সংরক্ষিত হয়নি: পরে পরিবর্তনটি আবার করুন।" },
 	"storageBranchOther": { "message": "আপনার একটি সেটিং" },
 	"storageSwitchToSyncConfirm": { "message": "এই ব্রাউজারের সেটিংস ব্রাউজার সিঙ্কে এখন যা আছে সবকিছুর জায়গা নেবে। ইতিমধ্যে অন্য কোনো ব্রাউজার সেখানে যা সংরক্ষণ করেছে তা ওভাররাইট হবে। ব্রাউজার সিঙ্ক আবার চালু করবেন?" },
 	"storageSwitchToSyncConfirmSince": { "message": "এই ব্রাউজারের সেটিংস ব্রাউজার সিঙ্কে এখন যা আছে সবকিছুর জায়গা নেবে — {date} থেকে অন্য কোনো ব্রাউজার সেখানে যা সংরক্ষণ করেছে তাও সহ। ব্রাউজার সিঙ্ক আবার চালু করবেন?" },
-	"storageBrowserSync": { "message": "ব্রাউজার সিঙ্ক" },
-	"storageBrowserSyncOnDesc": { "message": "আপনার ব্রাউজার এই সেটিংস অন্য ডিভাইসে পৌঁছে দেয় — প্রতি বিভাগে ৮১৯২ বাইট।" },
-	"storageBrowserSyncOffDesc": { "message": "বন্ধ। ১ MiB পর্যন্ত, শুধু এই ডিভাইসে সংরক্ষিত।" },
 	"storageSwitchRefusedBranch": { "message": "ব্রাউজার সিঙ্ক আবার চালু করা যাচ্ছে না: {branch} {used} বাইট, আর ব্রাউজার সিঙ্ক প্রতি বিভাগে সর্বোচ্চ {total} বহন করে।" },
 	"storageSwitchRefusedTotal": { "message": "ব্রাউজার সিঙ্ক আবার চালু করা যাচ্ছে না: আপনার সেটিংস {used} বাইট, আর ব্রাউজার সিঙ্ক সর্বোচ্চ {total} বহন করে।" },
 	"storageSwitchRefusedTier2": { "message": "gestura.eu সিঙ্ক চালু থাকলে ব্রাউজার সিঙ্ক আবার চালু করা যায় না। আগে সেটি বন্ধ করুন।" },

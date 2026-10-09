@@ -27,18 +27,6 @@
 		"message": "Prati sustav",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "Status sinkronizacije",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "Sinkronizacija postavki putem %browserName% računa",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "Spremljeno",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "Autor",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "Ovu je datoteku napisala novija verzija Gestura." },
 	"settingsPreviewErrorForbiddenKey": { "message": "Ova datoteka sadrži unose koje Gestura odbija čitati." },
 	"euSyncHeading": { "message": "Sinkronizacija između preglednika" },
-	"euSyncToggle": { "message": "Sinkroniziraj postavke" },
-	"euSyncToggleDesc": { "message": "Šifrirano, bez računa. Isključeno dok ne uključite." },
-	"euSyncConsentTitle": { "message": "Uključi sinkronizaciju" },
 	"euSyncConsentLead": { "message": "Sinkronizacija prenosi vaše postavke Gestura u druge preglednike — šifrirano, bez računa i bez lozinke." },
 	"euSyncConsentPoint1Label": { "message": "Što radi." },
 	"euSyncConsentPoint1": { "message": "Postavke spremate kao imenovano stanje i otvarate ga u drugom pregledniku. Učitavanje i preuzimanje uvijek su vaš klik; ništa se ne događa samo od sebe." },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura generira kôd za ovaj preglednik. Tko ga ima, može čitati, zamijeniti i brisati vaša stanja — čuvajte ga na sigurnom. Bez njega stara stanja više nisu dostupna, čak ni za brisanje; gestura.eu uklanja stanja koja 12 mjeseci nisu dirana." },
 	"euSyncConsentPoint5Label": { "message": "Sinkronizacija preglednika se povlači." },
 	"euSyncConsentPoint5": { "message": "Pristankom se postavke ovog preglednika sele iz sinkronizacije preglednika u njegovu lokalnu pohranu: sinkronizacija vašeg preglednika više ih ne prenosi, a vaši drugi preglednici zadržavaju kopiju koju već imaju. Ponovno isključivanje gestura.eu sinkronizacije ne vraća ih natrag — to činite sami u odjeljku s podacima." },
-	"euSyncConsentAccept": { "message": "Uključi sinkronizaciju" },
 	"euSyncConsentCancel": { "message": "Odustani" },
 	"euSyncConsentGranted": { "message": "Sinkronizacija je uključena" },
 	"euSyncConsentDate": { "message": "Pristanak dan {date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "Smanji" },
 	"storageWayShrinkDesc": { "message": "Ništa nije spremljeno. Uklonite neke unose, a zatim ponovite promjenu." },
 	"storageWayEu": { "message": "Prijeđi na gestura.eu sinkronizaciju" },
-	"storageWayEuDesc": { "message": "Puno više prostora na ovom uređaju — a kad uključite gestura.eu integraciju, prenosi postavke u vaše druge preglednike, šifrirane kôdom koji imate samo vi. Ništa još nije spremljeno: nakon toga ponovite promjenu." },
 	"storageWayLocal": { "message": "Isključi sinkronizaciju preglednika" },
 	"storageWayLocalDesc": { "message": "Oko 1 MiB, samo na ovom uređaju. Ništa još nije spremljeno: nakon toga ponovite promjenu." },
 	"storageBranchOther": { "message": "Jedna od vaših postavki" },
 	"storageSwitchToSyncConfirm": { "message": "Postavke ovog preglednika zamijenit će sve što sinkronizacija preglednika trenutno drži. Sve što je drugi preglednik u međuvremenu tamo spremio bit će prebrisano. Ponovno uključiti sinkronizaciju preglednika?" },
 	"storageSwitchToSyncConfirmSince": { "message": "Postavke ovog preglednika zamijenit će sve što sinkronizacija preglednika trenutno drži — uključujući sve što je drugi preglednik tamo spremio od {date}. Ponovno uključiti sinkronizaciju preglednika?" },
-	"storageBrowserSync": { "message": "Sinkronizacija preglednika" },
-	"storageBrowserSyncOnDesc": { "message": "Vaš preglednik prenosi ove postavke na vaše druge uređaje — 8192 bajta po odjeljku." },
-	"storageBrowserSyncOffDesc": { "message": "Isključeno. Do 1 MiB, pohranjeno samo na ovom uređaju." },
 	"storageSwitchRefusedBranch": { "message": "Sinkronizacija preglednika ne može se ponovno uključiti: {branch} ima {used} bajtova, a sinkronizacija preglednika prenosi najviše {total} po odjeljku." },
 	"storageSwitchRefusedTotal": { "message": "Sinkronizacija preglednika ne može se ponovno uključiti: vaše postavke imaju {used} bajtova, a sinkronizacija preglednika prenosi najviše {total}." },
 	"storageSwitchRefusedTier2": { "message": "Sinkronizacija preglednika ne može se ponovno uključiti dok je gestura.eu sinkronizacija omogućena. Prvo je isključite." },

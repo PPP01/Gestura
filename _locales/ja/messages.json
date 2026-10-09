@@ -27,18 +27,6 @@
 		"message": "システムに従う",
 		"description": "Auto theme - follow system"
 	},
-	"syncStatus": {
-		"message": "同期ステータス",
-		"description": "Sync status"
-	},
-	"syncStatusDesc": {
-		"message": "%browserName%アカウント経由での設定同期",
-		"description": "Sync status description"
-	},
-	"saved": {
-		"message": "保存済み",
-		"description": "Saved"
-	},
 	"author": {
 		"message": "作者",
 		"description": "Author"
@@ -2977,9 +2965,6 @@
 	"settingsPreviewErrorUnknownFormat": { "message": "このファイルは新しいバージョンの Gestura で作成されています。" },
 	"settingsPreviewErrorForbiddenKey": { "message": "このファイルには、Gestura が読み込みを拒否するエントリが含まれています。" },
 	"euSyncHeading": { "message": "ブラウザ間の同期" },
-	"euSyncToggle": { "message": "設定を同期" },
-	"euSyncToggleDesc": { "message": "暗号化され、アカウントは不要です。オンにするまでオフです。" },
-	"euSyncConsentTitle": { "message": "同期をオンにする" },
 	"euSyncConsentLead": { "message": "同期を使うと、Gestura の設定を他のブラウザに引き継げます。暗号化され、アカウントもパスワードも不要です。" },
 	"euSyncConsentPoint1Label": { "message": "できること。" },
 	"euSyncConsentPoint1": { "message": "設定を名前付きの状態として保存し、別のブラウザで開きます。アップロードもダウンロードも必ずあなた自身のクリックで行われ、自動では何も起こりません。" },
@@ -2991,7 +2976,6 @@
 	"euSyncConsentPoint4": { "message": "Gestura はこのブラウザ用のコードを生成します。このコードを持つ人は、あなたの状態を読み取り、置き換え、削除できます。安全な場所に保管してください。コードがないと、以前の状態には削除も含めて一切アクセスできなくなります。gestura.eu は12か月間操作のない状態を削除します。" },
 	"euSyncConsentPoint5Label": { "message": "ブラウザ同期は退きます。" },
 	"euSyncConsentPoint5": { "message": "同意すると、このブラウザの設定はブラウザ同期からローカルストレージに移ります。ブラウザ自体の同期ではこの設定が引き継がれなくなり、他のブラウザにはすでにあるコピーが残ります。gestura.eu の同期を再びオフにしても設定は元に戻りません。元に戻すにはデータセクションで自分で操作してください。" },
-	"euSyncConsentAccept": { "message": "同期をオンにする" },
 	"euSyncConsentCancel": { "message": "キャンセル" },
 	"euSyncConsentGranted": { "message": "同期はオンです" },
 	"euSyncConsentDate": { "message": "同意日：{date}" },
@@ -3075,15 +3059,11 @@
 	"storageWayShrink": { "message": "サイズを小さくする" },
 	"storageWayShrinkDesc": { "message": "何も保存されていません。いくつかのエントリを削除してから、もう一度変更してください。" },
 	"storageWayEu": { "message": "gestura.eu 同期に切り替える" },
-	"storageWayEuDesc": { "message": "このデバイス上でははるかに多くの容量を使えます。gestura.eu 連携をオンにすると、あなただけが持つコードで暗号化したうえで、設定を他のブラウザにも引き継げます。まだ何も保存されていません。切り替えた後にもう一度変更してください。" },
 	"storageWayLocal": { "message": "ブラウザ同期をオフにする" },
 	"storageWayLocalDesc": { "message": "約 1 MiB、このデバイス上のみ。まだ何も保存されていません。切り替えた後にもう一度変更してください。" },
 	"storageBranchOther": { "message": "設定の1つ" },
 	"storageSwitchToSyncConfirm": { "message": "このブラウザの設定が、ブラウザ同期に現在保存されているすべてを置き換えます。その間に他のブラウザが保存した内容は上書きされます。ブラウザ同期を再びオンにしますか？" },
 	"storageSwitchToSyncConfirmSince": { "message": "このブラウザの設定が、ブラウザ同期に現在保存されているすべてを置き換えます。{date} 以降に他のブラウザが保存した内容も含まれます。ブラウザ同期を再びオンにしますか？" },
-	"storageBrowserSync": { "message": "ブラウザ同期" },
-	"storageBrowserSyncOnDesc": { "message": "ブラウザがこれらの設定を他のデバイスに引き継ぎます。1セクションあたり 8192 バイトまで。" },
-	"storageBrowserSyncOffDesc": { "message": "オフ。最大 1 MiB、このデバイスにのみ保存されます。" },
 	"storageSwitchRefusedBranch": { "message": "ブラウザ同期を再びオンにできません。{branch} は {used} バイトあり、ブラウザ同期で扱えるのは1セクションあたり最大 {total} バイトです。" },
 	"storageSwitchRefusedTotal": { "message": "ブラウザ同期を再びオンにできません。設定は {used} バイトあり、ブラウザ同期で扱えるのは最大 {total} バイトです。" },
 	"storageSwitchRefusedTier2": { "message": "gestura.eu 同期が有効な間は、ブラウザ同期を再びオンにできません。先にそちらをオフにしてください。" },
