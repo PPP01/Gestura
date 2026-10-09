@@ -212,6 +212,20 @@
 		return { area, branches, total, quota: { item: q.item, total: q.total } };
 	}
 
+	// Whether a set of settings fits browser sync, measured the way toSync()
+	// refuses: every branch against the item quota, then the total with the
+	// format marker. Pure, so the onboarding can ask BEFORE it shows a dialog
+	// whose second half (turning gestura.eu off) cannot be undone (spec §4).
+	function syncFit(items) {
+		const q = QUOTA.sync;
+		const u = usage(items, 'sync');
+		for (const [k, bytes] of Object.entries(u.branches)) {
+			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, checkedArea: 'sync' };
+		}
+		if (u.total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: u.total, quota: q.total, checkedArea: 'sync' };
+		return { ok: true };
+	}
+
 	async function writeArea(next) {
 		await chrome.storage.local.set({ [AREA_KEY]: next });
 		absorb({ [AREA_KEY]: next });
@@ -284,12 +298,8 @@
 		if (eu[EU_SYNC_KEY] && eu[EU_SYNC_KEY].enabled === true) return { ok: false, error: 'tier2-enabled' };
 		// Measured against the TARGET area's ceiling, by the one function that
 		// knows the format marker counts against it.
-		const q = QUOTA.sync;
-		const u = usage(items, 'sync');
-		for (const [k, bytes] of Object.entries(u.branches)) {
-			if (bytes > q.item) return { ok: false, error: 'branch-full', branch: k, bytes, quota: q.item, checkedArea: 'sync' };
-		}
-		if (u.total > q.total) return { ok: false, error: 'total-full', branch: '', bytes: u.total, quota: q.total, checkedArea: 'sync' };
+		const fit = syncFit(items);
+		if (!fit.ok) return fit;
 		try {
 			await chrome.storage.sync.set({ ...items, [FORMAT_KEY]: FORMAT_VERSION });
 			await writeArea({ area: 'sync', movedAt: '', movedTo: '' });
@@ -358,7 +368,7 @@
 	const api = {
 		AREA_KEY, NOTE_KEYS, FORMAT_KEY, EU_SYNC_KEY, QUOTA,
 		byteLength, entryBytes, isFull,
-		area, ready, get, set, remove, onChanged, usage,
+		area, ready, get, set, remove, onChanged, usage, syncFit,
 		switchTo, note,
 	};
 	if (typeof module !== 'undefined' && module.exports) module.exports = api;
