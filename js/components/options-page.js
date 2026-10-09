@@ -9,7 +9,8 @@ import { tooltip } from '../tooltip.js';
 // state 'local' (storage-move design §6, §11).
 import { percentOf } from '../storage-usage.js';
 import { settingsErrorMessage } from './settings-preview-dialog.js';
-import { branchLabel, fillRefusal } from './storage-full-dialog.js';
+import { branchLabel } from './storage-full-dialog.js';
+import { switchArea, refusalText, wayBackText } from './storage-area-switch.js';
 
 // Survives the reload that #importSettings triggers, so the fresh page can pick the
 // data section back up and finally show the "import done" message.
@@ -1554,14 +1555,8 @@ class OptionsPage extends LitElement {
 	// The switch of storage-move design §4, both directions. A refusal names its
 	// reason and changes nothing; a success re-renders the rows against the new
 	// ceiling. settingsStore keeps its #current - the values did not change, only
-	// where they live.
-	//
-	// What the user is told comes from area(), not from res.ok: switchTo() answers
-	// { ok: false, error: 'write' } when its sequence broke, and a failed rollback
-	// inside it can leave the browser genuinely switched. "Nothing was changed" on
-	// the strength of ok: false alone would then be a lie, so the area itself is
-	// asked where the browser ended up - and that answer is also what the caller
-	// gets back.
+	// where they live. The judgement of where the browser landed lives in
+	// storage-area-switch.js.
 	async #switchArea(toSync, reason = 'local') {
 		const S = window.GesturaSettingsStorage;
 		const i18n = window.i18n;
@@ -1570,47 +1565,22 @@ class OptionsPage extends LitElement {
 		// Cleared before the attempt, never after it: a second try does not stack a
 		// second line, and a switch that goes through leaves none behind.
 		this._switchRefusal = null;
-		const res = await S.switchTo(target, reason);
-		const landed = S.area() === target;
-		if (!res.ok && !landed) {
-			// res.branch / res.bytes / res.quota describe the TARGET area's ceiling
-			// here - unlike a set() failure, where they describe the active one.
-			const fill = (key) => fillRefusal(i18n, key, res);
-			const msg = res.error === 'branch-full' ? fill('storageSwitchRefusedBranch')
-				: res.error === 'total-full' ? fill('storageSwitchRefusedTotal')
-				: res.error === 'tier2-enabled' ? i18n.getMessage('storageSwitchRefusedTier2')
-				: i18n.getMessage('storageSwitchFailed');
-			// Not #showStatus: that hides after 1500 ms, and a two-clause refusal
-			// carrying a branch name and two numbers is functionally silent at that
-			// length. It stands beside the switch it refused until the next attempt.
-			// The design's own words are "refused with numbers, never silent".
-			this._switchRefusal = msg;
-		}
+		const { landed, refusal } = await switchArea(S, target, reason);
+		// Not #showStatus: that hides after 1500 ms, and a two-clause refusal
+		// carrying a branch name and two numbers is functionally silent at that
+		// length. It stands beside the switch it refused until the next attempt.
+		// The design's own words are "refused with numbers, never silent".
+		if (refusal) this._switchRefusal = refusalText(i18n, refusal);
 		await this.#refreshSyncNote();
 		this.requestUpdate();
 		return landed;
 	}
 
 	// The way back writes this browser's whole local copy over chrome.storage.sync
-	// (js/settings-storage.js, toSync()). Another browser may have kept editing
-	// over browser sync in the months since this one left, and every one of those
-	// edits goes. Reconciliation is a stated non-goal here and the subject of its
-	// own plan, so the switch does the one thing it honestly can: it says what is
-	// about to happen and waits for an answer.
-	//
-	// The date comes from the note the departing browser left, which is the only
-	// thing on record about when this browser stopped syncing. #refreshSyncNote()
-	// deliberately does not read it in state 'local' - it is meaningless there,
-	// right up to the moment of this question - so it is read here, and a failing
-	// read costs the date, not the question.
+	// (js/settings-storage.js, toSync()), so it asks first; the date of the
+	// departure comes from the note the other browser left (wayBackText).
 	async #confirmWayBack(i18n) {
-		const S = window.GesturaSettingsStorage;
-		let left = null;
-		try { left = await S.note(); } catch { left = null; }
-		const msg = (left && left.movedAt)
-			? i18n.getMessage('storageSwitchToSyncConfirmSince').replace('{date}', this.#formatDate(left.movedAt))
-			: i18n.getMessage('storageSwitchToSyncConfirm');
-		return window.confirm(msg);
+		return window.confirm(await wayBackText(window.GesturaSettingsStorage, i18n, iso => this.#formatDate(iso)));
 	}
 
 	async #onStorageWay(e) {
