@@ -3432,5 +3432,6 @@
 	"euSyncCodeNewButton": { "message": "Generate a new code" },
 	"euSyncDeleteAllDesc": { "message": "Deletes your profiles on gestura.eu – also for your other browsers with this code. To turn sync off, choose another way above." },
 	"euSyncDeleteAllEmpty": { "message": "Nothing is saved under this code." },
-	"euSyncDeleteAllButton": { "message": "Delete everything" }
+	"euSyncDeleteAllButton": { "message": "Delete everything" },
+	"euSyncListFailed": { "message": "Your profiles could not be loaded. This changes nothing about your settings here." }
 }

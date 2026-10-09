@@ -27,6 +27,7 @@ class EuSyncPanel extends LitElement {
 		_wizard: { state: true },
 		_wizardStart: { state: true },
 		_landingHint: { state: true },
+		_listFailed: { state: true },
 		_offOpen: { state: true },
 		_codeDraft: { state: true },
 		_codeError: { state: true },
@@ -219,6 +220,7 @@ class EuSyncPanel extends LitElement {
 		this._wizard = false;        // the onboarding wizard is open
 		this._wizardStart = 'choice';
 		this._landingHint = false;   // the line after Way B (euSyncAfterWayB)
+		this._listFailed = false;    // no list was ever read under this code, and the request failed
 		this._offOpen = false;     // the "turn sync off?" dialog
 		this._codeDraft = '';
 		this._codeError = '';
@@ -774,7 +776,14 @@ class EuSyncPanel extends LitElement {
 	// screen, when the request failed.
 	async #relist() {
 		const list = await this.#run(() => window.GesturaSync.list());
-		if (list) await this.#absorbList(list);
+		if (list) {
+			this._listFailed = false;
+			await this.#absorbList(list);
+		} else if (this._states === null && this._errorCode !== 'disabled') {
+			// No list was ever read under this code: the box takes the list's place
+			// and keeps the reason (maintenance, unreachable) beside it (spec §8).
+			this._listFailed = true;
+		}
 		return list;
 	}
 
@@ -1416,7 +1425,14 @@ class EuSyncPanel extends LitElement {
 					</div>
 				</div>
 				${this._landingHint ? html`<div class="msg info" role="status">${unsafeHTML(icons.info)}<span>${i18n.getMessage('euSyncAfterWayB')}</span></div>` : ''}
-				${this.#renderFeedback()}
+				<div class="connecting" role="status">${this._busy && this._pending > 0 ? i18n.getMessage('euSyncConnecting') : ''}</div>
+				${this._listFailed && this._states === null ? html`
+					<div class="msg error-banner" role="alert">
+						${unsafeHTML(icons.triangleAlert)}
+						<span class="msg-text">${i18n.getMessage('euSyncListFailed')}${this._error ? html`<br>${this._error}` : ''}</span>
+						<button type="button" class="btn btn-secondary" ?disabled=${this._busy}
+							@click=${() => this.#exclusive(() => this.#refreshStates())}>${i18n.getMessage('euSyncRetry')}</button>
+					</div>` : this.#renderFeedback()}
 				${this._states && !states.length ? html`<div class="empty">${i18n.getMessage('euSyncStatesEmpty')}</div>` : ''}
 				${states.length ? html`<div class="rows">${states.map(s => this.#renderStateRow(s))}</div>` : ''}
 				${full ? html`
@@ -1683,6 +1699,7 @@ class EuSyncPanel extends LitElement {
 			// new one, and a hash from an earlier switch-on may predate saves made
 			// while sync was off.
 			this._states = null;
+			this._listFailed = false;
 			this._switchUnlocked = false;
 			this.#resetDraft();
 			this.#recomputeHash();

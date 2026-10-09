@@ -3370,5 +3370,6 @@
 	"euSyncCodeNewButton": { "message": "Neuen Code erzeugen" },
 	"euSyncDeleteAllDesc": { "message": "Löscht deine Profile auf gestura.eu – auch für deine anderen Browser mit diesem Code. Zum Ausschalten wähle oben einen anderen Weg." },
 	"euSyncDeleteAllEmpty": { "message": "Unter diesem Code ist nichts gespeichert." },
-	"euSyncDeleteAllButton": { "message": "Alles löschen" }
+	"euSyncDeleteAllButton": { "message": "Alles löschen" },
+	"euSyncListFailed": { "message": "Deine Profile konnten nicht geladen werden. An deinen Einstellungen hier ändert das nichts." }
 }
