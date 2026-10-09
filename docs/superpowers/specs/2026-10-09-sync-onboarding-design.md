@@ -1,7 +1,7 @@
 # Sync onboarding and the "Sync between browsers" section — design
 
-Status: revised after review (Codex, Gemini, Sonnet), 2026-10-09. Owner
-decisions still open are listed in §14.
+Status: revised after review (Codex, Gemini, Sonnet), 2026-10-09; owner
+decisions of §14 taken, the retention sentence waits for the index.
 Builds on: [2026-09-04-storage-move-design.md](2026-09-04-storage-move-design.md),
 [2026-09-04-sync-reconciliation-design.md](2026-09-04-sync-reconciliation-design.md),
 the contract [docs/gestura-eu-api.md](../../gestura-eu-api.md).
@@ -306,7 +306,7 @@ From top to bottom:
 
 ## 11. Texts (de; en written to match in the plan)
 
-Marked **[§14]**: changed after review, needs the owner's confirmation.
+Marked **[§14]**: changed after review, confirmed by the owner.
 
 **Cards**
 
@@ -363,8 +363,8 @@ Marked **[§14]**: changed after review, needs the owner's confirmation.
 > - **Volle Kontrolle vor jeder Änderung:** Gestura zeigt dir bei jeder
 >   Übertragung eine Vorschau, was sich an deinen Einstellungen ändert.
 > - **Dein Code ist der einzige Schlüssel:** Nur wer deinen Code hat, kann deine
->   Profile lesen – und mit ihm auch ändern und löschen. Bewahre ihn gut auf –
->   ohne ihn gibt es keine Wiederherstellung. *({retention})*
+>   Profile lesen und ändern. Bewahre ihn gut auf – ohne ihn gibt es keine
+>   Wiederherstellung. *({retention})*
 > - **Ersetzt den Browser-Sync:** Gestura verwaltet deine Einstellungen ab jetzt
 >   lokal und über gestura.eu statt über das Sync-Konto deines Browsers. Du
 >   kannst das jederzeit oben wieder umstellen.
@@ -402,31 +402,23 @@ a switch to local leaves the copy already in the browser's own sync where it
 is. CLAUDE.md's gestura.eu paragraph: the section owns the storage-area choice.
 The contract: §10.
 
-## 14. Open owner decisions
+## 14. Owner decisions after review
 
-1. **Card "Nur in diesem Browser".** The approved „Deine Einstellungen bleiben
-   auf diesem Gerät“ is not true for someone coming from browser sync: the
-   switch copies and never deletes, so the old copy stays in the browser
-   account (storage-move §10.1 — deleting it would wipe the settings of other
-   browsers still on browser sync). Proposed in §11: „Dieser Browser überträgt
-   deine Einstellungen nicht mehr – außer du exportierst sie selbst.“
-2. **Consent bullet 2.** „empfängt ausschließlich unlesbaren, verschlüsselten
-   Text“ overclaims: gestura.eu also receives the locator, profile ids, sizes,
-   times and the IP. And „Der Schlüssel wird nie gesendet“ next to „Dein Code ist
-   der einzige Schlüssel“ uses one word for two things. Proposed: „erhält deine
-   Einstellungen nur verschlüsselt … Dein Code wird nie an gestura.eu gesendet“
-   (true: only a one-way derivation of it travels).
-3. **Consent bullet 4.** „Nur wer deinen Code hat, kann … ändern und löschen“
-   is not strictly true for the service itself. Proposed: „kann deine Profile
-   lesen – und mit ihm auch ändern und löschen“.
-4. **Retention wording**, bullet 4 — waits for the index (see §11).
-5. **Way A: must the code be saved before uploading?** Gemini: enable "Erstes
-   Profil hochladen" only after Copy, Save or a checkbox „Ich habe den Code
-   gesichert“. The trade: one more step against users who reach the second
-   browser without their code (they can still find it under Einstellungen).
+1. **Card "Nur in diesem Browser"** — taken as proposed: „Dieser Browser
+   überträgt deine Einstellungen nicht mehr – außer du exportierst sie selbst.“
+   (The approved „bleiben auf diesem Gerät“ was untrue for someone coming from
+   browser sync: the old copy stays in the browser account, storage-move §10.1.)
+2. **Consent bullet 2** — taken as proposed: „erhält deine Einstellungen nur
+   verschlüsselt … Dein Code wird nie an gestura.eu gesendet.“
+3. **Consent bullet 4** — owner's wording: „Nur wer deinen Code hat, kann deine
+   Profile lesen und ändern.“
+4. **Retention wording** — open until the index answers whether a list counts
+   as a read (§11).
+5. **Saving the code before the first upload** — **no gate.** "Erstes Profil
+   hochladen" is active as soon as a name is entered; the code stays reachable
+   under Einstellungen.
 
-Rejected review points, with reasons, are in the review log of the conversation
-that produced this revision; the two that change behaviour are recorded here:
+Rejected review points that would change behaviour:
 
 - *Way B must end by activating a profile* — rejected: the owner decided that
   loading the code is done, so a user can first save their current settings.
