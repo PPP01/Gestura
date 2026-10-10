@@ -107,7 +107,8 @@ const PENDING_TRANSLATION = ['euSyncErrorStale', 'euSyncErrorChangedMeanwhile', 
 	'euSyncListFailed',
 	'euSyncStorageMoreRoom',
 	'euSyncStorageWayEuDesc',
-	'euSyncStorageWayEuUnreachable'];
+	'euSyncStorageWayEuUnreachable',
+	'euSyncResetWarning'];
 // Changed wording in all 39 locales, not caught by a test: euSyncConsentLead and
 // euSyncConsentPoint1..5 (+Label) - the onboarding consent text, CURRENT_SYNC_CONSENT 2
 // (2026-10-09). The other 37 still carry the version-1 text; translate before the release.

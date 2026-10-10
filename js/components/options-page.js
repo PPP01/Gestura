@@ -1873,13 +1873,27 @@ class OptionsPage extends LitElement {
 		return true;
 	}
 
+	// Reset takes the sync set-up with it (owner decision 2026-10-10): the switch,
+	// consent, code and profile map, the local bases, and the storage area goes
+	// back to the browser's own sync. Profiles on gestura.eu are not touched.
+	// The code is the only key to them, so the confirmation says so when there is one.
 	async #resetSettings() {
-		if (confirm(window.i18n.getMessage('resetConfirm'))) {
-			const res = await this._store.reset();
-			if (!res.ok) { this.#showStatus(window.i18n.getMessage('saveFailure'), 'error'); return; }
-			this._settings = { ...this._store.current };
-			this.#showStatus(window.i18n.getMessage('resetDone'));
-		}
+		const i18n = window.i18n;
+		const L = window.GesturaSyncLocal;
+		const had = ((await L.read()).euSync || {}).secret;
+		const msg = i18n.getMessage('resetConfirm') + (had ? '\n\n' + i18n.getMessage('euSyncResetWarning') : '');
+		if (!confirm(msg)) return;
+		const res = await this._store.reset();
+		if (!res.ok) { this.#showStatus(i18n.getMessage('saveFailure'), 'error'); return; }
+		try {
+			// Before the area switch: toSync() refuses while gestura.eu is on.
+			await L.write({ enabled: false, consent: null, secret: '', states: {}, activeState: '' });
+			await window.GesturaSyncBase.clear();
+			await window.GesturaSettingsStorage.switchTo('sync');
+		} catch { /* the settings are reset either way; the sync section shows what is left */ }
+		this._settings = { ...this._store.current };
+		this.#showStatus(i18n.getMessage('resetDone'));
+		this.requestUpdate();
 	}
 
 	#renderInlineReset(keys, { confirm = false } = {}) {
